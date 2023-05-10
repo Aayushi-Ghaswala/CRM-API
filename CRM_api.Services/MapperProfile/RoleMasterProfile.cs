@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using CRM_api.DataAccess.Model;
+using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.ResponseDto;
 
 namespace CRM_api.Services.MapperProfile
@@ -8,23 +8,15 @@ namespace CRM_api.Services.MapperProfile
     {
         public RoleMasterProfile()
         {
-            CreateMap<RoleMaster, RoleMasterDto>()
-                .ForMember(rm => rm.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(rm => rm.RoleName, opt => opt.MapFrom(src => src.RoleName));
+            CreateMap<TblRoleMaster, RoleMasterDto>()
+                .ForMember(rm => rm.Id, opt => opt.MapFrom(src => src.RoleId));
 
-            CreateMap<RolePermission, RolePermissionDto>()
-                .ForMember(rp => rp.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(rp => rp.RoleName, opt => opt.MapFrom(src => src.RoleMaster.RoleName))
-                .ForMember(rp => rp.ModuleName, opt => opt.MapFrom(src => src.ModuleName))
-                .ForMember(rp => rp.Allow_Add, opt => opt.MapFrom(src => src.Allow_Add))
-                .ForMember(rp => rp.Allow_Edit, opt => opt.MapFrom(src => src.Allow_Edit))
-                .ForMember(rp => rp.Allow_Delete, opt => opt.MapFrom(src => src.Allow_Delete))
-                .ForMember(rp => rp.Allow_View, opt => opt.MapFrom(src => src.Allow_View));
+            CreateMap<TblRolePermission, RolePermissionDto>()
+                .ForMember(rp => rp.RoleName, opt => opt.MapFrom(src => src.TblRoleMaster.RoleName));
 
-            CreateMap<UserRoleAssignment, UserRoleAssignmentDto>()
-                .ForMember(rp => rp.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(rp => rp.RoleName, opt => opt.MapFrom(src => src.RoleMaster.RoleName))
-                .ForMember(rp => rp.UserName, opt => opt.MapFrom(src => src.UserMaster.User_Name));
+            CreateMap<TblRoleAssignment, UserRoleAssignmentDto>()
+                .ForMember(rp => rp.RoleName, opt => opt.MapFrom(src => src.TblRoleMaster.RoleName))
+                .ForMember(rp => rp.UserName, opt => opt.MapFrom(src => src.TblUserMaster.UserName));
         }
     }
 }

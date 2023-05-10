@@ -1,12 +1,12 @@
 ﻿namespace CRM_api.Services.Dtos.ResponseDto
 {
-    public class DisplayUserMasterDto
+    public class UserMasterDto
     {
-        public int User_Id { get; set; }
-        public DateTime User_Doj { get; set; } 
-        public string User_UName { get; set; } = null!;
-        public string User_Name { get; set;} = null!;
-        public string User_Mobile { get; set; } = null!;
-        public string User_Email { get; set; } = null!;
+        public int UserId { get; set; }
+        public DateTime UserDoj { get; set; }
+        public string UserUName { get; set; } = null!;
+        public string UserName { get; set; } = null!;
+        public string UserMobile { get; set; } = null!;
+        public string UserEmail { get; set; } = null!;
     }
 }

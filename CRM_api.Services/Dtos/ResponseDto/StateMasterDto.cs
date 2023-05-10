@@ -3,6 +3,6 @@
     public class StateMasterDto
     {
         public int Id { get; set; }
-        public string? State_Name { get; set; }
+        public string? StateName { get; set; }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.IRepositories;
-using CRM_api.DataAccess.Model;
 using CRM_api.Services.BuilderMethod;
 using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
@@ -38,7 +37,7 @@ namespace CRM_api.Services.Services
         #endregion
 
         #region Add UserRoleAssignment
-        public async Task<int> AddUserRoleAssignmentAsync(AddUserRoleAssignmentDto  userRoleAssignmentDto)
+        public async Task<int> AddUserRoleAssignmentAsync(AddUserRoleAssignmentDto userRoleAssignmentDto)
         {
             var roleAssignment = RoleMasterBuilder.RoleAssignmentBuild(userRoleAssignmentDto);
 

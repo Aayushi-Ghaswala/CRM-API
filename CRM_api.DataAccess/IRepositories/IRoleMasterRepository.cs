@@ -1,20 +1,20 @@
-﻿using CRM_api.DataAccess.Model;
+﻿using CRM_api.DataAccess.Models;
 
 namespace CRM_api.DataAccess.IRepositories
 {
     public interface IRoleMasterRepository
     {
-        Task<int> AddRole(RoleMaster roleMaster);
-        Task<int> AddRolePermission(RolePermission rolePermission);
-        Task<int> AddUserRoleAssignment(UserRoleAssignment userRoleAssignment);
-        Task<int> UpdateRole(RoleMaster roleMaster);
-        Task<int> UpdateRolePermission(RolePermission rolePermission);
-        Task<int> UpdateUserRoleAssignment(UserRoleAssignment userRoleAssignment);
-        Task<RoleMaster> GetRoleById(int id);
-        Task<RolePermission> GetRolePermissionById(int id);
-        Task<UserRoleAssignment> GetUserAssignRoleById(int id);
-        Task<IEnumerable<RoleMaster>> GetRoles();
-        Task<IEnumerable<RolePermission>> GetRolePermissions();
-        Task<IEnumerable<UserRoleAssignment>> GetUserAssignRoles();
+        Task<int> AddRole(TblRoleMaster roleMaster);
+        Task<int> AddRolePermission(TblRolePermission rolePermission);
+        Task<int> AddUserRoleAssignment(TblRoleAssignment userRoleAssignment);
+        Task<int> UpdateRole(TblRoleMaster roleMaster);
+        Task<int> UpdateRolePermission(TblRolePermission rolePermission);
+        Task<int> UpdateUserRoleAssignment(TblRoleAssignment userRoleAssignment);
+        Task<TblRoleMaster> GetRoleById(int id);
+        Task<TblRolePermission> GetRolePermissionById(int id);
+        Task<TblRoleAssignment> GetUserAssignRoleById(int id);
+        Task<IEnumerable<TblRoleMaster>> GetRoles();
+        Task<IEnumerable<TblRolePermission>> GetRolePermissions();
+        Task<IEnumerable<TblRoleAssignment>> GetUserAssignRoles();
     }
 }

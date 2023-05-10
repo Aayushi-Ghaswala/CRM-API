@@ -3,6 +3,6 @@
     public class CityMasterDto
     {
         public int Id { get; set; }
-        public string? City_Name { get; set; }
+        public string? CityName { get; set; }
     }
 }
