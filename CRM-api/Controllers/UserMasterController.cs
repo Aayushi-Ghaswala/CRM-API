@@ -41,9 +41,9 @@ namespace CRM_api.Controllers
 
         [HttpGet]
         #region Get All UserMaster Details
-        public async Task<IActionResult> GetUsers()
+        public async Task<IActionResult> GetUsers(int page)
         {
-            var users = await _userMasterService.GetUsersAsync();
+            var users = await _userMasterService.GetUsersAsync(page);
             return Ok(users);
         }
         #endregion

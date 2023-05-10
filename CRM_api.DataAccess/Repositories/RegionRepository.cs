@@ -1,6 +1,6 @@
 ﻿using CRM_api.DataAccess.Context;
 using CRM_api.DataAccess.IRepositories;
-using CRM_api.DataAccess.Model;
+using CRM_api.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories
@@ -15,9 +15,9 @@ namespace CRM_api.DataAccess.Repositories
         }
 
         #region Get All Countries
-        public async Task<IEnumerable<CountryMaster>> GetCountries()
+        public async Task<IEnumerable<TblCountryMaster>> GetCountries()
         {
-            List<CountryMaster> countries = await _context.CountryMasters.ToListAsync();
+            List<TblCountryMaster> countries = await _context.TblCountryMasters.ToListAsync();
             if (countries.Count == 0)
                 throw new Exception("No Country Found...");
 
@@ -26,9 +26,9 @@ namespace CRM_api.DataAccess.Repositories
         #endregion
 
         #region Get All State Of Country
-        public async Task<IEnumerable<StateMaster>> GetStateBycountry(int CountryId)
+        public async Task<IEnumerable<TblStateMaster>> GetStateBycountry(int CountryId)
         {
-            List<StateMaster> states = await _context.StateMasters.Where(x => x.Country_Id == CountryId).ToListAsync();
+            List<TblStateMaster> states = await _context.TblStateMasters.Where(x => x.CountryId == CountryId).ToListAsync();
             if (states.Count == 0)
                 throw new Exception("No States Found in country...");
 
@@ -37,9 +37,9 @@ namespace CRM_api.DataAccess.Repositories
         #endregion
 
         #region Get All City Of State
-        public async Task<IEnumerable<CityMaster>> GetCityByState(int StateId)
+        public async Task<IEnumerable<TblCityMaster>> GetCityByState(int StateId)
         {
-            List<CityMaster> Cities = await _context.CityMasters.Where(x => x.State_Id == StateId).ToListAsync();
+            List<TblCityMaster> Cities = await _context.TblCityMasters.Where(x => x.StateId == StateId).ToListAsync();
             if (Cities.Count == 0)
                 throw new Exception("No Cities Found in state...");
 

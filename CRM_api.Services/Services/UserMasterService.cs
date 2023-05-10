@@ -3,6 +3,7 @@ using CRM_api.DataAccess.IRepositories;
 using CRM_api.Services.BuilderMethod;
 using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
+using CRM_api.Services.Helper.ConstantValue;
 using CRM_api.Services.IServices;
 
 namespace CRM_api.Services.Services
@@ -36,7 +37,7 @@ namespace CRM_api.Services.Services
                                     , updateUser.User_Pan, updateUser.User_Doj, updateUser.User_Mobile, updateUser.User_Email
                                     , updateUser.User_Addr, updateUser.User_Pin, updateUser.User_CountryId, updateUser.User_StateId
                                     , updateUser.User_CityId, updateUser.User_Uname, updateUser.User_Passwd, updateUser.User_IsActive
-                                    , updateUser.User_PurposeId, updateUser.User_ProfilePhoto, updateUser.User_PromoCode
+                                    , updateUser.User_ProfilePhoto, updateUser.User_PromoCode
                                     , updateUser.User_SubCategory, updateUser.User_GstNo, updateUser.User_Dob, updateUser.User_Aadhar
                                     , updateUser.User_AccountType, updateUser.User_fastTrack, updateUser.User_WbcActive
                                     , updateUser.User_Deviceid, updateUser.User_TermAndCondition, updateUser.Family_Id
@@ -47,11 +48,13 @@ namespace CRM_api.Services.Services
         #endregion
 
         #region Get All UserMaster Details
-        public async Task<IEnumerable<DisplayUserMasterDto>> GetUsersAsync()
+        public async Task<DisplayUserMasterDto> GetUsersAsync(int page)
         {
-            var users = await _userMasterRepository.GetUsers();
+            
+            var catId = await _userMasterRepository.GetCategoryIdByName(CategoryConstant.customer);
+            var users = await _userMasterRepository.GetUsers(page, catId);
 
-            var mapUsers = _mapper.Map<IEnumerable<DisplayUserMasterDto>>(users);
+            var mapUsers = _mapper.Map<DisplayUserMasterDto>(users);
 
             return mapUsers;
         }

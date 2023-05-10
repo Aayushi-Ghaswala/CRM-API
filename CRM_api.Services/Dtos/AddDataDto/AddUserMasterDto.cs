@@ -18,7 +18,6 @@
         public string? User_Uname { get; set; }
         public string? User_Passwd { get; set; }
         public Nullable<bool> User_IsActive { get; set; }
-        public Nullable<int> User_PurposeId { get; set; }
         public string? User_ProfilePhoto { get; set; }
         public string? User_PromoCode { get; set; }
         public string? User_SubCategory { get; set; }
