@@ -1,4 +1,4 @@
-﻿namespace CRM_api.DataAccess.Repositories
+﻿namespace CRM_api.DataAccess.ResponseModel
 {
     public class Pagination
     {

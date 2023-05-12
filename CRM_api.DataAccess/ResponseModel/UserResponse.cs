@@ -1,5 +1,4 @@
 ﻿using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.Repositories;
 
 namespace CRM_api.DataAccess.ResponseModel
 {

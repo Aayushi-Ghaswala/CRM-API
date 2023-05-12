@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.Repositories;
 using CRM_api.DataAccess.ResponseModel;
+using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -25,6 +25,13 @@ namespace CRM_api.Services.MapperProfile
             CreateMap<TblUserMaster, UserMasterDto>();
             CreateMap<Pagination, PaginationDto>();
             CreateMap<UserResponse, DisplayUserMasterDto>();
+
+            CreateMap<UpdateUserMasterDto, TblUserMaster>();
+            CreateMap<AddUserMasterDto, TblUserMaster>()
+                .AfterMap((dto, user) =>
+                {
+                    user.UserFcmid = Guid.NewGuid().ToString();
+                });
         }
     }
 }

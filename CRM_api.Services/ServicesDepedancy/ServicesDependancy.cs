@@ -1,5 +1,7 @@
 ﻿using CRM_api.Services.IServices;
+using CRM_api.Services.IServices.HR_Module;
 using CRM_api.Services.Services;
+using CRM_api.Services.Services.HR_Module;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +18,10 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             Services.AddScoped<IUserMasterService, UserMasterService>();
             Services.AddScoped<IRoleMasterService, RoleMasterService>();
             Services.AddScoped<IRegionService, RegionService>();
+
+            Services.AddScoped<IEmployeeService, EmployeeService>();
+            Services.AddScoped<IDepartmentService, DepartmentService>();
+            Services.AddScoped<IDesignationService, DesignationService>();
         }
     }
 }
