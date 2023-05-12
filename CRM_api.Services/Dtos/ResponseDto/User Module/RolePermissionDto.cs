@@ -1,9 +1,11 @@
-﻿namespace CRM_api.Services.Dtos.ResponseDto
+﻿using CRM_api.Services.Dtos.ResponseDto.User_Module;
+
+namespace CRM_api.Services.Dtos.ResponseDto
 {
     public class RolePermissionDto
     {
         public int Id { get; set; }
-        public string RoleName { get; set; } = null!;
+        public RoleMasterDto TblRoleMaster { get; set; }
         public string ModuleName { get; set; } = null!;
         public bool Allow_Add { get; set; }
         public bool Allow_Edit { get; set; }

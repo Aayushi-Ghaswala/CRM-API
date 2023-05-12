@@ -85,6 +85,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblWbcMallCategory> TblWbcMallCategories { get; set; } = null!;
         public virtual DbSet<TblWbcMallProduct> TblWbcMallProducts { get; set; } = null!;
         public virtual DbSet<Usercleantable> Usercleantables { get; set; } = null!;
+        public virtual DbSet<TblLoanMaster> TblLoanMasters { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -2534,6 +2535,16 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(40)
                     .IsUnicode(false)
                     .HasColumnName("user_uname");
+            });
+
+            modelBuilder.Entity<TblLoanMaster>(entity =>
+            {
+                entity.ToTable("Tbl_Loan_Master");
+
+                entity.Property(e => e.Frequency).HasMaxLength(10);
+                entity.Property(e => e.StartDate).HasColumnType("date");
+                entity.Property(e => e.MaturityDate).HasColumnType("date");
+                entity.Property(e => e.Date).HasColumnType("datetime");
             });
 
             modelBuilder.HasSequence("OrderId")

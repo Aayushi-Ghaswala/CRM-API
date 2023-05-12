@@ -4,15 +4,5 @@
     {
         public int RoleId { get; set; }
         public string? RoleName { get; set; }
-
-        public TblRoleMaster()
-        {
-
-        }
-
-        public TblRoleMaster(string? roleName)
-        {
-            RoleName = roleName;
-        }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace CRM_api.Services.Dtos.ResponseDto
+﻿using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
+
+namespace CRM_api.Services.Dtos.ResponseDto
 {
     public class DisplayUserMasterDto
     {

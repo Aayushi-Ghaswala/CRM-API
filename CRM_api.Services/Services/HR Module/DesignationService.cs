@@ -21,7 +21,7 @@ namespace CRM_api.Services.Services.HR_Module
         public async Task<int> AddDesignation(AddDesignationDto designationMaster)
         {
             var mappedDesignation = _mapper.Map<TblDesignationMaster>(designationMaster);
-            return await _designationRepository.AddDesignatione(mappedDesignation);
+            return await _designationRepository.AddDesignation(mappedDesignation);
         }
 
         public async Task<DisplayDesignationDto> GetDesignation(int page)
