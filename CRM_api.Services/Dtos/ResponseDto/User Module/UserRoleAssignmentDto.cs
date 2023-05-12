@@ -1,9 +1,11 @@
-﻿namespace CRM_api.Services.Dtos.ResponseDto
+﻿using CRM_api.Services.Dtos.ResponseDto.User_Module;
+
+namespace CRM_api.Services.Dtos.ResponseDto
 {
     public class UserRoleAssignmentDto
     {
         public int Id { get; set; }
-        public string RoleName { get; set; } = null!;
-        public string UserName { get; set; } = null!;
+        public RoleMasterDto TblRoleMaster { get; set; }
+        public UserNameDto TblUserMaster { get; set; }
     }
 }

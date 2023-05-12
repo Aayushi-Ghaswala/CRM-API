@@ -13,15 +13,5 @@ namespace CRM_api.DataAccess.Models
         [ForeignKey(nameof(UserId))]
         public virtual TblUserMaster TblUserMaster { get; set; }
 
-        public TblRoleAssignment()
-        {
-
-        }
-
-        public TblRoleAssignment(int roleId, int userId)
-        {
-            RoleId = roleId;
-            UserId = userId;
-        }
     }
 }

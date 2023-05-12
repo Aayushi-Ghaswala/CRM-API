@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel;
+using CRM_api.DataAccess.ResponseModel.HR_Module;
 using CRM_api.Services.Dtos.AddDataDto.HR_Module;
 using CRM_api.Services.Dtos.ResponseDto.HR_Module;
 

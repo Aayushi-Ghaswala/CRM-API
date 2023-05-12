@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel;
+using CRM_api.DataAccess.ResponseModel.User_Module;
 using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 
 namespace CRM_api.Services.MapperProfile
 {

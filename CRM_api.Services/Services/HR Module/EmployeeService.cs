@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using CRM_api.DataAccess.IRepositories;
 using CRM_api.DataAccess.IRepositories.HR_Module;
+using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;

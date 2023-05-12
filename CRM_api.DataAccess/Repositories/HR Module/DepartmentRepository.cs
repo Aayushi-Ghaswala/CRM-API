@@ -1,7 +1,8 @@
 ﻿using CRM_api.DataAccess.Context;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel;
+using CRM_api.DataAccess.ResponseModel.HR_Module;
+using CRM_api.DataAccess.ResponseModel.User_Module;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.HR_Module
@@ -15,6 +16,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             _context = context;
         }
 
+        #region Add Department
         public async Task<int> AddDepartment(TblDepartmentMaster departmentMaster)
         {
             if (_context.TblDepartmentMasters.Any(x => x.Name == departmentMaster.Name))
@@ -23,13 +25,17 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             _context.TblDepartmentMasters.Add(departmentMaster);
             return await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region Get Department by Id
         public async Task<TblDepartmentMaster> GetDepartmentById(int id)
         {
             var dept = await _context.TblDepartmentMasters.FirstAsync(x => x.DepartmentId == id);
             return dept;
         }
+        #endregion
 
+        #region Get Departments
         public async Task<DepartmentResponse> GetDepartments(int page)
         {
             float pageResult = 10f;
@@ -50,11 +56,14 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
 
             return departmentResponse;
         }
+        #endregion
 
+        #region Update Department
         public async Task<int> UpdateDepartment(TblDepartmentMaster departmentMaster)
         {
             _context.TblDepartmentMasters.Update(departmentMaster);
             return await _context.SaveChangesAsync();
         }
+        #endregion
     }
 }

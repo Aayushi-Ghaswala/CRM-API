@@ -1,7 +1,8 @@
 ﻿using CRM_api.DataAccess.Context;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel;
+using CRM_api.DataAccess.ResponseModel.HR_Module;
+using CRM_api.DataAccess.ResponseModel.User_Module;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.HR_Module
@@ -15,7 +16,8 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             _context = context;
         }
 
-        public async Task<int> AddDesignatione(TblDesignationMaster designationMaster)
+        #region Add Designation
+        public async Task<int> AddDesignation(TblDesignationMaster designationMaster)
         {
             if (_context.TblDesignationMasters.Any(x => x.Name == designationMaster.Name))
                 return 0;
@@ -23,7 +25,9 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             _context.TblDesignationMasters.Add(designationMaster);
             return await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region Get Designation
         public async Task<DesignationResponse> GetDesignation(int page)
         {
             float pageResult = 10f;
@@ -43,7 +47,9 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
 
             return departmentResponse;
         }
+        #endregion
 
+        #region Get Designation By
         public async Task<IEnumerable<TblDesignationMaster>> GetDesignationByDepartment(int deptId)
         {
             var depts = await _context.TblDesignationMasters.Include(d => d.DepartmentMaster).Where(d => d.DepartmentId == deptId).ToListAsync();
@@ -61,5 +67,6 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             _context.TblDesignationMasters.Update(designationMaster);
             return await _context.SaveChangesAsync();
         }
+        #endregion
     }
 }
