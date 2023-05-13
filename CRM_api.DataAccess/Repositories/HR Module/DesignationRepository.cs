@@ -1,7 +1,6 @@
 ﻿using CRM_api.DataAccess.Context;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel.HR_Module;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,14 +27,14 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #endregion
 
         #region Get Designation
-        public async Task<DesignationResponse> GetDesignation(int page)
+        public async Task<Response<TblDesignationMaster>> GetDesignation(int page)
         {
             float pageResult = 10f;
             var pageCount = Math.Ceiling(_context.TblDesignationMasters.Where(x => x.Isdeleted == false).Count() / pageResult);
 
             var designations = await _context.TblDesignationMasters.Include(d => d.DepartmentMaster).Where(x => x.Isdeleted == false).Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
 
-            var departmentResponse = new DesignationResponse()
+            var departmentResponse = new Response<TblDesignationMaster>()
             {
                 Values = designations,
                 Pagination = new Pagination()

@@ -40,7 +40,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         public async Task<Response<TblUserMaster>> GetEmployees(int page, int catID)
         {
             float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblUserMasters.Where(e => e.CatId == catID).Count() / pageResult);
+            var pageCount = Math.Ceiling(_context.TblUserMasters.Where(e => e.UserIsactive == true && e.CatId == catID).Count() / pageResult);
 
             var employees = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catID).Skip((page - 1) * (int)pageResult)
                                                      .Take((int)pageResult).ToListAsync();

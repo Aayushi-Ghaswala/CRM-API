@@ -18,7 +18,7 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get all Designations
         [HttpGet]
-        public async Task<ActionResult<DisplayDesignationDto>> GetDesignation(int page)
+        public async Task<ActionResult> GetDesignation(int page)
         {
             try
             {

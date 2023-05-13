@@ -2,6 +2,7 @@
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.HR_Module;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Dtos.ResponseDto.HR_Module;
 using CRM_api.Services.IServices.HR_Module;
 
@@ -24,10 +25,10 @@ namespace CRM_api.Services.Services.HR_Module
             return await _designationRepository.AddDesignation(mappedDesignation);
         }
 
-        public async Task<DisplayDesignationDto> GetDesignation(int page)
+        public async Task<ResponseDto<DesignationDto>> GetDesignation(int page)
         {
             var designations = await _designationRepository.GetDesignation(page);
-            var mappedDesignation = _mapper.Map<DisplayDesignationDto>(designations);
+            var mappedDesignation = _mapper.Map<ResponseDto<DesignationDto>>(designations);
             return mappedDesignation;
         }
 
