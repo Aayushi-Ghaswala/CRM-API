@@ -1,7 +1,7 @@
 ﻿using CRM_api.DataAccess.Context;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel.User_Module;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.User_Module
@@ -117,15 +117,15 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All Role Permission
-        public async Task<RolePermissionResponse> GetRolePermissions(int page)
+        public async Task<Response<TblRolePermission>> GetRolePermissions(int page)
         {
             float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblRoleMasters.Count() / pageResult);
+            var pageCount = Math.Ceiling(_context.TblRolePermissions.Count() / pageResult);
 
             List<TblRolePermission> rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult)
                                                                   .Take((int)pageResult).Include(r => r.TblRoleMaster).ToListAsync();
 
-            var rolesResponse = new RolePermissionResponse()
+            var rolesResponse = new Response<TblRolePermission>()
             {
                 Values = rolePermissions,
                 Pagination = new Pagination
@@ -140,16 +140,16 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All User Assign role
-        public async Task<UserAssignRoleResponse> GetUserAssignRoles(int page)
+        public async Task<Response<TblRoleAssignment>> GetUserAssignRoles(int page)
         {
             float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblRoleMasters.Count() / pageResult);
+            var pageCount = Math.Ceiling(_context.TblRoleAssignments.Count() / pageResult);
 
             List<TblRoleAssignment> userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult)
                                                                 .Take((int)pageResult).Include(r => r.TblRoleMaster)
                                                                 .Include(u => u.TblUserMaster).ToListAsync();
 
-            var userAssignRolesResponse = new UserAssignRoleResponse()
+            var userAssignRolesResponse = new Response<TblRoleAssignment>()
             {
                 Values = userAssignRoles,
                 Pagination = new Pagination

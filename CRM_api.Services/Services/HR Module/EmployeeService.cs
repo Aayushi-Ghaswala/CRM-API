@@ -4,6 +4,7 @@ using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Helper.ConstantValue;
 using CRM_api.Services.IServices.HR_Module;
 
@@ -40,12 +41,12 @@ namespace CRM_api.Services.Services.HR_Module
         #endregion
 
         #region Get Employees
-        public async Task<DisplayUserMasterDto> GetEmployeesAsync(int page)
+        public async Task<ResponseDto<UserMasterDto>> GetEmployeesAsync(int page)
         {
             var catId = await _userMasterRepository.GetCategoryIdByName(CategoryConstant.employee);
             var employees = await _employeeRepository.GetEmployees(page, catId);
 
-            var mapUsers = _mapper.Map<DisplayUserMasterDto>(employees);
+            var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(employees);
             return mapUsers;
         }
         #endregion

@@ -15,7 +15,7 @@ namespace CRM_api.Services.IServices.User_Module
         Task<int> UpdateRolePermissionAsync(UpdateRolePermissionDto rolePermissionDto);
         Task<int> UpdateUserAssignRoleAsync(UpdateRoleAssignmentDto userRoleAssignmentDto);
         Task<ResponseDto<RoleMasterDto>> GetRolesAsync(int page);
-        Task<RolePermissionResponseDto> GetRolePermissionsAsync(int page);
-        Task<UserAssignRoleResponseDto> GetUserAssignRolesAsync(int page);
+        Task<ResponseDto<RolePermissionDto>> GetRolePermissionsAsync(int page);
+        Task<ResponseDto<UserRoleAssignmentDto>> GetUserAssignRolesAsync(int page);
     }
 }

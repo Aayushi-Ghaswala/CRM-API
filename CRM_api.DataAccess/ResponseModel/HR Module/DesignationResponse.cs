@@ -1,5 +1,5 @@
 ﻿using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel.User_Module;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 
 namespace CRM_api.DataAccess.ResponseModel.HR_Module
 {

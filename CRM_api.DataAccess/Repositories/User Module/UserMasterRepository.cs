@@ -1,7 +1,7 @@
 ﻿using CRM_api.DataAccess.Context;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel.User_Module;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.User_Module
@@ -46,17 +46,15 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All TblUserMaster Details
-        public async Task<UserResponse> GetUsers(int page, int catId)
+        public async Task<Response<TblUserMaster>> GetUsers(int page)
         {
             float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblUserMasters.Count() / pageResult);
+            var pageCount = Math.Ceiling(_context.TblUserMasters.Where(x => x.UserIsactive == true).Count() / pageResult);
 
-            var users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Skip((page - 1) * (int)pageResult)
+            var users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
                                                      .Take((int)pageResult).ToListAsync();
-            if (users.Count == 0)
-                throw new Exception("User Not Found");
 
-            var usersResponse = new UserResponse()
+            var usersResponse = new Response<TblUserMaster>()
             {
                 Values = users,
                 Pagination = new Pagination()
@@ -71,13 +69,25 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All User Category
-        public async Task<IEnumerable<TblUserCategoryMaster>> GetUserCategories()
+        public async Task<Response<TblUserCategoryMaster>> GetUserCategories(int page)
         {
-            List<TblUserCategoryMaster> catagories = await _context.TblUserCategoryMasters.Where(c => c.CatIsactive == true).ToListAsync();
-            if (catagories.Count == 0)
-                throw new Exception("Categories Not Found...");
+            float pageResult = 10f;
+            var pageCount = Math.Ceiling(_context.TblUserCategoryMasters.Count() / pageResult);
 
-            return catagories;
+            List<TblUserCategoryMaster> catagories = await _context.TblUserCategoryMasters.Where(c => c.CatIsactive == true).Skip((page - 1) * (int)pageResult)
+                                                     .Take((int)pageResult).ToListAsync();
+
+            var categoriesResponse = new Response<TblUserCategoryMaster>()
+            {
+                Values = catagories,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = page,
+                    Count = (int)pageCount
+                }
+            };
+
+            return categoriesResponse;
         }
         #endregion
 
@@ -88,6 +98,29 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             ArgumentNullException.ThrowIfNull(cat);
 
             return cat.CatId;
+        }
+        #endregion
+
+        #region Get Users By Category Id
+        public async Task<Response<TblUserMaster>> GetUsersByCategoryId(int page, int catId)
+        {
+            float pageResult = 10f;
+            var pageCount = Math.Ceiling(_context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Count() / pageResult);
+
+            var users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Skip((page - 1) * (int)pageResult)
+                                                     .Take((int)pageResult).ToListAsync();
+
+            var usersResponse = new Response<TblUserMaster>()
+            {
+                Values = users,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = page,
+                    Count = (int)pageCount
+                }
+            };
+
+            return usersResponse;
         }
         #endregion
     }

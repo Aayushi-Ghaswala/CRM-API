@@ -1,14 +1,16 @@
 ﻿using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 
 namespace CRM_api.Services.IServices.User_Module
 {
     public interface IUserMasterService
     {
         Task<int> AddUserAsync(AddUserMasterDto addUser);
-        Task<int> UpdateUserAsync(AddUserMasterDto updateUser, int id);
-        Task<DisplayUserMasterDto> GetUsersAsync(int page);
+        Task<int> UpdateUserAsync(UpdateUserMasterDto updateUser);
+        Task<ResponseDto<UserMasterDto>> GetUsersAsync(int page);
         Task<GetUserMasterForUpdateDto> GetUserMasterById(int id);
-        Task<List<UserCategoryDto>> GetUserCategoriesAsync();
+        Task<ResponseDto<UserCategoryDto>> GetUserCategoriesAsync(int page);
+        Task<ResponseDto<UserMasterDto>> GetUsersByCategoryIdAsync(int page, int catId);
     }
 }

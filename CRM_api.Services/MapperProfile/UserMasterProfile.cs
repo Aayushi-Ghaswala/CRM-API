@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel.User_Module;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
@@ -11,8 +11,6 @@ namespace CRM_api.Services.MapperProfile
     {
         public UserMasterProfile()
         {
-            CreateMap<TblUserMaster, DisplayUserMasterDto>();
-
             CreateMap<TblUserMaster, GetUserMasterForUpdateDto>()
                 .ForMember(um => um.Category, opt => opt.MapFrom(src => src.TblUserCategoryMaster.CatName))
                 .ForMember(um => um.Country, opt => opt.MapFrom(src => src.TblCountryMaster.CountryName))
@@ -24,7 +22,9 @@ namespace CRM_api.Services.MapperProfile
 
             CreateMap<TblUserMaster, UserMasterDto>();
             CreateMap<Pagination, PaginationDto>();
-            CreateMap<UserResponse, DisplayUserMasterDto>();
+            CreateMap<Response<TblUserMaster>, ResponseDto<UserMasterDto>>();
+
+            CreateMap<Response<TblUserCategoryMaster>, ResponseDto<UserCategoryDto>>();
 
             CreateMap<UpdateUserMasterDto, TblUserMaster>();
             CreateMap<AddUserMasterDto, TblUserMaster>()
