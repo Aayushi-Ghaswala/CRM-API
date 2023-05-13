@@ -1,4 +1,4 @@
-﻿namespace CRM_api.DataAccess.ResponseModel.User_Module
+﻿namespace CRM_api.DataAccess.ResponseModel.Generic_Response
 {
     public class Response<T>
     {

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.Services.Dtos.ResponseDto;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.User_Module;
 
 namespace CRM_api.Services.Services.User_Module
@@ -17,30 +18,30 @@ namespace CRM_api.Services.Services.User_Module
         }
 
         #region Get All Countries
-        public async Task<List<CountryMasterDto>> GetCountriesAsync()
+        public async Task<ResponseDto<CountryMasterDto>> GetCountriesAsync(int page)
         {
-            var countries = await _regionRepository.GetCountries();
-            var mapCountries = _mapper.Map<List<CountryMasterDto>>(countries);
+            var countries = await _regionRepository.GetCountries(page);
+            var mapCountries = _mapper.Map<ResponseDto<CountryMasterDto>>(countries);
 
             return mapCountries;
         }
         #endregion
 
         #region Get All State By Country
-        public async Task<List<StateMasterDto>> GetstateByCountry(int countryId)
+        public async Task<ResponseDto<StateMasterDto>> GetstateByCountry(int countryId, int page)
         {
-            var states = await _regionRepository.GetStateBycountry(countryId);
-            var mapStates = _mapper.Map<List<StateMasterDto>>(states);
+            var states = await _regionRepository.GetStateBycountry(countryId, page);
+            var mapStates = _mapper.Map<ResponseDto<StateMasterDto>>(states);
 
             return mapStates;
         }
         #endregion
 
         #region Get All Cities By State
-        public async Task<List<CityMasterDto>> GetCityByState(int stateId)
+        public async Task<ResponseDto<CityMasterDto>> GetCityByState(int stateId, int page)
         {
-            var cities = await _regionRepository.GetCityByState(stateId);
-            var mapCities = _mapper.Map<List<CityMasterDto>>(cities);
+            var cities = await _regionRepository.GetCityByState(stateId, page);
+            var mapCities = _mapper.Map<ResponseDto<CityMasterDto>>(cities);
 
             return mapCities;
         }

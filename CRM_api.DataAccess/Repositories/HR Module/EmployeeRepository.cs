@@ -1,7 +1,7 @@
 ﻿using CRM_api.DataAccess.Context;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel.User_Module;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.HR_Module
@@ -37,7 +37,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #endregion
 
         #region Get all employees
-        public async Task<UserResponse> GetEmployees(int page, int catID)
+        public async Task<Response<TblUserMaster>> GetEmployees(int page, int catID)
         {
             float pageResult = 10f;
             var pageCount = Math.Ceiling(_context.TblUserMasters.Where(e => e.CatId == catID).Count() / pageResult);
@@ -45,7 +45,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             var employees = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catID).Skip((page - 1) * (int)pageResult)
                                                      .Take((int)pageResult).ToListAsync();
 
-            var employeesResponse = new UserResponse()
+            var employeesResponse = new Response<TblUserMaster>()
             {
                 Values = employees,
                 Pagination = new Pagination()

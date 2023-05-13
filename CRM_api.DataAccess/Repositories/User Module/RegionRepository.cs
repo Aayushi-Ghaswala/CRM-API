@@ -1,6 +1,7 @@
 ﻿using CRM_api.DataAccess.Context;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.User_Module
@@ -15,35 +16,68 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
 
         #region Get All Countries
-        public async Task<IEnumerable<TblCountryMaster>> GetCountries()
+        public async Task<Response<TblCountryMaster>> GetCountries(int page)
         {
-            List<TblCountryMaster> countries = await _context.TblCountryMasters.ToListAsync();
-            if (countries.Count == 0)
-                throw new Exception("No Country Found...");
+            float pageResult = 10f;
+            var pageCount = Math.Ceiling(_context.TblCountryMasters.Count() / pageResult);
 
-            return countries;
+            List<TblCountryMaster> countries = await _context.TblCountryMasters.Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+
+            var countryResponse = new Response<TblCountryMaster>()
+            {
+                Values = countries,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = page,
+                    Count = (int)pageCount
+                }
+            };
+
+            return countryResponse;
         }
         #endregion
 
         #region Get All State Of Country
-        public async Task<IEnumerable<TblStateMaster>> GetStateBycountry(int CountryId)
+        public async Task<Response<TblStateMaster>> GetStateBycountry(int CountryId, int page)
         {
-            List<TblStateMaster> states = await _context.TblStateMasters.Where(x => x.CountryId == CountryId).ToListAsync();
-            if (states.Count == 0)
-                throw new Exception("No States Found in country...");
+            float pageResult = 10f;
+            var pageCount = Math.Ceiling(_context.TblStateMasters.Where(x => x.CountryId == CountryId).Count() / pageResult);
 
-            return states;
+            List<TblStateMaster> states = await _context.TblStateMasters.Where(x => x.CountryId == CountryId).Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+
+            var stateResponse = new Response<TblStateMaster>()
+            {
+                Values = states,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = page,
+                    Count = (int)pageCount
+                }
+            };
+
+            return stateResponse;
         }
         #endregion
 
         #region Get All City Of State
-        public async Task<IEnumerable<TblCityMaster>> GetCityByState(int StateId)
+        public async Task<Response<TblCityMaster>> GetCityByState(int StateId, int page)
         {
-            List<TblCityMaster> Cities = await _context.TblCityMasters.Where(x => x.StateId == StateId).ToListAsync();
-            if (Cities.Count == 0)
-                throw new Exception("No Cities Found in state...");
+            float pageResult = 10f;
+            var pageCount = Math.Ceiling(_context.TblCityMasters.Where(x => x.StateId == StateId).Count() / pageResult);
 
-            return Cities;
+            List<TblCityMaster> cities = await _context.TblCityMasters.Where(x => x.StateId == StateId).Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+
+            var cityResponse = new Response<TblCityMaster>()
+            {
+                Values = cities,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = page,
+                    Count = (int)pageCount
+                }
+            };
+
+            return cityResponse;
         }
         #endregion
     }

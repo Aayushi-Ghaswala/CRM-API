@@ -52,7 +52,7 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpPost]
         #region Add RolePermission
-        public async Task<IActionResult> AddRolePermission([FromForm] AddRolePermissionDto rolePermissionDto, int id)
+        public async Task<IActionResult> AddRolePermission([FromForm] AddRolePermissionDto rolePermissionDto)
         {
             try
             {
@@ -87,7 +87,7 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpPost]
         #region Add User Role Assignment
-        public async Task<IActionResult> AddUserRoleAssignment(AddUserRoleAssignmentDto userRoleAssignmentDto, int id)
+        public async Task<IActionResult> AddUserRoleAssignment(AddUserRoleAssignmentDto userRoleAssignmentDto)
         {
             try
             {

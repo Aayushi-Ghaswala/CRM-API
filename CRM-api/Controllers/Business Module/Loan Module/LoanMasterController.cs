@@ -49,7 +49,7 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
         }
         #endregion
 
-        [HttpGet("GetLoanDetails")]
+        [HttpGet]
         #region Get All Loan Details
         public async Task<IActionResult> GetLoanDetails(int page)
         {
@@ -69,7 +69,7 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
         }
         #endregion
 
-        [HttpGet("GetLoanDetailById")]
+        [HttpGet]
         #region Get All Loan Detail By Id
         public async Task<IActionResult> GetLoanDetailById(int id)
         {

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel.User_Module;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.Loan_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.Loan_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;

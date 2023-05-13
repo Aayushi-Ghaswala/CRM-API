@@ -1,5 +1,6 @@
 ﻿using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.HR_Module;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +19,7 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get all emplloyees
         [HttpGet]
-        public async Task<ActionResult<DisplayUserMasterDto>> GetEmployees(int page)
+        public async Task<ActionResult<ResponseDto<UserMasterDto>>> GetEmployees(int page)
         {
             try
             {

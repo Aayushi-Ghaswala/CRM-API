@@ -3,7 +3,7 @@ using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
-using CRM_api.Services.Helper.ConstantValue;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.User_Module;
 
 namespace CRM_api.Services.Services.User_Module
@@ -30,32 +30,19 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region UpdateUser Detail
-        public async Task<int> UpdateUserAsync(AddUserMasterDto updateUser, int id)
+        public async Task<int> UpdateUserAsync(UpdateUserMasterDto updateUser)
         {
-            var user = await _userMasterRepository.GetUserMasterbyId(id);
-
-            //user.UpdateUserMaster(updateUser.Cat_Id, updateUser.User_SponId, updateUser.User_ParentId, updateUser.User_Name
-            //                        , updateUser.User_Pan, updateUser.User_Doj, updateUser.User_Mobile, updateUser.User_Email
-            //                        , updateUser.User_Addr, updateUser.User_Pin, updateUser.User_CountryId, updateUser.User_StateId
-            //                        , updateUser.User_CityId, updateUser.User_Uname, updateUser.User_Passwd, updateUser.User_IsActive
-            //                        , updateUser.User_ProfilePhoto, updateUser.User_PromoCode
-            //                        , updateUser.User_SubCategory, updateUser.User_GstNo, updateUser.User_Dob, updateUser.User_Aadhar
-            //                        , updateUser.User_AccountType, updateUser.User_fastTrack, updateUser.User_WbcActive
-            //                        , updateUser.User_Deviceid, updateUser.User_TermAndCondition, updateUser.Family_Id
-            //                        , updateUser.User_NjName);
+            var user = _mapper.Map<TblUserMaster>(updateUser);
 
             return await _userMasterRepository.UpdateUser(user);
         }
         #endregion
 
         #region Get All UserMaster Details
-        public async Task<DisplayUserMasterDto> GetUsersAsync(int page)
+        public async Task<ResponseDto<UserMasterDto>> GetUsersAsync(int page)
         {
-            
-            var catId = await _userMasterRepository.GetCategoryIdByName(CategoryConstant.customer);
-            var users = await _userMasterRepository.GetUsers(page, catId);
-
-            var mapUsers = _mapper.Map<DisplayUserMasterDto>(users);
+            var users = await _userMasterRepository.GetUsers(page);
+            var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(users);
 
             return mapUsers;
         }
@@ -72,12 +59,22 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get All User Category
-        public async Task<List<UserCategoryDto>> GetUserCategoriesAsync()
+        public async Task<ResponseDto<UserCategoryDto>> GetUserCategoriesAsync(int page)
         {
-            var catagories = await _userMasterRepository.GetUserCategories();
-            var mapCatagories = _mapper.Map<List<UserCategoryDto>>(catagories);
+            var catagories = await _userMasterRepository.GetUserCategories(page);
+            var mapCatagories = _mapper.Map<ResponseDto<UserCategoryDto>>(catagories);
 
             return mapCatagories;
+        }
+        #endregion
+
+        #region Get All User Master Detail By Category Id
+        public async Task<ResponseDto<UserMasterDto>> GetUsersByCategoryIdAsync(int page, int catId)
+        {
+            var users = await _userMasterRepository.GetUsersByCategoryId(page, catId);
+            var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(users);
+
+            return mapUsers;
         }
         #endregion
     }

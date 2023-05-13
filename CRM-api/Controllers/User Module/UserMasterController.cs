@@ -1,5 +1,4 @@
 ﻿using CRM_api.Services.Dtos.AddDataDto;
-using CRM_api.Services.IServices;
 using CRM_api.Services.IServices.User_Module;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,21 +15,30 @@ namespace CRM_api.Controllers.User_Module
         }
 
         [HttpPost]
-        #region AddUpdateUser Details
-        public async Task<ActionResult> AddUpdateUser(AddUserMasterDto addUser, int id)
+        #region Add User Details
+        public async Task<ActionResult> AddUser(AddUserMasterDto addUser)
         {
             try
             {
-                if (id != 0)
-                {
-                    await _userMasterService.UpdateUserAsync(addUser, id); 
-                    return Ok("Updated Successfully!!!.");
-                }
-                else
-                {
-                    await _userMasterService.AddUserAsync(addUser);
-                    return Ok("Added Successfully!!!.");
-                }
+                await _userMasterService.AddUserAsync(addUser);
+                return Ok("Added Successfully!!!.");
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpPut]
+        #region Update User Master
+        public async Task<ActionResult> UpdateUser(UpdateUserMasterDto updateUser)
+        {
+            try
+            {
+                await _userMasterService.UpdateUserAsync(updateUser);
+                return Ok("User Updated Successfully...");
             }
             catch (Exception)
             {
@@ -45,6 +53,9 @@ namespace CRM_api.Controllers.User_Module
         public async Task<IActionResult> GetUsers(int page)
         {
             var users = await _userMasterService.GetUsersAsync(page);
+            if (users.Values.Count == 0)
+                return BadRequest("User Not Found...");
+
             return Ok(users);
         }
         #endregion
@@ -56,6 +67,9 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 var user = await _userMasterService.GetUserMasterById(id);
+                if (user == null)
+                    return BadRequest("User Not Found...");
+
                 return Ok(user);
             }
             catch (Exception)
@@ -67,11 +81,13 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All User Categories
-        public async Task<IActionResult> GetUserCatagories()
+        public async Task<IActionResult> GetUserCatagories(int page)
         {
             try
             {
-                var categories = await _userMasterService.GetUserCategoriesAsync();
+                var categories = await _userMasterService.GetUserCategoriesAsync(page);
+                if (categories.Values.Count == 0)
+                    return BadRequest("Category Not Found...");
 
                 return Ok(categories);
             }
@@ -79,6 +95,18 @@ namespace CRM_api.Controllers.User_Module
             {
                 throw;
             }
+        }
+        #endregion
+
+        [HttpGet]
+        #region Get All UserMaster Details
+        public async Task<IActionResult> GetUsersByCategoryId(int catId, int page)
+        {
+            var users = await _userMasterService.GetUsersByCategoryIdAsync(page, catId);
+            if (users.Values.Count == 0)
+                return BadRequest("User Not Found...");
+
+            return Ok(users);
         }
         #endregion
     }

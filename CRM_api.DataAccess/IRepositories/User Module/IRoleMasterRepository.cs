@@ -1,5 +1,5 @@
 ﻿using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel.User_Module;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 
 namespace CRM_api.DataAccess.IRepositories.User_Module
 {
@@ -15,7 +15,7 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<TblRolePermission> GetRolePermissionById(int id);
         Task<TblRoleAssignment> GetUserAssignRoleById(int id);
         Task<Response<TblRoleMaster>> GetRoles(int page);
-        Task<RolePermissionResponse> GetRolePermissions(int page);
-        Task<UserAssignRoleResponse> GetUserAssignRoles(int page);
+        Task<Response<TblRolePermission>> GetRolePermissions(int page);
+        Task<Response<TblRoleAssignment>> GetUserAssignRoles(int page);
     }
 }
