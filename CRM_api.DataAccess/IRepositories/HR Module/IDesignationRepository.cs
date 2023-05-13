@@ -1,11 +1,11 @@
 ﻿using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel.HR_Module;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 
 namespace CRM_api.DataAccess.IRepositories.HR_Module
 {
     public interface IDesignationRepository
     {
-        Task<DesignationResponse> GetDesignation(int page);
+        Task<Response<TblDesignationMaster>> GetDesignation(int page);
         Task<int> AddDesignation(TblDesignationMaster designationMaster);
         Task<int> UpdateDesignation(TblDesignationMaster designationMaster);
         Task<TblDesignationMaster> GetDesignationById(int id);

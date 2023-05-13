@@ -2,6 +2,7 @@
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.HR_Module;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Dtos.ResponseDto.HR_Module;
 using CRM_api.Services.IServices.HR_Module;
 
@@ -24,10 +25,10 @@ namespace CRM_api.Services.Services.HR_Module
             return await _departmentRepository.AddDepartment(dept);
         }
 
-        public async Task<DisplayDepartmentDto> GetDepartmentAsync(int page)
+        public async Task<ResponseDto<DepartmentDto>> GetDepartmentAsync(int page)
         {
             var depts = await _departmentRepository.GetDepartments(page);
-            var mapDepartment = _mapper.Map<DisplayDepartmentDto>(depts);
+            var mapDepartment = _mapper.Map<ResponseDto<DepartmentDto>>(depts);
             return mapDepartment;
         }
 

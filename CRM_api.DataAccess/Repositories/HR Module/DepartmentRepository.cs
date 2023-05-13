@@ -1,7 +1,6 @@
 ﻿using CRM_api.DataAccess.Context;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel.HR_Module;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,7 +35,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #endregion
 
         #region Get Departments
-        public async Task<DepartmentResponse> GetDepartments(int page)
+        public async Task<Response<TblDepartmentMaster>> GetDepartments(int page)
         {
             float pageResult = 10f;
             var pageCount = Math.Ceiling(_context.TblDepartmentMasters.Where(x => x.Isdeleted == false).Count() / pageResult);
@@ -44,7 +43,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             var depts = await _context.TblDepartmentMasters.Where(x => x.Isdeleted == false).Skip((page - 1) * (int)pageResult)
                                                      .Take((int)pageResult).ToListAsync();
 
-            var departmentResponse = new DepartmentResponse()
+            var departmentResponse = new Response<TblDepartmentMaster>()
             {
                 Values = depts,
                 Pagination = new Pagination()

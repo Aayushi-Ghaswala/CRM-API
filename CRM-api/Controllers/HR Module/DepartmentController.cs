@@ -18,7 +18,7 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get all Departments
         [HttpGet]
-        public async Task<ActionResult<DisplayDepartmentDto>> GetDepartment(int page)
+        public async Task<ActionResult> GetDepartment(int page)
         {
             try
             {
