@@ -8,7 +8,7 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<int> AddUser(TblUserMaster userMaster);
         Task<TblUserMaster> GetUserMasterbyId(int id);
         Task<int> UpdateUser(TblUserMaster userMaster);
-        Task<Response<TblUserMaster>> GetUsers(int page);
+        Task<Response<TblUserMaster>> GetUsers(int page, string search, string sortOn);
         Task<Response<TblUserCategoryMaster>> GetUserCategories(int page);
         Task<int> GetCategoryIdByName(string name);
         Task<Response<TblUserMaster>> GetUsersByCategoryId(int page, int catId);

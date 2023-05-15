@@ -21,9 +21,7 @@ namespace CRM_api.Services.Services.User_Module
         #region AddUser Detail
         public async Task<int> AddUserAsync(AddUserMasterDto addUser)
         {
-            var fcmId = Guid.NewGuid().ToString();
-            var user = new TblUserMaster();
-            //var user = UserMasterBuilder.Build(addUser, fcmId);
+            var user = _mapper.Map<TblUserMaster>(addUser);
 
             return await _userMasterRepository.AddUser(user);
         }
@@ -39,9 +37,9 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get All UserMaster Details
-        public async Task<ResponseDto<UserMasterDto>> GetUsersAsync(int page)
+        public async Task<ResponseDto<UserMasterDto>> GetUsersAsync(int page, string search, string sortOn)
         {
-            var users = await _userMasterRepository.GetUsers(page);
+            var users = await _userMasterRepository.GetUsers(page, search, sortOn);
             var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(users);
 
             return mapUsers;
@@ -49,10 +47,10 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get UserMaster By Id
-        public async Task<GetUserMasterForUpdateDto> GetUserMasterById(int id)
+        public async Task<UserMasterDto> GetUserMasterById(int id)
         {
             var user = await _userMasterRepository.GetUserMasterbyId(id);
-            var mapUser = _mapper.Map<GetUserMasterForUpdateDto>(user);
+            var mapUser = _mapper.Map<UserMasterDto>(user);
 
             return mapUser;
         }

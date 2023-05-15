@@ -2,7 +2,6 @@
 using CRM_api.Services.Dtos.AddDataDto.User_Module;
 using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
-using CRM_api.Services.Dtos.ResponseDto.User_Module;
 
 namespace CRM_api.Services.IServices.User_Module
 {
@@ -14,8 +13,8 @@ namespace CRM_api.Services.IServices.User_Module
         Task<int> UpdateRoleAsync(UpdateRoleMasterDto roleMasterDto);
         Task<int> UpdateRolePermissionAsync(UpdateRolePermissionDto rolePermissionDto);
         Task<int> UpdateUserAssignRoleAsync(UpdateRoleAssignmentDto userRoleAssignmentDto);
-        Task<ResponseDto<RoleMasterDto>> GetRolesAsync(int page);
-        Task<ResponseDto<RolePermissionDto>> GetRolePermissionsAsync(int page);
-        Task<ResponseDto<UserRoleAssignmentDto>> GetUserAssignRolesAsync(int page);
+        Task<ResponseDto<RoleMasterDto>> GetRolesAsync(int page, string search, string sortOn);
+        Task<ResponseDto<RolePermissionDto>> GetRolePermissionsAsync(int page, string search, string sortOn);
+        Task<ResponseDto<UserRoleAssignmentDto>> GetUserAssignRolesAsync(int page, string search, string sortOn);
     }
 }

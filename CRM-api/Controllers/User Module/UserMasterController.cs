@@ -50,9 +50,9 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All UserMaster Details
-        public async Task<IActionResult> GetUsers(int page)
+        public async Task<IActionResult> GetUsers(int page, string? search, string? sortOn)
         {
-            var users = await _userMasterService.GetUsersAsync(page);
+            var users = await _userMasterService.GetUsersAsync(page, search, sortOn);
             if (users.Values.Count == 0)
                 return BadRequest("User Not Found...");
 

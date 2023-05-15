@@ -120,11 +120,11 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Roles
-        public async Task<IActionResult> GetRoles(int page)
+        public async Task<IActionResult> GetRoles(int page, string? search, string? sortOn)
         {
             try
             {
-                var roles = await _roleMasterService.GetRolesAsync(page);
+                var roles = await _roleMasterService.GetRolesAsync(page, search, sortOn);
                 if (roles.Values.Count == 0)
                     return BadRequest("Role Not Found...");
 
@@ -139,11 +139,11 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Role Permissions
-        public async Task<IActionResult> GetRolePermissions(int page)
+        public async Task<IActionResult> GetRolePermissions(int page, string? search, string sortOn)
         {
             try
             {
-                var rolePermissions = await _roleMasterService.GetRolePermissionsAsync(page);
+                var rolePermissions = await _roleMasterService.GetRolePermissionsAsync(page, search, sortOn);
                 if (rolePermissions.Values.Count == 0)
                     return BadRequest("Role Permission Not Found");
 
@@ -158,11 +158,11 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All User Assign Role
-        public async Task<IActionResult> GetUserAssignRoles(int page)
+        public async Task<IActionResult> GetUserAssignRoles(int page, string? search, string? sortOn)
         {
             try
             {
-                var userAssignRoles = await _roleMasterService.GetUserAssignRolesAsync(page);
+                var userAssignRoles = await _roleMasterService.GetUserAssignRolesAsync(page, search, sortOn);
                 if (userAssignRoles.Values.Count == 0)
                     return BadRequest("User Assign Role Not Found...");
 
