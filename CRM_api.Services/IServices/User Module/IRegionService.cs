@@ -8,5 +8,8 @@ namespace CRM_api.Services.IServices.User_Module
         Task<ResponseDto<CountryMasterDto>> GetCountriesAsync(int page);
         Task<ResponseDto<StateMasterDto>> GetstateByCountry(int countryId, int page);
         Task<ResponseDto<CityMasterDto>> GetCityByState(int stateId, int page);
+        Task<int> DeactivateCountryAsync(int CountryId);
+        Task<int> DeactivateStateAsync(int StateId);
+        Task<int> DeactivateCityAsync(int CityId);
     }
 }

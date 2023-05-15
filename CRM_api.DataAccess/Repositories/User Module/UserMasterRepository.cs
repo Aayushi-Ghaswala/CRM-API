@@ -14,17 +14,6 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             _context = context;
         }
 
-        #region AddUser
-        public async Task<int> AddUser(TblUserMaster userMaster)
-        {
-            if (_context.TblUserMasters.Any(x => x.UserUname == userMaster.UserUname))
-                throw new Exception("User Name Already Exist");
-
-            _context.TblUserMasters.Add(userMaster);
-            return await _context.SaveChangesAsync();
-        }
-        #endregion
-
         #region GetUserDetail By Id
         public async Task<TblUserMaster> GetUserMasterbyId(int id)
         {
@@ -34,14 +23,6 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             ArgumentNullException.ThrowIfNull(user, "User Not Found");
 
             return user;
-        }
-        #endregion
-
-        #region UpdateUser Details
-        public async Task<int> UpdateUser(TblUserMaster userMaster)
-        {
-            _context.TblUserMasters.Update(userMaster);
-            return await _context.SaveChangesAsync();
         }
         #endregion
 
@@ -176,6 +157,41 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             };
 
             return usersResponse;
+        }
+        #endregion
+
+        #region AddUser
+        public async Task<int> AddUser(TblUserMaster userMaster)
+        {
+            if (_context.TblUserMasters.Any(x => x.UserUname == userMaster.UserUname))
+                throw new Exception("User Name Already Exist");
+
+            _context.TblUserMasters.Add(userMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region UpdateUser Details
+        public async Task<int> UpdateUser(TblUserMaster userMaster)
+        {
+            var user = await _context.TblUserMasters.FindAsync(userMaster.UserId);
+
+            if (user == null) return 0;
+
+            _context.TblUserMasters.Update(userMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Deactivate User
+        public async Task<int> DeactivateUser(int id)
+        {
+            var user = await _context.TblUserMasters.FindAsync(id);
+
+            if (user == null) return 0;
+
+            user.UserIsactive = false;
+            return await _context.SaveChangesAsync();
         }
         #endregion
     }

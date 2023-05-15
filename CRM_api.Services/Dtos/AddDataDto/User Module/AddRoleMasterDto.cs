@@ -3,5 +3,6 @@
     public class AddRoleMasterDto
     {
         public string RoleName { get; set; } = null!;
+        public bool IsDeleted { get; set; }
     }
 }

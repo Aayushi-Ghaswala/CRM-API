@@ -46,5 +46,26 @@ namespace CRM_api.Services.Services.User_Module
             return mapCities;
         }
         #endregion
+
+        #region Deactivate Country
+        public async Task<int> DeactivateCountryAsync(int CountryId)
+        {
+            return await _regionRepository.DeactivateCountry(CountryId);
+        }
+        #endregion
+
+        #region Deactivate State
+        public async Task<int> DeactivateStateAsync(int StateId)
+        {
+            return await _regionRepository.DeactivateState(StateId);
+        }
+        #endregion
+
+        #region Deactivate City
+        public async Task<int> DeactivateCityAsync(int CityId)
+        {
+            return await _regionRepository.DeactivateCity(CityId);
+        }
+        #endregion
     }
 }

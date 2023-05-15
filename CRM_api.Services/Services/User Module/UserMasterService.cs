@@ -75,5 +75,30 @@ namespace CRM_api.Services.Services.User_Module
             return mapUsers;
         }
         #endregion
+
+        #region AddUser Detail
+        public async Task<int> AddUserAsync(AddUserMasterDto addUser)
+        {
+            var user = _mapper.Map<TblUserMaster>(addUser);
+
+            return await _userMasterRepository.AddUser(user);
+        }
+        #endregion
+
+        #region UpdateUser Detail
+        public async Task<int> UpdateUserAsync(UpdateUserMasterDto updateUser)
+        {
+            var user = _mapper.Map<TblUserMaster>(updateUser);
+
+            return await _userMasterRepository.UpdateUser(user);
+        }
+        #endregion
+
+        #region Deactivate User
+        public async Task<int> DeactivateUserAsync(int id)
+        {
+            return await _userMasterRepository.DeactivateUser(id);
+        }
+        #endregion
     }
 }

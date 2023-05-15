@@ -11,6 +11,9 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<int> UpdateRole(TblRoleMaster roleMaster);
         Task<int> UpdateRolePermission(TblRolePermission rolePermission);
         Task<int> UpdateUserRoleAssignment(TblRoleAssignment userRoleAssignment);
+        Task<int> DeactivateRole(int id);
+        Task<int> DeactivateRolePermission(int id);
+        Task<int> DeactivateRoleAssignment(int id);
         Task<TblRoleMaster> GetRoleById(int id);
         Task<TblRolePermission> GetRolePermissionById(int id);
         Task<TblRoleAssignment> GetUserAssignRoleById(int id);

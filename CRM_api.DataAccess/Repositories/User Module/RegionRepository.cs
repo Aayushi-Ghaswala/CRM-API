@@ -80,5 +80,58 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             return cityResponse;
         }
         #endregion
+
+        #region Deactivate Country
+        public async Task<int> DeactivateCountry(int CountryId)
+        {
+            var country = await _context.TblCountryMasters.FindAsync(CountryId);
+
+            if(country == null) return 0;
+
+            var states = _context.TblStateMasters.Where(x => x.CountryId == CountryId).ToList();
+            foreach (var item in states)
+            {
+                var cities = _context.TblCityMasters.Where(x => x.StateId == item.StateId).ToList();
+                foreach (var city in cities)
+                {
+                    city.IsDeleted = true;
+                }
+                item.IsDeleted = true;
+            }
+
+            country.IsDeleted = true;
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Deactivate State
+        public async Task<int> DeactivateState(int StateId)
+        {
+            var states = await _context.TblStateMasters.FindAsync(StateId);
+
+            if(states == null) return 0;
+
+            var cities = _context.TblCityMasters.Where(x => x.StateId == StateId).ToList();
+            foreach (var item in cities)
+            {
+                item.IsDeleted = true;
+            }
+
+            states.IsDeleted = true;
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Deactiactivate City
+        public async Task<int> DeactivateCity(int CityId)
+        {
+            var city = await _context.TblCityMasters.FindAsync(CityId);
+
+            if (city == null) return 0;
+
+            city.IsDeleted = true;
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
     }
 }

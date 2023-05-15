@@ -70,5 +70,32 @@ namespace CRM_api.Controllers.User_Module
             }
         }
         #endregion
+
+        [HttpDelete]
+        #region Deactivate Country
+        public async Task<IActionResult> DeactivateCountry(int CountryId)
+        {
+            var country = await _regionService.DeactivateCountryAsync(CountryId);
+            return country != 0 ? Ok("Country deactivated successfully.") : BadRequest("Unable to deactivate country.");
+        }
+        #endregion
+
+        [HttpDelete]
+        #region Deactivate State
+        public async Task<IActionResult> DeactivateState(int StateId)
+        {
+            var state = await _regionService.DeactivateStateAsync(StateId);
+            return state !=0 ? Ok("State deactivated successfully.") : BadRequest("Unable to deactivate state.");
+        }
+        #endregion
+
+        [HttpDelete]
+        #region Deactivate City
+        public async Task<IActionResult> DeactivateCity(int CityId)
+        {
+            var city = await _regionService.DeactivateCityAsync(CityId);
+            return city != 0 ? Ok("City deactivated successfully.") : BadRequest("Unable to deactivate city.");
+        }
+        #endregion
     }
 }
