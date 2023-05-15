@@ -171,6 +171,19 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion  
 
+
+        [HttpGet]
+        #region Get All Roles
+        public async Task<IActionResult> GetRoles(int page, string? search, string? sortOn)
+        {
+            try
+            {
+                var roles = await _roleMasterService.GetRolesAsync(page, search, sortOn);
+                if (roles.Values.Count == 0)
+                    return BadRequest("Role Not Found...");
+
+                return Ok(roles);
+
         [HttpPost]
         #region Add User Role Assignment
         public async Task<IActionResult> AddUserRoleAssignment(AddUserRoleAssignmentDto userRoleAssignmentDto)
@@ -179,6 +192,7 @@ namespace CRM_api.Controllers.User_Module
             {
                 await _roleMasterService.AddUserRoleAssignmentAsync(userRoleAssignmentDto);
                 return Ok("User Role Assign Successfully");
+
             }
             catch (Exception)
             {
@@ -186,6 +200,19 @@ namespace CRM_api.Controllers.User_Module
             }
         }
         #endregion
+
+
+        [HttpGet]
+        #region Get All Role Permissions
+        public async Task<IActionResult> GetRolePermissions(int page, string? search, string sortOn)
+        {
+            try
+            {
+                var rolePermissions = await _roleMasterService.GetRolePermissionsAsync(page, search, sortOn);
+                if (rolePermissions.Values.Count == 0)
+                    return BadRequest("Role Permission Not Found");
+
+                return Ok(rolePermissions);
 
         [HttpPut]
         #region Update User Assign Role
@@ -195,6 +222,7 @@ namespace CRM_api.Controllers.User_Module
             {
                 var roleAssignment = await _roleMasterService.UpdateUserAssignRoleAsync(roleAssignmentDto);
                 return roleAssignment !=0 ? Ok("RoleAssignment updated successfully.") : BadRequest("Unable to update RoleAssignment.");
+
             }
             catch (Exception)
             {
@@ -202,6 +230,18 @@ namespace CRM_api.Controllers.User_Module
             }
         }
         #endregion
+
+        [HttpGet]
+        #region Get All User Assign Role
+        public async Task<IActionResult> GetUserAssignRoles(int page, string? search, string? sortOn)
+        {
+            try
+            {
+                var userAssignRoles = await _roleMasterService.GetUserAssignRolesAsync(page, search, sortOn);
+                if (userAssignRoles.Values.Count == 0)
+                    return BadRequest("User Assign Role Not Found...");
+
+                return Ok(userAssignRoles);
 
         [HttpDelete]
         #region Deactivate Role Assignment

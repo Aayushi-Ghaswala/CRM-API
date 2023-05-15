@@ -11,12 +11,6 @@ namespace CRM_api.Services.MapperProfile
     {
         public UserMasterProfile()
         {
-            CreateMap<TblUserMaster, GetUserMasterForUpdateDto>()
-                .ForMember(um => um.Category, opt => opt.MapFrom(src => src.TblUserCategoryMaster.CatName))
-                .ForMember(um => um.Country, opt => opt.MapFrom(src => src.TblCountryMaster.CountryName))
-                .ForMember(um => um.State, opt => opt.MapFrom(src => src.TblStateMaster.StateName))
-                .ForMember(um => um.City, opt => opt.MapFrom(src => src.TblCityMaster.CityName));
-
             CreateMap<TblUserCategoryMaster, UserCategoryDto>()
                 .ForMember(c => c.Id, opt => opt.MapFrom(src => src.CatId));
 

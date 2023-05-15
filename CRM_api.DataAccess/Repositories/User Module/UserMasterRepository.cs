@@ -27,13 +27,68 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All TblUserMaster Details
-        public async Task<Response<TblUserMaster>> GetUsers(int page)
+        public async Task<Response<TblUserMaster>> GetUsers(int page, string search, string sortOn)
         {
+            double pageCount = 0;
+            var users = new List<TblUserMaster>();
             float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblUserMasters.Where(x => x.UserIsactive == true).Count() / pageResult);
+            if (search is not null)
+            {
+                pageCount = Math.Ceiling(_context.TblUserMasters.Where(x => x.UserIsactive == true && (x.UserName.ToLower().Contains(search.ToLower())
+                    || x.UserUname.ToLower().Contains(search.ToLower()) || x.UserEmail.ToLower().Contains(search.ToLower()))).Count() / pageResult);
 
-            var users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
-                                                     .Take((int)pageResult).ToListAsync();
+                users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.UserName.ToLower().Contains(search.ToLower())
+                    || x.UserUname.ToLower().Contains(search.ToLower()) || x.UserEmail.ToLower().Contains(search.ToLower())).Skip((page - 1) * (int)pageResult)
+                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
+                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
+                                                         .Include(x => x.SponserName).ToListAsync();
+
+
+            }
+            else if(sortOn is not null)
+            {
+                pageCount = Math.Ceiling(_context.TblUserMasters.Where(x => x.UserIsactive == true).Count() / pageResult);
+
+                 switch(sortOn)
+                 {
+                    case "userName":
+                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
+                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
+                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
+                                                         .Include(x => x.SponserName).OrderByDescending(x => x.UserName).ToListAsync();
+                        break;
+
+                    case "userUname":
+                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
+                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
+                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
+                                                         .Include(x => x.SponserName).OrderByDescending(x => x.UserUname).ToListAsync();
+                        break;
+
+                    case "userDoj":
+                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
+                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
+                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
+                                                         .Include(x => x.SponserName).OrderByDescending(x => x.UserDoj).ToListAsync();
+                        break;
+
+                    case "userEmail":
+                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
+                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
+                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
+                                                         .Include(x => x.SponserName).OrderByDescending(x => x.UserEmail).ToListAsync();
+                        break;
+                 }
+            }
+            else
+            {
+                pageCount = Math.Ceiling(_context.TblUserMasters.Where(x => x.UserIsactive == true).Count() / pageResult);
+
+                users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
+                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
+                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
+                                                         .Include(x => x.SponserName).ToListAsync();
+            }
 
             var usersResponse = new Response<TblUserMaster>()
             {

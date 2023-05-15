@@ -140,12 +140,37 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All Role
-        public async Task<Response<TblRoleMaster>> GetRoles(int page)
+        public async Task<Response<TblRoleMaster>> GetRoles(int page, string search, string sortOn)
         {
             float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblRoleMasters.Count() / pageResult);
+            double pageCount = 0;
+            var roles = new List<TblRoleMaster>();
 
-            var roles = await _context.TblRoleMasters.Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+            if (search is not null)
+            {
+                pageCount = Math.Ceiling(_context.TblRoleMasters.Where(x => x.RoleName.ToLower().Contains(search.ToLower())).Count() / pageResult);
+
+                roles = await _context.TblRoleMasters.Where(x => x.RoleName.ToLower().Contains(search.ToLower())).Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+            }
+            else if (sortOn is not null)
+            {
+                pageCount = Math.Ceiling(_context.TblRoleMasters.Count() / pageResult);
+
+                switch (sortOn)
+                {
+                    case "roleName":
+                        roles = await _context.TblRoleMasters.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
+                                              .OrderByDescending(x => x.RoleName).ToListAsync();
+                        break;
+                }
+
+            }
+            else
+            {
+                pageCount = Math.Ceiling(_context.TblRoleMasters.Count() / pageResult);
+
+                roles = await _context.TblRoleMasters.Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+            }
 
             var rolesResponse = new Response<TblRoleMaster>()
             {
@@ -162,15 +187,46 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All Role Permission
-        public async Task<Response<TblRolePermission>> GetRolePermissions(int page)
+        public async Task<Response<TblRolePermission>> GetRolePermissions(int page, string search, string sortOn)
         {
             float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblRolePermissions.Count() / pageResult);
+            double pageCount = 0;
+            List<TblRolePermission> rolePermissions = new List<TblRolePermission>();
+            if (search is not null)
+            {
+                pageCount = Math.Ceiling(_context.TblRolePermissions.Where(x => x.TblRoleMaster.RoleName.ToLower().Contains(search.ToLower())).Count() / pageResult);
 
-            List<TblRolePermission> rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult)
-                                                                  .Take((int)pageResult).Include(r => r.TblRoleMaster).ToListAsync();
+                rolePermissions = await _context.TblRolePermissions.Where(x => x.TblRoleMaster.RoleName.ToLower().Contains(search.ToLower())).Skip((page - 1) * (int)pageResult)
+                                                                    .Take((int)pageResult).Include(r => r.TblRoleMaster).ToListAsync();
+            }
+            else if (sortOn is not null)
+            {
+                pageCount = Math.Ceiling(_context.TblRolePermissions.Count() / pageResult);
 
-            var rolesResponse = new Response<TblRolePermission>()
+                switch (sortOn)
+                {
+                    case "roleName":
+                        rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
+                                                        .Include(r => r.TblRoleMaster).OrderByDescending(x => x.TblRoleMaster.RoleName)
+                                                        .ToListAsync();
+                        break;
+
+                    case "moduleName":
+                        rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
+                                                        .Include(r => r.TblRoleMaster).OrderByDescending(x => x.ModuleName)
+                                                        .ToListAsync();
+                        break;
+                }
+            }
+            else
+            {
+                pageCount = Math.Ceiling(_context.TblRolePermissions.Count() / pageResult);
+
+                rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult)
+                                                                      .Take((int)pageResult).Include(r => r.TblRoleMaster).ToListAsync();
+            }
+
+            var rolePermissionsResponse = new Response<TblRolePermission>()
             {
                 Values = rolePermissions,
                 Pagination = new Pagination
@@ -180,19 +236,53 @@ namespace CRM_api.DataAccess.Repositories.User_Module
                 }
             };
 
-            return rolesResponse;
+            return rolePermissionsResponse;
         }
         #endregion
 
         #region Get All User Assign role
-        public async Task<Response<TblRoleAssignment>> GetUserAssignRoles(int page)
+        public async Task<Response<TblRoleAssignment>> GetUserAssignRoles(int page, string search, string sortOn)
         {
             float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblRoleAssignments.Count() / pageResult);
+            double pageCount = 1;
+            List<TblRoleAssignment> userAssignRoles = new List<TblRoleAssignment>();
+            if (search is not null)
+            {
+                pageCount = Math.Ceiling(_context.TblRoleAssignments.Where(x => x.TblRoleMaster.RoleName.ToLower().Contains(search.ToLower())
+                                             || x.TblUserMaster.UserName.ToLower().Contains(search.ToLower())).Count() / pageResult);
 
-            List<TblRoleAssignment> userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult)
-                                                                .Take((int)pageResult).Include(r => r.TblRoleMaster)
-                                                                .Include(u => u.TblUserMaster).ToListAsync();
+                userAssignRoles = await _context.TblRoleAssignments.Where(x => x.TblRoleMaster.RoleName.ToLower().Contains(search.ToLower())
+                                             || x.TblUserMaster.UserName.ToLower().Contains(search.ToLower())).Skip((page - 1) * (int)pageResult)
+                                                                    .Take((int)pageResult).Include(r => r.TblRoleMaster)
+                                                                    .Include(u => u.TblUserMaster).ToListAsync();
+            }
+            else if (sortOn is not null)
+            {
+                pageCount = Math.Ceiling(_context.TblRoleAssignments.Count() / pageResult);
+
+                switch (sortOn)
+                {
+                    case "userName":
+                        userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
+                                                        .Include(r => r.TblRoleMaster).Include(u => u.TblUserMaster)
+                                                        .OrderByDescending(x => x.TblUserMaster.UserName).ToListAsync();
+                        break;
+
+                    case "roleName":
+                        userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
+                                                        .Include(r => r.TblRoleMaster).Include(u => u.TblUserMaster)
+                                                        .OrderByDescending(x => x.TblRoleMaster.RoleName).ToListAsync();
+                        break;
+                }
+            }
+            else
+            {
+                pageCount = Math.Ceiling(_context.TblRoleAssignments.Count() / pageResult);
+
+                userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult)
+                                                                    .Take((int)pageResult).Include(r => r.TblRoleMaster)
+                                                                    .Include(u => u.TblUserMaster).ToListAsync();
+            }
 
             var userAssignRolesResponse = new Response<TblRoleAssignment>()
             {

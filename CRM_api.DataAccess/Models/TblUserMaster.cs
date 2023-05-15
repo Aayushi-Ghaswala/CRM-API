@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.Contracts;
 
 namespace CRM_api.DataAccess.Models
 {
@@ -14,6 +16,7 @@ namespace CRM_api.DataAccess.Models
             TblReferralMasters = new HashSet<TblReferralMaster>();
         }
 
+        [Key]
         public int UserId { get; set; }
         public int? CatId { get; set; }
         public int? UserSponid { get; set; }
@@ -58,6 +61,10 @@ namespace CRM_api.DataAccess.Models
         public virtual TblStateMaster TblStateMaster { get; set; }
         [ForeignKey(nameof(UserCityid))]
         public virtual TblCityMaster TblCityMaster { get; set; }
+        [ForeignKey(nameof(UserParentid))]
+        public virtual TblUserMaster ParentName { get; set; }
+        [ForeignKey(nameof(UserSponid))]
+        public virtual TblUserMaster SponserName { get; set; }
 
         public virtual ICollection<TblFasttrackLedger> TblFasttrackLedgers { get; set; }
         public virtual ICollection<TblFolioMaster> TblFolioMasters { get; set; }

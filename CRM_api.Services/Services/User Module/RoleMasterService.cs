@@ -94,9 +94,9 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get All Roles
-        public async Task<ResponseDto<RoleMasterDto>> GetRolesAsync(int page)
+        public async Task<ResponseDto<RoleMasterDto>> GetRolesAsync(int page, string search, string sortOn)
         {
-            var roles = await _roleMasterRepository.GetRoles(page);
+            var roles = await _roleMasterRepository.GetRoles(page, search, sortOn);
             var mapRoles = _mapper.Map<ResponseDto<RoleMasterDto>>(roles);
 
             return mapRoles;
@@ -104,9 +104,9 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get All Role Permissions
-        public async Task<ResponseDto<RolePermissionDto>> GetRolePermissionsAsync(int page)
+        public async Task<ResponseDto<RolePermissionDto>> GetRolePermissionsAsync(int page, string search, string sortOn)
         {
-            var rolePermissions = await _roleMasterRepository.GetRolePermissions(page);
+            var rolePermissions = await _roleMasterRepository.GetRolePermissions(page, search, sortOn);
             var mapRolePermissions = _mapper.Map<ResponseDto<RolePermissionDto>>(rolePermissions);
 
             return mapRolePermissions;
@@ -114,9 +114,9 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get All User Assign Roles
-        public async Task<ResponseDto<UserRoleAssignmentDto>> GetUserAssignRolesAsync(int page)
+        public async Task<ResponseDto<UserRoleAssignmentDto>> GetUserAssignRolesAsync(int page, string search, string sortOn)
         {
-            var userAssignRoles = await _roleMasterRepository.GetUserAssignRoles(page);
+            var userAssignRoles = await _roleMasterRepository.GetUserAssignRoles(page, search, sortOn);
             var mapUserAssignRoles = _mapper.Map<ResponseDto<UserRoleAssignmentDto>>(userAssignRoles);
 
             return mapUserAssignRoles;

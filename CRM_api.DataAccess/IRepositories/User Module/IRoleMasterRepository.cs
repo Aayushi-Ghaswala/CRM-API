@@ -17,8 +17,8 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<TblRoleMaster> GetRoleById(int id);
         Task<TblRolePermission> GetRolePermissionById(int id);
         Task<TblRoleAssignment> GetUserAssignRoleById(int id);
-        Task<Response<TblRoleMaster>> GetRoles(int page);
-        Task<Response<TblRolePermission>> GetRolePermissions(int page);
-        Task<Response<TblRoleAssignment>> GetUserAssignRoles(int page);
+        Task<Response<TblRoleMaster>> GetRoles(int page, string search, string sortOn);
+        Task<Response<TblRolePermission>> GetRolePermissions(int page, string search, string sortOn);
+        Task<Response<TblRoleAssignment>> GetUserAssignRoles(int page, string search, string sortOn);
     }
 }
