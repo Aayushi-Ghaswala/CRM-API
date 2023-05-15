@@ -21,9 +21,7 @@ namespace CRM_api.Services.Services.User_Module
         #region AddUser Detail
         public async Task<int> AddUserAsync(AddUserMasterDto addUser)
         {
-            var fcmId = Guid.NewGuid().ToString();
-            var user = new TblUserMaster();
-            //var user = UserMasterBuilder.Build(addUser, fcmId);
+            var user = _mapper.Map<TblUserMaster>(addUser);
 
             return await _userMasterRepository.AddUser(user);
         }
