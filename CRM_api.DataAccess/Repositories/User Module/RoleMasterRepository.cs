@@ -42,8 +42,11 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Update Role
         public async Task<int> UpdateRole(TblRoleMaster roleMaster)
         {
-            _context.TblRoleMasters.Update(roleMaster);
+            var role = await _context.TblRoleMasters.FindAsync(roleMaster.RoleId);
 
+            if (role == null) return 0;
+
+            _context.TblRoleMasters.Update(roleMaster);
             return await _context.SaveChangesAsync();
         }
         #endregion
@@ -51,8 +54,11 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Update Role Permission
         public async Task<int> UpdateRolePermission(TblRolePermission rolePermission)
         {
-            _context.TblRolePermissions.Update(rolePermission);
+            var rolePermissions = await _context.TblRolePermissions.FindAsync(rolePermission.Id);
 
+            if(rolePermissions == null) return 0;
+
+            _context.TblRolePermissions.Update(rolePermission);
             return await _context.SaveChangesAsync();
         }
         #endregion
@@ -60,8 +66,47 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Update User Role Assignment
         public async Task<int> UpdateUserRoleAssignment(TblRoleAssignment userRoleAssignment)
         {
-            _context.TblRoleAssignments.Update(userRoleAssignment);
+            var roleAssignment = await _context.TblRoleAssignments.FindAsync(userRoleAssignment.Id);
 
+            if (roleAssignment == null) return 0;
+
+            _context.TblRoleAssignments.Update(userRoleAssignment);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Deactivate Role
+        public async Task<int> DeactivateRole(int id)
+        {
+            var role = await _context.TblRoleMasters.FindAsync(id);
+
+            if (role == null) return 0;
+
+            role.IsDeleted = true;
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Deactivate Role Permission
+        public async Task<int> DeactivateRolePermission(int id)
+        {
+            var rolePermission = await _context.TblRolePermissions.FindAsync(id);
+
+            if(rolePermission == null) return 0;
+
+            rolePermission.IsDeleted = true;
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Deactivate Role Assignment
+        public async Task<int> DeactivateRoleAssignment(int id)
+        {
+            var roleAssignment = await _context.TblRoleAssignments.FindAsync(id);
+
+            if (roleAssignment == null) return 0;
+
+            roleAssignment.IsDeleted = true;
             return await _context.SaveChangesAsync();
         }
         #endregion

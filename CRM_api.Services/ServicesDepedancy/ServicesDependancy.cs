@@ -29,6 +29,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             Services.AddScoped<IEmployeeService, EmployeeService>();
             Services.AddScoped<IDepartmentService, DepartmentService>();
             Services.AddScoped<IDesignationService, DesignationService>();
+            Services.AddScoped<ILeaveTypeService, LeaveTypeService>();
         }
     }
 }

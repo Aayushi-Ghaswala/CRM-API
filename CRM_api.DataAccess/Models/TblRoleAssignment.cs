@@ -7,6 +7,7 @@ namespace CRM_api.DataAccess.Models
         public int Id { get; set; }
         public int? RoleId { get; set; }
         public int? UserId { get; set; }
+        public bool IsDeleted { get; set; }
 
         [ForeignKey(nameof(RoleId))]
         public virtual TblRoleMaster TblRoleMaster { get; set; }

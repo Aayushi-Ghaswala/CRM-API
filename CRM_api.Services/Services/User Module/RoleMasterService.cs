@@ -6,6 +6,7 @@ using CRM_api.Services.Dtos.AddDataDto.User_Module;
 using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.User_Module;
+using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.Services.Services.User_Module
 {
@@ -29,7 +30,6 @@ namespace CRM_api.Services.Services.User_Module
         }
         #endregion
 
-
         #region Add RolePermission
         public async Task<int> AddRolePermissionAsync(AddRolePermissionDto rolePermissionDto)
         {
@@ -38,7 +38,6 @@ namespace CRM_api.Services.Services.User_Module
         }
         #endregion
 
-
         #region Add UserRoleAssignment
         public async Task<int> AddUserRoleAssignmentAsync(AddUserRoleAssignmentDto userRoleAssignmentDto)
         {
@@ -46,7 +45,6 @@ namespace CRM_api.Services.Services.User_Module
             return await _roleMasterRepository.AddUserRoleAssignment(roleAssignment);
         }
         #endregion
-
 
         #region Update Role
         public async Task<int> UpdateRoleAsync(UpdateRoleMasterDto roleMasterDto)
@@ -57,7 +55,6 @@ namespace CRM_api.Services.Services.User_Module
         }
         #endregion
 
-
         #region Update Role Permission
         public async Task<int> UpdateRolePermissionAsync(UpdateRolePermissionDto rolePermissionDto)
         {
@@ -66,13 +63,33 @@ namespace CRM_api.Services.Services.User_Module
         }
         #endregion
 
-
         #region Update User Assign Role
         public async Task<int> UpdateUserAssignRoleAsync(UpdateRoleAssignmentDto userRoleAssignmentDto)
         {
             var userRoleAssign = _mapper.Map<TblRoleAssignment>(userRoleAssignmentDto);
 
             return await _roleMasterRepository.UpdateUserRoleAssignment(userRoleAssign);
+        }
+        #endregion
+
+        #region Deactivate Role
+        public async Task<int> DeactivateRoleAsync(int id)
+        {
+            return await _roleMasterRepository.DeactivateRole(id);
+        }
+        #endregion
+
+        #region Deactivate Role Permission
+        public async Task<int> DeactivateRolePermissionAsync(int id)
+        {
+            return await _roleMasterRepository.DeactivateRolePermission(id);
+        }
+        #endregion
+
+        #region Deactivate Role Assignment
+        public async Task<int> DeactivateRoleAssignmentAsync(int id)
+        {
+            return await _roleMasterRepository.DeactivateRoleAssignment(id);
         }
         #endregion
 
