@@ -36,6 +36,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             Services.AddScoped<IDesignationRepository, DesignationRepository>();
+            Services.AddScoped<ILeaveTypeRepository, LeaveTypeRepository>();
         }
     }
 }

@@ -16,6 +16,25 @@ namespace CRM_api.Controllers.User_Module
             _roleMasterService = roleMasterService;
         }
 
+        [HttpGet]
+        #region Get All Roles
+        public async Task<IActionResult> GetRoles(int page)
+        {
+            try
+            {
+                var roles = await _roleMasterService.GetRolesAsync(page);
+                if (roles.Values.Count == 0)
+                    return BadRequest("Role Not Found...");
+
+                return Ok(roles);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         [HttpPost]
         #region Add Role
         public async Task<IActionResult> AddRole(AddRoleMasterDto roleMasterDto)
@@ -39,12 +58,46 @@ namespace CRM_api.Controllers.User_Module
         {
             try
             {
-                await _roleMasterService.UpdateRoleAsync(roleMasterDto);
-                return Ok("Role Updated Successfully...");
+                var role = await _roleMasterService.UpdateRoleAsync(roleMasterDto);
+                return role !=0 ? Ok("Role updated successfully.") : BadRequest("Unable to update role.");
             }
             catch (Exception)
             {
+                throw;
+            }
+        }
+        #endregion
 
+        [HttpDelete]
+        #region DeactivateRole
+        public async Task<IActionResult> DeactivateRole(int id)
+        {
+            try
+            {
+                var role = await _roleMasterService.DeactivateRoleAsync(id);
+                return role != 0 ? Ok("Role deactivated successfully") : BadRequest("Unable to deactivate role.");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpGet]
+        #region Get All Role Permissions
+        public async Task<IActionResult> GetRolePermissions(int page)
+        {
+            try
+            {
+                var rolePermissions = await _roleMasterService.GetRolePermissionsAsync(page);
+                if (rolePermissions.Values.Count == 0)
+                    return BadRequest("Role Permission Not Found");
+
+                return Ok(rolePermissions);
+            }
+            catch (Exception)
+            {
                 throw;
             }
         }
@@ -73,26 +126,8 @@ namespace CRM_api.Controllers.User_Module
         {
             try
             {
-                await _roleMasterService.UpdateRolePermissionAsync(rolePermissionDto);
-                return Ok("Role Updated Successfully...");
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-        #endregion
-
-
-        [HttpPost]
-        #region Add User Role Assignment
-        public async Task<IActionResult> AddUserRoleAssignment(AddUserRoleAssignmentDto userRoleAssignmentDto)
-        {
-            try
-            {
-                await _roleMasterService.AddUserRoleAssignmentAsync(userRoleAssignmentDto);
-                return Ok("User Role Assign Successfully");
+                var rolePermission = await _roleMasterService.UpdateRolePermissionAsync(rolePermissionDto);
+                return rolePermission !=0 ? Ok("RolePermission updated successfully.") : BadRequest("Unable to update rolePermission.");
             }
             catch (Exception)
             {
@@ -101,53 +136,14 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPut]
-        #region Update User Assign Role
-        public async Task<IActionResult> UpdateRoleAssign(UpdateRoleAssignmentDto roleAssignmentDto)
+        [HttpDelete]
+        #region Deactivate Role Permission
+        public async Task<IActionResult> DeactivateRolePermission(int id)
         {
             try
             {
-                await _roleMasterService.UpdateUserAssignRoleAsync(roleAssignmentDto);
-                return Ok("Role Updated Successfully...");
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-        #endregion
-
-        [HttpGet]
-        #region Get All Roles
-        public async Task<IActionResult> GetRoles(int page)
-        {
-            try
-            {
-                var roles = await _roleMasterService.GetRolesAsync(page);
-                if (roles.Values.Count == 0)
-                    return BadRequest("Role Not Found...");
-
-                return Ok(roles);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        #endregion
-
-        [HttpGet]
-        #region Get All Role Permissions
-        public async Task<IActionResult> GetRolePermissions(int page)
-        {
-            try
-            {
-                var rolePermissions = await _roleMasterService.GetRolePermissionsAsync(page);
-                if (rolePermissions.Values.Count == 0)
-                    return BadRequest("Role Permission Not Found");
-
-                return Ok(rolePermissions);
+                var rolePermission = await _roleMasterService.DeactivateRolePermissionAsync(id);
+                return rolePermission != 0 ? Ok("RolePermission deactivated successfully") : BadRequest("Unable to deactivate RolePermission.");
             }
             catch (Exception)
             {
@@ -174,5 +170,53 @@ namespace CRM_api.Controllers.User_Module
             }
         }
         #endregion  
+
+        [HttpPost]
+        #region Add User Role Assignment
+        public async Task<IActionResult> AddUserRoleAssignment(AddUserRoleAssignmentDto userRoleAssignmentDto)
+        {
+            try
+            {
+                await _roleMasterService.AddUserRoleAssignmentAsync(userRoleAssignmentDto);
+                return Ok("User Role Assign Successfully");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpPut]
+        #region Update User Assign Role
+        public async Task<IActionResult> UpdateRoleAssign(UpdateRoleAssignmentDto roleAssignmentDto)
+        {
+            try
+            {
+                var roleAssignment = await _roleMasterService.UpdateUserAssignRoleAsync(roleAssignmentDto);
+                return roleAssignment !=0 ? Ok("RoleAssignment updated successfully.") : BadRequest("Unable to update RoleAssignment.");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpDelete]
+        #region Deactivate Role Assignment
+        public async Task<IActionResult> DeactivateRoleAssignment(int id)
+        {
+            try
+            {
+                var roleAssignment = await _roleMasterService.DeactivateRoleAssignmentAsync(id);
+                return roleAssignment != 0 ? Ok("RoleAssignment deactivated successfully") : BadRequest("Unable to deactivate RoleAssignment.");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
     }
 }

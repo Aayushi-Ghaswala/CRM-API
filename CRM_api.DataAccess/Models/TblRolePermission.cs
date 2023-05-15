@@ -11,6 +11,7 @@ namespace CRM_api.DataAccess.Models
         public bool? AllowEdit { get; set; }
         public bool? AllowDelete { get; set; }
         public bool? AllowView { get; set; }
+        public bool IsDeleted { get; set; }
 
         [ForeignKey(nameof(RoleId))]
         public virtual TblRoleMaster TblRoleMaster { get; set; }

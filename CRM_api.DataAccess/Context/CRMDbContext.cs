@@ -383,6 +383,8 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.StateId).HasColumnName("state_id");
 
+                entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted").HasDefaultValue(0);
+
                 entity.HasOne(d => d.State)
                     .WithMany(p => p.TblCityMasters)
                     .HasForeignKey(d => d.StateId)
@@ -440,6 +442,8 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("isdcode");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted").HasDefaultValue(0);
             });
 
             modelBuilder.Entity<TblDepartmentMaster>(entity =>
@@ -1949,6 +1953,8 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.RoleId).HasColumnName("role_id");
 
                 entity.Property(e => e.UserId).HasColumnName("user_id");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted").HasDefaultValue(0);
             });
 
             modelBuilder.Entity<TblRoleMaster>(entity =>
@@ -1958,6 +1964,8 @@ namespace CRM_api.DataAccess.Context
                 entity.ToTable("tbl_role_master");
 
                 entity.Property(e => e.RoleId).HasColumnName("role_id");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted").HasDefaultValue(0);
 
                 entity.Property(e => e.RoleName)
                     .HasMaxLength(30)
@@ -1976,6 +1984,8 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.AllowEdit).HasColumnName("Allow_Edit");
 
                 entity.Property(e => e.AllowView).HasColumnName("Allow_View");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted").HasDefaultValue(0);
 
                 entity.Property(e => e.ModuleName)
                     .HasMaxLength(30)
@@ -2063,6 +2073,8 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("state_name");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted").HasDefaultValue(0);
 
                 entity.HasOne(d => d.Country)
                     .WithMany(p => p.TblStateMasters)

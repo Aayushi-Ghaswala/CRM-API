@@ -4,5 +4,6 @@
     {
         public int Id { get; set; } 
         public string RoleName { get; set; } = null!;
+        public bool IsDeleted { get; set; }
     }
 }

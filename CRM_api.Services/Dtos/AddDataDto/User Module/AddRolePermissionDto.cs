@@ -8,5 +8,6 @@
         public bool AllowEdit { get; set; }
         public bool AllowDelete { get; set; }
         public bool AllowView { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }
