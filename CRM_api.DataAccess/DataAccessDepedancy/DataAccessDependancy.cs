@@ -1,8 +1,10 @@
 ﻿using CRM_api.DataAccess.Context;
 using CRM_api.DataAccess.IRepositories.Business_Module.Loan_Module;
+using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.Loan_Module;
+using CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.Repositories.HR_Module;
 using CRM_api.DataAccess.Repositories.User_Module;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +33,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
 
             //Business_Module
             Services.AddScoped<ILoanMasterRepository, LoanMasterRepository>();
+            Services.AddScoped<IStocksRepository, StocksRepository>();
 
             //HR Module
             Services.AddScoped<IEmployeeRepository, EmployeeRepository>();

@@ -74,7 +74,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblSegmentMaster> TblSegmentMasters { get; set; } = null!;
         public virtual DbSet<TblSipCalculator> TblSipCalculators { get; set; } = null!;
         public virtual DbSet<TblStateMaster> TblStateMasters { get; set; } = null!;
-        public virtual DbSet<TblStockDatum> TblStockData { get; set; } = null!;
+        public virtual DbSet<TblStockData> TblStockData { get; set; } = null!;
         public virtual DbSet<TblSubInvesmentType> TblSubInvesmentTypes { get; set; } = null!;
         public virtual DbSet<TblTempUserpan> TblTempUserpans { get; set; } = null!;
         public virtual DbSet<TblTermsCondition> TblTermsConditions { get; set; } = null!;
@@ -2082,7 +2082,7 @@ namespace CRM_api.DataAccess.Context
                     .HasConstraintName("FK_tbl_StateMaster_tbl_Country_Master");
             });
 
-            modelBuilder.Entity<TblStockDatum>(entity =>
+            modelBuilder.Entity<TblStockData>(entity =>
             {
                 entity.ToTable("tbl_stock_data");
 
