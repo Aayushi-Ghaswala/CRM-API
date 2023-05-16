@@ -16,25 +16,6 @@ namespace CRM_api.Controllers.User_Module
             _roleMasterService = roleMasterService;
         }
 
-        [HttpGet]
-        #region Get All Roles
-        public async Task<IActionResult> GetRoles(int page)
-        {
-            try
-            {
-                var roles = await _roleMasterService.GetRolesAsync(page);
-                if (roles.Values.Count == 0)
-                    return BadRequest("Role Not Found...");
-
-                return Ok(roles);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        #endregion
-
         [HttpPost]
         #region Add Role
         public async Task<IActionResult> AddRole(AddRoleMasterDto roleMasterDto)
@@ -76,25 +57,6 @@ namespace CRM_api.Controllers.User_Module
             {
                 var role = await _roleMasterService.DeactivateRoleAsync(id);
                 return role != 0 ? Ok("Role deactivated successfully") : BadRequest("Unable to deactivate role.");
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        #endregion
-
-        [HttpGet]
-        #region Get All Role Permissions
-        public async Task<IActionResult> GetRolePermissions(int page)
-        {
-            try
-            {
-                var rolePermissions = await _roleMasterService.GetRolePermissionsAsync(page);
-                if (rolePermissions.Values.Count == 0)
-                    return BadRequest("Role Permission Not Found");
-
-                return Ok(rolePermissions);
             }
             catch (Exception)
             {
@@ -152,38 +114,6 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpGet]
-        #region Get All User Assign Role
-        public async Task<IActionResult> GetUserAssignRoles(int page)
-        {
-            try
-            {
-                var userAssignRoles = await _roleMasterService.GetUserAssignRolesAsync(page);
-                if (userAssignRoles.Values.Count == 0)
-                    return BadRequest("User Assign Role Not Found...");
-
-                return Ok(userAssignRoles);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        #endregion  
-
-
-        [HttpGet]
-        #region Get All Roles
-        public async Task<IActionResult> GetRoles(int page, string? search, string? sortOn)
-        {
-            try
-            {
-                var roles = await _roleMasterService.GetRolesAsync(page, search, sortOn);
-                if (roles.Values.Count == 0)
-                    return BadRequest("Role Not Found...");
-
-                return Ok(roles);
-
         [HttpPost]
         #region Add User Role Assignment
         public async Task<IActionResult> AddUserRoleAssignment(AddUserRoleAssignmentDto userRoleAssignmentDto)
@@ -200,19 +130,6 @@ namespace CRM_api.Controllers.User_Module
             }
         }
         #endregion
-
-
-        [HttpGet]
-        #region Get All Role Permissions
-        public async Task<IActionResult> GetRolePermissions(int page, string? search, string sortOn)
-        {
-            try
-            {
-                var rolePermissions = await _roleMasterService.GetRolePermissionsAsync(page, search, sortOn);
-                if (rolePermissions.Values.Count == 0)
-                    return BadRequest("Role Permission Not Found");
-
-                return Ok(rolePermissions);
 
         [HttpPut]
         #region Update User Assign Role
@@ -231,18 +148,6 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpGet]
-        #region Get All User Assign Role
-        public async Task<IActionResult> GetUserAssignRoles(int page, string? search, string? sortOn)
-        {
-            try
-            {
-                var userAssignRoles = await _roleMasterService.GetUserAssignRolesAsync(page, search, sortOn);
-                if (userAssignRoles.Values.Count == 0)
-                    return BadRequest("User Assign Role Not Found...");
-
-                return Ok(userAssignRoles);
-
         [HttpDelete]
         #region Deactivate Role Assignment
         public async Task<IActionResult> DeactivateRoleAssignment(int id)
@@ -258,5 +163,65 @@ namespace CRM_api.Controllers.User_Module
             }
         }
         #endregion
+
+        [HttpGet]
+        #region Get All Roles
+        public async Task<IActionResult> GetRoles(int page, string? search, string? sortOn)
+        {
+            try
+            {
+                var roles = await _roleMasterService.GetRolesAsync(page, search, sortOn);
+                if (roles.Values.Count == 0)
+                    return BadRequest("Role Not Found...");
+
+                return Ok(roles);
+            }
+            catch(Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpGet]
+        #region Get All Role Permissions
+        public async Task<IActionResult> GetRolePermissions(int page, string? search, string? sortOn)
+        {
+            try
+            {
+                var rolePermissions = await _roleMasterService.GetRolePermissionsAsync(page, search, sortOn);
+                if (rolePermissions.Values.Count == 0)
+                    return BadRequest("Role Permission Not Found");
+
+                return Ok(rolePermissions);
+            }
+
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpGet]
+        #region Get All User Assign Role
+        public async Task<IActionResult> GetUserAssignRoles(int page, string? search, string? sortOn)
+        {
+            try
+            {
+                var userAssignRoles = await _roleMasterService.GetUserAssignRolesAsync(page, search, sortOn);
+                if (userAssignRoles.Values.Count == 0)
+                    return BadRequest("User Assign Role Not Found...");
+
+                return Ok(userAssignRoles);
+            }
+
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
     }
 }

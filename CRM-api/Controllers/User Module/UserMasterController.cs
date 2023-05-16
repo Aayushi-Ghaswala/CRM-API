@@ -65,10 +65,10 @@ namespace CRM_api.Controllers.User_Module
         #endregion
 
         [HttpGet]
-        #region Get All UserMaster Details
-        public async Task<IActionResult> GetUsersByCategoryId(int catId, int page)
+        #region Get All UserMaster Details By Category Id
+        public async Task<IActionResult> GetUsersByCategoryId(int catId, int page, string? search, string? sortOn)
         {
-            var users = await _userMasterService.GetUsersByCategoryIdAsync(page, catId);
+            var users = await _userMasterService.GetUsersByCategoryIdAsync(page, catId, search, sortOn);
             if (users.Values.Count == 0)
                 return BadRequest("User Not Found...");
 
@@ -82,7 +82,10 @@ namespace CRM_api.Controllers.User_Module
         {
             try
             {
-                await _userMasterService.AddUserAsync(addUser);
+               var flag = await _userMasterService.AddUserAsync(addUser);
+                if (flag == 0)
+                    return BadRequest("UserUname Already Exist...");
+
                 return Ok("Added Successfully!!!.");
             }
             catch (Exception)
