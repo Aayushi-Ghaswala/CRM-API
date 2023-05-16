@@ -19,6 +19,7 @@ namespace CRM_api.DataAccess.Models
         public DateTime? Date { get; set; }
         public bool? IsNotification { get; set; }
         public bool? IsCompleted { get; set; }
+        public bool IsDeleted { get; set; }
 
         [ForeignKey(nameof(UserId))]
         public virtual TblUserMaster TblUserMaster { get; set; }

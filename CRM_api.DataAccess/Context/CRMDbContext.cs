@@ -2557,6 +2557,7 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.StartDate).HasColumnType("date");
                 entity.Property(e => e.MaturityDate).HasColumnType("date");
                 entity.Property(e => e.Date).HasColumnType("datetime");
+                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
             });
 
             modelBuilder.HasSequence("OrderId")

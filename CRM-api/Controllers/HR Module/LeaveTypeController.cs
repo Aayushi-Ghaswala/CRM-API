@@ -97,6 +97,7 @@ namespace CRM_api.Controllers.HR_Module
         #endregion
 
         #region Deactivate LeaveType
+        [HttpDelete]
         public async Task<IActionResult> DeactivateLeaveType(int id)
         {
             var leaveType = await _leaveTypeService.DeactivateLeaveTypeAsync(id);

@@ -15,40 +15,6 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
             _loanMasterService = loanMasterService;
         }
 
-        [HttpPost]
-        #region Add Loan Detail
-        public async Task<IActionResult> AddLoanDetail(AddLoanMasterDto loanMasterDto)
-        {
-            try
-            {
-                await _loanMasterService.AddLoanDetailAsync(loanMasterDto);
-                return Ok("Added Successfully...");
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-        #endregion
-
-        [HttpPut]
-        #region Update Loan Detail
-        public async Task<IActionResult> UpdateLoanDetail(UpdateLoanMasterDto loanMasterDto)
-        {
-            try
-            {
-                await _loanMasterService.UpdateLoanDetailAsync(loanMasterDto);
-                return Ok("Updated Successfully...");
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-        #endregion
-
         [HttpGet]
         #region Get All Loan Details
         public async Task<IActionResult> GetLoanDetails(int page)
@@ -57,7 +23,7 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
             {
                 var loanDetails = await _loanMasterService.GetLoanDetailsAsync(page);
                 if (loanDetails.Values.Count == 0)
-                    return BadRequest("Loan Detail Not Found...");
+                    return BadRequest("Loan Detail Not Found.");
 
                 return Ok(loanDetails);
             }
@@ -77,7 +43,7 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
             {
                 var loanDetail = await _loanMasterService.GetLoanDetailByIdAsync(id);
                 if (loanDetail == null)
-                    return BadRequest("Loan Detail Not Found...");
+                    return BadRequest("Loan Detail Not Found.");
 
                 return Ok(loanDetail);
             }
@@ -86,6 +52,47 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
 
                 throw;
             }
+        }
+        #endregion
+
+        [HttpPost]
+        #region Add Loan Detail
+        public async Task<IActionResult> AddLoanDetail(AddLoanMasterDto loanMasterDto)
+        {
+            try
+            {
+                var loan = await _loanMasterService.AddLoanDetailAsync(loanMasterDto);
+                return loan !=0 ? Ok("Loan added successfully.") : BadRequest("Unable to add loan.");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpPut]
+        #region Update Loan Detail
+        public async Task<IActionResult> UpdateLoanDetail(UpdateLoanMasterDto loanMasterDto)
+        {
+            try
+            {
+                var loan = await _loanMasterService.UpdateLoanDetailAsync(loanMasterDto);
+                return loan != 0 ? Ok("Loan updated successfully.") : BadRequest("Unable to update loan.");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpDelete]
+        #region Deactivate Loan Detail
+        public async Task<IActionResult> DeactivateLoanDetail(int id)
+        {
+            var loan = await _loanMasterService.DeactivateLoanDetailAsync(id);
+            return loan != 0 ? Ok("Loan deactivated successfully.") : BadRequest("Unable to deactivate loan.");
         }
         #endregion
     }
