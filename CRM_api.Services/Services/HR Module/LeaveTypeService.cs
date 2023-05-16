@@ -19,37 +19,54 @@ namespace CRM_api.Services.Services.HR_Module
             _mapper = mapper;
         }
 
-        public async Task<int> AddLeaveTypeAsync(AddLeaveTypeDto leaveTypeDto)
-        {
-            var leaveType = _mapper.Map<TblLeaveType>(leaveTypeDto);
-            return await _leaveTypeRepository.AddLeaveType(leaveType);
-        }
-
+        #region Get LeaveTypes
         public async Task<ResponseDto<LeaveTypeDto>> GetLeaveTypesAsync(int page)
         {
             var leaveTypes = await _leaveTypeRepository.GetLeaveTypes(page);
             var mapLeaveType = _mapper.Map<ResponseDto<LeaveTypeDto>>(leaveTypes);
             return mapLeaveType;
         }
+        #endregion
 
+        #region Get LeaveType By Id
         public async Task<LeaveTypeDto> GetLeaveTypeById(int id)
         {
             var leaveType = await _leaveTypeRepository.GetLeaveTypeById(id);
             var mappedLeaveType = _mapper.Map<LeaveTypeDto>(leaveType);
             return mappedLeaveType;
         }
+        #endregion
 
+        #region Get LeaveType By Name
         public async Task<LeaveTypeDto> GetLeaveTypeByName(string Name)
         {
             var leaveType = await _leaveTypeRepository.GetLeaveTypeByName(Name);
             var mappedLeaveType = _mapper.Map<LeaveTypeDto>(leaveType);
             return mappedLeaveType;
         }
+        #endregion
 
+        #region Add LeaveType
+        public async Task<int> AddLeaveTypeAsync(AddLeaveTypeDto leaveTypeDto)
+        {
+            var leaveType = _mapper.Map<TblLeaveType>(leaveTypeDto);
+            return await _leaveTypeRepository.AddLeaveType(leaveType);
+        }
+        #endregion
+
+        #region Update LeaveType
         public async Task<int> UpdateLeaveTypeAsync(UpdateLeaveTypeDto leaveTypeDto)
         {
             var leaveType = _mapper.Map<TblLeaveType>(leaveTypeDto);
             return await _leaveTypeRepository.UpdateLeaveType(leaveType);
         }
+        #endregion
+
+        #region Deactivate LeaveType
+        public async Task<int> DeactivateLeaveTypeAsync(int id)
+        {
+            return await _leaveTypeRepository.DeactivateLeaveType(id);
+        }
+        #endregion
     }
 }

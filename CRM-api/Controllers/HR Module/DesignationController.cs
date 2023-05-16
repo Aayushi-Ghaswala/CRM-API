@@ -48,6 +48,22 @@ namespace CRM_api.Controllers.HR_Module
         }
         #endregion
 
+        #region Get Designation by Department
+        [HttpGet("GetDesignationByDepartment")]
+        public async Task<ActionResult> GetDesignationByDepartment(int id)
+        {
+            try
+            {
+                var designations = await _designationService.GetDesignationByDepartment(id);
+                return designations.Count() > 0 ? Ok(designations) : NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
+
         #region Add Designation
         [HttpPost]
         public async Task<ActionResult> AddDesignation(AddDesignationDto addDesignationDto)
@@ -55,7 +71,7 @@ namespace CRM_api.Controllers.HR_Module
             try
             {
                 int row = await _designationService.AddDesignation(addDesignationDto);
-                return row > 0 ? Ok("Added") : BadRequest("Unable to Add");
+                return row > 0 ? Ok("Designation added successfully.") : BadRequest("Unable to add designation.");
             }
             catch (Exception ex)
             {
@@ -71,7 +87,7 @@ namespace CRM_api.Controllers.HR_Module
             try
             {
                 int row = await _designationService.UpdateDesignation(updateDesignationDto);
-                return row > 0 ? Ok("Updated") : BadRequest("Unable to update");
+                return row != 0 ? Ok("Designation updated successfully.") : BadRequest("Unable to update designation.");
             }
             catch (Exception ex)
             {
@@ -80,19 +96,12 @@ namespace CRM_api.Controllers.HR_Module
         }
         #endregion
 
-        #region Get Designation by Department
-        [HttpGet("GetDesignationByDepartment")]
-        public async Task<ActionResult> GetDesignationByDepartment(int id)
+        #region Deactivate Designation
+        [HttpDelete]
+        public async Task<IActionResult> DeactivateDesignation(int id)
         {
-            try
-            {
-                var designations = await _designationService.GetDesignationByDepartment(id);
-                return designations.Count() > 0 ? Ok(designations) : NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            int row = await _designationService.DeactivateDesignation(id);
+            return row !=0 ? Ok("Designation deactivated successfully.") : BadRequest("Unable to deactivate designation.");
         }
         #endregion
     }

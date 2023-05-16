@@ -9,5 +9,6 @@ namespace CRM_api.DataAccess.IRepositories.HR_Module
         Task<TblDepartmentMaster> GetDepartmentById(int id);
         Task<int> AddDepartment(TblDepartmentMaster departmentMaster);
         Task<int> UpdateDepartment(TblDepartmentMaster departmentMaster);
+        Task<int> DeactivateDepartment(int id);
     }
 }

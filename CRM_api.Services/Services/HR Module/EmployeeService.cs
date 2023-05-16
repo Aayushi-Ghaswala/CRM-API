@@ -23,11 +23,14 @@ namespace CRM_api.Services.Services.HR_Module
             _mapper = mapper;
         }
 
-        #region Add Employee
-        public async Task<int> AddEmployeeAsync(AddUserMasterDto addUser)
+        #region Get Employees
+        public async Task<ResponseDto<UserMasterDto>> GetEmployeesAsync(int page)
         {
-            var employee = _mapper.Map<TblUserMaster>(addUser);
-            return await _employeeRepository.AddEmployee(employee);
+            var catId = await _userMasterRepository.GetCategoryIdByName(CategoryConstant.employee);
+            var employees = await _employeeRepository.GetEmployees(page, catId);
+
+            var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(employees);
+            return mapUsers;
         }
         #endregion
 
@@ -40,14 +43,11 @@ namespace CRM_api.Services.Services.HR_Module
         }
         #endregion
 
-        #region Get Employees
-        public async Task<ResponseDto<UserMasterDto>> GetEmployeesAsync(int page)
+        #region Add Employee
+        public async Task<int> AddEmployeeAsync(AddUserMasterDto addUser)
         {
-            var catId = await _userMasterRepository.GetCategoryIdByName(CategoryConstant.employee);
-            var employees = await _employeeRepository.GetEmployees(page, catId);
-
-            var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(employees);
-            return mapUsers;
+            var employee = _mapper.Map<TblUserMaster>(addUser);
+            return await _employeeRepository.AddEmployee(employee);
         }
         #endregion
 
@@ -56,6 +56,13 @@ namespace CRM_api.Services.Services.HR_Module
         {
             var employee = _mapper.Map<TblUserMaster>(updateUser);
             return await _employeeRepository.UpdateEmployee(employee);
+        }
+        #endregion
+
+        #region Deactivate Employee
+        public Task<int> DeactivateEmployeeAsync(int id)
+        {
+            return _employeeRepository.DeactivateEmployee(id);
         }
         #endregion
     }

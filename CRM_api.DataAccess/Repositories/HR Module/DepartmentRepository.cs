@@ -15,25 +15,6 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             _context = context;
         }
 
-        #region Add Department
-        public async Task<int> AddDepartment(TblDepartmentMaster departmentMaster)
-        {
-            if (_context.TblDepartmentMasters.Any(x => x.Name == departmentMaster.Name))
-                return 0;
-
-            _context.TblDepartmentMasters.Add(departmentMaster);
-            return await _context.SaveChangesAsync();
-        }
-        #endregion
-
-        #region Get Department by Id
-        public async Task<TblDepartmentMaster> GetDepartmentById(int id)
-        {
-            var dept = await _context.TblDepartmentMasters.FirstAsync(x => x.DepartmentId == id);
-            return dept;
-        }
-        #endregion
-
         #region Get Departments
         public async Task<Response<TblDepartmentMaster>> GetDepartments(int page)
         {
@@ -57,12 +38,53 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         }
         #endregion
 
+        #region Get Department by Id
+        public async Task<TblDepartmentMaster> GetDepartmentById(int id)
+        {
+            var dept = await _context.TblDepartmentMasters.FirstAsync(x => x.DepartmentId == id);
+            return dept;
+        }
+        #endregion
+
+        #region Add Department
+        public async Task<int> AddDepartment(TblDepartmentMaster departmentMaster)
+        {
+            if (_context.TblDepartmentMasters.Any(x => x.Name == departmentMaster.Name))
+                return 0;
+
+            _context.TblDepartmentMasters.Add(departmentMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
         #region Update Department
         public async Task<int> UpdateDepartment(TblDepartmentMaster departmentMaster)
         {
+            var department = await _context.TblDepartmentMasters.FindAsync(departmentMaster.DepartmentId);
+
+            if (department == null) return 0;
+
             _context.TblDepartmentMasters.Update(departmentMaster);
             return await _context.SaveChangesAsync();
         }
         #endregion
+
+        #region Deactivate Department
+        public async Task<int> DeactivateDepartment(int id)
+        {
+            var department = await _context.TblDepartmentMasters.FindAsync(id);
+
+            if (department == null) return 0;
+
+            var designation = _context.TblDesignationMasters.Where(x => x.DepartmentId == id);
+            foreach (var item in designation)
+            {
+                item.Isdeleted = true;
+            }
+            department.Isdeleted = true;
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
     }
 }

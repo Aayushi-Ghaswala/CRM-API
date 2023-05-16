@@ -15,17 +15,6 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             _context = context;
         }
 
-        #region Add Designation
-        public async Task<int> AddDesignation(TblDesignationMaster designationMaster)
-        {
-            if (_context.TblDesignationMasters.Any(x => x.Name == designationMaster.Name))
-                return 0;
-
-            _context.TblDesignationMasters.Add(designationMaster);
-            return await _context.SaveChangesAsync();
-        }
-        #endregion
-
         #region Get Designation
         public async Task<Response<TblDesignationMaster>> GetDesignation(int page)
         {
@@ -60,10 +49,37 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             var dept = await _context.TblDesignationMasters.Include(d => d.DepartmentMaster).FirstAsync(x => x.DesignationId == id);
             return dept;
         }
+        #endregion
 
+        #region Add Designation
+        public async Task<int> AddDesignation(TblDesignationMaster designationMaster)
+        {
+            if (_context.TblDesignationMasters.Any(x => x.Name == designationMaster.Name))
+                return 0;
+
+            _context.TblDesignationMasters.Add(designationMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Update Designation
         public async Task<int> UpdateDesignation(TblDesignationMaster designationMaster)
         {
+            var designation = await _context.TblDesignationMasters.FindAsync(designationMaster.DesignationId);
+            if (designation == null) return 0;
+
             _context.TblDesignationMasters.Update(designationMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Deactivate Designation
+        public async Task<int> DeactivateDesignation(int id)
+        {
+            var designation = await _context.TblDesignationMasters.FindAsync(id);
+            if (designation == null) return 0;
+
+            designation.Isdeleted = true;
             return await _context.SaveChangesAsync();
         }
         #endregion

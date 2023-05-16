@@ -15,27 +15,6 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             _context = context;
         }
 
-        #region Add Employee
-        public async Task<int> AddEmployee(TblUserMaster userMaster)
-        {
-            if (_context.TblUserMasters.Any(x => x.UserUname == userMaster.UserUname))
-                return 0;
-
-            _context.TblUserMasters.Add(userMaster);
-            return await _context.SaveChangesAsync();
-        }
-        #endregion
-
-        #region Get Employee by Id
-        public async Task<TblUserMaster> GetEmployeebyId(int id)
-        {
-            var user = await _context.TblUserMasters.Include(x => x.TblUserCategoryMaster).Include(x => x.TblUserCategoryMaster)
-                                                    .Include(c => c.TblCountryMaster).Include(s => s.TblStateMaster)
-                                                    .Include(ct => ct.TblCityMaster).FirstAsync(x => x.UserId == id);
-            return user;
-        }
-        #endregion
-
         #region Get all employees
         public async Task<Response<TblUserMaster>> GetEmployees(int page, int catID)
         {
@@ -59,10 +38,47 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         }
         #endregion
 
+        #region Get Employee by Id
+        public async Task<TblUserMaster> GetEmployeebyId(int id)
+        {
+            var user = await _context.TblUserMasters.Include(x => x.TblUserCategoryMaster).Include(x => x.TblUserCategoryMaster)
+                                                    .Include(c => c.TblCountryMaster).Include(s => s.TblStateMaster)
+                                                    .Include(ct => ct.TblCityMaster).FirstAsync(x => x.UserId == id);
+            return user;
+        }
+        #endregion
+
+        #region Add Employee
+        public async Task<int> AddEmployee(TblUserMaster userMaster)
+        {
+            if (_context.TblUserMasters.Any(x => x.UserUname == userMaster.UserUname))
+                return 0;
+
+            _context.TblUserMasters.Add(userMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
         #region Update Employee
         public async Task<int> UpdateEmployee(TblUserMaster userMaster)
         {
+            var employee = await _context.TblUserMasters.FindAsync(userMaster.UserId);
+
+            if (employee == null) return 0;
+
             _context.TblUserMasters.Update(userMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Deactivate Employee
+        public async Task<int> DeactivateEmployee(int id)
+        {
+            var employee = await _context.TblUserMasters.FindAsync(id);
+
+            if (employee == null) return 0;
+
+            employee.UserIsactive = false;
             return await _context.SaveChangesAsync();
         }
         #endregion

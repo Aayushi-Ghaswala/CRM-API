@@ -6,9 +6,10 @@ namespace CRM_api.Services.IServices.HR_Module
 {
     public interface IEmployeeService
     {
-        Task<int> AddEmployeeAsync(AddUserMasterDto addUser);
-        Task<int> UpdateEmployeeAsync(UpdateUserMasterDto updateUser);
         Task<ResponseDto<UserMasterDto>> GetEmployeesAsync(int page);
         Task<UserMasterDto> GetEmployeeById(int id);
+        Task<int> AddEmployeeAsync(AddUserMasterDto addUser);
+        Task<int> UpdateEmployeeAsync(UpdateUserMasterDto updateUser);
+        Task<int> DeactivateEmployeeAsync(int id);
     }
 }

@@ -32,38 +32,6 @@ namespace CRM_api.Controllers.HR_Module
         }
         #endregion
 
-        #region Add LeaveType
-        [HttpPost]
-        public async Task<ActionResult> AddLeaveType(AddLeaveTypeDto addLeaveTypeDto)
-        {
-            try
-            {
-                int row = await _leaveTypeService.AddLeaveTypeAsync(addLeaveTypeDto);
-                return row > 0 ? Ok("Added") : BadRequest("Unable to Add");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-        #endregion
-
-        #region Update LeaveType
-        [HttpPut]
-        public async Task<ActionResult> UpdateLeaveType(UpdateLeaveTypeDto updateLeaveTypeDto)
-        {
-            try
-            {
-                int row = await _leaveTypeService.UpdateLeaveTypeAsync(updateLeaveTypeDto);
-                return row > 0 ? Ok("Updated") : BadRequest("Unable to update");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-        #endregion
-
         #region Get LeaveType By Id
         [HttpGet("GetLeaveTypeById")]
         public async Task<ActionResult<LeaveTypeDto>> GetLeaveTypeById(int leaveTypeId)
@@ -93,6 +61,46 @@ namespace CRM_api.Controllers.HR_Module
             {
                 return BadRequest(ex.Message);
             }
+        }
+        #endregion
+
+        #region Add LeaveType
+        [HttpPost]
+        public async Task<ActionResult> AddLeaveType(AddLeaveTypeDto addLeaveTypeDto)
+        {
+            try
+            {
+                int row = await _leaveTypeService.AddLeaveTypeAsync(addLeaveTypeDto);
+                return row > 0 ? Ok("LeaveType added successfully.") : BadRequest("Unable to add leaveType.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Update LeaveType
+        [HttpPut]
+        public async Task<ActionResult> UpdateLeaveType(UpdateLeaveTypeDto updateLeaveTypeDto)
+        {
+            try
+            {
+                int row = await _leaveTypeService.UpdateLeaveTypeAsync(updateLeaveTypeDto);
+                return row > 0 ? Ok("LeaveType updated successfully.") : BadRequest("Unable to update leaveType.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Deactivate LeaveType
+        public async Task<IActionResult> DeactivateLeaveType(int id)
+        {
+            var leaveType = await _leaveTypeService.DeactivateLeaveTypeAsync(id);
+            return leaveType != 0 ? Ok("LeaveType deactivated successfully.") : BadRequest("Unable to deactivate leaveType.");
         }
         #endregion
     }

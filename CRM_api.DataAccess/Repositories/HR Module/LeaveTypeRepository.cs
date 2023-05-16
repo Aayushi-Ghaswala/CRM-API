@@ -15,17 +15,6 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             _context = context;
         }
 
-        #region Add LeaveType
-        public async Task<int> AddLeaveType(TblLeaveType leaveType)
-        {
-            if (_context.TblLeaveTypes.Any(x => x.Name == leaveType.Name))
-                return 0;
-
-            _context.TblLeaveTypes.Add(leaveType);
-            return await _context.SaveChangesAsync();
-        }
-        #endregion
-
         #region Get LeaveType by Id
         public async Task<TblLeaveType> GetLeaveTypeById(int id)
         {
@@ -65,10 +54,33 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         }
         #endregion
 
+        #region Add LeaveType
+        public async Task<int> AddLeaveType(TblLeaveType leaveType)
+        {
+            if (_context.TblLeaveTypes.Any(x => x.Name == leaveType.Name))
+                return 0;
+
+            _context.TblLeaveTypes.Add(leaveType);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
         #region Update LeaveType
         public async Task<int> UpdateLeaveType(TblLeaveType leaveType)
         {
             _context.TblLeaveTypes.Update(leaveType);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Deactivate LeaveType
+        public async Task<int> DeactivateLeaveType(int id)
+        {
+            var leaveType = await _context.TblLeaveTypes.FindAsync(id);
+
+            if(leaveType == null) return 0;
+
+            leaveType.Isdeleted = true;
             return await _context.SaveChangesAsync();
         }
         #endregion
