@@ -55,7 +55,7 @@ namespace CRM_api.Controllers.HR_Module
             try
             {
                 int row = await _departmentService.AddDepartmentAsync(addDepartmentDto);
-                return row > 0 ? Ok("Department add successfully.") : BadRequest("Unable to add department.");
+                return row > 0 ? Ok("Department added successfully.") : BadRequest("Unable to add department.");
             }
             catch (Exception ex)
             {
@@ -71,7 +71,7 @@ namespace CRM_api.Controllers.HR_Module
             try
             {
                 int row = await _departmentService.UpdateDepartmentAsync(updateDepartmentDto);
-                return row != 0 ? Ok("Department update successfully.") : BadRequest("Unable to update department.");
+                return row != 0 ? Ok("Department updated successfully.") : BadRequest("Unable to update department.");
             }
             catch (Exception ex)
             {
@@ -85,7 +85,7 @@ namespace CRM_api.Controllers.HR_Module
         public async Task<IActionResult> DeactivateDepartment(int id)
         {
             var department = _departmentService.DeactivateDepartmentAsync(id);
-            return await department !=0 ? Ok("Department update successfully.") : BadRequest("Unable to deactivate department.");
+            return await department !=0 ? Ok("Department deactivated successfully.") : BadRequest("Unable to deactivate department.");
         }
         #endregion
     }
