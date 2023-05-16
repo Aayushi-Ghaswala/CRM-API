@@ -14,22 +14,28 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
             _context = context;
         }
 
+        #region Get stocks data for specific date range
+        public async Task<List<TblStockData>> GetStockDataForSpecificDateRange(DateTime? startDate, DateTime? endDate)
+        {
+            return await _context.TblStockData.Where(s => s.StDate >= startDate && s.StDate <= endDate).ToListAsync();
+        }
+        #endregion
+
+        #region Add stocks data
         public async Task<int> AddData(List<TblStockData> tblStockData)
         {
             await _context.TblStockData.AddRangeAsync(tblStockData);
             return await _context.SaveChangesAsync();
         }
+        #endregion
 
-        public async Task<List<TblStockData>> GetStockDataForSpecificDateRange(DateTime? startDate, DateTime? endDate)
-        {
-            return await _context.TblStockData.Where(s => s.StDate >= startDate && s.StDate <= endDate).ToListAsync();
-        }
-
+        #region Update stocks data
         public Task<int> UpdateData(List<TblStockData> tblStockData)
         {
             _context.ChangeTracker.Clear();
             _context.TblStockData.UpdateRange(tblStockData);
             return _context.SaveChangesAsync();
         }
+        #endregion
     }
 }

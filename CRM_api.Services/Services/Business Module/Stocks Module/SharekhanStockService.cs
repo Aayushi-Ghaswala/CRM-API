@@ -21,6 +21,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             _mapper = mapper;
         }
 
+        #region Import trade file for all and/or individual client.
         public async Task<int> ImportTradeFile(IFormFile formFile, int id, bool overrideData)
         {
             var filePath = Path.GetTempFileName();
@@ -75,5 +76,6 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
             return await _stocksRepository.AddData(mappedStockModel);
         }
+        #endregion
     }
 }
