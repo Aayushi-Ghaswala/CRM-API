@@ -16,13 +16,8 @@ namespace CRM_api.Services.IServices.User_Module
         Task<ResponseDto<RoleMasterDto>> GetRolesAsync(int page, string search, string sortOn);
         Task<ResponseDto<RolePermissionDto>> GetRolePermissionsAsync(int page, string search, string sortOn);
         Task<ResponseDto<UserRoleAssignmentDto>> GetUserAssignRolesAsync(int page, string search, string sortOn);
-
         Task<int> DeactivateRoleAsync(int id);
         Task<int> DeactivateRolePermissionAsync(int id);
         Task<int> DeactivateRoleAssignmentAsync(int id);
-        Task<ResponseDto<RoleMasterDto>> GetRolesAsync(int page);
-        Task<ResponseDto<RolePermissionDto>> GetRolePermissionsAsync(int page);
-        Task<ResponseDto<UserRoleAssignmentDto>> GetUserAssignRolesAsync(int page);
-
     }
 }

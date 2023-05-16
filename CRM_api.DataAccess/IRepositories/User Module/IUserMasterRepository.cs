@@ -8,14 +8,10 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<TblUserMaster> GetUserMasterbyId(int id);
         Task<int> UpdateUser(TblUserMaster userMaster);
         Task<Response<TblUserMaster>> GetUsers(int page, string search, string sortOn);
-
-        Task<Response<TblUserMaster>> GetUsers(int page);
-
         Task<Response<TblUserCategoryMaster>> GetUserCategories(int page);
         Task<int> GetCategoryIdByName(string name);
-        Task<Response<TblUserMaster>> GetUsersByCategoryId(int page, int catId);
+        Task<Response<TblUserMaster>> GetUsersByCategoryId(int page, int catId, string search, string sortOn);
         Task<int> AddUser(TblUserMaster userMaster);
-        Task<int> UpdateUser(TblUserMaster userMaster);
         Task<int> DeactivateUser(int id);
     }
 }

@@ -158,7 +158,11 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
                 switch (sortOn)
                 {
-                    case "roleName":
+                    case "roleName-ASC":
+                        roles = await _context.TblRoleMasters.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
+                                              .OrderBy(x => x.RoleName).ToListAsync();
+                        break;
+                    case "roleName-DESC":
                         roles = await _context.TblRoleMasters.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
                                               .OrderByDescending(x => x.RoleName).ToListAsync();
                         break;
@@ -205,13 +209,24 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
                 switch (sortOn)
                 {
-                    case "roleName":
+                    case "roleName-ASC":
+                        rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
+                                                        .Include(r => r.TblRoleMaster).OrderBy(x => x.TblRoleMaster.RoleName)
+                                                        .ToListAsync();
+                        break;
+
+                    case "moduleName-ASC":
+                        rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
+                                                        .Include(r => r.TblRoleMaster).OrderBy(x => x.ModuleName)
+                                                        .ToListAsync();
+                        break;
+                    case "roleName-DESC":
                         rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
                                                         .Include(r => r.TblRoleMaster).OrderByDescending(x => x.TblRoleMaster.RoleName)
                                                         .ToListAsync();
                         break;
 
-                    case "moduleName":
+                    case "moduleName-DESC":
                         rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
                                                         .Include(r => r.TblRoleMaster).OrderByDescending(x => x.ModuleName)
                                                         .ToListAsync();
@@ -262,13 +277,24 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
                 switch (sortOn)
                 {
-                    case "userName":
+                    case "userName-ASC":
+                        userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
+                                                        .Include(r => r.TblRoleMaster).Include(u => u.TblUserMaster)
+                                                        .OrderBy(x => x.TblUserMaster.UserName).ToListAsync();
+                        break;
+
+                    case "roleName-ASC":
+                        userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
+                                                        .Include(r => r.TblRoleMaster).Include(u => u.TblUserMaster)
+                                                        .OrderBy(x => x.TblRoleMaster.RoleName).ToListAsync();
+                        break;
+                    case "userName-DESC":
                         userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
                                                         .Include(r => r.TblRoleMaster).Include(u => u.TblUserMaster)
                                                         .OrderByDescending(x => x.TblUserMaster.UserName).ToListAsync();
                         break;
 
-                    case "roleName":
+                    case "roleName-DESC":
                         userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
                                                         .Include(r => r.TblRoleMaster).Include(u => u.TblUserMaster)
                                                         .OrderByDescending(x => x.TblRoleMaster.RoleName).ToListAsync();
