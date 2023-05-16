@@ -18,24 +18,6 @@ namespace CRM_api.Services.Services.Business_Module.Loan_Module
             _mapper = mapper;
         }
 
-        #region Add Loan Detail
-        public Task<int> AddLoanDetailAsync(AddLoanMasterDto loanMasterDto)
-        {
-            var addLoanDetail = _mapper.Map<TblLoanMaster>(loanMasterDto);
-            addLoanDetail.Date = DateTime.Now;
-            return _loanMasterRepository.AddLoanDetail(addLoanDetail);
-        }
-        #endregion
-
-        #region Add Loan Detail
-        public Task<int> UpdateLoanDetailAsync(UpdateLoanMasterDto loanMasterDto)
-        {
-            var addLoanDetail = _mapper.Map<TblLoanMaster>(loanMasterDto);
-
-            return _loanMasterRepository.UpdateLoanDetail(addLoanDetail);
-        }
-        #endregion
-
         #region Get All Loan Details
         public async Task<ResponseDto<LoanMasterDto>> GetLoanDetailsAsync(int page)
         {
@@ -53,6 +35,31 @@ namespace CRM_api.Services.Services.Business_Module.Loan_Module
             var mapLoanDetail = _mapper.Map<LoanMasterDto>(loanDetails);
 
             return mapLoanDetail;
+        }
+        #endregion
+
+        #region Add Loan Detail
+        public Task<int> AddLoanDetailAsync(AddLoanMasterDto loanMasterDto)
+        {
+            var addLoanDetail = _mapper.Map<TblLoanMaster>(loanMasterDto);
+            addLoanDetail.Date = DateTime.Now;
+            return _loanMasterRepository.AddLoanDetail(addLoanDetail);
+        }
+        #endregion
+
+        #region Update Loan Detail
+        public Task<int> UpdateLoanDetailAsync(UpdateLoanMasterDto loanMasterDto)
+        {
+            var addLoanDetail = _mapper.Map<TblLoanMaster>(loanMasterDto);
+
+            return _loanMasterRepository.UpdateLoanDetail(addLoanDetail);
+        }
+        #endregion
+
+        #region Deactivate Loan Detail
+        public Task<int> DeactivateLoanDetailAsync(int id)
+        {
+            return _loanMasterRepository.DeactivateLoanDetail(id);
         }
         #endregion
     }

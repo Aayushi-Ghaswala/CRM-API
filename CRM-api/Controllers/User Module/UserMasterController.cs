@@ -20,7 +20,7 @@ namespace CRM_api.Controllers.User_Module
         {
             var users = await _userMasterService.GetUsersAsync(page, search, sortOn);
             if (users.Values.Count == 0)
-                return BadRequest("User Not Found...");
+                return BadRequest("User not found.");
 
             return Ok(users);
         }
@@ -34,7 +34,7 @@ namespace CRM_api.Controllers.User_Module
             {
                 var user = await _userMasterService.GetUserMasterById(id);
                 if (user == null)
-                    return BadRequest("User Not Found...");
+                    return BadRequest("User not found.");
 
                 return Ok(user);
             }
@@ -53,7 +53,7 @@ namespace CRM_api.Controllers.User_Module
             {
                 var categories = await _userMasterService.GetUserCategoriesAsync(page);
                 if (categories.Values.Count == 0)
-                    return BadRequest("Category Not Found...");
+                    return BadRequest("Category not found.");
 
                 return Ok(categories);
             }
@@ -70,7 +70,7 @@ namespace CRM_api.Controllers.User_Module
         {
             var users = await _userMasterService.GetUsersByCategoryIdAsync(page, catId, search, sortOn);
             if (users.Values.Count == 0)
-                return BadRequest("User Not Found...");
+                return BadRequest("User not found.");
 
             return Ok(users);
         }
@@ -82,15 +82,11 @@ namespace CRM_api.Controllers.User_Module
         {
             try
             {
-               var flag = await _userMasterService.AddUserAsync(addUser);
-                if (flag == 0)
-                    return BadRequest("UserUname Already Exist...");
-
-                return Ok("Added Successfully!!!.");
+               var user = await _userMasterService.AddUserAsync(addUser);
+                return user != 0 ? Ok("User added successfully.") : BadRequest("Username already exist.");
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -107,7 +103,6 @@ namespace CRM_api.Controllers.User_Module
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

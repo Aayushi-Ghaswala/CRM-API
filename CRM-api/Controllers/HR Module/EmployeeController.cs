@@ -56,7 +56,7 @@ namespace CRM_api.Controllers.HR_Module
             try
             {
                 int row = await _employeeService.AddEmployeeAsync(addUserMasterDto);
-                return row > 0 ? Ok("Added") : BadRequest("Unable to Add");
+                return row > 0 ? Ok("Employee added successfully.") : BadRequest("Unable to add employee.");
             }
             catch (Exception ex)
             {
@@ -72,12 +72,21 @@ namespace CRM_api.Controllers.HR_Module
             try
             {
                 int row = await _employeeService.UpdateEmployeeAsync(updateUserMasterDto);
-                return row > 0 ? Ok("Updated") : BadRequest("Unable to update");
+                return row !=0 ? Ok("Employee updated successfully.") : BadRequest("Unable to update employee.");
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
+        }
+        #endregion
+
+        #region Deactivate employee
+        [HttpDelete]
+        public async Task<IActionResult> DeactivateEmployee(int id)
+        {
+            int row = await _employeeService.DeactivateEmployeeAsync(id);
+            return row != 0 ? Ok("Employee deactivated successfully.") : BadRequest("Unable to deactivate employee");
         }
         #endregion
     }

@@ -15,32 +15,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
             _context = context;
         }
 
-        #region Add Loan Detail
-        public async Task<int> AddLoanDetail(TblLoanMaster tblLoan)
-        {
-            _context.TblLoanMasters.Add(tblLoan);
-            return await _context.SaveChangesAsync();
-        }
-        #endregion
-
-        #region Update Loan Detail
-        public async Task<int> UpdateLoanDetail(TblLoanMaster tblLoan)
-        {
-            _context.TblLoanMasters.Update(tblLoan);
-            return await _context.SaveChangesAsync();
-        }
-        #endregion
-
-        #region Get Loan Detail By Id
-        public async Task<TblLoanMaster> GetLoanDetailById(int id)
-        {
-            var loanDetail = await _context.TblLoanMasters.Where(x => x.Id == id).Include(u => u.TblUserMaster).Include(c => c.TblUserCategoryMaster)
-                                                            .FirstOrDefaultAsync();
-
-            return loanDetail;
-        }
-        #endregion
-
         #region Get All Loan Details
         public async Task<Response<TblLoanMaster>> GetLoanDetails(int page)
         {
@@ -64,5 +38,46 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         }
         #endregion
 
+        #region Get Loan Detail By Id
+        public async Task<TblLoanMaster> GetLoanDetailById(int id)
+        {
+            var loanDetail = await _context.TblLoanMasters.Where(x => x.Id == id).Include(u => u.TblUserMaster).Include(c => c.TblUserCategoryMaster)
+                                                            .FirstOrDefaultAsync();
+
+            return loanDetail;
+        }
+        #endregion
+
+        #region Add Loan Detail
+        public async Task<int> AddLoanDetail(TblLoanMaster tblLoan)
+        {
+            _context.TblLoanMasters.Add(tblLoan);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Update Loan Detail
+        public async Task<int> UpdateLoanDetail(TblLoanMaster tblLoan)
+        {
+            var loan = await _context.TblLoanMasters.FindAsync(tblLoan.Id);
+
+            if (loan == null) return 0;
+
+            _context.TblLoanMasters.Update(tblLoan);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Deactivate Loan Detail
+        public async Task<int> DeactivateLoanDetail(int id)
+        {
+            var loan = await _context.TblLoanMasters.FindAsync(id);
+
+            if (loan == null) return 0;
+
+            loan.IsDeleted = true;
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
     }
 }

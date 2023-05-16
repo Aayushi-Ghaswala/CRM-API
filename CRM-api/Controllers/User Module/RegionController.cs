@@ -22,7 +22,7 @@ namespace CRM_api.Controllers.User_Module
             {
                 var countries = await _regionService.GetCountriesAsync(page);
                 if (countries.Values.Count == 0)
-                    return BadRequest("Country Not Found...");
+                    return BadRequest("Country not found.");
 
                 return Ok(countries);
             }
@@ -41,7 +41,7 @@ namespace CRM_api.Controllers.User_Module
             {
                 var states = await _regionService.GetstateByCountry(countryId, page);
                 if (states.Values.Count == 0)
-                    return BadRequest("State Not Found...");
+                    return BadRequest("State not found.");
 
                 return Ok(states);
             }
@@ -60,7 +60,7 @@ namespace CRM_api.Controllers.User_Module
             {
                 var cities = await _regionService.GetCityByState(stateId, page);
                 if (cities.Values.Count == 0)
-                    return BadRequest("City Not Found...");
+                    return BadRequest("City not found.");
 
                 return Ok(cities);
             }

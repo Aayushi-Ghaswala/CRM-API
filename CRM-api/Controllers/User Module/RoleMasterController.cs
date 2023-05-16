@@ -172,7 +172,7 @@ namespace CRM_api.Controllers.User_Module
             {
                 var roles = await _roleMasterService.GetRolesAsync(page, search, sortOn);
                 if (roles.Values.Count == 0)
-                    return BadRequest("Role Not Found...");
+                    return BadRequest("Role not found.");
 
                 return Ok(roles);
             }
@@ -211,7 +211,7 @@ namespace CRM_api.Controllers.User_Module
             {
                 var userAssignRoles = await _roleMasterService.GetUserAssignRolesAsync(page, search, sortOn);
                 if (userAssignRoles.Values.Count == 0)
-                    return BadRequest("User Assign Role Not Found...");
+                    return BadRequest("RoleAssignment not found.");
 
                 return Ok(userAssignRoles);
             }

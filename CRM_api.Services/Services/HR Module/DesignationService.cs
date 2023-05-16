@@ -19,12 +19,7 @@ namespace CRM_api.Services.Services.HR_Module
             _mapper = mapper;
         }
 
-        public async Task<int> AddDesignation(AddDesignationDto designationMaster)
-        {
-            var mappedDesignation = _mapper.Map<TblDesignationMaster>(designationMaster);
-            return await _designationRepository.AddDesignation(mappedDesignation);
-        }
-
+        #region Get designations
         public async Task<ResponseDto<DesignationDto>> GetDesignation(int page)
         {
             var designations = await _designationRepository.GetDesignation(page);
@@ -45,11 +40,29 @@ namespace CRM_api.Services.Services.HR_Module
             var mapDesignation = _mapper.Map<DesignationDto>(designation);
             return mapDesignation;
         }
+        #endregion
 
+        #region Add designation
+        public async Task<int> AddDesignation(AddDesignationDto designationMaster)
+        {
+            var mappedDesignation = _mapper.Map<TblDesignationMaster>(designationMaster);
+            return await _designationRepository.AddDesignation(mappedDesignation);
+        }
+        #endregion
+
+        #region Update designation
         public async Task<int> UpdateDesignation(UpdateDesignationDto designationMaster)
         {
             var designation = _mapper.Map<TblDesignationMaster>(designationMaster);
             return await _designationRepository.UpdateDesignation(designation);
         }
+        #endregion
+
+        #region Deactivate designation
+        public async Task<int> DeactivateDesignation(int id)
+        {
+            return await _designationRepository.DeactivateDesignation(id);
+        }
+        #endregion
     }
 }

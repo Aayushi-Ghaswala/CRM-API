@@ -32,6 +32,22 @@ namespace CRM_api.Controllers.HR_Module
         }
         #endregion
 
+        #region Get Department By Id
+        [HttpGet("GetDepartmentById")]
+        public async Task<ActionResult<DepartmentDto>> GetDepartmentById(int deptId)
+        {
+            try
+            {
+                var department = await _departmentService.GetDepartmentById(deptId);
+                return department.DepartmentId != 0 ? Ok(department) : NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
+
         #region Add Department
         [HttpPost]
         public async Task<ActionResult> AddDepartment(AddDepartmentDto addDepartmentDto)
@@ -39,7 +55,7 @@ namespace CRM_api.Controllers.HR_Module
             try
             {
                 int row = await _departmentService.AddDepartmentAsync(addDepartmentDto);
-                return row > 0 ? Ok("Added") : BadRequest("Unable to Add");
+                return row > 0 ? Ok("Department added successfully.") : BadRequest("Unable to add department.");
             }
             catch (Exception ex)
             {
@@ -55,7 +71,7 @@ namespace CRM_api.Controllers.HR_Module
             try
             {
                 int row = await _departmentService.UpdateDepartmentAsync(updateDepartmentDto);
-                return row > 0 ? Ok("Updated") : BadRequest("Unable to update");
+                return row != 0 ? Ok("Department updated successfully.") : BadRequest("Unable to update department.");
             }
             catch (Exception ex)
             {
@@ -64,19 +80,12 @@ namespace CRM_api.Controllers.HR_Module
         }
         #endregion
 
-        #region Get Department By Id
-        [HttpGet("GetDepartmentById")]
-        public async Task<ActionResult<DepartmentDto>> GetDepartmentById(int deptId)
+        #region Deactivate department
+        [HttpDelete]
+        public async Task<IActionResult> DeactivateDepartment(int id)
         {
-            try
-            {
-                var department = await _departmentService.GetDepartmentById(deptId);
-                return department.DepartmentId != 0 ? Ok(department) : NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var department = _departmentService.DeactivateDepartmentAsync(id);
+            return await department !=0 ? Ok("Department deactivated successfully.") : BadRequest("Unable to deactivate department.");
         }
         #endregion
     }
