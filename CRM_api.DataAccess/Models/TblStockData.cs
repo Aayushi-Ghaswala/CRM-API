@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CRM_api.DataAccess.Models
 {
-    public partial class TblStockDatum
+    public partial class TblStockData
     {
         public int Id { get; set; }
         public int? StBranch { get; set; }
