@@ -21,7 +21,7 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
             try
             {
                 var res = await _sharekhanStockService.ImportTradeFile(formFile, 0, overrideData);
-                return res != 0 ? Ok("File imported sucessfully.") : BadRequest("Unable to import file data.");
+                return res != 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
             }
             catch (Exception ex)
             {
@@ -37,7 +37,7 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
             try
             {
                 var res = await _sharekhanStockService.ImportTradeFile(formFile, id, overrideData);
-                return res != 0 ? Ok("File imported sucessfully.") : BadRequest("Unable to import file data.");
+                return res != 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
             }
             catch (Exception ex)
             {

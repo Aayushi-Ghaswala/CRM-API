@@ -29,11 +29,10 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         }
         #endregion
 
-        #region Update stocks data
-        public Task<int> UpdateData(List<TblStockData> tblStockData)
+        #region Delete stocks data
+        public Task<int> DeleteData(List<TblStockData> tblStockData)
         {
-            _context.ChangeTracker.Clear();
-            _context.TblStockData.UpdateRange(tblStockData);
+            _context.TblStockData.RemoveRange(tblStockData);
             return _context.SaveChangesAsync();
         }
         #endregion

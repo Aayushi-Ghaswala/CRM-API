@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CRM_api.DataAccess.Models
 {
@@ -11,6 +10,7 @@ namespace CRM_api.DataAccess.Models
         public string? StClientname { get; set; }
         public string? StScripname { get; set; }
         public string? StSettno { get; set; }
+        [DataType(DataType.Date)]
         public DateTime? StDate { get; set; }
         public string? StType { get; set; }
         public int? StQty { get; set; }
