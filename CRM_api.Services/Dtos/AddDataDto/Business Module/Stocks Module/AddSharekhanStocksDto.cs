@@ -1,4 +1,5 @@
 ﻿using CsvHelper.Configuration.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.Stocks_Module
 {
@@ -15,6 +16,7 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.Stocks_Module
         [Name("Settlement No")]
         public string? StSettno { get; set; }
         [Name("Date")]
+        [DataType(DataType.Date)]
         public DateTime? StDate { get; set; }
         [Name("Buy/Sel")]
         public string? StType { get; set; }

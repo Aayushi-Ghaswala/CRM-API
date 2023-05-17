@@ -24,6 +24,10 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #region Import trade file for all and/or individual client.
         public async Task<int> ImportTradeFile(IFormFile formFile, int id, bool overrideData)
         {
+            CultureInfo culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+            culture.DateTimeFormat.ShortDatePattern = "dd-MM-yyyy";
+            Thread.CurrentThread.CurrentCulture = culture;
+
             var filePath = Path.GetTempFileName();
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
@@ -47,7 +51,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             using (var fs = new StreamReader(localFilePath))
             {
                 // to load the records from the file in my List<CsvLine>
-                stockDataList = new CsvReader(fs, CultureInfo.CreateSpecificCulture("en-US")).GetRecords<AddSharekhanStocksDto>().ToList();
+                stockDataList = new CsvReader(fs, culture).GetRecords<AddSharekhanStocksDto>().ToList();
             }
             var mappedStockModel = _mapper.Map<List<TblStockData>>(stockDataList);
 
@@ -58,20 +62,10 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             //To override existing data
             if (overrideData)
             {
-                var stockDataIfExists = await _stocksRepository.GetStockDataForSpecificDateRange(mappedStockModel.Last().StDate, mappedStockModel.First().StDate);
+                var stockDataIfExists = await _stocksRepository.GetStockDataForSpecificDateRange(mappedStockModel.First().StDate, mappedStockModel.Last().StDate);
 
                 if (stockDataIfExists.Count > 0)
-                {
-                    foreach (var stockData in stockDataIfExists)
-                    {
-                        foreach (var model in mappedStockModel)
-                        {
-                            if (stockData.StClientname == model.StClientname && stockData.StType == model.StType && stockData.StSettno == model.StSettno && stockData.Userid == model.Userid)
-                                model.Id = stockData.Id;
-                        }
-                    }
-                    return await _stocksRepository.UpdateData(mappedStockModel);
-                }
+                    await _stocksRepository.DeleteData(stockDataIfExists);
             }
 
             return await _stocksRepository.AddData(mappedStockModel);
