@@ -25,7 +25,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 await _roleMasterService.AddRoleAsync(roleMasterDto);
-                return Ok(new { Message = "Role Added Successfully!!!"});
+                return Ok(new { Message = "Role added successfully."});
 
             }
             catch (Exception)
@@ -42,7 +42,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 var role = await _roleMasterService.UpdateRoleAsync(roleMasterDto);
-                return role !=0 ? Ok(new { Message = "Role updated successfully"}) : BadRequest(new { Message = "Unable to update role"});
+                return role !=0 ? Ok(new { Message = "Role updated successfully."}) : BadRequest(new { Message = "Unable to update role."});
             }
             catch (Exception)
             {
@@ -74,7 +74,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 await _roleMasterService.AddRolePermissionAsync(rolePermissionDto);
-                return Ok(new { Message = "RolePermission Added Successfully!!!"});
+                return Ok(new { Message = "RolePermission added successfully."});
 
             }
             catch (Exception)
@@ -91,7 +91,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 var rolePermission = await _roleMasterService.UpdateRolePermissionAsync(rolePermissionDto);
-                return rolePermission !=0 ? Ok(new { Message = "RolePermission updated successfully"}) : BadRequest(new { Message = "Unable to update rolePermission"});
+                return rolePermission !=0 ? Ok(new { Message = "RolePermission updated successfully."}) : BadRequest(new { Message = "Unable to update rolePermission."});
             }
             catch (Exception)
             {
@@ -123,7 +123,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 await _roleMasterService.AddUserRoleAssignmentAsync(userRoleAssignmentDto);
-                return Ok(new { Message = "User Role Assign Successfully." });
+                return Ok(new { Message = "User Role Assign successfully." });
 
             }
             catch (Exception)
@@ -140,7 +140,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 var roleAssignment = await _roleMasterService.UpdateUserAssignRoleAsync(roleAssignmentDto);
-                return roleAssignment !=0 ? Ok(new { Message = "RoleAssignment updated successfully"}) : BadRequest(new { Message = "Unable to update RoleAssignment"});
+                return roleAssignment !=0 ? Ok(new { Message = "RoleAssignment updated successfully."}) : BadRequest(new { Message = "Unable to update RoleAssignment."});
 
             }
             catch (Exception)
