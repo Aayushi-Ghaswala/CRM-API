@@ -1,4 +1,5 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
@@ -16,19 +17,30 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         }
 
         #region Get Designation
-        public async Task<Response<TblDesignationMaster>> GetDesignation(int page)
+        public async Task<Response<TblDesignationMaster>> GetDesignation(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblDesignationMasters.Where(x => x.Isdeleted == false).Count() / pageResult);
+            double pageCount = 0;
 
-            var designations = await _context.TblDesignationMasters.Include(d => d.DepartmentMaster).Where(x => x.Isdeleted == false).Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+            var filterData = _context.TblDesignationMasters.AsQueryable();
+
+            if (searchingParams.Count > 0)
+            {
+                filterData = _context.SearchByField<TblDesignationMaster>(searchingParams);
+            }
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var departmentResponse = new Response<TblDesignationMaster>()
             {
-                Values = designations,
+                Values = paginatedData,
                 Pagination = new Pagination()
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };
@@ -38,9 +50,9 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #endregion
 
         #region Get Designation By
-        public async Task<IEnumerable<TblDesignationMaster>> GetDesignationByDepartment(int deptId)
+        public async Task<IEnumerable<TblDesignationMaster>> GetDesignationByDepartment(int departmentId)
         {
-            var depts = await _context.TblDesignationMasters.Include(d => d.DepartmentMaster).Where(d => d.DepartmentId == deptId).ToListAsync();
+            var depts = await _context.TblDesignationMasters.Include(d => d.DepartmentMaster).Where(d => d.DepartmentId == departmentId).ToListAsync();
             return depts;
         }
 

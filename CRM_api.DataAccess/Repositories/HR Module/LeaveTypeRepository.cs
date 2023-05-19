@@ -1,8 +1,10 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CRM_api.DataAccess.Repositories.HR_Module
 {
@@ -14,6 +16,39 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         {
             _context = context;
         }
+
+        #region Get LeaveTypes
+        public async Task<Response<TblLeaveType>> GetLeaveTypes(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+
+            var filterData = _context.TblLeaveTypes.AsQueryable();
+
+            if (searchingParams.Count > 0)
+            {
+                filterData = _context.SearchByField<TblLeaveType>(searchingParams);
+            }
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var leaveTypeResponse = new Response<TblLeaveType>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+
+            return leaveTypeResponse;
+        }
+        #endregion
 
         #region Get LeaveType by Id
         public async Task<TblLeaveType> GetLeaveTypeById(int id)
@@ -28,29 +63,6 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         {
             var leaveType = await _context.TblLeaveTypes.FirstAsync(x => x.Name.ToLower() == Name.ToLower());
             return leaveType;
-        }
-        #endregion
-
-        #region Get LeaveTypes
-        public async Task<Response<TblLeaveType>> GetLeaveTypes(int page)
-        {
-            float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblLeaveTypes.Where(x => x.Isdeleted == false).Count() / pageResult);
-
-            var leaveTypes = await _context.TblLeaveTypes.Where(x => x.Isdeleted == false).Skip((page - 1) * (int)pageResult)
-                                                     .Take((int)pageResult).ToListAsync();
-
-            var leaveTypeResponse = new Response<TblLeaveType>()
-            {
-                Values = leaveTypes,
-                Pagination = new Pagination()
-                {
-                    CurrentPage = page,
-                    Count = (int)pageCount
-                }
-            };
-
-            return leaveTypeResponse;
         }
         #endregion
 

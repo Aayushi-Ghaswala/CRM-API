@@ -1,7 +1,9 @@
-﻿using CRM_api.Services.Dtos.AddDataDto.HR_Module;
+﻿using CRM_api.DataAccess.Helper;
+using CRM_api.Services.Dtos.AddDataDto.HR_Module;
 using CRM_api.Services.Dtos.ResponseDto.HR_Module;
 using CRM_api.Services.IServices.HR_Module;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CRM_api.Controllers.HR_Module
 {
@@ -18,11 +20,23 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get all LeaveTypes
         [HttpGet]
-        public async Task<ActionResult> GetLeaveTypes(int page)
+        public async Task<ActionResult> GetLeaveTypes([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var leaveTypes = await _leaveTypeService.GetLeaveTypesAsync(page);
+                var data = new Dictionary<string, object>();
+                if (searchingParams != null)
+                {
+                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
+                        new JsonSerializerOptions
+                        {
+                            Converters =
+                            {
+                            new ObjectDeserializer()
+                            }
+                        });
+                }
+                var leaveTypes = await _leaveTypeService.GetLeaveTypesAsync(data, sortingParams);
                 return leaveTypes.Values.Count > 0 ? Ok(leaveTypes) : NoContent();
             }
             catch (Exception ex)
@@ -71,7 +85,7 @@ namespace CRM_api.Controllers.HR_Module
             try
             {
                 int row = await _leaveTypeService.AddLeaveTypeAsync(addLeaveTypeDto);
-                return row > 0 ? Ok("LeaveType added successfully.") : BadRequest("Unable to add leaveType.");
+                return row > 0 ? Ok(new { Message = "LeaveType added successfully."}) : BadRequest(new { Message = "Unable to add leaveType."});
             }
             catch (Exception ex)
             {
@@ -87,7 +101,7 @@ namespace CRM_api.Controllers.HR_Module
             try
             {
                 int row = await _leaveTypeService.UpdateLeaveTypeAsync(updateLeaveTypeDto);
-                return row > 0 ? Ok("LeaveType updated successfully.") : BadRequest("Unable to update leaveType.");
+                return row > 0 ? Ok(new { Message = "LeaveType updated successfully."}) : BadRequest(new { Message = "Unable to update leaveType."});
             }
             catch (Exception ex)
             {
@@ -101,7 +115,7 @@ namespace CRM_api.Controllers.HR_Module
         public async Task<IActionResult> DeactivateLeaveType(int id)
         {
             var leaveType = await _leaveTypeService.DeactivateLeaveTypeAsync(id);
-            return leaveType != 0 ? Ok("LeaveType deactivated successfully.") : BadRequest("Unable to deactivate leaveType.");
+            return leaveType != 0 ? Ok(new { Message = "LeaveType deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate leaveType."});
         }
         #endregion
     }

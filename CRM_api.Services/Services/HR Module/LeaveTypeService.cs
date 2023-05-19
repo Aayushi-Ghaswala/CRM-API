@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.HR_Module;
@@ -20,9 +21,9 @@ namespace CRM_api.Services.Services.HR_Module
         }
 
         #region Get LeaveTypes
-        public async Task<ResponseDto<LeaveTypeDto>> GetLeaveTypesAsync(int page)
+        public async Task<ResponseDto<LeaveTypeDto>> GetLeaveTypesAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            var leaveTypes = await _leaveTypeRepository.GetLeaveTypes(page);
+            var leaveTypes = await _leaveTypeRepository.GetLeaveTypes(searchingParams,sortingParams);
             var mapLeaveType = _mapper.Map<ResponseDto<LeaveTypeDto>>(leaveTypes);
             return mapLeaveType;
         }

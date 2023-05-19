@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
@@ -24,10 +25,10 @@ namespace CRM_api.Services.Services.HR_Module
         }
 
         #region Get Employees
-        public async Task<ResponseDto<UserMasterDto>> GetEmployeesAsync(int page)
+        public async Task<ResponseDto<UserMasterDto>> GetEmployeesAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            var catId = await _userMasterRepository.GetCategoryIdByName(CategoryConstant.employee);
-            var employees = await _employeeRepository.GetEmployees(page, catId);
+            var category = await _userMasterRepository.GetCategoryByName(CategoryConstant.employee);
+            var employees = await _employeeRepository.GetEmployees(category.CatId, searchingParams, sortingParams);
 
             var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(employees);
             return mapUsers;

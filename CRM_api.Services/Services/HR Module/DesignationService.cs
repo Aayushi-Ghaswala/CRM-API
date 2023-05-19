@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.HR_Module;
@@ -19,17 +20,19 @@ namespace CRM_api.Services.Services.HR_Module
             _mapper = mapper;
         }
 
-        #region Get designations
-        public async Task<ResponseDto<DesignationDto>> GetDesignation(int page)
+        #region Get Designations
+        public async Task<ResponseDto<DesignationDto>> GetDesignation(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            var designations = await _designationRepository.GetDesignation(page);
+            var designations = await _designationRepository.GetDesignation(searchingParams, sortingParams);
             var mappedDesignation = _mapper.Map<ResponseDto<DesignationDto>>(designations);
             return mappedDesignation;
         }
+        #endregion
 
-        public async Task<IEnumerable<DesignationDto>> GetDesignationByDepartment(int deptId)
+        #region Get Designations By
+        public async Task<IEnumerable<DesignationDto>> GetDesignationByDepartment(int departmentId)
         {
-            var designations = await _designationRepository.GetDesignationByDepartment(deptId);
+            var designations = await _designationRepository.GetDesignationByDepartment(departmentId);
             var mappedDesignation = _mapper.Map<IEnumerable<DesignationDto>>(designations);
             return mappedDesignation;
         }

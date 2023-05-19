@@ -1,4 +1,5 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
@@ -16,20 +17,30 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         }
 
         #region Get Departments
-        public async Task<Response<TblDepartmentMaster>> GetDepartments(int page)
+        public async Task<Response<TblDepartmentMaster>> GetDepartments(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblDepartmentMasters.Where(x => x.Isdeleted == false).Count() / pageResult);
+            double pageCount = 0;
 
-            var depts = await _context.TblDepartmentMasters.Where(x => x.Isdeleted == false).Skip((page - 1) * (int)pageResult)
-                                                     .Take((int)pageResult).ToListAsync();
+            var filterData = _context.TblDepartmentMasters.AsQueryable();
+
+            if (searchingParams.Count > 0)
+            {
+                filterData = _context.SearchByField<TblDepartmentMaster>(searchingParams);
+            }
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var departmentResponse = new Response<TblDepartmentMaster>()
             {
-                Values = depts,
+                Values = paginatedData,
                 Pagination = new Pagination()
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };

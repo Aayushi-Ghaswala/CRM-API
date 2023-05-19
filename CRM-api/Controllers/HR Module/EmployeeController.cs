@@ -1,8 +1,10 @@
-﻿using CRM_api.Services.Dtos.AddDataDto;
+﻿using CRM_api.DataAccess.Helper;
+using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.HR_Module;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CRM_api.Controllers.HR_Module
 {
@@ -19,11 +21,23 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get all emplloyees
         [HttpGet]
-        public async Task<ActionResult<ResponseDto<UserMasterDto>>> GetEmployees(int page)
+        public async Task<ActionResult<ResponseDto<UserMasterDto>>> GetEmployees([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var employees = await _employeeService.GetEmployeesAsync(page);
+                var data = new Dictionary<string, object>();
+                if (searchingParams != null)
+                {
+                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
+                        new JsonSerializerOptions
+                        {
+                            Converters =
+                            {
+                            new ObjectDeserializer()
+                            }
+                        });
+                }
+                var employees = await _employeeService.GetEmployeesAsync(data, sortingParams);
                 return employees.Values.Count > 0 ? Ok(employees) : NoContent();
             }
             catch (Exception ex)
@@ -56,7 +70,7 @@ namespace CRM_api.Controllers.HR_Module
             try
             {
                 int row = await _employeeService.AddEmployeeAsync(addUserMasterDto);
-                return row > 0 ? Ok("Employee added successfully.") : BadRequest("Unable to add employee.");
+                return row > 0 ? Ok(new { Message = "Employee added successfully."}) : BadRequest(new { Message = "Unable to add employee."});
             }
             catch (Exception ex)
             {
@@ -72,7 +86,7 @@ namespace CRM_api.Controllers.HR_Module
             try
             {
                 int row = await _employeeService.UpdateEmployeeAsync(updateUserMasterDto);
-                return row !=0 ? Ok("Employee updated successfully.") : BadRequest("Unable to update employee.");
+                return row !=0 ? Ok(new { Message = "Employee updated successfully."}) : BadRequest(new { Message = "Unable to update employee."});
             }
             catch (Exception ex)
             {
@@ -86,7 +100,7 @@ namespace CRM_api.Controllers.HR_Module
         public async Task<IActionResult> DeactivateEmployee(int id)
         {
             int row = await _employeeService.DeactivateEmployeeAsync(id);
-            return row != 0 ? Ok("Employee deactivated successfully.") : BadRequest("Unable to deactivate employee");
+            return row != 0 ? Ok(new { Message = "Employee deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate employee." });
         }
         #endregion
     }

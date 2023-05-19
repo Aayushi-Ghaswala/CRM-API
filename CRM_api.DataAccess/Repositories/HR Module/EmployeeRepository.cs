@@ -1,4 +1,5 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
@@ -16,20 +17,30 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         }
 
         #region Get all employees
-        public async Task<Response<TblUserMaster>> GetEmployees(int page, int catID)
+        public async Task<Response<TblUserMaster>> GetEmployees(int categoryId, Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblUserMasters.Where(e => e.UserIsactive == true && e.CatId == catID).Count() / pageResult);
+            double pageCount = 0;
 
-            var employees = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catID).Skip((page - 1) * (int)pageResult)
-                                                     .Take((int)pageResult).ToListAsync();
+            var filterData = _context.TblUserMasters.Where(x => x.CatId == categoryId).AsQueryable();
+
+            if (searchingParams.Count > 0)
+            {
+                filterData = _context.SearchByField<TblUserMaster>(searchingParams);
+            }
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var employeesResponse = new Response<TblUserMaster>()
             {
-                Values = employees,
+                Values = paginatedData,
                 Pagination = new Pagination()
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };
