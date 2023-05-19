@@ -23,7 +23,7 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
             {
                 var loanDetails = await _loanMasterService.GetLoanDetailsAsync(page);
                 if (loanDetails.Values.Count == 0)
-                    return BadRequest("Loan Detail Not Found.");
+                    return BadRequest(new { Message = "Loan Detail Not Found"});
 
                 return Ok(loanDetails);
             }
@@ -43,7 +43,7 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
             {
                 var loanDetail = await _loanMasterService.GetLoanDetailByIdAsync(id);
                 if (loanDetail == null)
-                    return BadRequest("Loan Detail Not Found.");
+                    return BadRequest(new { Message = "Loan Detail Not Found"});
 
                 return Ok(loanDetail);
             }
@@ -62,7 +62,7 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
             try
             {
                 var loan = await _loanMasterService.AddLoanDetailAsync(loanMasterDto);
-                return loan !=0 ? Ok("Loan added successfully.") : BadRequest("Unable to add loan.");
+                return loan !=0 ? Ok(new { Message = "Loan added successfully"}) : BadRequest(new { Message = "Unable to add loan"});
             }
             catch (Exception)
             {
@@ -78,7 +78,7 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
             try
             {
                 var loan = await _loanMasterService.UpdateLoanDetailAsync(loanMasterDto);
-                return loan != 0 ? Ok("Loan updated successfully.") : BadRequest("Unable to update loan.");
+                return loan != 0 ? Ok(new { Message = "Loan updated successfully"}) : BadRequest(new { Message = "Unable to update loan"});
             }
             catch (Exception)
             {
@@ -92,7 +92,7 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
         public async Task<IActionResult> DeactivateLoanDetail(int id)
         {
             var loan = await _loanMasterService.DeactivateLoanDetailAsync(id);
-            return loan != 0 ? Ok("Loan deactivated successfully.") : BadRequest("Unable to deactivate loan.");
+            return loan != 0 ? Ok(new { Message = "Loan deactivated successfully"}) : BadRequest(new { Message = "Unable to deactivate loan"});
         }
         #endregion
     }

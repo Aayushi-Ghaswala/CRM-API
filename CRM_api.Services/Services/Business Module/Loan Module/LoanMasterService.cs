@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.Loan_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.Loan_Module;
@@ -19,9 +20,9 @@ namespace CRM_api.Services.Services.Business_Module.Loan_Module
         }
 
         #region Get All Loan Details
-        public async Task<ResponseDto<LoanMasterDto>> GetLoanDetailsAsync(int page)
+        public async Task<ResponseDto<LoanMasterDto>> GetLoanDetailsAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            var loanDetails = await _loanMasterRepository.GetLoanDetails(page);
+            var loanDetails = await _loanMasterRepository.GetLoanDetails(searchingParams, sortingParams);
             var mapLoanDetails = _mapper.Map<ResponseDto<LoanMasterDto>>(loanDetails);
 
             return mapLoanDetails;

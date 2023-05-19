@@ -1,4 +1,5 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.Loan_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
@@ -16,20 +17,30 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         }
 
         #region Get All Loan Details
-        public async Task<Response<TblLoanMaster>> GetLoanDetails(int page)
+        public async Task<Response<TblLoanMaster>> GetLoanDetails(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblLoanMasters.Count() / pageResult);
+            double pageCount = 0;
 
-            var loanDetails = await _context.TblLoanMasters.Skip((page - 1) * (int)pageResult).Take((int)pageResult).Include(u => u.TblUserMaster)
-                                                           .Include(c => c.TblUserCategoryMaster).ToListAsync();
+            var filterData = _context.TblLoanMasters.AsQueryable();
+
+            if (searchingParams.Count > 0)
+            {
+                filterData = _context.SearchByField<TblLoanMaster>(searchingParams);
+            }
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var loanResponse = new Response<TblLoanMaster>()
             {
-                Values = loanDetails,
+                Values = paginatedData,
                 Pagination = new Pagination()
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };
