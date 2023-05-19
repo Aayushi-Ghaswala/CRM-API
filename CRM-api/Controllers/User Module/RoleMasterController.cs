@@ -1,7 +1,9 @@
-﻿using CRM_api.Services.Dtos.AddDataDto;
+﻿using CRM_api.DataAccess.Helper;
+using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.AddDataDto.User_Module;
 using CRM_api.Services.IServices.User_Module;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CRM_api.Controllers.User_Module
 {
@@ -23,7 +25,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 await _roleMasterService.AddRoleAsync(roleMasterDto);
-                return Ok("Role Added Successfully!!!.");
+                return Ok(new { Message = "Role added successfully."});
 
             }
             catch (Exception)
@@ -40,7 +42,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 var role = await _roleMasterService.UpdateRoleAsync(roleMasterDto);
-                return role !=0 ? Ok("Role updated successfully.") : BadRequest("Unable to update role.");
+                return role !=0 ? Ok(new { Message = "Role updated successfully."}) : BadRequest(new { Message = "Unable to update role."});
             }
             catch (Exception)
             {
@@ -56,7 +58,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 var role = await _roleMasterService.DeactivateRoleAsync(id);
-                return role != 0 ? Ok("Role deactivated successfully") : BadRequest("Unable to deactivate role.");
+                return role != 0 ? Ok(new { Message = "Role deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate role."});
             }
             catch (Exception)
             {
@@ -72,7 +74,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 await _roleMasterService.AddRolePermissionAsync(rolePermissionDto);
-                return Ok("RolePermission Added Successfully!!!.");
+                return Ok(new { Message = "RolePermission added successfully."});
 
             }
             catch (Exception)
@@ -89,7 +91,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 var rolePermission = await _roleMasterService.UpdateRolePermissionAsync(rolePermissionDto);
-                return rolePermission !=0 ? Ok("RolePermission updated successfully.") : BadRequest("Unable to update rolePermission.");
+                return rolePermission !=0 ? Ok(new { Message = "RolePermission updated successfully."}) : BadRequest(new { Message = "Unable to update rolePermission."});
             }
             catch (Exception)
             {
@@ -105,7 +107,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 var rolePermission = await _roleMasterService.DeactivateRolePermissionAsync(id);
-                return rolePermission != 0 ? Ok("RolePermission deactivated successfully") : BadRequest("Unable to deactivate RolePermission.");
+                return rolePermission != 0 ? Ok(new { Message = "RolePermission deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate RolePermission."});
             }
             catch (Exception)
             {
@@ -121,7 +123,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 await _roleMasterService.AddUserRoleAssignmentAsync(userRoleAssignmentDto);
-                return Ok("User Role Assign Successfully");
+                return Ok(new { Message = "User Role Assign successfully." });
 
             }
             catch (Exception)
@@ -138,7 +140,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 var roleAssignment = await _roleMasterService.UpdateUserAssignRoleAsync(roleAssignmentDto);
-                return roleAssignment !=0 ? Ok("RoleAssignment updated successfully.") : BadRequest("Unable to update RoleAssignment.");
+                return roleAssignment !=0 ? Ok(new { Message = "RoleAssignment updated successfully."}) : BadRequest(new { Message = "Unable to update RoleAssignment."});
 
             }
             catch (Exception)
@@ -155,7 +157,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 var roleAssignment = await _roleMasterService.DeactivateRoleAssignmentAsync(id);
-                return roleAssignment != 0 ? Ok("RoleAssignment deactivated successfully") : BadRequest("Unable to deactivate RoleAssignment.");
+                return roleAssignment != 0 ? Ok(new { Message = "RoleAssignment deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate RoleAssignment."});
             }
             catch (Exception)
             {
@@ -166,13 +168,25 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Roles
-        public async Task<IActionResult> GetRoles(int page, string? search, string? sortOn)
+        public async Task<IActionResult> GetRoles([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var roles = await _roleMasterService.GetRolesAsync(page, search, sortOn);
-                if (roles.Values.Count == 0)
-                    return BadRequest("Role not found.");
+                var data = new Dictionary<string, object>();
+                if (searchingParams != null)
+                {
+                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
+                        new JsonSerializerOptions
+                        {
+                            Converters =
+                            {
+                            new ObjectDeserializer()
+                            }
+                        });
+                }
+                var roles = await _roleMasterService.GetRolesAsync(data, sortingParams);
+                if (roles.Values.Count() == 0)
+                    return BadRequest(new { Message = "Role not found."});
 
                 return Ok(roles);
             }
@@ -185,13 +199,25 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Role Permissions
-        public async Task<IActionResult> GetRolePermissions(int page, string? search, string? sortOn)
+        public async Task<IActionResult> GetRolePermissions([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var rolePermissions = await _roleMasterService.GetRolePermissionsAsync(page, search, sortOn);
+                var data = new Dictionary<string, object>();
+                if (searchingParams != null)
+                {
+                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
+                        new JsonSerializerOptions
+                        {
+                            Converters =
+                            {
+                            new ObjectDeserializer()
+                            }
+                        });
+                }
+                var rolePermissions = await _roleMasterService.GetRolePermissionsAsync(data, sortingParams);
                 if (rolePermissions.Values.Count == 0)
-                    return BadRequest("Role Permission Not Found");
+                    return BadRequest(new { Message = "Role Permission not found." });
 
                 return Ok(rolePermissions);
             }
@@ -205,13 +231,25 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All User Assign Role
-        public async Task<IActionResult> GetUserAssignRoles(int page, string? search, string? sortOn)
+        public async Task<IActionResult> GetUserAssignRoles([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var userAssignRoles = await _roleMasterService.GetUserAssignRolesAsync(page, search, sortOn);
+                var data = new Dictionary<string, object>();
+                if (searchingParams != null)
+                {
+                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
+                        new JsonSerializerOptions
+                        {
+                            Converters =
+                            {
+                            new ObjectDeserializer()
+                            }
+                        });
+                }
+                var userAssignRoles = await _roleMasterService.GetUserAssignRolesAsync(data, sortingParams);
                 if (userAssignRoles.Values.Count == 0)
-                    return BadRequest("RoleAssignment not found.");
+                    return BadRequest(new { Message = "RoleAssignment not found."});
 
                 return Ok(userAssignRoles);
             }

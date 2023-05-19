@@ -1,4 +1,5 @@
-﻿using CRM_api.DataAccess.Models;
+﻿using CRM_api.DataAccess.Helper;
+using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 
 namespace CRM_api.DataAccess.IRepositories.User_Module
@@ -17,8 +18,8 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<TblRoleMaster> GetRoleById(int id);
         Task<TblRolePermission> GetRolePermissionById(int id);
         Task<TblRoleAssignment> GetUserAssignRoleById(int id);
-        Task<Response<TblRoleMaster>> GetRoles(int page, string search, string sortOn);
-        Task<Response<TblRolePermission>> GetRolePermissions(int page, string search, string sortOn);
-        Task<Response<TblRoleAssignment>> GetUserAssignRoles(int page, string search, string sortOn);
+        Task<Response<TblRoleMaster>> GetRoles(Dictionary<string, object> searchingParams, SortingParams sortingParams);
+        Task<Response<TblRolePermission>> GetRolePermissions(Dictionary<string, object> searchingParams, SortingParams sortingParams);
+        Task<Response<TblRoleAssignment>> GetUserAssignRoles(Dictionary<string, object> searchingParams, SortingParams sortingParams);
     }
 }

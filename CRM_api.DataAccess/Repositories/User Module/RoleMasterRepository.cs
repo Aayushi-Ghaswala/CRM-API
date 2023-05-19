@@ -1,7 +1,9 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.User_Module
@@ -140,48 +142,30 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All Role
-        public async Task<Response<TblRoleMaster>> GetRoles(int page, string search, string sortOn)
+        public async Task<Response<TblRoleMaster>> GetRoles(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            float pageResult = 10f;
             double pageCount = 0;
-            var roles = new List<TblRoleMaster>();
 
-            if (search is not null)
+            var filterData = _context.TblRoleMasters.AsQueryable();
+
+            if (searchingParams.Count > 0)
             {
-                pageCount = Math.Ceiling(_context.TblRoleMasters.Where(x => x.RoleName.ToLower().Contains(search.ToLower())).Count() / pageResult);
-
-                roles = await _context.TblRoleMasters.Where(x => x.RoleName.ToLower().Contains(search.ToLower())).Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+                filterData = _context.SearchByField<TblRoleMaster>(searchingParams);
             }
-            else if (sortOn is not null)
-            {
-                pageCount = Math.Ceiling(_context.TblRoleMasters.Count() / pageResult);
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
-                switch (sortOn)
-                {
-                    case "roleName-ASC":
-                        roles = await _context.TblRoleMasters.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                              .OrderBy(x => x.RoleName).ToListAsync();
-                        break;
-                    case "roleName-DESC":
-                        roles = await _context.TblRoleMasters.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                              .OrderByDescending(x => x.RoleName).ToListAsync();
-                        break;
-                }
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
 
-            }
-            else
-            {
-                pageCount = Math.Ceiling(_context.TblRoleMasters.Count() / pageResult);
-
-                roles = await _context.TblRoleMasters.Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
-            }
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var rolesResponse = new Response<TblRoleMaster>()
             {
-                Values = roles,
+                Values = paginatedData,
                 Pagination = new Pagination
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };
@@ -191,62 +175,30 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All Role Permission
-        public async Task<Response<TblRolePermission>> GetRolePermissions(int page, string search, string sortOn)
+        public async Task<Response<TblRolePermission>> GetRolePermissions(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            float pageResult = 10f;
             double pageCount = 0;
-            List<TblRolePermission> rolePermissions = new List<TblRolePermission>();
-            if (search is not null)
+
+            var filterData = _context.TblRolePermissions.Include(r => r.TblRoleMaster).AsQueryable();
+
+            if (searchingParams.Count > 0)
             {
-                pageCount = Math.Ceiling(_context.TblRolePermissions.Where(x => x.TblRoleMaster.RoleName.ToLower().Contains(search.ToLower())).Count() / pageResult);
-
-                rolePermissions = await _context.TblRolePermissions.Where(x => x.TblRoleMaster.RoleName.ToLower().Contains(search.ToLower())).Skip((page - 1) * (int)pageResult)
-                                                                    .Take((int)pageResult).Include(r => r.TblRoleMaster).ToListAsync();
+                filterData = _context.SearchByField<TblRolePermission>(searchingParams);
             }
-            else if (sortOn is not null)
-            {
-                pageCount = Math.Ceiling(_context.TblRolePermissions.Count() / pageResult);
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
-                switch (sortOn)
-                {
-                    case "roleName-ASC":
-                        rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                        .Include(r => r.TblRoleMaster).OrderBy(x => x.TblRoleMaster.RoleName)
-                                                        .ToListAsync();
-                        break;
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
 
-                    case "moduleName-ASC":
-                        rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                        .Include(r => r.TblRoleMaster).OrderBy(x => x.ModuleName)
-                                                        .ToListAsync();
-                        break;
-                    case "roleName-DESC":
-                        rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                        .Include(r => r.TblRoleMaster).OrderByDescending(x => x.TblRoleMaster.RoleName)
-                                                        .ToListAsync();
-                        break;
-
-                    case "moduleName-DESC":
-                        rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                        .Include(r => r.TblRoleMaster).OrderByDescending(x => x.ModuleName)
-                                                        .ToListAsync();
-                        break;
-                }
-            }
-            else
-            {
-                pageCount = Math.Ceiling(_context.TblRolePermissions.Count() / pageResult);
-
-                rolePermissions = await _context.TblRolePermissions.Skip((page - 1) * (int)pageResult)
-                                                                      .Take((int)pageResult).Include(r => r.TblRoleMaster).ToListAsync();
-            }
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var rolePermissionsResponse = new Response<TblRolePermission>()
             {
-                Values = rolePermissions,
+                Values = paginatedData,
                 Pagination = new Pagination
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };
@@ -256,66 +208,30 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All User Assign role
-        public async Task<Response<TblRoleAssignment>> GetUserAssignRoles(int page, string search, string sortOn)
+        public async Task<Response<TblRoleAssignment>> GetUserAssignRoles(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            float pageResult = 10f;
-            double pageCount = 1;
-            List<TblRoleAssignment> userAssignRoles = new List<TblRoleAssignment>();
-            if (search is not null)
+            double pageCount = 0;
+
+            var filterData = _context.TblRoleAssignments.AsQueryable();
+
+            if (searchingParams.Count > 0)
             {
-                pageCount = Math.Ceiling(_context.TblRoleAssignments.Where(x => x.TblRoleMaster.RoleName.ToLower().Contains(search.ToLower())
-                                             || x.TblUserMaster.UserName.ToLower().Contains(search.ToLower())).Count() / pageResult);
-
-                userAssignRoles = await _context.TblRoleAssignments.Where(x => x.TblRoleMaster.RoleName.ToLower().Contains(search.ToLower())
-                                             || x.TblUserMaster.UserName.ToLower().Contains(search.ToLower())).Skip((page - 1) * (int)pageResult)
-                                                                    .Take((int)pageResult).Include(r => r.TblRoleMaster)
-                                                                    .Include(u => u.TblUserMaster).ToListAsync();
+                filterData = _context.SearchByField<TblRoleAssignment>(searchingParams);
             }
-            else if (sortOn is not null)
-            {
-                pageCount = Math.Ceiling(_context.TblRoleAssignments.Count() / pageResult);
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
-                switch (sortOn)
-                {
-                    case "userName-ASC":
-                        userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                        .Include(r => r.TblRoleMaster).Include(u => u.TblUserMaster)
-                                                        .OrderBy(x => x.TblUserMaster.UserName).ToListAsync();
-                        break;
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
 
-                    case "roleName-ASC":
-                        userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                        .Include(r => r.TblRoleMaster).Include(u => u.TblUserMaster)
-                                                        .OrderBy(x => x.TblRoleMaster.RoleName).ToListAsync();
-                        break;
-                    case "userName-DESC":
-                        userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                        .Include(r => r.TblRoleMaster).Include(u => u.TblUserMaster)
-                                                        .OrderByDescending(x => x.TblUserMaster.UserName).ToListAsync();
-                        break;
-
-                    case "roleName-DESC":
-                        userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                        .Include(r => r.TblRoleMaster).Include(u => u.TblUserMaster)
-                                                        .OrderByDescending(x => x.TblRoleMaster.RoleName).ToListAsync();
-                        break;
-                }
-            }
-            else
-            {
-                pageCount = Math.Ceiling(_context.TblRoleAssignments.Count() / pageResult);
-
-                userAssignRoles = await _context.TblRoleAssignments.Skip((page - 1) * (int)pageResult)
-                                                                    .Take((int)pageResult).Include(r => r.TblRoleMaster)
-                                                                    .Include(u => u.TblUserMaster).ToListAsync();
-            }
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var userAssignRolesResponse = new Response<TblRoleAssignment>()
             {
-                Values = userAssignRoles,
+                Values = paginatedData,
                 Pagination = new Pagination
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };

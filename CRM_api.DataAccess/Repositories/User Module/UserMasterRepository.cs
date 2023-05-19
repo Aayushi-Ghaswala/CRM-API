@@ -1,8 +1,10 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace CRM_api.DataAccess.Repositories.User_Module
 {
@@ -14,7 +16,45 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             _context = context;
         }
 
-        #region GetUserDetail By Id
+        #region Get All Users
+        public async Task<Response<TblUserMaster>> GetUsers(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        {
+            double pageCount = 0; 
+            
+            var filterData = _context.TblUserMasters.Include(x => x.TblUserCategoryMaster)
+                                                    .Include(x => x.TblCountryMaster)
+                                                    .Include(x => x.TblStateMaster)
+                                                    .Include(x => x.TblCityMaster)
+                                                    .Include(x => x.ParentName)
+                                                    .Include(x => x.SponserName).AsQueryable();
+
+            if (searchingParams.Count > 0)
+            {
+                filterData = _context.SearchByField<TblUserMaster>(searchingParams);
+            }
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var usersResponse = new Response<TblUserMaster>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+
+            return usersResponse;
+        }
+        #endregion
+
+        #region GetUser By Id
         public async Task<TblUserMaster> GetUserMasterbyId(int id)
         {
             var user = await _context.TblUserMasters.Include(x => x.TblUserCategoryMaster).Include(x => x.TblUserCategoryMaster)
@@ -26,126 +66,31 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
         #endregion
 
-        #region Get All TblUserMaster Details
-        public async Task<Response<TblUserMaster>> GetUsers(int page, string search, string sortOn)
+        #region Get All User Category
+        public async Task<Response<TblUserCategoryMaster>> GetUserCategories(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
-            var users = new List<TblUserMaster>();
-            float pageResult = 10f;
-            if (search is not null)
+
+            var filterData = _context.TblUserCategoryMasters.AsQueryable();
+
+            if (searchingParams.Count > 0)
             {
-                pageCount = Math.Ceiling(_context.TblUserMasters.Where(x => x.UserIsactive == true && (x.UserName.ToLower().Contains(search.ToLower())
-                    || x.UserUname.ToLower().Contains(search.ToLower()) || x.UserEmail.ToLower().Contains(search.ToLower()))).Count() / pageResult);
-
-                users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.UserName.ToLower().Contains(search.ToLower())
-                    || x.UserUname.ToLower().Contains(search.ToLower()) || x.UserEmail.ToLower().Contains(search.ToLower())).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).ToListAsync();
-
-
+                filterData = _context.SearchByField<TblUserCategoryMaster>(searchingParams);
             }
-            else if(sortOn is not null)
-            {
-                pageCount = Math.Ceiling(_context.TblUserMasters.Where(x => x.UserIsactive == true).Count() / pageResult);
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
-                 switch(sortOn)
-                 {
-                    case "userName-DESC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderByDescending(x => x.UserName).ToListAsync();
-                        break;
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
 
-                    case "userUname-DESC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderByDescending(x => x.UserUname).ToListAsync();
-                        break;
-
-                    case "userDoj-DESC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderByDescending(x => x.UserDoj).ToListAsync();
-                        break;
-
-                    case "userEmail-DESC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderByDescending(x => x.UserEmail).ToListAsync();
-                        break;
-                    case "userName-ASC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderBy(x => x.UserName).ToListAsync();
-                        break;
-
-                    case "userUname-ASC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderBy(x => x.UserUname).ToListAsync();
-                        break;
-
-                    case "userDoj-ASC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderBy(x => x.UserDoj).ToListAsync();
-                        break;
-
-                    case "userEmail-ASC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderBy(x => x.UserEmail).ToListAsync();
-                        break;
-                }
-            }
-            else
-            {
-                pageCount = Math.Ceiling(_context.TblUserMasters.Where(x => x.UserIsactive == true).Count() / pageResult);
-
-                users = await _context.TblUserMasters.Where(x => x.UserIsactive == true).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).ToListAsync();
-            }
-
-            var usersResponse = new Response<TblUserMaster>()
-            {
-                Values = users,
-                Pagination = new Pagination()
-                {
-                    CurrentPage = page,
-                    Count = (int)pageCount
-                }
-            };
-
-            return usersResponse;
-        }
-        #endregion
-
-        #region Get All User Category
-        public async Task<Response<TblUserCategoryMaster>> GetUserCategories(int page)
-        {
-            float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblUserCategoryMasters.Count() / pageResult);
-
-            List<TblUserCategoryMaster> catagories = await _context.TblUserCategoryMasters.Where(c => c.CatIsactive == true).Skip((page - 1) * (int)pageResult)
-                                                     .Take((int)pageResult).ToListAsync();
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var categoriesResponse = new Response<TblUserCategoryMaster>()
             {
-                Values = catagories,
+                Values = paginatedData,
                 Pagination = new Pagination()
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };
@@ -153,122 +98,55 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             return categoriesResponse;
         }
         #endregion
-
-        #region Get Category Id By Name
-        public async Task<int> GetCategoryIdByName(string name)
-        {
-            var cat = await _context.TblUserCategoryMasters.Where(x => x.CatName == name).FirstOrDefaultAsync();
-            ArgumentNullException.ThrowIfNull(cat);
-
-            return cat.CatId;
-        }
-        #endregion
-
+        
         #region Get Users By Category Id
-        public async Task<Response<TblUserMaster>> GetUsersByCategoryId(int page, int catId, string search, string sortOn)
+        public async Task<Response<TblUserMaster>> GetUsersByCategoryId(int categoryId,Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
-            var users = new List<TblUserMaster>();
-            float pageResult = 10f;
-            if (search is not null)
+
+            var filterData = _context.TblUserMasters.Where(x => x.CatId == categoryId).Include(x => x.TblUserCategoryMaster)
+                                                    .Include(x => x.TblCountryMaster)
+                                                    .ThenInclude(x => x.TblStateMasters)
+                                                    .ThenInclude(x => x.TblCityMasters)
+                                                    .Include(x => x.ParentName)
+                                                    .Include(x => x.SponserName).AsQueryable();
+
+            if (searchingParams.Count > 0)
             {
-                pageCount = Math.Ceiling(_context.TblUserMasters.Where(x => (x.UserIsactive == true && x.CatId == catId) && (x.UserName.ToLower().Contains(search.ToLower())
-                    || x.UserUname.ToLower().Contains(search.ToLower()) || x.UserEmail.ToLower().Contains(search.ToLower()))).Count() / pageResult);
-
-                users = await _context.TblUserMasters.Where(x => (x.UserIsactive == true && x.CatId == catId) && x.UserName.ToLower().Contains(search.ToLower())
-                    || x.UserUname.ToLower().Contains(search.ToLower()) || x.UserEmail.ToLower().Contains(search.ToLower())).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).ToListAsync();
-
-
+                filterData = _context.SearchByField<TblUserMaster>(searchingParams);
             }
-            else if (sortOn is not null)
-            {
-                pageCount = Math.Ceiling(_context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Count() / pageResult);
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
-                switch (sortOn)
-                {
-                    case "userName-DESC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderByDescending(x => x.UserName).ToListAsync();
-                        break;
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
 
-                    case "userUname-DESC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderByDescending(x => x.UserUname).ToListAsync();
-                        break;
-
-                    case "userDoj-DESC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderByDescending(x => x.UserDoj).ToListAsync();
-                        break;
-
-                    case "userEmail-DESC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderByDescending(x => x.UserEmail).ToListAsync();
-                        break;
-                    case "userName-ASC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderBy(x => x.UserName).ToListAsync();
-                        break;
-
-                    case "userUname-ASC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderBy(x => x.UserUname).ToListAsync();
-                        break;
-
-                    case "userDoj-ASC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderBy(x => x.UserDoj).ToListAsync();
-                        break;
-
-                    case "userEmail-ASC":
-                        users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).OrderBy(x => x.UserEmail).ToListAsync();
-                        break;
-                }
-            }
-            else
-            {
-                pageCount = Math.Ceiling(_context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Count() / pageResult);
-
-                users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.CatId == catId).Skip((page - 1) * (int)pageResult)
-                                                         .Take((int)pageResult).Include(x => x.TblUserCategoryMaster).Include(x => x.TblCountryMaster)
-                                                         .Include(x => x.TblStateMaster).Include(x => x.TblCityMaster).Include(x => x.ParentName)
-                                                         .Include(x => x.SponserName).ToListAsync();
-            }                                        
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var usersResponse = new Response<TblUserMaster>()
             {
-                Values = users,
+                Values = paginatedData,
                 Pagination = new Pagination()
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };
 
             return usersResponse;
         }
-        #endregion
+#endregion
 
+        #region Get Category By Name
+        public async Task<TblUserCategoryMaster> GetCategoryByName(string name)
+        {
+            var cat = await _context.TblUserCategoryMasters.Where(x => x.CatName == name).FirstOrDefaultAsync();
+            ArgumentNullException.ThrowIfNull(cat);
+
+            return cat;
+        }
+        #endregion
+                
         #region AddUser
         public async Task<int> AddUser(TblUserMaster userMaster)
         {
@@ -280,7 +158,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
         #endregion
 
-        #region UpdateUser Details
+        #region Update User
         public async Task<int> UpdateUser(TblUserMaster userMaster)
         {
             var user = await _context.TblUserMasters.FindAsync(userMaster.UserId);
