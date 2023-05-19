@@ -1,5 +1,7 @@
-﻿using CRM_api.Services.IServices.User_Module;
+﻿using CRM_api.DataAccess.Helper;
+using CRM_api.Services.IServices.User_Module;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CRM_api.Controllers.User_Module
 {
@@ -16,13 +18,25 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Countries
-        public async Task<IActionResult> GetCountries(int page)
+        public async Task<IActionResult> GetCountries([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var countries = await _regionService.GetCountriesAsync(page);
+                var data = new Dictionary<string, object>();
+                if (searchingParams != null)
+                {
+                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
+                        new JsonSerializerOptions
+                        {
+                            Converters =
+                            {
+                            new ObjectDeserializer()
+                            }
+                        });
+                }
+                var countries = await _regionService.GetCountriesAsync(data, sortingParams);
                 if (countries.Values.Count == 0)
-                    return BadRequest("Country not found.");
+                    return BadRequest(new { Message = "Country not found."});
 
                 return Ok(countries);
             }
@@ -35,13 +49,25 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All States By Country
-        public async Task<IActionResult> GetStatesByCountry(int countryId, int page)
+        public async Task<IActionResult> GetStatesByCountry(int countryId, [FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var states = await _regionService.GetstateByCountry(countryId, page);
+                var data = new Dictionary<string, object>();
+                if (searchingParams != null)
+                {
+                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
+                        new JsonSerializerOptions
+                        {
+                            Converters =
+                            {
+                            new ObjectDeserializer()
+                            }
+                        });
+                }
+                var states = await _regionService.GetstateByCountry(countryId, data, sortingParams);
                 if (states.Values.Count == 0)
-                    return BadRequest("State not found.");
+                    return BadRequest(new { Message = "State not found."});
 
                 return Ok(states);
             }
@@ -54,13 +80,25 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Cities By State
-        public async Task<IActionResult> GetcitiesByState(int stateId, int page)
+        public async Task<IActionResult> GetcitiesByState(int stateId, [FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var cities = await _regionService.GetCityByState(stateId, page);
+                var data = new Dictionary<string, object>();
+                if (searchingParams != null)
+                {
+                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
+                        new JsonSerializerOptions
+                        {
+                            Converters =
+                            {
+                            new ObjectDeserializer()
+                            }
+                        });
+                }
+                var cities = await _regionService.GetCityByState(stateId, data, sortingParams);
                 if (cities.Values.Count == 0)
-                    return BadRequest("City not found.");
+                    return BadRequest(new { Message = "City not found."});
 
                 return Ok(cities);
             }
@@ -73,28 +111,28 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpDelete]
         #region Deactivate Country
-        public async Task<IActionResult> DeactivateCountry(int CountryId)
+        public async Task<IActionResult> DeactivateCountry(int countryId)
         {
-            var country = await _regionService.DeactivateCountryAsync(CountryId);
-            return country != 0 ? Ok("Country deactivated successfully.") : BadRequest("Unable to deactivate country.");
+            var country = await _regionService.DeactivateCountryAsync(countryId);
+            return country != 0 ? Ok(new { Message = "Country deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate country."});
         }
         #endregion
 
         [HttpDelete]
         #region Deactivate State
-        public async Task<IActionResult> DeactivateState(int StateId)
+        public async Task<IActionResult> DeactivateState(int stateId)
         {
-            var state = await _regionService.DeactivateStateAsync(StateId);
-            return state !=0 ? Ok("State deactivated successfully.") : BadRequest("Unable to deactivate state.");
+            var state = await _regionService.DeactivateStateAsync(stateId);
+            return state !=0 ? Ok(new { Message = "State deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate state."});
         }
         #endregion
 
         [HttpDelete]
         #region Deactivate City
-        public async Task<IActionResult> DeactivateCity(int CityId)
+        public async Task<IActionResult> DeactivateCity(int cityId)
         {
-            var city = await _regionService.DeactivateCityAsync(CityId);
-            return city != 0 ? Ok("City deactivated successfully.") : BadRequest("Unable to deactivate city.");
+            var city = await _regionService.DeactivateCityAsync(cityId);
+            return city != 0 ? Ok(new { Message = "City deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate city."});
         }
         #endregion
     }

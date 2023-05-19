@@ -1,4 +1,5 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
@@ -16,19 +17,30 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
 
         #region Get All Countries
-        public async Task<Response<TblCountryMaster>> GetCountries(int page)
+        public async Task<Response<TblCountryMaster>> GetCountries(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblCountryMasters.Count() / pageResult);
+            double pageCount = 0;
 
-            List<TblCountryMaster> countries = await _context.TblCountryMasters.Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+            var filterData = _context.TblCountryMasters.AsQueryable();
+
+            if (searchingParams.Count > 0)
+            {
+                filterData = _context.SearchByField<TblCountryMaster>(searchingParams);
+            }
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var countryResponse = new Response<TblCountryMaster>()
             {
-                Values = countries,
+                Values = paginatedData,
                 Pagination = new Pagination()
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };
@@ -38,19 +50,30 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All State Of Country
-        public async Task<Response<TblStateMaster>> GetStateBycountry(int CountryId, int page)
+        public async Task<Response<TblStateMaster>> GetStateBycountry(int countryId, Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblStateMasters.Where(x => x.CountryId == CountryId).Count() / pageResult);
+            double pageCount = 0;
 
-            List<TblStateMaster> states = await _context.TblStateMasters.Where(x => x.CountryId == CountryId).Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+            var filterData = _context.TblStateMasters.Where(x => x.CountryId == countryId).AsQueryable();
+
+            if (searchingParams.Count > 0)
+            {
+                filterData = _context.SearchByField<TblStateMaster>(searchingParams);
+            }
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var stateResponse = new Response<TblStateMaster>()
             {
-                Values = states,
+                Values = paginatedData,
                 Pagination = new Pagination()
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };
@@ -60,19 +83,30 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All City Of State
-        public async Task<Response<TblCityMaster>> GetCityByState(int StateId, int page)
+        public async Task<Response<TblCityMaster>> GetCityByState(int stateId, Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            float pageResult = 10f;
-            var pageCount = Math.Ceiling(_context.TblCityMasters.Where(x => x.StateId == StateId).Count() / pageResult);
+            double pageCount = 0;
 
-            List<TblCityMaster> cities = await _context.TblCityMasters.Where(x => x.StateId == StateId).Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+            var filterData = _context.TblCityMasters.Where(x => x.StateId == stateId).AsQueryable();
+
+            if (searchingParams.Count > 0)
+            {
+                filterData = _context.SearchByField<TblCityMaster>(searchingParams);
+            }
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var cityResponse = new Response<TblCityMaster>()
             {
-                Values = cities,
+                Values = paginatedData,
                 Pagination = new Pagination()
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };
