@@ -50,7 +50,7 @@ namespace CRM_api.Controllers.User_Module
             {
                 var user = await _userMasterService.GetUserMasterByIdAsync(id);
                 if (user == null)
-                    return BadRequest(new { Message = "User not found"});
+                    return BadRequest(new { Message = "User not found."});
 
                 return Ok(user);
             }
@@ -124,7 +124,7 @@ namespace CRM_api.Controllers.User_Module
             {
                 var userCategory = await _userMasterService.GetCategoryByNameAsync(name);
                 if (userCategory == null)
-                    return BadRequest(new { Message = "User Category not found" });
+                    return BadRequest(new { Message = "User Category not found." });
 
                 return Ok(userCategory);
             }
@@ -142,7 +142,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                var user = await _userMasterService.AddUserAsync(addUser);
-                return user != 0 ? Ok(new { Message = "User added successfully"}) : BadRequest(new { Message = "Username already exist"});
+                return user != 0 ? Ok(new { Message = "User added successfully."}) : BadRequest(new { Message = "Username already exist."});
             }
             catch (Exception)
             {
@@ -158,7 +158,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 var user = await _userMasterService.UpdateUserAsync(updateUser);
-                return user != 0 ? Ok(new { Message = "User updated successfully"}) : BadRequest(new { Message = "Unable to update user"});
+                return user != 0 ? Ok(new { Message = "User updated successfully."}) : BadRequest(new { Message = "Unable to update user."});
             }
             catch (Exception)
             {
@@ -172,7 +172,7 @@ namespace CRM_api.Controllers.User_Module
         public async Task<IActionResult> DeactivateUser(int id)
         {
             var user = await _userMasterService.DeactivateUserAsync(id);
-            return user !=0 ? Ok(new { Message = "User deactivated successfully"}) : BadRequest(new { Message = "Unable to deactivate user"});
+            return user !=0 ? Ok(new { Message = "User deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate user."});
         }
         #endregion
     }
