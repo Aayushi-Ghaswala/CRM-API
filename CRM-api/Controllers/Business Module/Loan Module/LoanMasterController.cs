@@ -1,6 +1,8 @@
-﻿using CRM_api.Services.Dtos.AddDataDto.Business_Module.Loan_Module;
+﻿using CRM_api.DataAccess.Helper;
+using CRM_api.Services.Dtos.AddDataDto.Business_Module.Loan_Module;
 using CRM_api.Services.IServices.Business_Module.Loan_Module;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CRM_api.Controllers.Business_Module.Loan_Module
 {
@@ -17,13 +19,25 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
 
         [HttpGet]
         #region Get All Loan Details
-        public async Task<IActionResult> GetLoanDetails(int page)
+        public async Task<IActionResult> GetLoanDetails([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var loanDetails = await _loanMasterService.GetLoanDetailsAsync(page);
+                var data = new Dictionary<string, object>();
+                if (searchingParams != null)
+                {
+                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
+                        new JsonSerializerOptions
+                        {
+                            Converters =
+                            {
+                            new ObjectDeserializer()
+                            }
+                        });
+                }
+                var loanDetails = await _loanMasterService.GetLoanDetailsAsync(data, sortingParams);
                 if (loanDetails.Values.Count == 0)
-                    return BadRequest(new { Message = "Loan Detail Not Found"});
+                    return BadRequest(new { Message = "Loan detail not found."});
 
                 return Ok(loanDetails);
             }
@@ -43,7 +57,7 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
             {
                 var loanDetail = await _loanMasterService.GetLoanDetailByIdAsync(id);
                 if (loanDetail == null)
-                    return BadRequest(new { Message = "Loan Detail Not Found"});
+                    return BadRequest(new { Message = "Loan detail not found."});
 
                 return Ok(loanDetail);
             }
@@ -62,7 +76,7 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
             try
             {
                 var loan = await _loanMasterService.AddLoanDetailAsync(loanMasterDto);
-                return loan !=0 ? Ok(new { Message = "Loan added successfully"}) : BadRequest(new { Message = "Unable to add loan"});
+                return loan !=0 ? Ok(new { Message = "Loan added successfully."}) : BadRequest(new { Message = "Unable to add loan."});
             }
             catch (Exception)
             {
@@ -78,7 +92,7 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
             try
             {
                 var loan = await _loanMasterService.UpdateLoanDetailAsync(loanMasterDto);
-                return loan != 0 ? Ok(new { Message = "Loan updated successfully"}) : BadRequest(new { Message = "Unable to update loan"});
+                return loan != 0 ? Ok(new { Message = "Loan updated successfully."}) : BadRequest(new { Message = "Unable to update loan."});
             }
             catch (Exception)
             {
@@ -92,7 +106,7 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
         public async Task<IActionResult> DeactivateLoanDetail(int id)
         {
             var loan = await _loanMasterService.DeactivateLoanDetailAsync(id);
-            return loan != 0 ? Ok(new { Message = "Loan deactivated successfully"}) : BadRequest(new { Message = "Unable to deactivate loan"});
+            return loan != 0 ? Ok(new { Message = "Loan deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate loan."});
         }
         #endregion
     }
