@@ -73,7 +73,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #region Update Employee
         public async Task<int> UpdateEmployee(TblUserMaster userMaster)
         {
-            var employee = await _context.TblUserMasters.FindAsync(userMaster.UserId);
+            var employee = _context.TblUserMasters.AsNoTracking().Where(x => x.UserId == userMaster.UserId);
 
             if (employee == null) return 0;
 

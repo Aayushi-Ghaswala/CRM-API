@@ -20,7 +20,7 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get all Designations
         [HttpGet]
-        public async Task<ActionResult> GetDesignation([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetDesignation([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
@@ -37,7 +37,7 @@ namespace CRM_api.Controllers.HR_Module
                         });
                 }
                 var designations = await _designationService.GetDesignation(data, sortingParams);
-                return designations.Values.Count > 0 ? Ok(designations) : NoContent();
+                return Ok(designations);
             }
             catch (Exception ex)
             {

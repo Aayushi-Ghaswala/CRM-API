@@ -44,7 +44,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Update Role
         public async Task<int> UpdateRole(TblRoleMaster roleMaster)
         {
-            var role = await _context.TblRoleMasters.FindAsync(roleMaster.RoleId);
+            var role = _context.TblRoleMasters.AsNoTracking().Where(x => x.RoleId == roleMaster.RoleId);
 
             if (role == null) return 0;
 
@@ -56,7 +56,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Update Role Permission
         public async Task<int> UpdateRolePermission(TblRolePermission rolePermission)
         {
-            var rolePermissions = await _context.TblRolePermissions.FindAsync(rolePermission.Id);
+            var rolePermissions = _context.TblRolePermissions.AsNoTracking().Where(x => x.Id == rolePermission.Id);
 
             if(rolePermissions == null) return 0;
 
@@ -68,7 +68,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Update User Role Assignment
         public async Task<int> UpdateUserRoleAssignment(TblRoleAssignment userRoleAssignment)
         {
-            var roleAssignment = await _context.TblRoleAssignments.FindAsync(userRoleAssignment.Id);
+            var roleAssignment = _context.TblRoleAssignments.AsNoTracking().Where(x => x.Id == userRoleAssignment.Id);
 
             if (roleAssignment == null) return 0;
 

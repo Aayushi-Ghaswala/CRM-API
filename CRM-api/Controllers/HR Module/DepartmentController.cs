@@ -20,7 +20,7 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get all Departments
         [HttpGet]
-        public async Task<ActionResult> GetDepartment([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetDepartment([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
@@ -37,7 +37,7 @@ namespace CRM_api.Controllers.HR_Module
                         });
                 }
                 var departments = await _departmentService.GetDepartmentAsync(data, sortingParams);
-                return departments.Values.Count > 0 ? Ok(departments) : NoContent();
+                return Ok(departments);
             }
             catch (Exception ex)
             {

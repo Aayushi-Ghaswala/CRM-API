@@ -2,6 +2,7 @@
 using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
@@ -21,15 +22,15 @@ namespace CRM_api.Services.Services.User_Module
         }
 
         #region Get All Users
-        public async Task<ResponseDto<UserMasterDto>> GetUsersAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<UserMasterDto>> GetUsersAsync(string filterString, Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            var users = await _userMasterRepository.GetUsers(searchingParams, sortingParams);
+            var users = await _userMasterRepository.GetUsers(filterString, searchingParams, sortingParams);
             var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(users);
 
             return mapUsers;
         }
         #endregion
-        
+
         #region Get User By Id
         public async Task<UserMasterDto> GetUserMasterByIdAsync(int id)
         {
@@ -37,6 +38,15 @@ namespace CRM_api.Services.Services.User_Module
             var mapUser = _mapper.Map<UserMasterDto>(user);
 
             return mapUser;
+        }
+        #endregion
+
+        #region Get User Count
+        public async Task<Dictionary<string, int>> GetUserCountAsync()
+        {
+            var users = await _userMasterRepository.GetUserCount();
+
+            return users;
         }
         #endregion
 

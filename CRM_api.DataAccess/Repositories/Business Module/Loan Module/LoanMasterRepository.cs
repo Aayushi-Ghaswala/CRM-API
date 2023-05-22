@@ -70,7 +70,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         #region Update Loan Detail
         public async Task<int> UpdateLoanDetail(TblLoanMaster tblLoan)
         {
-            var loan = await _context.TblLoanMasters.FindAsync(tblLoan.Id);
+            var loan = _context.TblLoanMasters.AsNoTracking().Where(x => x.Id == tblLoan.Id);
 
             if (loan == null) return 0;
 

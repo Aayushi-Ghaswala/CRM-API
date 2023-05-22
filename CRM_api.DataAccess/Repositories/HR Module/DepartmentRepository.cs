@@ -71,7 +71,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #region Update Department
         public async Task<int> UpdateDepartment(TblDepartmentMaster departmentMaster)
         {
-            var department = await _context.TblDepartmentMasters.FindAsync(departmentMaster.DepartmentId);
+            var department = _context.TblDepartmentMasters.AsNoTracking().Where(x => x.DepartmentId == departmentMaster.DepartmentId);
 
             if (department == null) return 0;
 

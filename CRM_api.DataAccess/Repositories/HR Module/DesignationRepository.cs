@@ -77,7 +77,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #region Update Designation
         public async Task<int> UpdateDesignation(TblDesignationMaster designationMaster)
         {
-            var designation = await _context.TblDesignationMasters.FindAsync(designationMaster.DesignationId);
+            var designation = _context.TblDesignationMasters.AsNoTracking().Where(x => x.DesignationId == designationMaster.DesignationId);
             if (designation == null) return 0;
 
             _context.TblDesignationMasters.Update(designationMaster);

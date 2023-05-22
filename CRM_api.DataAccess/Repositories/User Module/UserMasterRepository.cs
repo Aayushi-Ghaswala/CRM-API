@@ -17,7 +17,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
 
         #region Get All Users
-        public async Task<Response<TblUserMaster>> GetUsers(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblUserMaster>> GetUsers(string filterString, Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0; 
             
@@ -27,6 +27,22 @@ namespace CRM_api.DataAccess.Repositories.User_Module
                                                     .Include(x => x.TblCityMaster)
                                                     .Include(x => x.ParentName)
                                                     .Include(x => x.SponserName).AsQueryable();
+            
+            if (!string.IsNullOrEmpty(filterString))
+            {
+                switch (filterString.ToLower())
+                {
+                    case "client":
+                        filterData = filterData.Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "customer").AsQueryable();
+                        break;
+                    case "fasttrack":
+                        filterData = filterData.Where(x => x.UserFasttrack == true).AsQueryable();
+                        break;
+                    default:
+                        filterData = filterData.AsQueryable();
+                        break;
+                }
+            }
 
             if (searchingParams.Count > 0)
             {
@@ -63,6 +79,24 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             ArgumentNullException.ThrowIfNull(user, "User Not Found");
 
             return user;
+        }
+        #endregion
+
+        #region Get User Count
+        public async Task<Dictionary<string,int>> GetUserCount()
+        {
+            Dictionary<string, int> counts = new Dictionary<string, int>();
+            var dataCount = _context.TblUserMasters.AsQueryable().Count();
+            counts.Add("AllCount" ,dataCount);
+
+            var clientCount = _context.TblUserMasters.Include(x => x.TblUserCategoryMaster)
+                                                    .Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "customer").AsQueryable().Count();
+            counts.Add("ClientCount", clientCount);
+
+            var fastTrackCount = _context.TblUserMasters.Where(x => x.UserFasttrack == true).AsQueryable().Count();
+            counts.Add("FastTrackCount", fastTrackCount);
+
+            return counts;
         }
         #endregion
 
@@ -161,7 +195,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Update User
         public async Task<int> UpdateUser(TblUserMaster userMaster)
         {
-            var user = await _context.TblUserMasters.FindAsync(userMaster.UserId);
+            var user = _context.TblUserMasters.AsNoTracking().Where(x => x.UserId == userMaster.UserId);
 
             if (user == null) return 0;
 

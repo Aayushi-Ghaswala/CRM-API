@@ -185,9 +185,7 @@ namespace CRM_api.Controllers.User_Module
                         });
                 }
                 var roles = await _roleMasterService.GetRolesAsync(data, sortingParams);
-                if (roles.Values.Count() == 0)
-                    return BadRequest(new { Message = "Role not found."});
-
+                
                 return Ok(roles);
             }
             catch(Exception)
@@ -216,9 +214,7 @@ namespace CRM_api.Controllers.User_Module
                         });
                 }
                 var rolePermissions = await _roleMasterService.GetRolePermissionsAsync(data, sortingParams);
-                if (rolePermissions.Values.Count == 0)
-                    return BadRequest(new { Message = "Role Permission not found." });
-
+                
                 return Ok(rolePermissions);
             }
 
@@ -248,9 +244,7 @@ namespace CRM_api.Controllers.User_Module
                         });
                 }
                 var userAssignRoles = await _roleMasterService.GetUserAssignRolesAsync(data, sortingParams);
-                if (userAssignRoles.Values.Count == 0)
-                    return BadRequest(new { Message = "RoleAssignment not found."});
-
+                
                 return Ok(userAssignRoles);
             }
 

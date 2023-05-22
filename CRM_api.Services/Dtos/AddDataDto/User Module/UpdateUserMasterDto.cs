@@ -8,7 +8,7 @@
         public Nullable<int> UserParentId { get; set; }
         public string? UserName { get; set; }
         public string? UserPan { get; set; }
-        public DateTime UserDoj { get; set; }
+        public Nullable<DateTime> UserDoj { get; set; }
         public string? UserMobile { get; set; }
         public string? UserEmail { get; set; }
         public string? UserAddr { get; set; }

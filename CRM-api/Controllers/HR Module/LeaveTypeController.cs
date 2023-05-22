@@ -37,7 +37,7 @@ namespace CRM_api.Controllers.HR_Module
                         });
                 }
                 var leaveTypes = await _leaveTypeService.GetLeaveTypesAsync(data, sortingParams);
-                return leaveTypes.Values.Count > 0 ? Ok(leaveTypes) : NoContent();
+                return Ok(leaveTypes);
             }
             catch (Exception ex)
             {
