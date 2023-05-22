@@ -80,6 +80,10 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #region Update LeaveType
         public async Task<int> UpdateLeaveType(TblLeaveType leaveType)
         {
+            var leaveTypes = _context.TblLeaveTypes.AsNoTracking().Where(x => x.LeaveId == leaveType.LeaveId);
+
+            if (leaveTypes == null) return 0;
+
             _context.TblLeaveTypes.Update(leaveType);
             return await _context.SaveChangesAsync();
         }

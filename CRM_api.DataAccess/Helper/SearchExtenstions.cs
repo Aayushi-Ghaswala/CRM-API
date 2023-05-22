@@ -1,4 +1,6 @@
 ﻿using CRM_api.DataAccess.Context;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using System.Linq.Expressions;
 
 namespace CRM_api.DataAccess.Helper
@@ -26,6 +28,22 @@ namespace CRM_api.DataAccess.Helper
                     var searchValue = Expression.Constant(stringValue, typeof(string));
                     comparisonExpression = Expression.Call(property, methodInfo, searchValue);
                 }
+                else if(propertyType.GenericTypeArguments[0].Name.ToLower() == "datetime")
+                {
+                    DateTime? nullableDateTime;
+
+                    if (DateTime.TryParse(value.ToString(), out DateTime parsedDateTime))
+                    {
+                        nullableDateTime = parsedDateTime;
+                    }
+                    else
+                    {
+                        nullableDateTime = null;
+                    }
+
+                    var constant = Expression.Constant(nullableDateTime, propertyType);
+                    comparisonExpression = Expression.Equal(property, constant);
+                }
                 else
                 {
                     var convertedValue = Convert.ChangeType(value, propertyType);
@@ -37,7 +55,7 @@ namespace CRM_api.DataAccess.Helper
                 if (expression == null)
                     expression = comparisonExpression;
                 else
-                    expression = Expression.Or(expression, comparisonExpression);
+                    expression = Expression.And(expression, comparisonExpression);
             }
 
             var lambda = Expression.Lambda<Func<T, bool>>(expression, parameter);

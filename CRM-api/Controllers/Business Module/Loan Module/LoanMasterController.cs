@@ -36,8 +36,6 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
                         });
                 }
                 var loanDetails = await _loanMasterService.GetLoanDetailsAsync(data, sortingParams);
-                if (loanDetails.Values.Count == 0)
-                    return BadRequest(new { Message = "Loan detail not found."});
 
                 return Ok(loanDetails);
             }

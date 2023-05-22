@@ -6,8 +6,9 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
 {
     public interface IUserMasterRepository
     {
-        Task<Response<TblUserMaster>> GetUsers(Dictionary<string, object> searchingParams, SortingParams sortingParams);
+        Task<Response<TblUserMaster>> GetUsers(string filterString, Dictionary<string, object> searchingParams, SortingParams sortingParams);
         Task<TblUserMaster> GetUserMasterbyId(int id);
+        Task<Dictionary<string,int>> GetUserCount();
         Task<Response<TblUserCategoryMaster>> GetUserCategories(Dictionary<string, object> searchingParams, SortingParams sortingParams);
         Task<Response<TblUserMaster>> GetUsersByCategoryId(int categoryId, Dictionary<string, object> searchingParams, SortingParams sortingParams);
         Task<TblUserCategoryMaster> GetCategoryByName(string name);

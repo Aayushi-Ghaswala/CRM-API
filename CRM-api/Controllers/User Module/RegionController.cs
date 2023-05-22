@@ -35,9 +35,7 @@ namespace CRM_api.Controllers.User_Module
                         });
                 }
                 var countries = await _regionService.GetCountriesAsync(data, sortingParams);
-                if (countries.Values.Count == 0)
-                    return BadRequest(new { Message = "Country not found."});
-
+                
                 return Ok(countries);
             }
             catch (Exception)
@@ -66,9 +64,7 @@ namespace CRM_api.Controllers.User_Module
                         });
                 }
                 var states = await _regionService.GetstateByCountry(countryId, data, sortingParams);
-                if (states.Values.Count == 0)
-                    return BadRequest(new { Message = "State not found."});
-
+                
                 return Ok(states);
             }
             catch (Exception)
@@ -97,9 +93,7 @@ namespace CRM_api.Controllers.User_Module
                         });
                 }
                 var cities = await _regionService.GetCityByState(stateId, data, sortingParams);
-                if (cities.Values.Count == 0)
-                    return BadRequest(new { Message = "City not found."});
-
+                
                 return Ok(cities);
             }
             catch (Exception)

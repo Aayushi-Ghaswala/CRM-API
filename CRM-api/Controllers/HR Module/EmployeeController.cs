@@ -38,7 +38,7 @@ namespace CRM_api.Controllers.HR_Module
                         });
                 }
                 var employees = await _employeeService.GetEmployeesAsync(data, sortingParams);
-                return employees.Values.Count > 0 ? Ok(employees) : NoContent();
+                return Ok(employees);
             }
             catch (Exception ex)
             {

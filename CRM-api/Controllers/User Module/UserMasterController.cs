@@ -19,7 +19,7 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Users
-        public async Task<IActionResult> GetUsers([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetUsers(string? filterString, [FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             var data = new Dictionary<string, object>();
             if (searchingParams != null)
@@ -34,10 +34,8 @@ namespace CRM_api.Controllers.User_Module
                     });
             }
 
-            var users = await _userMasterService.GetUsersAsync(data, sortingParams);
-            if (users.Values.Count == 0)
-                return BadRequest(new { Message = "User not found"});
-
+            var users = await _userMasterService.GetUsersAsync(filterString, data, sortingParams);
+            
             return Ok(users);
         }
         #endregion
@@ -58,6 +56,15 @@ namespace CRM_api.Controllers.User_Module
             {
                 throw;
             }
+        }
+        #endregion
+
+        [HttpGet]
+        #region Get User Count
+        public async Task<IActionResult> GetUserCount()
+        {
+            var users = await _userMasterService.GetUserCountAsync();
+            return Ok(users);
         }
         #endregion
 
