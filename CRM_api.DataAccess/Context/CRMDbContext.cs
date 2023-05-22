@@ -2143,6 +2143,11 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false)
                     .HasColumnName("st_scripname");
 
+                entity.Property(e => e.StTransactionDetails)
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasColumnName("st_transaction_details");
+
                 entity.Property(e => e.StSettno)
                     .HasMaxLength(150)
                     .IsUnicode(false)
@@ -2154,6 +2159,11 @@ namespace CRM_api.DataAccess.Context
                     .HasColumnName("st_type");
 
                 entity.Property(e => e.Userid).HasColumnName("userid");
+
+                entity.Property(e => e.FirmName)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("firm_name");
             });
 
             modelBuilder.Entity<TblSubInvesmentType>(entity =>

@@ -9,6 +9,7 @@ namespace CRM_api.DataAccess.Models
         public string? StClientcode { get; set; }
         public string? StClientname { get; set; }
         public string? StScripname { get; set; }
+        public string? StTransactionDetails { get; set; }
         public string? StSettno { get; set; }
         [DataType(DataType.Date)]
         public DateTime? StDate { get; set; }
@@ -23,5 +24,6 @@ namespace CRM_api.DataAccess.Models
         public decimal? StNetsharerate { get; set; }
         public decimal? StNetcostvalue { get; set; }
         public int? Userid { get; set; }
+        public string FirmName { get; set; }
     }
 }
