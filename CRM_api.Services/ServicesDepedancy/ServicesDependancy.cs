@@ -26,7 +26,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
 
             //Business Module
             Services.AddScoped<ILoanMasterService, LoanMasterService>();
-            Services.AddScoped<ISharekhanStockService, SharekhanStockService>();
+            Services.AddScoped<IStockService, StockService>();
 
             //Hr Module
             Services.AddScoped<IEmployeeService, EmployeeService>();
