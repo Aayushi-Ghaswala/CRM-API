@@ -11,5 +11,6 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.Loan_Module
         Task<int> AddLoanDetail(TblLoanMaster tblLoan);
         Task<int> UpdateLoanDetail(TblLoanMaster tblLoan);
         Task<int> DeactivateLoanDetail(int id);
+        Task<Response<TblBankMaster>> GetLBankDetails(SortingParams sortingParams);
     }
 }

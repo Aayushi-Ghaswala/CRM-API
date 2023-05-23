@@ -67,6 +67,24 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
         }
         #endregion
 
+        [HttpGet]
+        #region Get All Bank Details
+        public async Task<IActionResult> GetBankDetails([FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var bankDetails = await _loanMasterService.GetBankDetailsAsync(sortingParams);
+
+                return Ok(bankDetails);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
         [HttpPost]
         #region Add Loan Detail
         public async Task<IActionResult> AddLoanDetail(AddLoanMasterDto loanMasterDto)

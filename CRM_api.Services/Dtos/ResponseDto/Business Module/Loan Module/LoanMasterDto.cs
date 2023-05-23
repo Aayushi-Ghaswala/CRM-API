@@ -6,8 +6,8 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.Loan_Module
     {
         public int Id { get; set; }
         public UserNameDto TblUserMaster { get; set; }
-        public UserCategoryDto TblUserCategoryMaster { get; set; }
-        public int? BankId { get; set; }
+        public LoanTypeMasterDto TblLoanTypeMaster { get; set; }
+        public BankMasterDto TblBankMaster { get; set; }
         public decimal? LoanAmount { get; set; }
         public decimal? Emi { get; set; }
         public DateTime? StartDate { get; set; }
@@ -17,7 +17,12 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.Loan_Module
         public decimal? RateOfInterest { get; set; }
         public Int64? LoanAccountNo { get; set; }
         public DateTime? Date { get; set; }
-        public Boolean IsNotification { get; set; }
-        public Boolean IsCompleted { get; set; }
+        public bool? IsEmailReminder { get; set; }
+        public bool? IsSmsReminder { get; set; }
+        public bool? IsNotification { get; set; }
+        public bool? IsSendForReview { get; set; }
+        public bool? IsKathrough { get; set; }
+        public bool? IsCompleted { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

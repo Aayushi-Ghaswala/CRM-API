@@ -3,7 +3,6 @@ using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.User_Module
@@ -116,7 +115,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Get Role By Id
         public async Task<TblRoleMaster> GetRoleById(int id)
         {
-            var role = await _context.TblRoleMasters.FindAsync(id);
+            var role = await _context.TblRoleMasters.Where(x => x.IsDeleted != true && x.RoleId == id).FirstOrDefaultAsync();
 
             return role;
         }
@@ -125,7 +124,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Get Role Permission By Id
         public async Task<TblRolePermission> GetRolePermissionById(int id)
         {
-            var rolePermission = await _context.TblRolePermissions.Where(x => x.Id == id).Include(x => x.TblRoleMaster).FirstOrDefaultAsync();
+            var rolePermission = await _context.TblRolePermissions.Where(x => x.Id == id && x.IsDeleted != true).Include(x => x.TblRoleMaster).FirstOrDefaultAsync();
 
             return rolePermission;
         }
@@ -134,7 +133,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Get User Assign Role By Id
         public async Task<TblRoleAssignment> GetUserAssignRoleById(int id)
         {
-            var userAssignRole = await _context.TblRoleAssignments.Where(x => x.Id == id).Include(x => x.TblRoleMaster)
+            var userAssignRole = await _context.TblRoleAssignments.Where(x => x.Id == id && x.IsDeleted != true).Include(x => x.TblRoleMaster)
                                                                   .Include(x => x.TblUserMaster).FirstOrDefaultAsync(); ;
 
             return userAssignRole;

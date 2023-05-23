@@ -29,7 +29,7 @@ namespace CRM_api.Services.Services.Business_Module.Loan_Module
         }
         #endregion
 
-        #region Get All Loan Detail By Id
+        #region Get Loan Detail By Id
         public async Task<LoanMasterDto> GetLoanDetailByIdAsync(int id)
         {
             var loanDetails = await _loanMasterRepository.GetLoanDetailById(id);
@@ -54,6 +54,16 @@ namespace CRM_api.Services.Services.Business_Module.Loan_Module
             var addLoanDetail = _mapper.Map<TblLoanMaster>(loanMasterDto);
 
             return _loanMasterRepository.UpdateLoanDetail(addLoanDetail);
+        }
+        #endregion
+
+        #region Get All Bank Details
+        public async Task<ResponseDto<BankMasterDto>> GetBankDetailsAsync(SortingParams sortingParams)
+        {
+            var bankDetails = await _loanMasterRepository.GetLBankDetails(sortingParams);
+            var mapBankeDetails = _mapper.Map<ResponseDto<BankMasterDto>>(bankDetails);
+
+            return mapBankeDetails;
         }
         #endregion
 

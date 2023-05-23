@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace CRM_api.DataAccess.Models
+﻿namespace CRM_api.DataAccess.Models
 {
     public partial class TblInsuranceCompanylist
     {

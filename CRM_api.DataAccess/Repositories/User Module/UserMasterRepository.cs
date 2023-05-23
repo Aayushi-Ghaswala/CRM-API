@@ -4,7 +4,6 @@ using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 
 namespace CRM_api.DataAccess.Repositories.User_Module
 {
@@ -19,15 +18,15 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Get All Users
         public async Task<Response<TblUserMaster>> GetUsers(string filterString, Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            double pageCount = 0; 
-            
+            double pageCount = 0;
+
             var filterData = _context.TblUserMasters.Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .Include(x => x.TblStateMaster)
                                                     .Include(x => x.TblCityMaster)
                                                     .Include(x => x.ParentName)
                                                     .Include(x => x.SponserName).AsQueryable();
-            
+
             if (!string.IsNullOrEmpty(filterString))
             {
                 switch (filterString.ToLower())
@@ -83,11 +82,11 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get User Count
-        public async Task<Dictionary<string,int>> GetUserCount()
+        public async Task<Dictionary<string, int>> GetUserCount()
         {
             Dictionary<string, int> counts = new Dictionary<string, int>();
             var dataCount = _context.TblUserMasters.AsQueryable().Count();
-            counts.Add("AllCount" ,dataCount);
+            counts.Add("AllCount", dataCount);
 
             var clientCount = _context.TblUserMasters.Include(x => x.TblUserCategoryMaster)
                                                     .Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "customer").AsQueryable().Count();
@@ -132,9 +131,9 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             return categoriesResponse;
         }
         #endregion
-        
+
         #region Get Users By Category Id
-        public async Task<Response<TblUserMaster>> GetUsersByCategoryId(int categoryId,Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblUserMaster>> GetUsersByCategoryId(int categoryId, Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
 
@@ -169,7 +168,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
             return usersResponse;
         }
-#endregion
+        #endregion
 
         #region Get Category By Name
         public async Task<TblUserCategoryMaster> GetCategoryByName(string name)
@@ -180,7 +179,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             return cat;
         }
         #endregion
-                
+
         #region AddUser
         public async Task<int> AddUser(TblUserMaster userMaster)
         {

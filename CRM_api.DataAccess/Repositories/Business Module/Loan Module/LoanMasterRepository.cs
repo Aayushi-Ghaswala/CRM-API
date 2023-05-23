@@ -4,6 +4,7 @@ using CRM_api.DataAccess.IRepositories.Business_Module.Loan_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
 {
@@ -52,8 +53,8 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         #region Get Loan Detail By Id
         public async Task<TblLoanMaster> GetLoanDetailById(int id)
         {
-            var loanDetail = await _context.TblLoanMasters.Where(x => x.Id == id).Include(u => u.TblUserMaster).Include(c => c.TblUserCategoryMaster)
-                                                            .FirstOrDefaultAsync();
+            var loanDetail = await _context.TblLoanMasters.Where(x => x.Id == id).Include(u => u.TblUserMaster).Include(c => c.TblLoanTypeMaster)
+                                                            .Include(x => x.TblBankMaster).FirstOrDefaultAsync();
 
             return loanDetail;
         }
@@ -62,6 +63,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         #region Add Loan Detail
         public async Task<int> AddLoanDetail(TblLoanMaster tblLoan)
         {
+            if (_context.TblLoanMasters.Any(x => x.UserId == tblLoan.UserId && x.LoanTypeId == tblLoan.LoanTypeId && x.IsCompleted == false && x.IsDeleted == false))
+                return 0;
+
             _context.TblLoanMasters.Add(tblLoan);
             return await _context.SaveChangesAsync();
         }
@@ -76,6 +80,35 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
 
             _context.TblLoanMasters.Update(tblLoan);
             return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Get All Bank Details
+        public async Task<Response<TblBankMaster>> GetLBankDetails(SortingParams sortingParams)
+        {
+            double pageCount = 0;
+
+            var filterData = _context.TblBankMasters.AsQueryable();
+
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var bankDetailsResponse = new Response<TblBankMaster>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+
+            return bankDetailsResponse;
         }
         #endregion
 

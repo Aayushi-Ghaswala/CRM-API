@@ -13,5 +13,6 @@ namespace CRM_api.Services.IServices.Business_Module.Loan_Module
         Task<int> AddLoanDetailAsync(AddLoanMasterDto loanMasterDto);
         Task<int> UpdateLoanDetailAsync(UpdateLoanMasterDto loanMasterDto);
         Task<int> DeactivateLoanDetailAsync(int id);
+        Task<ResponseDto<BankMasterDto>> GetBankDetailsAsync(SortingParams sortingParams);
     }
 }

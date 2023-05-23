@@ -18,6 +18,10 @@ namespace CRM_api.Services.MapperProfile
             CreateMap<TblUserMaster, UserNameDto>();
             CreateMap<TblLoanMaster, LoanMasterDto>().ReverseMap();
             CreateMap<Response<TblLoanMaster>, ResponseDto<LoanMasterDto>>();
+
+            CreateMap<TblLoanTypeMaster, LoanTypeMasterDto>();
+            CreateMap<TblBankMaster, BankMasterDto>();
+            CreateMap<Response<TblBankMaster>, ResponseDto<BankMasterDto>>();
         }
     }
 }
