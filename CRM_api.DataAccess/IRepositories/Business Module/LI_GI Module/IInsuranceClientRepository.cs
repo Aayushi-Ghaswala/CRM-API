@@ -1,4 +1,5 @@
-﻿using CRM_api.DataAccess.Models;
+﻿using CRM_api.DataAccess.Helper;
+using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 
 namespace CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module
@@ -8,7 +9,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module
         Task<Response<TblInsuranceCompanylist>> GetCompanyListByInsTypeId(int id, int page);
         Task<int> AddInsuranceDetail(TblInsuranceclient tblInsuranceclient);
         Task<int> UpdateInsuranceClientDetail(TblInsuranceclient tblInsuranceclient);
-        Task<Response<TblInsuranceclient>> GetInsuranceClients(int page, string search, string sortOn);
+        Task<Response<TblInsuranceclient>> GetInsuranceClients(Dictionary<string, object> searchingParams, SortingParams sortingParams);
         Task<TblInsuranceclient> GetInsuranceClientById(int id);
         Task<TblInsuranceTypeMaster> GetInsuranceplanTypeById(int id);
         Task<TblInvesmentType> GetInvesmentTypeByName(string name);

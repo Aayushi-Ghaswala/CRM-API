@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
@@ -72,9 +73,9 @@ namespace CRM_api.Services.Services.Business_Module.LI_GI_Module
         #endregion
 
         #region Get All Insurance Client Details
-        public async Task<ResponseDto<InsuranceClientDto>> GetInsuranceClientsAsync(int page, string search, string sortOn)
+        public async Task<ResponseDto<InsuranceClientDto>> GetInsuranceClientsAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            var insClients = await _insuranceClientRepository.GetInsuranceClients(page, search, sortOn);
+            var insClients = await _insuranceClientRepository.GetInsuranceClients(searchingParams, sortingParams);
             var mapInsClients = _mapper.Map<ResponseDto<InsuranceClientDto>>(insClients);
 
             return mapInsClients;

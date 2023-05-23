@@ -74,8 +74,6 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
             try
             {
                 var bankDetails = await _loanMasterService.GetBankDetailsAsync(page);
-                if (bankDetails.Values.Count == 0)
-                    return BadRequest("Bank Detail Not Found.");
 
                 return Ok(bankDetails);
             }

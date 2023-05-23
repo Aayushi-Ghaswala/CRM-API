@@ -50,7 +50,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         }
         #endregion
 
-
         #region Get Loan Detail By Id
         public async Task<TblLoanMaster> GetLoanDetailById(int id)
         {

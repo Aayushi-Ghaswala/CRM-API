@@ -1,6 +1,8 @@
-﻿using CRM_api.Services.Dtos.AddDataDto.Business_Module.LI_GI_Module;
+﻿using CRM_api.DataAccess.Helper;
+using CRM_api.Services.Dtos.AddDataDto.Business_Module.LI_GI_Module;
 using CRM_api.Services.IServices.Business_Module.LI_GI_Module;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CRM_api.Controllers.Business_Module.LI_GI_Module
 {
@@ -17,12 +19,26 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
 
         [HttpGet]
         #region Get All Insurance Client Details
-        public async Task<IActionResult> GetInsuranceClients(int page, string? search, string? sortOn)
+        public async Task<IActionResult> GetInsuranceClients([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var insClients = await _insuranceClientService.GetInsuranceClientsAsync(page, search, sortOn);
-                return insClients.Values.Count >= 0 ? Ok(insClients) : BadRequest("Insurance detail not found.");
+                var data = new Dictionary<string, object>();
+                if (searchingParams != null)
+                {
+                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
+                        new JsonSerializerOptions
+                        {
+                            Converters =
+                            {
+                            new ObjectDeserializer()
+                            }
+                        });
+                }
+
+                var insClients = await _insuranceClientService.GetInsuranceClientsAsync(data, sortingParams);
+
+                return Ok(insClients);
             }
             catch (Exception)
             {
@@ -38,7 +54,7 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
             try
             {
                 var insCompanies = await _insuranceClientService.GetCompanyListByInsTypeIdAsync(id, page);
-                return insCompanies.Values.Count >= 0 ? Ok(insCompanies) : BadRequest("Insurance company not found.");
+                return insCompanies.Values.Count >= 0 ? Ok(insCompanies) : BadRequest(new { Message = "Insurance company not found." });
             }
             catch (Exception)
             {
@@ -54,7 +70,7 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
             try
             {
                 var insClient = await _insuranceClientService.GetInsuranceClientByIdAsync(id);
-                return insClient is not null ? Ok(insClient) : BadRequest("Insurance client not found.");
+                return insClient is not null ? Ok(insClient) : BadRequest(new { Message = "Insurance client not found." });
             }
             catch (Exception)
             {
@@ -70,7 +86,7 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
             try
             {
                 var flag = await _insuranceClientService.AddInsuranceClientAsync(insuranceClientDto);
-                return flag != 0 ? Ok("Insurance client added successfully.") : BadRequest("Unable to add insurance client");
+                return flag != 0 ? Ok(new { Message = "Insurance client added successfully." }) : BadRequest(new { Message = "Unable to add insurance client" });
             }
             catch (Exception)
             {
@@ -87,7 +103,7 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
             try
             {
                 var flag = await _insuranceClientService.UpdateInsuranceClientAsync(insuranceClientDto);
-                return flag != 0 ? Ok("Insurance client updated successfully.") : BadRequest("Unable to update insurance client");
+                return flag != 0 ? Ok(new { Message = "Insurance client updated successfully." }) : BadRequest(new { Message = "Unable to update insurance client" });
             }
             catch (Exception)
             {
@@ -104,7 +120,7 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
             try
             {
                 var flag = await _insuranceClientService.DeactivateInsClientAsync(id);
-                return flag != 0 ? Ok("Insurance client deactivated successfully.") : BadRequest("Unable to deactivate insurance client."); 
+                return flag != 0 ? Ok(new { Message = "Insurance client deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate insurance client." }); 
             }
             catch (Exception)
             {

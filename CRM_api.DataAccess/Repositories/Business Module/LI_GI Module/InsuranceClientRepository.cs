@@ -1,4 +1,5 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
@@ -61,97 +62,34 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
         #endregion
 
         #region Get All InsuranceClient Details
-        public async Task<Response<TblInsuranceclient>> GetInsuranceClients(int page, string search, string sortOn)
+        public async Task<Response<TblInsuranceclient>> GetInsuranceClients(Dictionary<string, object> searchingParams, SortingParams sortingParams)
         {
-            float pageResult = 10f;
             double pageCount = 0;
-            var insuranceClients = new List<TblInsuranceclient>();
 
-            if (search is not null)
+            var filterData = _context.TblInsuranceclients.Where(x => x.IsDeleted != true).Include(x => x.TblInsuranceCompanylist)
+                                                         .Include(x => x.TblInsuranceTypeMaster)
+                                                         .Include(x => x.TblInvesmentType)
+                                                         .Include(x => x.TblSubInvesmentType)
+                                                         .Include(x => x.TblUserMaster).AsQueryable();
+
+            if (searchingParams.Count > 0)
             {
-                pageCount = Math.Ceiling(_context.TblInsuranceclients.Where(x => x.IsDeleted != true && (x.InsPan.ToLower().Contains(search.ToLower()) || x.InsEmail.ToLower().Contains(search.ToLower())
-                                                  || x.InsUsername.ToLower().Contains(search.ToLower()) || x.InsFrequency.ToLower().Contains(search.ToLower())
-                                                  || x.InsPlantype.ToLower().Contains(search.ToLower()))).Count() / pageResult);
-
-                insuranceClients = await _context.TblInsuranceclients.Where(x => x.IsDeleted != true && (x.InsPan.ToLower().Contains(search.ToLower()) || x.InsEmail.ToLower().Contains(search.ToLower())
-                                                  || x.InsUsername.ToLower().Contains(search.ToLower()) || x.InsFrequency.ToLower().Contains(search.ToLower())
-                                                  || x.InsPlantype.ToLower().Contains(search.ToLower()))).Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                  .Include(x => x.TblInsuranceCompanylist).Include(x => x.TblInsuranceTypeMaster).Include(x => x.TblInvesmentType)
-                                                  .Include(x => x.TblSubInvesmentType).Include(x => x.TblUserMaster).ToListAsync();
+                filterData = _context.SearchByField<TblInsuranceclient>(searchingParams);
             }
-            else if (sortOn is not null)
-            {
-                pageCount = Math.Ceiling(_context.TblInsuranceclients.Where(x => x.IsDeleted != true).Count() / pageResult);
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
-                switch (sortOn)
-                {
-                    case "insUserName-ASC":
-                        insuranceClients = await _context.TblInsuranceclients.Where(x => x.IsDeleted != true).OrderBy(x => x.InsUsername).Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                         .Include(x => x.TblInsuranceCompanylist).Include(x => x.TblInsuranceTypeMaster).Include(x => x.TblInvesmentType)
-                                                         .Include(x => x.TblSubInvesmentType).Include(x => x.TblUserMaster).ToListAsync();
-                        break;
-                    case "insUserName-DESC":
-                        insuranceClients = await _context.TblInsuranceclients.Where(x => x.IsDeleted != true).Where(x => x.IsDeleted != false).OrderByDescending(x => x.InsUsername).Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                         .Include(x => x.TblInsuranceCompanylist).Include(x => x.TblInsuranceTypeMaster).Include(x => x.TblInvesmentType)
-                                                         .Include(x => x.TblSubInvesmentType).Include(x => x.TblUserMaster).ToListAsync();
-                        break;
-                    case "insPan-ASC":
-                        insuranceClients = await _context.TblInsuranceclients.Where(x => x.IsDeleted != true).OrderBy(x => x.InsPan).Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                         .Include(x => x.TblInsuranceCompanylist).Include(x => x.TblInsuranceTypeMaster).Include(x => x.TblInvesmentType)
-                                                         .Include(x => x.TblSubInvesmentType).Include(x => x.TblUserMaster).ToListAsync();
-                        break;
-                    case "insPan-DESC":
-                        insuranceClients = await _context.TblInsuranceclients.Where(x => x.IsDeleted != true).OrderByDescending(x => x.InsPan).Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                         .Include(x => x.TblInsuranceCompanylist).Include(x => x.TblInsuranceTypeMaster).Include(x => x.TblInvesmentType)
-                                                         .Include(x => x.TblSubInvesmentType).Include(x => x.TblUserMaster).ToListAsync();
-                        break;
-                    case "insPlanType-ASC":
-                        insuranceClients = await _context.TblInsuranceclients.Where(x => x.IsDeleted != true).OrderBy(x => x.InsPlantype).Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                         .Include(x => x.TblInsuranceCompanylist).Include(x => x.TblInsuranceTypeMaster).Include(x => x.TblInvesmentType)
-                                                         .Include(x => x.TblSubInvesmentType).Include(x => x.TblUserMaster).ToListAsync();
-                        break;
-                    case "insPlanType-DESC":
-                        insuranceClients = await _context.TblInsuranceclients.Where(x => x.IsDeleted != true).OrderByDescending(x => x.InsPlantype).Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                         .Include(x => x.TblInsuranceCompanylist).Include(x => x.TblInsuranceTypeMaster).Include(x => x.TblInvesmentType)
-                                                         .Include(x => x.TblSubInvesmentType).Include(x => x.TblUserMaster).ToListAsync();
-                        break;
-                    case "insFrequency-ASC":
-                        insuranceClients = await _context.TblInsuranceclients.Where(x => x.IsDeleted != true).OrderBy(x => x.InsFrequency).Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                         .Include(x => x.TblInsuranceCompanylist).Include(x => x.TblInsuranceTypeMaster).Include(x => x.TblInvesmentType)
-                                                         .Include(x => x.TblSubInvesmentType).Include(x => x.TblUserMaster).ToListAsync();
-                        break;
-                    case "insFrequency-DESC":
-                        insuranceClients = await _context.TblInsuranceclients.Where(x => x.IsDeleted != true).OrderByDescending(x => x.InsFrequency).Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                         .Include(x => x.TblInsuranceCompanylist).Include(x => x.TblInsuranceTypeMaster).Include(x => x.TblInvesmentType)
-                                                         .Include(x => x.TblSubInvesmentType).Include(x => x.TblUserMaster).ToListAsync();
-                        break;
-                    case "premiumAmount-ASC":
-                        insuranceClients = await _context.TblInsuranceclients.Where(x => x.IsDeleted != true).OrderBy(x => x.PremiumAmount).Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                         .Include(x => x.TblInsuranceCompanylist).Include(x => x.TblInsuranceTypeMaster).Include(x => x.TblInvesmentType)
-                                                         .Include(x => x.TblSubInvesmentType).Include(x => x.TblUserMaster).ToListAsync();
-                        break;
-                    case "premiumAmount-DESC":
-                        insuranceClients = await _context.TblInsuranceclients.Where(x => x.IsDeleted != true).OrderByDescending(x => x.PremiumAmount).Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                         .Include(x => x.TblInsuranceCompanylist).Include(x => x.TblInsuranceTypeMaster).Include(x => x.TblInvesmentType)
-                                                         .Include(x => x.TblSubInvesmentType).Include(x => x.TblUserMaster).ToListAsync();
-                        break;
-                }
-            }
-            else
-            {
-                pageCount = Math.Ceiling(_context.TblInsuranceclients.Where(x => x.IsDeleted != true).Count() / pageResult);
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
 
-                insuranceClients = await _context.TblInsuranceclients.Where(x => x.IsDeleted != true).Skip((page - 1) * (int)pageResult).Take((int)pageResult)
-                                                         .Include(x => x.TblInsuranceCompanylist).Include(x => x.TblInsuranceTypeMaster).Include(x => x.TblInvesmentType)
-                                                         .Include(x => x.TblSubInvesmentType).Include(x => x.TblUserMaster).ToListAsync();
-            }
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var responseInsClients = new Response<TblInsuranceclient>()
             {
-                Values = insuranceClients,
+                Values = paginatedData,
                 Pagination = new Pagination()
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };
