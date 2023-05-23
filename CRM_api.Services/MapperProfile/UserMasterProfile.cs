@@ -11,8 +11,7 @@ namespace CRM_api.Services.MapperProfile
     {
         public UserMasterProfile()
         {
-            CreateMap<TblUserCategoryMaster, UserCategoryDto>()
-                .ForMember(c => c.Id, opt => opt.MapFrom(src => src.CatId));
+            CreateMap<TblUserCategoryMaster, UserCategoryDto>();
 
             CreateMap<TblUserMaster, UserMasterDto>();
             CreateMap<Pagination, PaginationDto>();

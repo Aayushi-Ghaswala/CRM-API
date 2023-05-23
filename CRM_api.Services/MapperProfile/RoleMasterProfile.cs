@@ -21,9 +21,7 @@ namespace CRM_api.Services.MapperProfile
             CreateMap<AddUserRoleAssignmentDto, TblRoleAssignment>();
             CreateMap<UpdateRoleAssignmentDto, TblRoleAssignment>();
 
-            CreateMap<TblRoleMaster, RoleMasterDto>()
-                .ForMember(rm => rm.Id, opt => opt.MapFrom(src => src.RoleId));
-
+            CreateMap<TblRoleMaster, RoleMasterDto>();
             CreateMap<TblRolePermission, RolePermissionDto>();
 
             CreateMap<TblRoleAssignment, UserRoleAssignmentDto>();

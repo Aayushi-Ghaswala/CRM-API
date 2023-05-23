@@ -22,7 +22,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblLoanMasters.AsQueryable();
+            var filterData = _context.TblLoanMasters.Where(x => x.IsDeleted != true).AsQueryable();
 
             if (searchingParams.Count > 0)
             {
@@ -53,7 +53,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         #region Get Loan Detail By Id
         public async Task<TblLoanMaster> GetLoanDetailById(int id)
         {
-            var loanDetail = await _context.TblLoanMasters.Where(x => x.Id == id).Include(u => u.TblUserMaster).Include(c => c.TblLoanTypeMaster)
+            var loanDetail = await _context.TblLoanMasters.Where(x => x.Id == id && x.IsDeleted != true).Include(u => u.TblUserMaster).Include(c => c.TblLoanTypeMaster)
                                                             .Include(x => x.TblBankMaster).FirstOrDefaultAsync();
 
             return loanDetail;

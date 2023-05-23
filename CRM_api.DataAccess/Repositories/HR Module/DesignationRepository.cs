@@ -21,7 +21,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblDesignationMasters.AsQueryable();
+            var filterData = _context.TblDesignationMasters.Where(x => x.Isdeleted != true).AsQueryable();
 
             if (searchingParams.Count > 0)
             {
@@ -52,7 +52,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #region Get Designation By
         public async Task<IEnumerable<TblDesignationMaster>> GetDesignationByDepartment(int departmentId)
         {
-            var depts = await _context.TblDesignationMasters.Include(d => d.DepartmentMaster).Where(d => d.DepartmentId == departmentId).ToListAsync();
+            var depts = await _context.TblDesignationMasters.Include(d => d.DepartmentMaster).Where(d => d.DepartmentId == departmentId && d.Isdeleted != true).ToListAsync();
             return depts;
         }
 

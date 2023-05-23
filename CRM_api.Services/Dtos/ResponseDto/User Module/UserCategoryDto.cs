@@ -2,7 +2,7 @@
 {
     public class UserCategoryDto
     {
-        public int Id { get; set; }
+        public int CatId { get; set; }
         public string? CatName { get; set; }
     }
 }

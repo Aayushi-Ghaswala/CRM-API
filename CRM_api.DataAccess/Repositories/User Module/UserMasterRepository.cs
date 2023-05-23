@@ -20,7 +20,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblUserMasters.Include(x => x.TblUserCategoryMaster)
+            var filterData = _context.TblUserMasters.Where(x => x.UserIsactive != false).Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .Include(x => x.TblStateMaster)
                                                     .Include(x => x.TblCityMaster)
@@ -74,7 +74,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             var user = await _context.TblUserMasters.Include(x => x.TblUserCategoryMaster).Include(x => x.TblUserCategoryMaster)
                                                     .Include(c => c.TblCountryMaster).Include(s => s.TblStateMaster)
-                                                    .Include(ct => ct.TblCityMaster).FirstAsync(x => x.UserId == id);
+                                                    .Include(ct => ct.TblCityMaster).FirstAsync(x => x.UserId == id && x.UserIsactive != false);
             ArgumentNullException.ThrowIfNull(user, "User Not Found");
 
             return user;
@@ -85,7 +85,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         public async Task<Dictionary<string, int>> GetUserCount()
         {
             Dictionary<string, int> counts = new Dictionary<string, int>();
-            var dataCount = _context.TblUserMasters.AsQueryable().Count();
+            var dataCount = _context.TblUserMasters.Where(x => x.UserIsactive != false).AsQueryable().Count();
             counts.Add("AllCount", dataCount);
 
             var clientCount = _context.TblUserMasters.Include(x => x.TblUserCategoryMaster)
@@ -137,7 +137,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblUserMasters.Where(x => x.CatId == categoryId).Include(x => x.TblUserCategoryMaster)
+            var filterData = _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false).Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .ThenInclude(x => x.TblStateMasters)
                                                     .ThenInclude(x => x.TblCityMasters)
