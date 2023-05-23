@@ -208,11 +208,20 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         public async Task<int> DeactivateUser(int id)
         {
             var user = await _context.TblUserMasters.FindAsync(id);
-
             if (user == null) return 0;
 
             user.UserIsactive = false;
             return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Get UserId By User Pan
+        public int GetUserIdByUserPan(string UserPan)
+        {
+            var user = _context.TblUserMasters.Where(x => x.UserPan == UserPan).FirstOrDefault();
+            if(user == null)
+                return 0;
+            return user.UserId;
         }
         #endregion
     }

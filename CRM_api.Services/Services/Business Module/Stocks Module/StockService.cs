@@ -6,7 +6,6 @@ using CRM_api.Services.IServices.Business_Module.Stocks_Module;
 using CsvHelper;
 using IronXL;
 using Microsoft.AspNetCore.Http;
-using System;
 using System.Globalization;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -92,7 +91,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             {
                 Directory.CreateDirectory(directory);
             }
-            
+
             var ex = Path.GetExtension(formFile.FileName);
 
             //Delete file if already exists with same name
