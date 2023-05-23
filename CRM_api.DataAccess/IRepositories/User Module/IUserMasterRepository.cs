@@ -15,5 +15,6 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<int> AddUser(TblUserMaster userMaster);
         Task<int> UpdateUser(TblUserMaster userMaster);
         Task<int> DeactivateUser(int id);
+        int GetUserIdByUserPan(string UserPan);
     }
 }
