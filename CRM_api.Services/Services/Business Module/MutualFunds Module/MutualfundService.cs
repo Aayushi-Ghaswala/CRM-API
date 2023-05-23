@@ -3,11 +3,8 @@ using CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.MutualFunds_Module;
-using CRM_api.Services.Dtos.ResponseDto.Business_Module.MutualFunds_Module;
 using CRM_api.Services.IServices.Business_Module.MutualFunds_Module;
 using ExcelDataReader;
-using iTextSharp.text.pdf;
-using iTextSharp.text.pdf.parser;
 using Microsoft.AspNetCore.Http;
 using System.Data;
 
@@ -26,8 +23,8 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             _userMasterRepository = userMasterRepository;
         }
 
-        #region Add NJ Mutual Fund Details
-        public async Task<int> AddNJMutualfundDetails(IFormFile file, bool UpdateIfExist)
+        #region Import NJ Client File
+        public async Task<int> ImportNJClientFile(IFormFile file, bool UpdateIfExist)
         {
             List<AddMutualfundsDto> existUserTransaction = new List<AddMutualfundsDto>();
             List<AddMutualfundsDto> notExistUserTransaction = new List<AddMutualfundsDto>();
@@ -57,7 +54,6 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             {
                 using (var reader = ExcelReaderFactory.CreateReader(stream))
                 {
-
                     var dataset = reader.AsDataSet(new ExcelDataSetConfiguration
                     {
                         ConfigureDataTable = _ => new ExcelDataTableConfiguration
@@ -121,44 +117,42 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                     {
                         if (mapRecordsForExistUser.Count > 0)
                         {
-                            var GetDataForExistUser = await _mutualfundRepositry.GetMutualfundInSpecificDateForExistUser(
+                            var GetDataForExistUser = await _mutualfundRepositry.GetMFInSpecificDateForExistUser(
                                                         mapRecordsForExistUser.First().Date, mapRecordsForExistUser.First().Date);
 
                             if (GetDataForExistUser.Count > 0)
                             {
                                 foreach (var record in GetDataForExistUser)
                                 {
-                                    await _mutualfundRepositry.DeleteMutualFundInUserExist(record);
+                                    await _mutualfundRepositry.DeleteMFForUserExist(record);
                                 }
                             }
                         }
 
-
                         if (mapRecordsForNotExistUser.Count > 0)
                         {
-                            var GetDataForNotExistUser = await _mutualfundRepositry.GetMutualfundInSpecificDateForNotExistUser(
+                            var GetDataForNotExistUser = await _mutualfundRepositry.GetMFInSpecificDateForNotExistUser(
                                                             mapRecordsForNotExistUser.First().Date, mapRecordsForNotExistUser.Last().Date);
 
                             if (GetDataForNotExistUser.Count > 0)
                             {
                                 foreach (var record in GetDataForNotExistUser)
                                 {
-                                    await _mutualfundRepositry.DeleteMutualFundInNotUserExist(record);
+                                    await _mutualfundRepositry.DeleteMFForNotUserExist(record);
                                 }
                             }
                         }
                     }
-
                     if (mapRecordsForExistUser.Count > 0)
                     {
-                        await _mutualfundRepositry.AddMutualfundDetailsForExistUser(mapRecordsForExistUser);
+                        await _mutualfundRepositry.AddMFDataForExistUser(mapRecordsForExistUser);
                     }
-                    await _mutualfundRepositry.AddMutualfundDetailsToNotExistUserTable(mapRecordsForNotExistUser);
+                    await _mutualfundRepositry.AddMFDataForNotExistUser(mapRecordsForNotExistUser);
                 }
                 return 0;
             }
         }
         #endregion
-        
+
     }
 }

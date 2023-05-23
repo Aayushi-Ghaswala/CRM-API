@@ -15,14 +15,13 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         }
 
         [HttpPost]
-        #region Import Excel File
-        public async Task<IActionResult> ImportExcel(IFormFile file, bool UpdateIfExist)
+        #region Import NJ Client File
+        public async Task<IActionResult> ImportNJClientExcel(IFormFile file, bool UpdateIfExist)
         {
             try
             {
-                var flag = await _mutualfundService.AddNJMutualfundDetails(file, UpdateIfExist);
-
-                return (flag == 0) ? Ok("File Import Successfully") : BadRequest("unable To Import File");
+                var flag = await _mutualfundService.ImportNJClientFile(file, UpdateIfExist);
+                return (flag == 0) ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
             }
             catch (Exception)
             {
@@ -31,6 +30,5 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         }
         #endregion
 
-        
     }
 }

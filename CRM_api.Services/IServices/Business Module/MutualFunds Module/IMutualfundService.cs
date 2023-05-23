@@ -4,7 +4,6 @@ namespace CRM_api.Services.IServices.Business_Module.MutualFunds_Module
 {
     public interface IMutualfundService
     {
-        Task<int> AddNJMutualfundDetails(IFormFile file, bool UpdateIfExist);
-
+        Task<int> ImportNJClientFile(IFormFile file, bool UpdateIfExist);
     }
 }

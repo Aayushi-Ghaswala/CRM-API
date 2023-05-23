@@ -4,7 +4,6 @@ namespace CRM_api.DataAccess.Models
 {
     public partial class TblMftransaction
     {
-
         public int Trnid { get; set; }
         public string? Foliono { get; set; }
         public string? Schemename { get; set; }
