@@ -12,5 +12,6 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<Response<TblUserCategoryMaster>> GetUserCategories(int page);
         Task<int> GetCategoryIdByName(string name);
         Task<Response<TblUserMaster>> GetUsersByCategoryId(int page, int catId);
+        int GetUserIdByUserPan(string UserPan);
     }
 }
