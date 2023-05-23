@@ -63,9 +63,9 @@ namespace CRM_api.Services.Services.Business_Module.LI_GI_Module
         #endregion
 
         #region Get All Insurance Company By Insurance Type
-        public async Task<ResponseDto<InsuranceCompanyListDto>> GetCompanyListByInsTypeIdAsync(int id, int page)
+        public async Task<ResponseDto<InsuranceCompanyListDto>> GetCompanyListByInsTypeIdAsync(int id, SortingParams sortingParams)
         {
-            var companyList = await _insuranceClientRepository.GetCompanyListByInsTypeId(id, page);
+            var companyList = await _insuranceClientRepository.GetCompanyListByInsTypeId(id, sortingParams);
             var mapCompanyList = _mapper.Map<ResponseDto<InsuranceCompanyListDto>>(companyList);
 
             return mapCompanyList;

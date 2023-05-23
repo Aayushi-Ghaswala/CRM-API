@@ -49,11 +49,11 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
 
         [HttpGet]
         #region Get All Insurance Company List By InsType Id
-        public async Task<IActionResult> GetCompanyListByInsTypeId(int id, int page)
+        public async Task<IActionResult> GetCompanyListByInsTypeId(int id, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var insCompanies = await _insuranceClientService.GetCompanyListByInsTypeIdAsync(id, page);
+                var insCompanies = await _insuranceClientService.GetCompanyListByInsTypeIdAsync(id, sortingParams);
                 return insCompanies.Values.Count >= 0 ? Ok(insCompanies) : BadRequest(new { Message = "Insurance company not found." });
             }
             catch (Exception)

@@ -69,11 +69,11 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
 
         [HttpGet]
         #region Get All Bank Details
-        public async Task<IActionResult> GetBankDetails(int page)
+        public async Task<IActionResult> GetBankDetails([FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var bankDetails = await _loanMasterService.GetBankDetailsAsync(page);
+                var bankDetails = await _loanMasterService.GetBankDetailsAsync(sortingParams);
 
                 return Ok(bankDetails);
             }

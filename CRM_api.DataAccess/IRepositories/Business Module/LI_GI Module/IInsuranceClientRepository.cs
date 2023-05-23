@@ -6,7 +6,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module
 {
     public interface IInsuranceClientRepository
     {
-        Task<Response<TblInsuranceCompanylist>> GetCompanyListByInsTypeId(int id, int page);
+        Task<Response<TblInsuranceCompanylist>> GetCompanyListByInsTypeId(int id, SortingParams sortingParams);
         Task<int> AddInsuranceDetail(TblInsuranceclient tblInsuranceclient);
         Task<int> UpdateInsuranceClientDetail(TblInsuranceclient tblInsuranceclient);
         Task<Response<TblInsuranceclient>> GetInsuranceClients(Dictionary<string, object> searchingParams, SortingParams sortingParams);

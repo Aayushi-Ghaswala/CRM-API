@@ -84,19 +84,26 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         #endregion
 
         #region Get All Bank Details
-        public async Task<Response<TblBankMaster>> GetLBankDetails(int page)
+        public async Task<Response<TblBankMaster>> GetLBankDetails(SortingParams sortingParams)
         {
-            float pageResult = 10f;
-            double pageCount = Math.Ceiling(_context.TblBankMasters.Count() / pageResult);
+            double pageCount = 0;
 
-            var bankDetails = await _context.TblBankMasters.Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+            var filterData = _context.TblBankMasters.AsQueryable();
+
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var bankDetailsResponse = new Response<TblBankMaster>()
             {
-                Values = bankDetails,
+                Values = paginatedData,
                 Pagination = new Pagination
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };

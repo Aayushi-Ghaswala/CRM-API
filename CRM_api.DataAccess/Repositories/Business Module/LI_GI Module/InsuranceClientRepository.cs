@@ -17,19 +17,25 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
         }
 
         #region Get All Insurance Company By Insurance Type
-        public async Task<Response<TblInsuranceCompanylist>> GetCompanyListByInsTypeId(int id, int page)
+        public async Task<Response<TblInsuranceCompanylist>> GetCompanyListByInsTypeId(int id, SortingParams sortingParams)
         {
-            float pageResult = 10f;
-            double pageCount = Math.Ceiling(_context.TblInsuranceCompanylists.Where(x => x.InsuranceCompanytypeid == id).Count() / pageResult);
+            double pageCount = 0;
 
-            var companyList = await _context.TblInsuranceCompanylists.Where(x => x.InsuranceCompanytypeid == id).Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+            var filterData = _context.TblInsuranceCompanylists.Where(x => x.InsuranceCompanyid == id).AsQueryable();
+            
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
             var responseCompanyList = new Response<TblInsuranceCompanylist>()
             {
-                Values = companyList,
+                Values = paginatedData,
                 Pagination = new Pagination()
                 {
-                    CurrentPage = page,
+                    CurrentPage = sortingParams.PageNumber,
                     Count = (int)pageCount
                 }
             };

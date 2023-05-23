@@ -57,10 +57,10 @@ namespace CRM_api.Services.Services.Business_Module.Loan_Module
         }
         #endregion
 
-        #region Get All Loan Type Details
-        public async Task<ResponseDto<BankMasterDto>> GetBankDetailsAsync(int page)
+        #region Get All Bank Details
+        public async Task<ResponseDto<BankMasterDto>> GetBankDetailsAsync(SortingParams sortingParams)
         {
-            var bankDetails = await _loanMasterRepository.GetLBankDetails(page);
+            var bankDetails = await _loanMasterRepository.GetLBankDetails(sortingParams);
             var mapBankeDetails = _mapper.Map<ResponseDto<BankMasterDto>>(bankDetails);
 
             return mapBankeDetails;
