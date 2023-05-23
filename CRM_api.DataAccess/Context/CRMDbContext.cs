@@ -1169,7 +1169,7 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(350)
                     .IsUnicode(false);
 
-                entity.Property(e => e.SchemeId).HasColumnName("SchemeId");
+                entity.Property(e => e.Scripid).HasColumnName("scripid");
 
                 entity.Property(e => e.Transactiontype)
                     .HasMaxLength(150)
@@ -1481,7 +1481,7 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(350)
                     .IsUnicode(false);
 
-                entity.Property(e => e.SchemeId).HasColumnName("SchemeId");
+                entity.Property(e => e.Scripid).HasColumnName("scripid");
 
                 entity.Property(e => e.Transactiontype)
                     .HasMaxLength(150)
