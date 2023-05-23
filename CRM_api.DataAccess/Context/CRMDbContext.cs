@@ -42,6 +42,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblGoldReferral> TblGoldReferrals { get; set; } = null!;
         public virtual DbSet<TblInsuranceCalculator> TblInsuranceCalculators { get; set; } = null!;
         public virtual DbSet<TblInsuranceCompanylist> TblInsuranceCompanylists { get; set; } = null!;
+        public virtual DbSet<TblInsuranceTypeMaster> TblInsuranceTypeMasters { get; set; } = null!;
         public virtual DbSet<TblInsuranceclient> TblInsuranceclients { get; set; } = null!;
         public virtual DbSet<TblInsurancetype> TblInsurancetypes { get; set; } = null!;
         public virtual DbSet<TblInvesmentType> TblInvesmentTypes { get; set; } = null!;
@@ -86,6 +87,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblWbcMallProduct> TblWbcMallProducts { get; set; } = null!;
         public virtual DbSet<Usercleantable> Usercleantables { get; set; } = null!;
         public virtual DbSet<TblLoanMaster> TblLoanMasters { get; set; } = null!;
+        public virtual DbSet<TblLoanTypeMaster> TblLoanTypeMasters { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -989,15 +991,29 @@ namespace CRM_api.DataAccess.Context
                     .HasConstraintName("FK_tbl_Insurance_companylist _tbl_Insurancetype");
             });
 
+            modelBuilder.Entity<TblInsuranceTypeMaster>(entity =>
+            {
+                entity.HasKey(e => e.InsPlantypeId);
+
+                entity.ToTable("tbl_insurance_type_master");
+
+                entity.Property(e => e.InsPlantypeId).HasColumnName("ins_plantype_id");
+
+                entity.Property(e => e.InsPlanType)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("ins_plan_type");
+            });
+
             modelBuilder.Entity<TblInsuranceclient>(entity =>
             {
                 entity.ToTable("tbl_insuranceclient");
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.InsAmount)
-                    .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("ins_amount");
+                entity.Property(e => e.Companyid).HasColumnName("companyid");
+
+                entity.Property(e => e.InsAmount).HasColumnName("ins_amount");
 
                 entity.Property(e => e.InsDuedate)
                     .HasColumnType("datetime")
@@ -1007,6 +1023,11 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(150)
                     .IsUnicode(false)
                     .HasColumnName("ins_email");
+
+                entity.Property(e => e.InsFrequency)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("ins_frequency");
 
                 entity.Property(e => e.InsMobile)
                     .HasMaxLength(20)
@@ -1033,12 +1054,22 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false)
                     .HasColumnName("ins_plantype");
 
+                entity.Property(e => e.InsPlantypeId).HasColumnName("ins_plantype_id");
+
                 entity.Property(e => e.InsPolicy)
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("ins_ policy");
 
-                entity.Property(e => e.InsSumAssuredInsured).HasColumnName("ins_sumAssured_Insured");
+                entity.Property(e => e.InsPremiumRmdDate)
+                    .HasColumnType("date")
+                    .HasColumnName("ins_premium_rmd_date");
+
+                entity.Property(e => e.InsStartdate)
+                    .HasColumnType("date")
+                    .HasColumnName("ins_startdate");
+
+                entity.Property(e => e.InsTerm).HasColumnName("ins_term");
 
                 entity.Property(e => e.InsUserid).HasColumnName("ins_userid");
 
@@ -1050,6 +1081,17 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.InvSubtype).HasColumnName("inv_subtype");
 
                 entity.Property(e => e.InvType).HasColumnName("inv_type");
+
+                entity.Property(e => e.IsKathrough).HasColumnName("IsKAThrough");
+
+                entity.Property(e => e.PremiumAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("premium_amount");
+
+                entity.HasOne(d => d.TblInsuranceTypeMaster)
+                    .WithMany(p => p.TblInsuranceclients)
+                    .HasForeignKey(d => d.InsPlantypeId)
+                    .HasConstraintName("FK_tbl_insuranceclient_tbl_insurance_type_master");
             });
 
             modelBuilder.Entity<TblInsurancetype>(entity =>
@@ -2561,13 +2603,34 @@ namespace CRM_api.DataAccess.Context
 
             modelBuilder.Entity<TblLoanMaster>(entity =>
             {
-                entity.ToTable("Tbl_Loan_Master");
+                entity.ToTable("tbl_Loan_Master");
 
-                entity.Property(e => e.Frequency).HasMaxLength(10);
-                entity.Property(e => e.StartDate).HasColumnType("date");
-                entity.Property(e => e.MaturityDate).HasColumnType("date");
                 entity.Property(e => e.Date).HasColumnType("datetime");
-                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
+
+                entity.Property(e => e.Emi).HasColumnType("decimal(18, 0)");
+
+                entity.Property(e => e.Frequency)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.IsKathrough).HasColumnName("IsKAThrough");
+
+                entity.Property(e => e.LoanAmount).HasColumnType("decimal(18, 0)");
+
+                entity.Property(e => e.MaturityDate).HasColumnType("date");
+
+                entity.Property(e => e.RateOfInterest).HasColumnType("decimal(18, 0)");
+
+                entity.Property(e => e.StartDate).HasColumnType("date");
+            });
+
+            modelBuilder.Entity<TblLoanTypeMaster>(entity =>
+            {
+                entity.ToTable("tbl_Loan_Type_Master");
+
+                entity.Property(e => e.LoanType)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
             });
 
             modelBuilder.HasSequence("OrderId")

@@ -179,7 +179,7 @@ namespace CRM_api.Controllers.User_Module
         public async Task<IActionResult> DeactivateUser(int id)
         {
             var user = await _userMasterService.DeactivateUserAsync(id);
-            return user !=0 ? Ok(new { Message = "User deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate user."});
+            return user != 0 ? Ok(new { Message = "User deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate user." });
         }
         #endregion
     }

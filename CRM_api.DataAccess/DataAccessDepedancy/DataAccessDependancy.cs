@@ -1,9 +1,11 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.Loan_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
+using CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.Loan_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module;
@@ -37,6 +39,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             Services.AddScoped<ILoanMasterRepository, LoanMasterRepository>();
             Services.AddScoped<IStocksRepository, StocksRepository>();
             Services.AddScoped<IMutualfundRepositry, MutualfundRepositery>();
+            Services.AddScoped<IInsuranceClientRepository, InsuranceClientRepository>();
 
             //HR Module
             Services.AddScoped<IEmployeeRepository, EmployeeRepository>();

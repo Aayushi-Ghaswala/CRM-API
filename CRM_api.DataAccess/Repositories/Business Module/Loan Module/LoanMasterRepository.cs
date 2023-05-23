@@ -4,6 +4,7 @@ using CRM_api.DataAccess.IRepositories.Business_Module.Loan_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
 {
@@ -49,11 +50,12 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         }
         #endregion
 
+
         #region Get Loan Detail By Id
         public async Task<TblLoanMaster> GetLoanDetailById(int id)
         {
-            var loanDetail = await _context.TblLoanMasters.Where(x => x.Id == id).Include(u => u.TblUserMaster).Include(c => c.TblUserCategoryMaster)
-                                                            .FirstOrDefaultAsync();
+            var loanDetail = await _context.TblLoanMasters.Where(x => x.Id == id).Include(u => u.TblUserMaster).Include(c => c.TblLoanTypeMaster)
+                                                            .Include(x => x.TblBankMaster).FirstOrDefaultAsync();
 
             return loanDetail;
         }
@@ -62,6 +64,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         #region Add Loan Detail
         public async Task<int> AddLoanDetail(TblLoanMaster tblLoan)
         {
+            if (_context.TblLoanMasters.Any(x => x.UserId == tblLoan.UserId && x.LoanTypeId == tblLoan.LoanTypeId && x.IsCompleted == false && x.IsDeleted == false))
+                return 0;
+
             _context.TblLoanMasters.Add(tblLoan);
             return await _context.SaveChangesAsync();
         }
@@ -76,6 +81,28 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
 
             _context.TblLoanMasters.Update(tblLoan);
             return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Get All Bank Details
+        public async Task<Response<TblBankMaster>> GetLBankDetails(int page)
+        {
+            float pageResult = 10f;
+            double pageCount = Math.Ceiling(_context.TblBankMasters.Count() / pageResult);
+
+            var bankDetails = await _context.TblBankMasters.Skip((page - 1) * (int)pageResult).Take((int)pageResult).ToListAsync();
+
+            var bankDetailsResponse = new Response<TblBankMaster>()
+            {
+                Values = bankDetails,
+                Pagination = new Pagination
+                {
+                    CurrentPage = page,
+                    Count = (int)pageCount
+                }
+            };
+
+            return bankDetailsResponse;
         }
         #endregion
 

@@ -67,6 +67,26 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
         }
         #endregion
 
+        [HttpGet]
+        #region Get All Bank Details
+        public async Task<IActionResult> GetBankDetails(int page)
+        {
+            try
+            {
+                var bankDetails = await _loanMasterService.GetBankDetailsAsync(page);
+                if (bankDetails.Values.Count == 0)
+                    return BadRequest("Bank Detail Not Found.");
+
+                return Ok(bankDetails);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
         [HttpPost]
         #region Add Loan Detail
         public async Task<IActionResult> AddLoanDetail(AddLoanMasterDto loanMasterDto)
