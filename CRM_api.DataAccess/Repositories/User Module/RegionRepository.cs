@@ -17,15 +17,15 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
 
         #region Get All Countries
-        public async Task<Response<TblCountryMaster>> GetCountries(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblCountryMaster>> GetCountries(string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
             var filterData = _context.TblCountryMasters.Where(x => x.IsDeleted != true).AsQueryable();
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblCountryMaster>(searchingParams);
+                filterData = _context.Search<TblCountryMaster>(search).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -50,15 +50,15 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All State Of Country
-        public async Task<Response<TblStateMaster>> GetStateBycountry(int countryId, Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblStateMaster>> GetStateBycountry(int countryId, string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
             var filterData = _context.TblStateMasters.Where(x => x.CountryId == countryId && x.IsDeleted != true).AsQueryable();
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblStateMaster>(searchingParams);
+                filterData = _context.Search<TblStateMaster>(search).Where(x => x.CountryId == countryId).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -83,15 +83,15 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All City Of State
-        public async Task<Response<TblCityMaster>> GetCityByState(int stateId, Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblCityMaster>> GetCityByState(int stateId, string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
             var filterData = _context.TblCityMasters.Where(x => x.StateId == stateId && x.IsDeleted != true).AsQueryable();
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblCityMaster>(searchingParams);
+                filterData = _context.Search<TblCityMaster>(search).Where(x => x.StateId == stateId).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 

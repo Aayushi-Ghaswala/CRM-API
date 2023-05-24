@@ -95,9 +95,9 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get All Roles
-        public async Task<ResponseDto<RoleMasterDto>> GetRolesAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<RoleMasterDto>> GetRolesAsync(string search, SortingParams sortingParams)
         {
-            var roles = await _roleMasterRepository.GetRoles(searchingParams, sortingParams);
+            var roles = await _roleMasterRepository.GetRoles(search, sortingParams);
             var mapRoles = _mapper.Map<ResponseDto<RoleMasterDto>>(roles);
 
             return mapRoles;
@@ -105,9 +105,9 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get All Role Permissions
-        public async Task<ResponseDto<RolePermissionDto>> GetRolePermissionsAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<RolePermissionDto>> GetRolePermissionsAsync(string search, SortingParams sortingParams)
         {
-            var rolePermissions = await _roleMasterRepository.GetRolePermissions(searchingParams, sortingParams);
+            var rolePermissions = await _roleMasterRepository.GetRolePermissions(search, sortingParams);
             var mapRolePermissions = _mapper.Map<ResponseDto<RolePermissionDto>>(rolePermissions);
 
             return mapRolePermissions;
@@ -115,9 +115,9 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get All User Assign Roles
-        public async Task<ResponseDto<UserRoleAssignmentDto>> GetUserAssignRolesAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<UserRoleAssignmentDto>> GetUserAssignRolesAsync(string search, SortingParams sortingParams)
         {
-            var userAssignRoles = await _roleMasterRepository.GetUserAssignRoles(searchingParams, sortingParams);
+            var userAssignRoles = await _roleMasterRepository.GetUserAssignRoles(search, sortingParams);
             var mapUserAssignRoles = _mapper.Map<ResponseDto<UserRoleAssignmentDto>>(userAssignRoles);
 
             return mapUserAssignRoles;

@@ -19,22 +19,9 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Users
-        public async Task<IActionResult> GetUsers(string? filterString, [FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetUsers(string? filterString, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
-            var data = new Dictionary<string, object>();
-            if (searchingParams != null)
-            {
-                data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                    new JsonSerializerOptions
-                    {
-                        Converters =
-                        {
-                            new ObjectDeserializer()
-                        }
-                    });
-            }
-
-            var users = await _userMasterService.GetUsersAsync(filterString, data, sortingParams);
+            var users = await _userMasterService.GetUsersAsync(filterString, search, sortingParams);
             
             return Ok(users);
         }
@@ -70,23 +57,11 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All User Category
-        public async Task<IActionResult> GetUserCatagories([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetUserCatagories([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var data = new Dictionary<string, object>();
-                if (searchingParams != null)
-                {
-                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                        new JsonSerializerOptions
-                        {
-                            Converters =
-                            {
-                            new ObjectDeserializer()
-                            }
-                        });
-                }
-                var categories = await _userMasterService.GetUserCategoriesAsync(data, sortingParams);
+                var categories = await _userMasterService.GetUserCategoriesAsync(search, sortingParams);
                 if (categories.Values.Count == 0)
                     return BadRequest(new { Message = "Category not found."});
 
@@ -101,21 +76,9 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Users By Category Id
-        public async Task<IActionResult> GetUsersByCategoryId(int categoryId, [FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetUsersByCategoryId(int categoryId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
-            var data = new Dictionary<string, object>();
-            if (searchingParams != null)
-            {
-                data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                    new JsonSerializerOptions
-                    {
-                        Converters =
-                        {
-                            new ObjectDeserializer()
-                        }
-                    });
-            }
-            var users = await _userMasterService.GetUsersByCategoryIdAsync(categoryId, data, sortingParams);
+            var users = await _userMasterService.GetUsersByCategoryIdAsync(categoryId, search, sortingParams);
             if (users.Values.Count == 0)
                 return BadRequest(new { Message = "User not found"});
 

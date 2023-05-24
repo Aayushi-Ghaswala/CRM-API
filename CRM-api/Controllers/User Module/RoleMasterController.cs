@@ -168,23 +168,11 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Roles
-        public async Task<IActionResult> GetRoles([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetRoles([FromQuery] string search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var data = new Dictionary<string, object>();
-                if (searchingParams != null)
-                {
-                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                        new JsonSerializerOptions
-                        {
-                            Converters =
-                            {
-                            new ObjectDeserializer()
-                            }
-                        });
-                }
-                var roles = await _roleMasterService.GetRolesAsync(data, sortingParams);
+                var roles = await _roleMasterService.GetRolesAsync(search, sortingParams);
                 
                 return Ok(roles);
             }
@@ -197,23 +185,11 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Role Permissions
-        public async Task<IActionResult> GetRolePermissions([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetRolePermissions([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var data = new Dictionary<string, object>();
-                if (searchingParams != null)
-                {
-                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                        new JsonSerializerOptions
-                        {
-                            Converters =
-                            {
-                            new ObjectDeserializer()
-                            }
-                        });
-                }
-                var rolePermissions = await _roleMasterService.GetRolePermissionsAsync(data, sortingParams);
+                var rolePermissions = await _roleMasterService.GetRolePermissionsAsync(search, sortingParams);
                 
                 return Ok(rolePermissions);
             }
@@ -227,23 +203,11 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All User Assign Role
-        public async Task<IActionResult> GetUserAssignRoles([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetUserAssignRoles([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var data = new Dictionary<string, object>();
-                if (searchingParams != null)
-                {
-                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                        new JsonSerializerOptions
-                        {
-                            Converters =
-                            {
-                            new ObjectDeserializer()
-                            }
-                        });
-                }
-                var userAssignRoles = await _roleMasterService.GetUserAssignRolesAsync(data, sortingParams);
+                var userAssignRoles = await _roleMasterService.GetUserAssignRolesAsync(search, sortingParams);
                 
                 return Ok(userAssignRoles);
             }

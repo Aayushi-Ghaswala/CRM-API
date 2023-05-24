@@ -22,9 +22,9 @@ namespace CRM_api.Services.Services.User_Module
         }
 
         #region Get All Users
-        public async Task<ResponseDto<UserMasterDto>> GetUsersAsync(string filterString, Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<UserMasterDto>> GetUsersAsync(string filterString, string search, SortingParams sortingParams)
         {
-            var users = await _userMasterRepository.GetUsers(filterString, searchingParams, sortingParams);
+            var users = await _userMasterRepository.GetUsers(filterString, search, sortingParams);
             var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(users);
 
             return mapUsers;
@@ -51,9 +51,9 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get All User Category
-        public async Task<ResponseDto<UserCategoryDto>> GetUserCategoriesAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<UserCategoryDto>> GetUserCategoriesAsync(string search, SortingParams sortingParams)
         {
-            var catagories = await _userMasterRepository.GetUserCategories(searchingParams, sortingParams);
+            var catagories = await _userMasterRepository.GetUserCategories(search, sortingParams);
             var mapCatagories = _mapper.Map<ResponseDto<UserCategoryDto>>(catagories);
 
             return mapCatagories;
@@ -61,9 +61,9 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get All User By Category Id
-        public async Task<ResponseDto<UserMasterDto>> GetUsersByCategoryIdAsync(int categoryId, Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<UserMasterDto>> GetUsersByCategoryIdAsync(int categoryId, string search, SortingParams sortingParams)
         {
-            var users = await _userMasterRepository.GetUsersByCategoryId(categoryId, searchingParams, sortingParams);
+            var users = await _userMasterRepository.GetUsersByCategoryId(categoryId, search, sortingParams);
             var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(users);
 
             return mapUsers;

@@ -6,9 +6,9 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
 {
     public interface IRegionRepository
     {
-        Task<Response<TblCountryMaster>> GetCountries(Dictionary<string, object> searchingParams, SortingParams sortingParams);
-        Task<Response<TblStateMaster>> GetStateBycountry(int countryId, Dictionary<string, object> searchingParams, SortingParams sortingParams);
-        Task<Response<TblCityMaster>> GetCityByState(int stateId, Dictionary<string, object> searchingParams, SortingParams sortingParams);
+        Task<Response<TblCountryMaster>> GetCountries(string search, SortingParams sortingParams);
+        Task<Response<TblStateMaster>> GetStateBycountry(int countryId, string search, SortingParams sortingParams);
+        Task<Response<TblCityMaster>> GetCityByState(int stateId, string search, SortingParams sortingParams);
         Task<int> DeactivateCountry(int CountryId);
         Task<int> DeactivateState(int StateId);
         Task<int> DeactivateCity(int CityId);
