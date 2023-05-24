@@ -18,23 +18,11 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Countries
-        public async Task<IActionResult> GetCountries([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetCountries([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var data = new Dictionary<string, object>();
-                if (searchingParams != null)
-                {
-                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                        new JsonSerializerOptions
-                        {
-                            Converters =
-                            {
-                            new ObjectDeserializer()
-                            }
-                        });
-                }
-                var countries = await _regionService.GetCountriesAsync(data, sortingParams);
+                var countries = await _regionService.GetCountriesAsync(search, sortingParams);
                 
                 return Ok(countries);
             }
@@ -47,23 +35,11 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All States By Country
-        public async Task<IActionResult> GetStatesByCountry(int countryId, [FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetStatesByCountry(int countryId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var data = new Dictionary<string, object>();
-                if (searchingParams != null)
-                {
-                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                        new JsonSerializerOptions
-                        {
-                            Converters =
-                            {
-                            new ObjectDeserializer()
-                            }
-                        });
-                }
-                var states = await _regionService.GetstateByCountry(countryId, data, sortingParams);
+                var states = await _regionService.GetstateByCountry(countryId, search, sortingParams);
                 
                 return Ok(states);
             }
@@ -76,23 +52,11 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Cities By State
-        public async Task<IActionResult> GetcitiesByState(int stateId, [FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetcitiesByState(int stateId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var data = new Dictionary<string, object>();
-                if (searchingParams != null)
-                {
-                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                        new JsonSerializerOptions
-                        {
-                            Converters =
-                            {
-                            new ObjectDeserializer()
-                            }
-                        });
-                }
-                var cities = await _regionService.GetCityByState(stateId, data, sortingParams);
+                var cities = await _regionService.GetCityByState(stateId, search, sortingParams);
                 
                 return Ok(cities);
             }

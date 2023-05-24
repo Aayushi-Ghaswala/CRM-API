@@ -11,7 +11,7 @@ namespace CRM_api.DataAccess.Helper
             return data;
         }
 
-        public static IEnumerable<T> ApplyPagination<T>(IEnumerable<T> data, int pageNumber, float pageSize)
+        public static IEnumerable<T> ApplyPagination<T>(IQueryable<T> data, int pageNumber, float pageSize)
         {
             return data.Skip((pageNumber - 1) * (int)pageSize).Take((int)pageSize);
         }        

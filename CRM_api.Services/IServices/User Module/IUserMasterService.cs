@@ -9,11 +9,11 @@ namespace CRM_api.Services.IServices.User_Module
 {
     public interface IUserMasterService
     {
-        Task<ResponseDto<UserMasterDto>> GetUsersAsync(string filterString, Dictionary<string, object> searchingParams, SortingParams sortingParams);
+        Task<ResponseDto<UserMasterDto>> GetUsersAsync(string filterString, string search, SortingParams sortingParams);
         Task<UserMasterDto> GetUserMasterByIdAsync(int id);
         Task<Dictionary<string, int>> GetUserCountAsync();
-        Task<ResponseDto<UserCategoryDto>> GetUserCategoriesAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams);
-        Task<ResponseDto<UserMasterDto>> GetUsersByCategoryIdAsync(int categoryId, Dictionary<string, object> searchingParams, SortingParams sortingParams);
+        Task<ResponseDto<UserCategoryDto>> GetUserCategoriesAsync(string search, SortingParams sortingParams);
+        Task<ResponseDto<UserMasterDto>> GetUsersByCategoryIdAsync(int categoryId, string search, SortingParams sortingParams);
         Task<TblUserCategoryMaster> GetCategoryByNameAsync(string name);
         Task<int> AddUserAsync(AddUserMasterDto addUser);
         Task<int> UpdateUserAsync(UpdateUserMasterDto updateUser);

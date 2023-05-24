@@ -16,7 +16,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
 
         #region Get All Users
-        public async Task<Response<TblUserMaster>> GetUsers(string filterString, Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblUserMaster>> GetUsers(string filterString, string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
@@ -38,14 +38,19 @@ namespace CRM_api.DataAccess.Repositories.User_Module
                         filterData = filterData.Where(x => x.UserFasttrack == true).AsQueryable();
                         break;
                     default:
-                        filterData = filterData.AsQueryable();
                         break;
                 }
             }
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblUserMaster>(searchingParams);
+                filterData = _context.Search<TblUserMaster>(search).Where(x => x.UserIsactive != false)
+                                                    .Include(x => x.TblUserCategoryMaster)
+                                                    .Include(x => x.TblCountryMaster)
+                                                    .Include(x => x.TblStateMaster)
+                                                    .Include(x => x.TblCityMaster)
+                                                    .Include(x => x.ParentName)
+                                                    .Include(x => x.SponserName).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -100,15 +105,15 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All User Category
-        public async Task<Response<TblUserCategoryMaster>> GetUserCategories(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblUserCategoryMaster>> GetUserCategories(string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
-            var filterData = _context.TblUserCategoryMasters.AsQueryable();
+            var filterData = _context.TblUserCategoryMasters.Where(x => x.CatIsactive != false).AsQueryable();
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblUserCategoryMaster>(searchingParams);
+                filterData = _context.Search<TblUserCategoryMaster>(search).Where(x => x.CatIsactive != false).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -133,20 +138,27 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get Users By Category Id
-        public async Task<Response<TblUserMaster>> GetUsersByCategoryId(int categoryId, Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblUserMaster>> GetUsersByCategoryId(int categoryId, string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
-            var filterData = _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false).Include(x => x.TblUserCategoryMaster)
+            var filterData = _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false)
+                                                    .Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .ThenInclude(x => x.TblStateMasters)
                                                     .ThenInclude(x => x.TblCityMasters)
                                                     .Include(x => x.ParentName)
                                                     .Include(x => x.SponserName).AsQueryable();
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblUserMaster>(searchingParams);
+                filterData = _context.Search<TblUserMaster>(search).Where(x => x.CatId == categoryId && x.UserIsactive != false)
+                                                    .Include(x => x.TblUserCategoryMaster)
+                                                    .Include(x => x.TblCountryMaster)
+                                                    .ThenInclude(x => x.TblStateMasters)
+                                                    .ThenInclude(x => x.TblCityMasters)
+                                                    .Include(x => x.ParentName)
+                                                    .Include(x => x.SponserName).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 

@@ -57,7 +57,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             var rolePermissions = _context.TblRolePermissions.AsNoTracking().Where(x => x.Id == rolePermission.Id);
 
-            if(rolePermissions == null) return 0;
+            if (rolePermissions == null) return 0;
 
             _context.TblRolePermissions.Update(rolePermission);
             return await _context.SaveChangesAsync();
@@ -93,7 +93,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             var rolePermission = await _context.TblRolePermissions.FindAsync(id);
 
-            if(rolePermission == null) return 0;
+            if (rolePermission == null) return 0;
 
             rolePermission.IsDeleted = true;
             return await _context.SaveChangesAsync();
@@ -141,15 +141,15 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All Role
-        public async Task<Response<TblRoleMaster>> GetRoles(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblRoleMaster>> GetRoles(string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
             var filterData = _context.TblRoleMasters.Where(x => x.IsDeleted != true).AsQueryable();
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblRoleMaster>(searchingParams);
+                filterData = _context.Search<TblRoleMaster>(search).Where(x => x.IsDeleted != true).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -174,15 +174,15 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All Role Permission
-        public async Task<Response<TblRolePermission>> GetRolePermissions(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblRolePermission>> GetRolePermissions(string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
             var filterData = _context.TblRolePermissions.Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster).AsQueryable();
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblRolePermission>(searchingParams);
+                filterData = _context.Search<TblRolePermission>(search).Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -207,15 +207,15 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get All User Assign role
-        public async Task<Response<TblRoleAssignment>> GetUserAssignRoles(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblRoleAssignment>> GetUserAssignRoles(string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
             var filterData = _context.TblRoleAssignments.Where(x => x.IsDeleted != true).AsQueryable();
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblRoleAssignment>(searchingParams);
+                filterData = _context.Search<TblRoleAssignment>(search).Where(x => x.IsDeleted != true).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
