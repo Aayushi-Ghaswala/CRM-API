@@ -21,7 +21,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblDepartmentMasters.Where(x => x.IsDeleted != true).AsQueryable();
+            var filterData = _context.TblDepartmentMasters.Where(x => x.Isdeleted != true).AsQueryable();
 
             if (searchingParams.Count > 0)
             {
