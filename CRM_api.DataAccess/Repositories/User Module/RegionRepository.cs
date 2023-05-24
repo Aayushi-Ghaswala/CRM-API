@@ -25,7 +25,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
             if (search != null)
             {
-                filterData = _context.Search<TblCountryMaster>(search).AsQueryable();
+                filterData = _context.Search<TblCountryMaster>(search).Where(x => x.IsDeleted != true).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -58,7 +58,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
             if (search != null)
             {
-                filterData = _context.Search<TblStateMaster>(search).Where(x => x.CountryId == countryId).AsQueryable();
+                filterData = _context.Search<TblStateMaster>(search).Where(x => x.CountryId == countryId && x.IsDeleted != true).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -91,7 +91,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
             if (search != null)
             {
-                filterData = _context.Search<TblCityMaster>(search).Where(x => x.StateId == stateId).AsQueryable();
+                filterData = _context.Search<TblCityMaster>(search).Where(x => x.StateId == stateId && x.IsDeleted != true).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
