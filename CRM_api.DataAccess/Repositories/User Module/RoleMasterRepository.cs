@@ -145,7 +145,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblRoleMasters.AsQueryable();
+            var filterData = _context.TblRoleMasters.Where(x => x.IsDeleted != true).AsQueryable();
 
             if (searchingParams.Count > 0)
             {
@@ -178,7 +178,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblRolePermissions.Include(r => r.TblRoleMaster).AsQueryable();
+            var filterData = _context.TblRolePermissions.Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster).AsQueryable();
 
             if (searchingParams.Count > 0)
             {
@@ -211,7 +211,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblRoleAssignments.AsQueryable();
+            var filterData = _context.TblRoleAssignments.Where(x => x.IsDeleted != true).AsQueryable();
 
             if (searchingParams.Count > 0)
             {

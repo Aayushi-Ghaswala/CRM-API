@@ -24,12 +24,9 @@
         public string? UserGstNo { get; set; }
         public Nullable<DateTime> UserDob { get; set; }
         public string? UserAadhar { get; set; }
-        public Nullable<int> UserAccountType { get; set; }
         public Nullable<bool> UserfastTrack { get; set; }
         public Nullable<bool> UserWbcActive { get; set; }
-        public string? UserDeviceid { get; set; }
         public Nullable<bool> UserTermAndCondition { get; set; }
-        public Nullable<int> FamilyId { get; set; }
         public string? UserNjName { get; set; }
     }
 }

@@ -10,13 +10,9 @@ namespace CRM_api.Services.MapperProfile
     {
         public RegionProfile()
         {
-            CreateMap<TblCountryMaster, CountryMasterDto>()
-                .ForMember(c => c.Id, opt => opt.MapFrom(src => src.CountryId));
-            CreateMap<TblStateMaster, StateMasterDto>()
-                .ForMember(c => c.Id, opt => opt.MapFrom(src => src.StateId));
-
-            CreateMap<TblCityMaster, CityMasterDto>()
-                .ForMember(c => c.Id, opt => opt.MapFrom(src => src.CityId));
+            CreateMap<TblCountryMaster, CountryMasterDto>();
+            CreateMap<TblStateMaster, StateMasterDto>();
+            CreateMap<TblCityMaster, CityMasterDto>();
 
             CreateMap<Response<TblCountryMaster>, ResponseDto<CountryMasterDto>>();
             CreateMap<Response<TblStateMaster>, ResponseDto<StateMasterDto>>();

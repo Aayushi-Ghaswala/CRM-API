@@ -2,7 +2,7 @@
 {
     public class RoleMasterDto
     {
-        public int Id { get; set; } 
+        public int RoleId { get; set; } 
         public string RoleName { get; set; } = null!;
         public bool IsDeleted { get; set; }
     }

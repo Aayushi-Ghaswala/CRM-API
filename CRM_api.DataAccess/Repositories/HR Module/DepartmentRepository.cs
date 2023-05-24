@@ -21,7 +21,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblDepartmentMasters.AsQueryable();
+            var filterData = _context.TblDepartmentMasters.Where(x => x.Isdeleted != true).AsQueryable();
 
             if (searchingParams.Count > 0)
             {
@@ -52,7 +52,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #region Get Department by Id
         public async Task<TblDepartmentMaster> GetDepartmentById(int id)
         {
-            var dept = await _context.TblDepartmentMasters.FirstAsync(x => x.DepartmentId == id);
+            var dept = await _context.TblDepartmentMasters.FirstAsync(x => x.DepartmentId == id && x.Isdeleted != true);
             return dept;
         }
         #endregion

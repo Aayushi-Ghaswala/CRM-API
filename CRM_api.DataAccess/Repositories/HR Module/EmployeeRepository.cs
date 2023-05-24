@@ -21,7 +21,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblUserMasters.Where(x => x.CatId == categoryId).AsQueryable();
+            var filterData = _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false).AsQueryable();
 
             if (searchingParams.Count > 0)
             {
@@ -54,7 +54,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         {
             var user = await _context.TblUserMasters.Include(x => x.TblUserCategoryMaster).Include(x => x.TblUserCategoryMaster)
                                                     .Include(c => c.TblCountryMaster).Include(s => s.TblStateMaster)
-                                                    .Include(ct => ct.TblCityMaster).FirstAsync(x => x.UserId == id);
+                                                    .Include(ct => ct.TblCityMaster).FirstAsync(x => x.UserId == id && x.UserIsactive != false);
             return user;
         }
         #endregion

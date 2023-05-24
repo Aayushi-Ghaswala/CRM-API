@@ -22,7 +22,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblLeaveTypes.AsQueryable();
+            var filterData = _context.TblLeaveTypes.Where(x => x.Isdeleted != true).AsQueryable();
 
             if (searchingParams.Count > 0)
             {
@@ -53,7 +53,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #region Get LeaveType by Id
         public async Task<TblLeaveType> GetLeaveTypeById(int id)
         {
-            var leaveType = await _context.TblLeaveTypes.FirstAsync(x => x.LeaveId == id);
+            var leaveType = await _context.TblLeaveTypes.FirstAsync(x => x.LeaveId == id && x.Isdeleted != true);
             return leaveType;
         }
         #endregion
@@ -61,7 +61,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #region Get LeaveType by Name
         public async Task<TblLeaveType> GetLeaveTypeByName(string Name)
         {
-            var leaveType = await _context.TblLeaveTypes.FirstAsync(x => x.Name.ToLower() == Name.ToLower());
+            var leaveType = await _context.TblLeaveTypes.FirstAsync(x => x.Name.ToLower() == Name.ToLower() && x.Isdeleted != true);
             return leaveType;
         }
         #endregion
