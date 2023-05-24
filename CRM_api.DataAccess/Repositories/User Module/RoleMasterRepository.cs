@@ -149,7 +149,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
             if (search != null)
             {
-                filterData = _context.Search<TblRoleMaster>(search);
+                filterData = _context.Search<TblRoleMaster>(search).Where(x => x.IsDeleted != true).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -182,7 +182,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
             if (search != null)
             {
-                filterData = _context.Search<TblRolePermission>(search).Include(r => r.TblRoleMaster).AsQueryable();
+                filterData = _context.Search<TblRolePermission>(search).Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -215,7 +215,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
             if (search != null)
             {
-                filterData = _context.Search<TblRoleAssignment>(search).AsQueryable();
+                filterData = _context.Search<TblRoleAssignment>(search).Where(x => x.IsDeleted != true).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 

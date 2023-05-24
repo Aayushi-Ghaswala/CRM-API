@@ -44,7 +44,8 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
             if (search != null)
             {
-                filterData = _context.Search<TblUserMaster>(search).Include(x => x.TblUserCategoryMaster)
+                filterData = _context.Search<TblUserMaster>(search).Where(x => x.UserIsactive != false)
+                                                    .Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .Include(x => x.TblStateMaster)
                                                     .Include(x => x.TblCityMaster)
@@ -108,11 +109,11 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblUserCategoryMasters.AsQueryable();
+            var filterData = _context.TblUserCategoryMasters.Where(x => x.CatIsactive != false).AsQueryable();
 
             if (search != null)
             {
-                filterData = _context.Search<TblUserCategoryMaster>(search).AsQueryable();
+                filterData = _context.Search<TblUserCategoryMaster>(search).Where(x => x.CatIsactive != false).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -141,7 +142,8 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false).Include(x => x.TblUserCategoryMaster)
+            var filterData = _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false)
+                                                    .Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .ThenInclude(x => x.TblStateMasters)
                                                     .ThenInclude(x => x.TblCityMasters)
@@ -150,7 +152,8 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
             if (search != null)
             {
-                filterData = _context.Search<TblUserMaster>(search).Where(x => x.CatId == categoryId && x.UserIsactive != false).Include(x => x.TblUserCategoryMaster)
+                filterData = _context.Search<TblUserMaster>(search).Where(x => x.CatId == categoryId && x.UserIsactive != false)
+                                                    .Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .ThenInclude(x => x.TblStateMasters)
                                                     .ThenInclude(x => x.TblCityMasters)
