@@ -211,11 +211,13 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblRoleAssignments.Where(x => x.IsDeleted != true).AsQueryable();
+            var filterData = _context.TblRoleAssignments.Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster)
+                                                                    .Include(u => u.TblUserMaster).AsQueryable();
 
             if (search != null)
             {
-                filterData = _context.Search<TblRoleAssignment>(search).Where(x => x.IsDeleted != true).AsQueryable();
+                filterData = _context.Search<TblRoleAssignment>(search).Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster)
+                                                                    .Include(u => u.TblUserMaster).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 

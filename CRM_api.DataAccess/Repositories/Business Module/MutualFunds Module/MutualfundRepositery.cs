@@ -14,6 +14,33 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             _context = context;
         }
 
+        #region Get Mutual Funds Record in Specific Date
+        public async Task<List<TblMftransaction>> GetMFInSpecificDateForExistUser(DateTime? StartDate, DateTime? EndDate)
+        {
+            var getData = await _context.TblMftransactions.Where(x => x.Date >= StartDate && x.Date <= EndDate).ToListAsync();
+            return getData;
+        }
+        #endregion
+       
+        #region Get Mutual Funds Record in Specific Date For Not Exist User 
+        public async Task<List<TblNotexistuserMftransaction>> GetMFInSpecificDateForNotExistUser(DateTime? StartDate, DateTime? EndDate)
+        {
+            var getData = await _context.TblNotexistuserMftransactions.Where(x => x.Date >= StartDate && x.Date <= EndDate).ToListAsync();
+            return getData;
+        }
+        #endregion
+       
+        #region Get SchemeId by SchemeName
+        public int GetSchemeIdBySchemeName(string schemeName)
+        {
+            var scheme = _context.TblMfSchemeMasters.Where(x => x.SchemeName == schemeName).FirstOrDefault();
+
+            if (scheme == null)
+                return 0;
+            return scheme.SchemeId;
+        }
+        #endregion
+       
         #region Add Mutual Fund Details To Exist User Table
         public async Task<int> AddMFDataForExistUser(List<TblMftransaction> tblMftransaction)
         {
@@ -30,22 +57,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         }
         #endregion
 
-        #region Get Mutual Funds Record in Specific Date
-        public async Task<List<TblMftransaction>> GetMFInSpecificDateForExistUser(DateTime? StartDate, DateTime? EndDate)
-        {
-            var getData = await _context.TblMftransactions.Where(x => x.Date >= StartDate && x.Date <= EndDate).ToListAsync();
-            return getData;
-        }
-        #endregion
-
-        #region Get Mutual Funds Record in Specific Date For Not Exist User 
-        public async Task<List<TblNotexistuserMftransaction>> GetMFInSpecificDateForNotExistUser(DateTime? StartDate, DateTime? EndDate)
-        {
-            var getData = await _context.TblNotexistuserMftransactions.Where(x => x.Date >= StartDate && x.Date <= EndDate).ToListAsync();
-            return getData;
-        }
-        #endregion
-
         #region Delete Client Wise Mutualfund Transaction In User Exist Table
         public async Task<int> DeleteMFForUserExist(TblMftransaction tblMftransaction)
         {
@@ -59,17 +70,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         {
             _context.TblNotexistuserMftransactions.Remove(tblMftransaction);
             return await _context.SaveChangesAsync();
-        }
-        #endregion
-
-        #region Get SchemeId by SchemeName
-        public int GetSchemeIdBySchemeName(string schemeName)
-        {
-            var scheme = _context.TblMfSchemeMasters.Where(x => x.SchemeName == schemeName).FirstOrDefault();
-
-            if (scheme == null)
-                return 0;
-            return scheme.SchemeId;
         }
         #endregion
     }

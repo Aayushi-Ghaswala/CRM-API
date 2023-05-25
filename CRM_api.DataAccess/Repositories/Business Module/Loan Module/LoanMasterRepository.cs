@@ -18,15 +18,17 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         }
 
         #region Get All Loan Details
-        public async Task<Response<TblLoanMaster>> GetLoanDetails(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblLoanMaster>> GetLoanDetails(string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
-            var filterData = _context.TblLoanMasters.Where(x => x.IsDeleted != true).AsQueryable();
+            var filterData = _context.TblLoanMasters.Where(x => x.IsDeleted != true).Include(u => u.TblUserMaster)
+                                                           .ThenInclude(c => c.TblUserCategoryMaster).AsQueryable();
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblLoanMaster>(searchingParams);
+                filterData = _context.Search<TblLoanMaster>(search).Where(x => x.IsDeleted != true).Include(u => u.TblUserMaster)
+                                                           .ThenInclude(c => c.TblUserCategoryMaster).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -47,6 +49,35 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
             };
 
             return loanResponse;
+        }
+        #endregion
+
+        #region Get All Bank Details
+        public async Task<Response<TblBankMaster>> GetBankDetails(SortingParams sortingParams)
+        {
+            double pageCount = 0;
+
+            var filterData = _context.TblBankMasters.AsQueryable();
+
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var bankDetailsResponse = new Response<TblBankMaster>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+
+            return bankDetailsResponse;
         }
         #endregion
 
@@ -80,35 +111,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
 
             _context.TblLoanMasters.Update(tblLoan);
             return await _context.SaveChangesAsync();
-        }
-        #endregion
-
-        #region Get All Bank Details
-        public async Task<Response<TblBankMaster>> GetLBankDetails(SortingParams sortingParams)
-        {
-            double pageCount = 0;
-
-            var filterData = _context.TblBankMasters.AsQueryable();
-
-            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
-
-            // Apply sorting
-            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
-
-            // Apply pagination
-            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
-
-            var bankDetailsResponse = new Response<TblBankMaster>()
-            {
-                Values = paginatedData,
-                Pagination = new Pagination
-                {
-                    CurrentPage = sortingParams.PageNumber,
-                    Count = (int)pageCount
-                }
-            };
-
-            return bankDetailsResponse;
         }
         #endregion
 
