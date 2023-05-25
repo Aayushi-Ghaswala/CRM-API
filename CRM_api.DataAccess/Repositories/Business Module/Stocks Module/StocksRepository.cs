@@ -17,6 +17,45 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
             _context = context;
         }
 
+        #region Get all/client wise script names
+        public async Task<Response<TblStockData>> GetAllScriptNames(string clientName, string? searchingParams, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+            List<TblStockData> data = new List<TblStockData>();
+            List<TblStockData> stockDataList = new List<TblStockData>();
+            IQueryable<TblStockData> filterData = data.AsQueryable();
+            if (!string.IsNullOrEmpty(clientName))
+                stockDataList = await _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower())).ToListAsync();
+            else
+                stockDataList = await _context.TblStockData.ToListAsync();
+
+            filterData = stockDataList.DistinctBy(s => s.StScripname).AsQueryable();
+
+            if (searchingParams != null)
+            {
+                filterData = _context.Search<TblStockData>(searchingParams);
+            }
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var stockData = new Response<TblStockData>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+            return stockData;
+        }
+        #endregion
+
         #region Get stocks transaction data
         public async Task<StocksResponse<TblStockData>> GetStocksTransactions(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string? searchingParams, SortingParams sortingParams)
         {

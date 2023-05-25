@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CRM_api.DataAccess.Helper
+﻿namespace CRM_api.DataAccess.Helper
 {
     public class SortingParams
     {

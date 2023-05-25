@@ -14,6 +14,22 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         {
             _stockService = sharekhanStockService;
         }
+        
+        #region Get script names
+        [HttpGet("GetAllScriptNames")]
+        public async Task<IActionResult> GetAllScriptNames([FromQuery] string? searchingParams, [FromQuery] SortingParams? sortingParams, string? clientName = null)
+        {
+            try
+            {
+                var scriptNames = await _stockService.GetAllScriptNames(clientName, searchingParams, sortingParams);
+                return Ok(scriptNames);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
 
         #region Get stocks data
         [HttpGet("GetStocksData")]

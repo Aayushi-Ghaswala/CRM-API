@@ -1,4 +1,7 @@
-﻿namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module
+
 {
     public class StockMasterDto
     {
@@ -9,6 +12,7 @@
         public string? StScripname { get; set; }
         public string? StTransactionDetails { get; set; }
         public string? StSettno { get; set; }
+        [DataType(DataType.Date)]
         public DateTime? StDate { get; set; }
         public string? StType { get; set; }
         public int? StQty { get; set; }
