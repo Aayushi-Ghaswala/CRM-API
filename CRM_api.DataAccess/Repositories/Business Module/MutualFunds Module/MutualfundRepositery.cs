@@ -1,6 +1,9 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module;
 using CRM_api.DataAccess.Models;
+using CRM_api.DataAccess.ResponseModel.Bussiness_Module.MutualFunds_Module;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
@@ -21,7 +24,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             return getData;
         }
         #endregion
-       
+
         #region Get Mutual Funds Record in Specific Date For Not Exist User 
         public async Task<List<TblNotexistuserMftransaction>> GetMFInSpecificDateForNotExistUser(DateTime? StartDate, DateTime? EndDate)
         {
@@ -29,7 +32,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             return getData;
         }
         #endregion
-       
+
         #region Get SchemeId by SchemeName
         public int GetSchemeIdBySchemeName(string schemeName)
         {
@@ -40,7 +43,141 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             return scheme.SchemeId;
         }
         #endregion
-       
+
+        #region Get Client Wise Mutual Fund Transaction
+        public async Task<BussinessResponse<TblMftransaction>> GetTblMftransactions(int userId, int? schemeId
+            , string? searchingParams, SortingParams sortingParams, DateTime? StartDate, DateTime? EndDate)
+        {
+            List<TblMftransaction> TblMftransaction = new List<TblMftransaction>();
+            IQueryable<TblMftransaction> mftransactions = TblMftransaction.AsQueryable();
+            double pageCount = 0;
+
+            if (StartDate == null && EndDate == null)
+            {
+                if (schemeId == null)
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId).AsQueryable();
+                else
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId).AsQueryable();
+            }
+            else if (EndDate == null)
+            {
+                if (schemeId == null)
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Date >= StartDate).AsQueryable();
+                else
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date >= StartDate).AsQueryable();
+            }
+            else if (StartDate == null)
+            {
+                if (schemeId == null)
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Date <= EndDate).AsQueryable();
+                else
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date <= EndDate).AsQueryable();
+            }
+            else
+            {
+                if (schemeId == null)
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Date >= StartDate && x.Date <= EndDate).AsQueryable();
+                else
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date >= StartDate && x.Date <= EndDate).AsQueryable();
+            }
+
+            decimal? totalPurchaseunit = mftransactions.Sum(x => x.Noofunit);
+            decimal? totalAmount = mftransactions.Sum(x => x.Invamount);
+
+            if (searchingParams != null)
+                mftransactions = _context.Search<TblMftransaction>(searchingParams);
+
+            pageCount = Math.Ceiling(mftransactions.Count() / sortingParams.PageSize);
+
+            //Apply Sorting
+            var sortedData = SortingExtensions.ApplySorting(mftransactions, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            //Apply Pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var mutualfundData = new Response<TblMftransaction>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    Count = (int)pageCount,
+                    CurrentPage = sortingParams.PageNumber
+                }
+            };
+
+            var mutualfundResponse = new BussinessResponse<TblMftransaction>()
+            {
+                response = mutualfundData,
+                totalAmount = totalAmount,
+                totalPurchaseUnit = totalPurchaseunit,
+            };
+
+            return mutualfundResponse;
+        }
+        #endregion
+
+        #region Get Client Wise MF Transaction Summary
+        public async Task<List<IGrouping<string?, TblMftransaction>>> GetMFTransactionSummary(int userId)
+        {
+            var mfTransaction = await _context.TblMftransactions.Where(x => x.Userid == userId).ToListAsync();
+            var mfSummary = mfTransaction.GroupBy(x => x.Schemename).ToList();
+
+            return mfSummary;
+        }
+        #endregion
+
+        #region Get Client Wise MF Transaction Summary By Category
+        public async Task<List<IGrouping<string?, TblMftransaction>>> GetMFTransactionSummaryByCategory(int userId)
+        {
+            var mfTransaction = await _context.TblMftransactions.Where(x => x.Userid == userId).Include(x => x.TblMfSchemeMaster).ToListAsync();
+            var mfSummary = mfTransaction.GroupBy(x => x.TblMfSchemeMaster.SchemeCategorytype).ToList();
+
+            return mfSummary;
+        }
+        #endregion
+
+        #region Get All Client  MF Transaction Summary
+        public async Task<List<IGrouping<string?, TblMftransaction>>> GetAllCLientMFSummary()
+        {
+            var mfTransaction = await _context.TblMftransactions.Include(x => x.TblMfSchemeMaster).ToListAsync();
+            var mfSummary = mfTransaction.GroupBy(x => x.Username).ToList();
+
+            return mfSummary;
+        }
+        #endregion
+
+        #region Display Scheme List
+        public async Task<Response<TblMftransaction>> GetSchemeName(int userId, string? searchingParams, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+            var mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId).ToList();
+            var schemeName = mftransactions.DistinctBy(x => x.Schemename).AsQueryable();
+
+            if (searchingParams != null)
+                schemeName = _context.Search<TblMftransaction>(searchingParams);
+
+            pageCount = Math.Ceiling(schemeName.Count() / sortingParams.PageSize);
+
+            //Apply Sorting
+            var sortedData = SortingExtensions.ApplySorting(schemeName, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            //Apply Pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var schemeNameResponse = new Response<TblMftransaction>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    Count = sortingParams.PageNumber,
+                    CurrentPage = (int)pageCount
+                }
+            };
+
+            return schemeNameResponse;
+        }
+        #endregion
+
         #region Add Mutual Fund Details To Exist User Table
         public async Task<int> AddMFDataForExistUser(List<TblMftransaction> tblMftransaction)
         {
