@@ -11,7 +11,7 @@ namespace CRM_api.Services.IServices.Business_Module.MutualFunds_Module
             , string? searchingParams, SortingParams sortingParams, DateTime? StartDate, DateTime? EndDate);
         Task<MFTransactionDto<MFSummaryDto>> GetMFSummary(int userId, string? searchingParams, SortingParams sortingParams);
         Task<MFTransactionDto<MFCategoryWiseDto>> GetMFCategoryWise(int userId, string? searchingParams, SortingParams sortingParams);
-        Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummary(string? searchingParams, SortingParams sortingParams);
+        Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummary(DateTime FromDate, DateTime ToDate, string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<SchemaNameDto>> DisplayschemeName(int userId, string? searchingParams, SortingParams sortingParams);
         Task<int> ImportNJClientFile(IFormFile file, bool UpdateIfExist);
     }

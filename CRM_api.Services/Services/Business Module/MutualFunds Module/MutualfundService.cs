@@ -193,14 +193,14 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get All Client MF Summary 
-        public async Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummary(string? searchingParams, SortingParams sortingParams)
+        public async Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummary(DateTime FromDate, DateTime ToDate, string? searchingParams, SortingParams sortingParams)
         {
             List<AllClientMFSummaryDto> mutualFundSummaries = new List<AllClientMFSummaryDto>();
 
             decimal? redemptionUnit = 0;
             decimal? totalPurchaseUnits = 0;
             double pageCount = 0;
-            var mfSummary = await _mutualfundRepositry.GetAllCLientMFSummary();
+            var mfSummary = await _mutualfundRepositry.GetAllCLientMFSummary(FromDate, ToDate);
 
             foreach (var records in mfSummary)
             {

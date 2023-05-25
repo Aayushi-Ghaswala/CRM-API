@@ -66,11 +66,11 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
 
         [HttpGet("AllClientMFSummary")]
         #region Get All Client MF Summary
-        public async Task<IActionResult> GetAllClientMFSummary([FromQuery] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetAllClientMFSummary(DateTime FromDate, DateTime ToDate, [FromQuery] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var getData = await _mutualfundService.GetAllClientMFSummary(searchingParams, sortingParams);
+                var getData = await _mutualfundService.GetAllClientMFSummary(FromDate, ToDate, searchingParams, sortingParams);
                 return Ok(getData);
             }
             catch (Exception)
