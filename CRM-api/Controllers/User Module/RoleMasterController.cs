@@ -168,7 +168,7 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpGet]
         #region Get All Roles
-        public async Task<IActionResult> GetRoles([FromQuery] string search, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetRoles([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {

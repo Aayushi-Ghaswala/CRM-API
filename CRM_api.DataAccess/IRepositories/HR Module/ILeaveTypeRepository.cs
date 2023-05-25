@@ -6,7 +6,7 @@ namespace CRM_api.DataAccess.IRepositories.HR_Module
 {
     public interface ILeaveTypeRepository
     {
-        Task<Response<TblLeaveType>> GetLeaveTypes(Dictionary<string, object> searchingParams, SortingParams sortingParams);
+        Task<Response<TblLeaveType>> GetLeaveTypes(string search, SortingParams sortingParams);
         Task<TblLeaveType> GetLeaveTypeById(int id);
         Task<TblLeaveType> GetLeaveTypeByName(string Name);
         Task<int> AddLeaveType(TblLeaveType leaveType);

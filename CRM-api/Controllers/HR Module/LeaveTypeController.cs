@@ -20,23 +20,11 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get all LeaveTypes
         [HttpGet]
-        public async Task<IActionResult> GetLeaveTypes([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetLeaveTypes([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var data = new Dictionary<string, object>();
-                if (searchingParams != null)
-                {
-                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                        new JsonSerializerOptions
-                        {
-                            Converters =
-                            {
-                            new ObjectDeserializer()
-                            }
-                        });
-                }
-                var leaveTypes = await _leaveTypeService.GetLeaveTypesAsync(data, sortingParams);
+                var leaveTypes = await _leaveTypeService.GetLeaveTypesAsync(search, sortingParams);
                 return Ok(leaveTypes);
             }
             catch (Exception ex)

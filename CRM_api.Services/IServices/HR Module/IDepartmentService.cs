@@ -7,7 +7,7 @@ namespace CRM_api.Services.IServices.HR_Module
 {
     public interface IDepartmentService
     {
-        Task<ResponseDto<DepartmentDto>> GetDepartmentAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams);
+        Task<ResponseDto<DepartmentDto>> GetDepartmentAsync(string search, SortingParams sortingParams);
         Task<DepartmentDto> GetDepartmentById(int id);
         Task<int> AddDepartmentAsync(AddDepartmentDto departmentDto);
         Task<int> UpdateDepartmentAsync(UpdateDepartmentDto departmentDto);

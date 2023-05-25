@@ -20,23 +20,12 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get all Departments
         [HttpGet]
-        public async Task<IActionResult> GetDepartment([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetDepartment([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var data = new Dictionary<string, object>();
-                if (searchingParams != null)
-                {
-                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                        new JsonSerializerOptions
-                        {
-                            Converters =
-                            {
-                            new ObjectDeserializer()
-                            }
-                        });
-                }
-                var departments = await _departmentService.GetDepartmentAsync(data, sortingParams);
+                var departments = await _departmentService.GetDepartmentAsync(search, sortingParams);
+
                 return Ok(departments);
             }
             catch (Exception ex)

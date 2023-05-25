@@ -17,15 +17,15 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         }
 
         #region Get Departments
-        public async Task<Response<TblDepartmentMaster>> GetDepartments(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblDepartmentMaster>> GetDepartments(string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
             var filterData = _context.TblDepartmentMasters.Where(x => x.Isdeleted != true).AsQueryable();
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblDepartmentMaster>(searchingParams);
+                filterData = _context.Search<TblDepartmentMaster>(search).Where(x => x.Isdeleted != true).AsQueryable(); ;
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
