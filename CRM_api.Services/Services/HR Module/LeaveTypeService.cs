@@ -21,9 +21,9 @@ namespace CRM_api.Services.Services.HR_Module
         }
 
         #region Get LeaveTypes
-        public async Task<ResponseDto<LeaveTypeDto>> GetLeaveTypesAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<LeaveTypeDto>> GetLeaveTypesAsync(string search, SortingParams sortingParams)
         {
-            var leaveTypes = await _leaveTypeRepository.GetLeaveTypes(searchingParams,sortingParams);
+            var leaveTypes = await _leaveTypeRepository.GetLeaveTypes(search,sortingParams);
             var mapLeaveType = _mapper.Map<ResponseDto<LeaveTypeDto>>(leaveTypes);
             return mapLeaveType;
         }

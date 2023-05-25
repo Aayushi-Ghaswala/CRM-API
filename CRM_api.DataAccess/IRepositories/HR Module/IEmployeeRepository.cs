@@ -6,7 +6,7 @@ namespace CRM_api.DataAccess.IRepositories.HR_Module
 {
     public interface IEmployeeRepository
     {
-        Task<Response<TblUserMaster>> GetEmployees(int categoryId, Dictionary<string, object> searchingParams, SortingParams sortingParams);
+        Task<Response<TblUserMaster>> GetEmployees(int categoryId, string search, SortingParams sortingParams);
         Task<TblUserMaster> GetEmployeebyId(int id);
         Task<int> AddEmployee(TblUserMaster userMaster);
         Task<int> UpdateEmployee(TblUserMaster userMaster);

@@ -18,15 +18,15 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         }
 
         #region Get LeaveTypes
-        public async Task<Response<TblLeaveType>> GetLeaveTypes(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblLeaveType>> GetLeaveTypes(string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
             var filterData = _context.TblLeaveTypes.Where(x => x.Isdeleted != true).AsQueryable();
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblLeaveType>(searchingParams);
+                filterData = _context.Search<TblLeaveType>(search).Where(x => x.Isdeleted != true).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 

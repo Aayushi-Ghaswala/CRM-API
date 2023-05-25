@@ -21,9 +21,9 @@ namespace CRM_api.Services.Services.HR_Module
         }
 
         #region Get Designations
-        public async Task<ResponseDto<DesignationDto>> GetDesignation(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<DesignationDto>> GetDesignation(string search, SortingParams sortingParams)
         {
-            var designations = await _designationRepository.GetDesignation(searchingParams, sortingParams);
+            var designations = await _designationRepository.GetDesignation(search, sortingParams);
             var mappedDesignation = _mapper.Map<ResponseDto<DesignationDto>>(designations);
             return mappedDesignation;
         }
