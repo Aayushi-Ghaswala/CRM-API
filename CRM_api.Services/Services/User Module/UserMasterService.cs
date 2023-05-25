@@ -2,12 +2,10 @@
 using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.User_Module;
-using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.Services.Services.User_Module
 {

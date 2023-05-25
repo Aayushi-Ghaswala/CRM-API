@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.Stocks_Module;
+using CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.Business_Module.Stocks_Module;
 using CsvHelper;
 using IronXL;
@@ -21,6 +24,24 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             _stocksRepository = stocksRepository;
             _mapper = mapper;
         }
+
+        #region Get all/client wise script names
+        public async Task<ResponseDto<ScriptNamesDto>> GetAllScriptNames(string clientName, string? searchingParams, SortingParams sortingParams)
+        {
+            var scriptData = await _stocksRepository.GetAllScriptNames(clientName, searchingParams, sortingParams);
+            var mappedScriptData = _mapper.Map<ResponseDto<ScriptNamesDto>>(scriptData);
+            return mappedScriptData;
+        }
+        #endregion
+
+        #region Get All or clientwise stocks data
+        public async Task<StockResponseDto<StockMasterDto>> GetStockData(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string? searchingParams, SortingParams sortingParams)
+        {
+            var stocksData = await _stocksRepository.GetStocksTransactions(clientName, fromDate, toDate, scriptName, searchingParams, sortingParams);
+            var stockResult = _mapper.Map<StockResponseDto<StockMasterDto>>(stocksData);
+            return stockResult;
+        }
+        #endregion
 
         #region Import Sharekhan trade file for all and/or individual client.
         public async Task<int> ImportSharekhanTradeFile(IFormFile formFile, string firmName, int id, bool overrideData)

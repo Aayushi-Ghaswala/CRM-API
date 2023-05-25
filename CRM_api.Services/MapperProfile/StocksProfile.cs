@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.Models;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
+using CRM_api.DataAccess.ResponseModel.Stocks_Module;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.Stocks_Module;
+using CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 
 namespace CRM_api.Services.MapperProfile
 {
@@ -27,6 +31,12 @@ namespace CRM_api.Services.MapperProfile
                     else
                         data.StQty = dto.SellQty;
                 });
+
+            CreateMap<TblStockData, StockMasterDto>().ReverseMap();
+            CreateMap<Response<TblStockData>, ResponseDto<StockMasterDto>>();
+            CreateMap<StocksResponse<TblStockData>, StockResponseDto<StockMasterDto>>();
+            CreateMap<TblStockData, ScriptNamesDto>();
+            CreateMap<Response<TblStockData>, ResponseDto<ScriptNamesDto>>();
         }
     }
 }

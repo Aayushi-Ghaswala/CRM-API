@@ -1,4 +1,5 @@
-﻿using CRM_api.Services.IServices.Business_Module.Stocks_Module;
+﻿using CRM_api.DataAccess.Helper;
+using CRM_api.Services.IServices.Business_Module.Stocks_Module;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CRM_api.Controllers.Business_Module.Stocks_Module
@@ -13,6 +14,38 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         {
             _stockService = sharekhanStockService;
         }
+
+        #region Get script names
+        [HttpGet("GetAllScriptNames")]
+        public async Task<IActionResult> GetAllScriptNames([FromQuery] string? searchingParams, [FromQuery] SortingParams? sortingParams, string? clientName = null)
+        {
+            try
+            {
+                var scriptNames = await _stockService.GetAllScriptNames(clientName, searchingParams, sortingParams);
+                return Ok(scriptNames);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get stocks data
+        [HttpGet("GetStocksData")]
+        public async Task<IActionResult> GetStocksData([FromQuery] string? searchingParams, [FromQuery] SortingParams? sortingParams, string? clientName = null, DateTime? fromDate = null, DateTime? toDate = null, string? scriptName = null)
+        {
+            try
+            {
+                var stocksData = await _stockService.GetStockData(clientName, fromDate, toDate, scriptName, searchingParams, sortingParams);
+                return Ok(stocksData);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
 
         #region Import Sharekhan All Trade File[.csv]
         [HttpPost("ImportSharekhanAllTradeFile")]

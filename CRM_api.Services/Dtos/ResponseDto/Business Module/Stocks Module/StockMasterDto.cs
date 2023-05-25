@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CRM_api.DataAccess.Models
+namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module
 {
-    public partial class TblStockData
+    public class StockMasterDto
     {
         public int Id { get; set; }
         public int? StBranch { get; set; }
