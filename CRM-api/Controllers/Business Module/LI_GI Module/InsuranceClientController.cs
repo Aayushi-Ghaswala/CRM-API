@@ -19,25 +19,11 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
 
         [HttpGet]
         #region Get All Insurance Client Details
-        public async Task<IActionResult> GetInsuranceClients([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetInsuranceClients([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var data = new Dictionary<string, object>();
-                if (searchingParams != null)
-                {
-                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                        new JsonSerializerOptions
-                        {
-                            Converters =
-                            {
-                            new ObjectDeserializer()
-                            }
-                        });
-                }
-
-                var insClients = await _insuranceClientService.GetInsuranceClientsAsync(data, sortingParams);
-
+                var insClients = await _insuranceClientService.GetInsuranceClientsAsync(search, sortingParams);
                 return Ok(insClients);
             }
             catch (Exception)

@@ -19,24 +19,11 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
 
         [HttpGet]
         #region Get All Loan Details
-        public async Task<IActionResult> GetLoanDetails([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetLoanDetails([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var data = new Dictionary<string, object>();
-                if (searchingParams != null)
-                {
-                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                        new JsonSerializerOptions
-                        {
-                            Converters =
-                            {
-                            new ObjectDeserializer()
-                            }
-                        });
-                }
-                var loanDetails = await _loanMasterService.GetLoanDetailsAsync(data, sortingParams);
-
+                var loanDetails = await _loanMasterService.GetLoanDetailsAsync(search, sortingParams);
                 return Ok(loanDetails);
             }
             catch (Exception)

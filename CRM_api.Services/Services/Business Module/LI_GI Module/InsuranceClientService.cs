@@ -24,6 +24,36 @@ namespace CRM_api.Services.Services.Business_Module.LI_GI_Module
             _userMasterRepository = userMasterRepository;
         }
 
+        #region Get All Insurance Client Details
+        public async Task<ResponseDto<InsuranceClientDto>> GetInsuranceClientsAsync(string search, SortingParams sortingParams)
+        {
+            var insClients = await _insuranceClientRepository.GetInsuranceClients(search, sortingParams);
+            var mapInsClients = _mapper.Map<ResponseDto<InsuranceClientDto>>(insClients);
+
+            return mapInsClients;
+        }
+        #endregion
+
+        #region Get All Insurance Company By Insurance Type
+        public async Task<ResponseDto<InsuranceCompanyListDto>> GetCompanyListByInsTypeIdAsync(int id, SortingParams sortingParams)
+        {
+            var companyList = await _insuranceClientRepository.GetCompanyListByInsTypeId(id, sortingParams);
+            var mapCompanyList = _mapper.Map<ResponseDto<InsuranceCompanyListDto>>(companyList);
+
+            return mapCompanyList;
+        }
+        #endregion
+
+        #region Get Insurance Client Detail By Id
+        public async Task<InsuranceClientDto> GetInsuranceClientByIdAsync(int id)
+        {
+            var insClient = await _insuranceClientRepository.GetInsuranceClientById(id);
+            var mapInsClient = _mapper.Map<InsuranceClientDto>(insClient);
+
+            return mapInsClient;
+        }
+        #endregion
+
         #region Add InsuranceClient Detail
         public async Task<int> AddInsuranceClientAsync(AddInsuranceClientDto insuranceClientDto)
         {
@@ -59,36 +89,6 @@ namespace CRM_api.Services.Services.Business_Module.LI_GI_Module
 
             return await _insuranceClientRepository.UpdateInsuranceClientDetail(insuranceClient);
 
-        }
-        #endregion
-
-        #region Get All Insurance Company By Insurance Type
-        public async Task<ResponseDto<InsuranceCompanyListDto>> GetCompanyListByInsTypeIdAsync(int id, SortingParams sortingParams)
-        {
-            var companyList = await _insuranceClientRepository.GetCompanyListByInsTypeId(id, sortingParams);
-            var mapCompanyList = _mapper.Map<ResponseDto<InsuranceCompanyListDto>>(companyList);
-
-            return mapCompanyList;
-        }
-        #endregion
-
-        #region Get All Insurance Client Details
-        public async Task<ResponseDto<InsuranceClientDto>> GetInsuranceClientsAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
-        {
-            var insClients = await _insuranceClientRepository.GetInsuranceClients(searchingParams, sortingParams);
-            var mapInsClients = _mapper.Map<ResponseDto<InsuranceClientDto>>(insClients);
-
-            return mapInsClients;
-        }
-        #endregion
-
-        #region Get Insurance Client Detail By Id
-        public async Task<InsuranceClientDto> GetInsuranceClientByIdAsync(int id)
-        {
-            var insClient = await _insuranceClientRepository.GetInsuranceClientById(id);
-            var mapInsClient = _mapper.Map<InsuranceClientDto>(insClient);
-
-            return mapInsClient;
         }
         #endregion
 
