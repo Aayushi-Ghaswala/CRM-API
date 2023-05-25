@@ -17,15 +17,15 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         }
 
         #region Get Designation
-        public async Task<Response<TblDesignationMaster>> GetDesignation(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblDesignationMaster>> GetDesignation(string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
             var filterData = _context.TblDesignationMasters.Where(x => x.Isdeleted != true).AsQueryable();
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblDesignationMaster>(searchingParams);
+                filterData = _context.Search<TblDesignationMaster>(search).Where(x => x.Isdeleted != true).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 

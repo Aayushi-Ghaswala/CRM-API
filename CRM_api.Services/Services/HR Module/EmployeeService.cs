@@ -25,10 +25,10 @@ namespace CRM_api.Services.Services.HR_Module
         }
 
         #region Get Employees
-        public async Task<ResponseDto<UserMasterDto>> GetEmployeesAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<UserMasterDto>> GetEmployeesAsync(string search, SortingParams sortingParams)
         {
             var category = await _userMasterRepository.GetCategoryByName(CategoryConstant.employee);
-            var employees = await _employeeRepository.GetEmployees(category.CatId, searchingParams, sortingParams);
+            var employees = await _employeeRepository.GetEmployees(category.CatId, search, sortingParams);
 
             var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(employees);
             return mapUsers;

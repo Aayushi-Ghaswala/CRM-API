@@ -20,16 +20,16 @@ namespace CRM_api.Services.Services.HR_Module
             _mapper = mapper;
         }
 
-        #region Get department
-        public async Task<ResponseDto<DepartmentDto>> GetDepartmentAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        #region Get Department
+        public async Task<ResponseDto<DepartmentDto>> GetDepartmentAsync(string search, SortingParams sortingParams)
         {
-            var depts = await _departmentRepository.GetDepartments(searchingParams, sortingParams);
+            var depts = await _departmentRepository.GetDepartments(search, sortingParams);
             var mapDepartment = _mapper.Map<ResponseDto<DepartmentDto>>(depts);
             return mapDepartment;
         }
         #endregion
 
-        #region Get department by Id
+        #region Get Department By Id
         public async Task<DepartmentDto> GetDepartmentById(int id)
         {
             var dept = await _departmentRepository.GetDepartmentById(id);

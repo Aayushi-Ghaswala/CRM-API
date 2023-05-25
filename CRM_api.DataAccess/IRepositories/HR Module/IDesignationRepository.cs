@@ -6,7 +6,7 @@ namespace CRM_api.DataAccess.IRepositories.HR_Module
 {
     public interface IDesignationRepository
     {
-        Task<Response<TblDesignationMaster>> GetDesignation(Dictionary<string, object> searchingParams, SortingParams sortingParams);
+        Task<Response<TblDesignationMaster>> GetDesignation(string search, SortingParams sortingParams);
         Task<TblDesignationMaster> GetDesignationById(int id);
         Task<IEnumerable<TblDesignationMaster>> GetDesignationByDepartment(int departmentId);
         Task<int> AddDesignation(TblDesignationMaster designationMaster);

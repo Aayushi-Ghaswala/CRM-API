@@ -7,7 +7,7 @@ namespace CRM_api.Services.IServices.HR_Module
 {
     public interface IEmployeeService
     {
-        Task<ResponseDto<UserMasterDto>> GetEmployeesAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams);
+        Task<ResponseDto<UserMasterDto>> GetEmployeesAsync(string search, SortingParams sortingParams);
         Task<UserMasterDto> GetEmployeeById(int id);
         Task<int> AddEmployeeAsync(AddUserMasterDto addUser);
         Task<int> UpdateEmployeeAsync(UpdateUserMasterDto updateUser);
