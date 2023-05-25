@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.MutualFunds_Module;
+using CRM_api.Services.Dtos.ResponseDto.Business_Module.MutualFunds_Module;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.Business_Module.MutualFunds_Module;
 using ExcelDataReader;
 using Microsoft.AspNetCore.Http;
@@ -22,6 +25,261 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             _mapper = mapper;
             _userMasterRepository = userMasterRepository;
         }
+
+        #region Get Client wise Mutual Fund Transaction
+        public async Task<MFTransactionDto<MutualFundDto>> GetClientwiseMutualFundTransaction(int userId, int? schemeId
+            , string? searchingParams, SortingParams sortingParams, DateTime? StartDate, DateTime? EndDate)
+        {
+            var mutualFundTransaction = await _mutualfundRepositry.GetTblMftransactions(userId, schemeId, searchingParams, sortingParams, StartDate, EndDate);
+            var mapMutualFundTransaction = _mapper.Map<MFTransactionDto<MutualFundDto>>(mutualFundTransaction);
+            return mapMutualFundTransaction;
+        }
+        #endregion
+
+        #region Get Client wise MF Summary
+        public async Task<MFTransactionDto<MFSummaryDto>> GetMFSummary(int userId, string? searchingParams, SortingParams sortingParams)
+        {
+            List<MFSummaryDto> mutualFundSummaries = new List<MFSummaryDto>();
+
+            decimal? redemptionUnit = 0;
+            decimal? totalPurchaseUnits = 0;
+            double pageCount = 0;
+            var mfSummary = await _mutualfundRepositry.GetMFTransactionSummary(userId);
+
+            foreach (var records in mfSummary)
+            {
+                var mfSummaryDto = new MFSummaryDto();
+
+                mfSummaryDto.NAV = Math.Round((double)records.Average(x => x.Nav), 3);
+                mfSummaryDto.SchemeId = records.DistinctBy(x => x.SchemeId).Select(x => x.SchemeId).FirstOrDefault();
+                mfSummaryDto.Schemename = records.Key;
+                mfSummaryDto.Foliono = records.DistinctBy(x => x.Foliono).Select(x => x.Foliono).FirstOrDefault();
+
+                var redemptionTransaction = records.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale");
+                foreach (var transaction in redemptionTransaction)
+                {
+                    redemptionUnit += transaction.Noofunit;
+                }
+
+                var purchaseTransaction = records.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" || x.Transactiontype != "Sale");
+                foreach (var transaction in purchaseTransaction)
+                {
+                    totalPurchaseUnits += transaction.Noofunit;
+                }
+
+                mfSummaryDto.TotalPurchaseUnit = Math.Round((decimal)totalPurchaseUnits, 3);
+                mfSummaryDto.TotalRedemptionUnit = Math.Round((decimal)(mfSummaryDto.TotalPurchaseUnit - redemptionUnit), 3);
+                mfSummaryDto.BalanceUnit = Math.Round((decimal)mfSummaryDto.TotalRedemptionUnit, 3);
+                mfSummaryDto.CurrentValue = Math.Round((decimal)(mfSummaryDto.BalanceUnit * (decimal)mfSummaryDto.NAV), 3);
+
+                mutualFundSummaries.Add(mfSummaryDto);
+            }
+            IQueryable<MFSummaryDto> mutualFundSummaryDto = mutualFundSummaries.AsQueryable();
+
+            var totalPurchaseUnit = mutualFundSummaries.Sum(x => x.BalanceUnit);
+            var totalAmount = mutualFundSummaries.Sum(x => x.CurrentValue);
+
+            if (searchingParams != null)
+            {
+                mutualFundSummaryDto = mutualFundSummaryDto.Where(x => x.SchemeId.ToString().Contains(searchingParams) || x.Schemename.ToLower().Contains(searchingParams.ToLower()) || x.Foliono.ToLower().Contains(searchingParams.ToLower())
+                            || x.TotalPurchaseUnit.ToString().Contains(searchingParams) || x.TotalRedemptionUnit.ToString().Contains(searchingParams)
+                            || x.BalanceUnit.ToString().Contains(searchingParams) || x.NAV.ToString().Contains(searchingParams) || x.CurrentValue.ToString().Contains(searchingParams));
+            }
+
+            pageCount = Math.Ceiling(mutualFundSummaryDto.Count() / sortingParams.PageSize);
+
+            // Apply Sorting 
+            var sortingData = SortingExtensions.ApplySorting(mutualFundSummaryDto, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            //Apply Pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortingData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var mutualfundData = new ResponseDto<MFSummaryDto>()
+            {
+                Values = paginatedData,
+                Pagination = new PaginationDto()
+                {
+                    Count = (int)pageCount,
+                    CurrentPage = sortingParams.PageNumber
+                }
+            };
+
+            var mutualfundResponse = new MFTransactionDto<MFSummaryDto>()
+            {
+                response = mutualfundData,
+                totalPurchaseUnit = totalPurchaseUnit,
+                totalAmount = totalAmount,
+            };
+
+            return mutualfundResponse;
+        }
+        #endregion
+
+        #region Get Client wise MF Summary Category Wise
+        public async Task<MFTransactionDto<MFCategoryWiseDto>> GetMFCategoryWise(int userId, string? searchingParams, SortingParams sortingParams)
+        {
+            List<MFCategoryWiseDto> mutualFundSummaries = new List<MFCategoryWiseDto>();
+
+            decimal? redemptionUnit = 0;
+            decimal? totalPurchaseUnits = 0;
+            double pageCount = 0;
+            var mfSummary = await _mutualfundRepositry.GetMFTransactionSummaryByCategory(userId);
+
+            foreach (var records in mfSummary)
+            {
+                var mfCategoryWise = new MFCategoryWiseDto();
+
+                mfCategoryWise.NAV = Math.Round((double)records.Average(x => x.Nav), 3);
+                mfCategoryWise.CategoryName = records.DistinctBy(x => x.TblMfSchemeMaster.SchemeCategorytype).Select(x => x.TblMfSchemeMaster.SchemeName).FirstOrDefault();
+
+                var redemptionTransaction = records.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale");
+                foreach (var transaction in redemptionTransaction)
+                {
+                    redemptionUnit += transaction.Noofunit;
+                }
+
+                var purchaseTransaction = records.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" || x.Transactiontype != "Sale");
+                foreach (var transaction in purchaseTransaction)
+                {
+                    totalPurchaseUnits += transaction.Noofunit;
+                }
+
+                mfCategoryWise.TotalPurchaseUnit = Math.Round((decimal)totalPurchaseUnits, 3);
+                mfCategoryWise.TotalRedemptionUnit = Math.Round((decimal)(mfCategoryWise.TotalPurchaseUnit - redemptionUnit), 3);
+                mfCategoryWise.BalanceUnit = Math.Round((decimal)mfCategoryWise.TotalRedemptionUnit, 3);
+                mfCategoryWise.CurrentValue = Math.Round((decimal)(mfCategoryWise.BalanceUnit * (decimal)mfCategoryWise.NAV), 3);
+
+                mutualFundSummaries.Add(mfCategoryWise);
+            }
+            IQueryable<MFCategoryWiseDto> mutualFundSummaryDto = mutualFundSummaries.AsQueryable();
+
+            var totalPurchaseUnit = mutualFundSummaries.Sum(x => x.BalanceUnit);
+            var totalAmount = mutualFundSummaries.Sum(x => x.CurrentValue);
+
+            if (searchingParams != null)
+            {
+                mutualFundSummaryDto = mutualFundSummaryDto.Where(x => x.CategoryName.ToLower().Contains(searchingParams.ToLower()) || x.TotalPurchaseUnit.ToString().Contains(searchingParams)
+                            || x.TotalRedemptionUnit.ToString().Contains(searchingParams) || x.BalanceUnit.ToString().Contains(searchingParams)
+                            || x.NAV.ToString().Contains(searchingParams) || x.CurrentValue.ToString().Contains(searchingParams));
+            }
+
+            pageCount = Math.Ceiling(mutualFundSummaryDto.Count() / sortingParams.PageSize);
+
+            //Apply Sorting
+            var sortingData = SortingExtensions.ApplySorting(mutualFundSummaryDto, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            //Apply Pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortingData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var mutualfundData = new ResponseDto<MFCategoryWiseDto>()
+            {
+                Values = paginatedData,
+                Pagination = new PaginationDto()
+                {
+                    Count = (int)pageCount,
+                    CurrentPage = sortingParams.PageNumber
+                }
+            };
+
+            var mutualfundResponse = new MFTransactionDto<MFCategoryWiseDto>()
+            {
+                response = mutualfundData,
+                totalPurchaseUnit = totalPurchaseUnit,
+                totalAmount = totalAmount,
+            };
+
+            return mutualfundResponse;
+        }
+        #endregion
+
+        #region Get All Client MF Summary 
+        public async Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummary(string? searchingParams, SortingParams sortingParams)
+        {
+            List<AllClientMFSummaryDto> mutualFundSummaries = new List<AllClientMFSummaryDto>();
+
+            decimal? redemptionUnit = 0;
+            decimal? totalPurchaseUnits = 0;
+            double pageCount = 0;
+            var mfSummary = await _mutualfundRepositry.GetAllCLientMFSummary();
+
+            foreach (var records in mfSummary)
+            {
+                var allClientMFSummary = new AllClientMFSummaryDto();
+
+                allClientMFSummary.NAV = Math.Round((double)records.Average(x => x.Nav), 3);
+                allClientMFSummary.Userid = records.DistinctBy(x => x.Userid).Select(x => x.Userid).FirstOrDefault();
+                allClientMFSummary.Username = records.Key;
+
+                var redemptionTransaction = records.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale");
+                foreach (var transaction in redemptionTransaction)
+                {
+                    redemptionUnit += transaction.Noofunit;
+                }
+
+                var purchaseTransaction = records.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" || x.Transactiontype != "Sale");
+                foreach (var transaction in purchaseTransaction)
+                {
+                    totalPurchaseUnits += transaction.Noofunit;
+                }
+
+                allClientMFSummary.TotalPurchaseUnit = Math.Round((decimal)totalPurchaseUnits, 3);
+                allClientMFSummary.TotalRedemptionUnit = Math.Round((decimal)(allClientMFSummary.TotalPurchaseUnit - redemptionUnit), 3);
+                allClientMFSummary.BalanceUnit = Math.Round((decimal)allClientMFSummary.TotalRedemptionUnit, 3);
+                allClientMFSummary.CurrentValue = Math.Round((decimal)(allClientMFSummary.BalanceUnit * (decimal)allClientMFSummary.NAV), 3);
+
+                mutualFundSummaries.Add(allClientMFSummary);
+            }
+            IQueryable<AllClientMFSummaryDto> mutualFundSummaryDto = mutualFundSummaries.AsQueryable();
+
+            var totalPurchaseUnit = mutualFundSummaries.Sum(x => x.BalanceUnit);
+            var totalAmount = mutualFundSummaries.Sum(x => x.CurrentValue);
+
+            if (searchingParams != null)
+            {
+                mutualFundSummaryDto = mutualFundSummaryDto.Where(x => x.Userid.ToString().Contains(searchingParams) || x.Username.ToLower().Contains(searchingParams.ToLower())
+                            || x.TotalPurchaseUnit.ToString().Contains(searchingParams) || x.TotalRedemptionUnit.ToString().Contains(searchingParams)
+                            || x.BalanceUnit.ToString().Contains(searchingParams) || x.NAV.ToString().Contains(searchingParams) || x.CurrentValue.ToString().Contains(searchingParams));
+            }
+
+            pageCount = Math.Ceiling(mutualFundSummaryDto.Count() / sortingParams.PageSize);
+
+            //Apply Sorting
+            var sortingData = SortingExtensions.ApplySorting(mutualFundSummaryDto, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            //Apply Pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortingData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var mutualfundData = new ResponseDto<AllClientMFSummaryDto>()
+            {
+                Values = paginatedData,
+                Pagination = new PaginationDto()
+                {
+                    Count = (int)pageCount,
+                    CurrentPage = sortingParams.PageNumber
+                }
+            };
+
+            var mutualfundResponse = new MFTransactionDto<AllClientMFSummaryDto>()
+            {
+                response = mutualfundData,
+                totalPurchaseUnit = totalPurchaseUnit,
+                totalAmount = totalAmount,
+            };
+
+            return mutualfundResponse;
+        }
+        #endregion
+
+        #region Display SchemeName
+        public async Task<ResponseDto<SchemaNameDto>> DisplayschemeName(int userId, string? searchingParams, SortingParams sortingParams)
+        {
+            var mutualfunds = await _mutualfundRepositry.GetSchemeName(userId, searchingParams, sortingParams);
+
+            var schemeName = _mapper.Map<ResponseDto<SchemaNameDto>>(mutualfunds);
+
+            return schemeName;
+        }
+        #endregion
 
         #region Import NJ Client File
         public async Task<int> ImportNJClientFile(IFormFile file, bool UpdateIfExist)
