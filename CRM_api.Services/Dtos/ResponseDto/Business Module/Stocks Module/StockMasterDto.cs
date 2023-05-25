@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CRM_api.DataAccess.Models
+﻿namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module
 {
-    public partial class TblStockData
+    public class StockMasterDto
     {
         public int Id { get; set; }
         public int? StBranch { get; set; }
@@ -11,7 +9,6 @@ namespace CRM_api.DataAccess.Models
         public string? StScripname { get; set; }
         public string? StTransactionDetails { get; set; }
         public string? StSettno { get; set; }
-        [DataType(DataType.Date)]
         public DateTime? StDate { get; set; }
         public string? StType { get; set; }
         public int? StQty { get; set; }
@@ -25,5 +22,9 @@ namespace CRM_api.DataAccess.Models
         public decimal? StNetcostvalue { get; set; }
         public int? Userid { get; set; }
         public string? FirmName { get; set; }
+        public decimal? TotalPurchase { get; set; } = 0;
+        public decimal? TotalPurchaseQty { get; set; } = 0;
+        public decimal? TotalSale { get; set; } = 0;
+        public decimal? TotalSaleQty { get; set; } = 0;
     }
 }
