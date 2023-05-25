@@ -137,9 +137,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get All Client  MF Transaction Summary
-        public async Task<List<IGrouping<string?, TblMftransaction>>> GetAllCLientMFSummary()
+        public async Task<List<IGrouping<string?, TblMftransaction>>> GetAllCLientMFSummary(DateTime FromDate, DateTime ToDate)
         {
-            var mfTransaction = await _context.TblMftransactions.Include(x => x.TblMfSchemeMaster).ToListAsync();
+            var mfTransaction = await _context.TblMftransactions.Where(x => x.Date >= FromDate && x.Date <= ToDate).Include(x => x.TblMfSchemeMaster).ToListAsync();
             var mfSummary = mfTransaction.GroupBy(x => x.Username).ToList();
 
             return mfSummary;

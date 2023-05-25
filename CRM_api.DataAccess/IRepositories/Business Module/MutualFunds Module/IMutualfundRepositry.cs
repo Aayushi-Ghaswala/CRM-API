@@ -15,7 +15,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module
         Task<List<IGrouping<string?, TblMftransaction>>> GetMFTransactionSummary(int userId);
         Task<Response<TblMftransaction>> GetSchemeName(int userId, string? searchingParams, SortingParams sortingParams);
         Task<List<IGrouping<string?, TblMftransaction>>> GetMFTransactionSummaryByCategory(int userId);
-        Task<List<IGrouping<string?, TblMftransaction>>> GetAllCLientMFSummary();
+        Task<List<IGrouping<string?, TblMftransaction>>> GetAllCLientMFSummary(DateTime FromDate, DateTime ToDate);
         Task<int> AddMFDataForExistUser(List<TblMftransaction> tblMftransaction);
         Task<int> AddMFDataForNotExistUser(List<TblNotexistuserMftransaction> tblNotexistuserMftransaction);
         Task<int> DeleteMFForUserExist(TblMftransaction tblMftransaction);
