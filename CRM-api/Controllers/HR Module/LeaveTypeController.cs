@@ -20,7 +20,7 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get all LeaveTypes
         [HttpGet]
-        public async Task<ActionResult> GetLeaveTypes([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetLeaveTypes([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get LeaveType By Id
         [HttpGet("GetLeaveTypeById")]
-        public async Task<ActionResult<LeaveTypeDto>> GetLeaveTypeById(int leaveTypeId)
+        public async Task<IActionResult> GetLeaveTypeById(int leaveTypeId)
         {
             try
             {
@@ -64,7 +64,7 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get LeaveType By Name
         [HttpGet("GetLeaveTypeByNamae")]
-        public async Task<ActionResult<LeaveTypeDto>> GetLeaveTypeByName(string Name)
+        public async Task<IActionResult> GetLeaveTypeByName(string Name)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Add LeaveType
         [HttpPost]
-        public async Task<ActionResult> AddLeaveType(AddLeaveTypeDto addLeaveTypeDto)
+        public async Task<IActionResult> AddLeaveType(AddLeaveTypeDto addLeaveTypeDto)
         {
             try
             {
@@ -96,7 +96,7 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Update LeaveType
         [HttpPut]
-        public async Task<ActionResult> UpdateLeaveType(UpdateLeaveTypeDto updateLeaveTypeDto)
+        public async Task<IActionResult> UpdateLeaveType(UpdateLeaveTypeDto updateLeaveTypeDto)
         {
             try
             {
