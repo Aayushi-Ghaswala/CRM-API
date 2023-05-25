@@ -11,7 +11,7 @@ builder.Services.InjectServiceDependecy(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.WebHost.UseUrls("https://localhost:7013", "https://192.168.0.202:7013");
+builder.WebHost.UseUrls("https://localhost:7013", "https://192.168.0.68:7013");
 
 builder.Services.AddCors(options =>
 {
