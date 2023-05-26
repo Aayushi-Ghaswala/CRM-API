@@ -118,7 +118,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
         #region Get Insurance Client Details For Insurance Premium Reminder
         public async Task<IEnumerable<TblInsuranceclient>> GetInsClientsForInsPremiumReminder()
         {
-            var insClients = await _context.TblInsuranceclients.Where(x => x.InsPremiumRmdDate <= DateTime.Now && x.IsDeleted != true).ToListAsync();
+            var insClients = await _context.TblInsuranceclients.Where(x => x.InsPremiumRmdDate.Value.Date == DateTime.Now.Date && x.IsDeleted != true).ToListAsync();
 
             return insClients;
         }
@@ -127,7 +127,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
         #region Get Insurance Client Details For Insurance Due Reminder Reminder
         public async Task<IEnumerable<TblInsuranceclient>> GetInsClientsForInsDueReminder()
         {
-            var insClients = await _context.TblInsuranceclients.Where(x => x.InsDuedate <= DateTime.Now && x.IsDeleted != true).ToListAsync();
+            var insClients = await _context.TblInsuranceclients.Where(x => x.InsDuedate.Value.Date >= DateTime.Now.Date && x.InsDuedate.Value.Date <= DateTime.Now.Date.AddDays(30)).ToListAsync();
 
             return insClients;
         }

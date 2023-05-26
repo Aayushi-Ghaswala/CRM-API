@@ -22,12 +22,14 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblLoanMasters.Where(x => x.IsDeleted != true).Include(u => u.TblUserMaster)
+            var filterData = _context.TblLoanMasters.Where(x => x.IsDeleted != true).Include(b => b.TblBankMaster)
+                                                           .Include(l => l.TblLoanTypeMaster).Include(u => u.TblUserMaster)
                                                            .ThenInclude(c => c.TblUserCategoryMaster).AsQueryable();
 
             if (search != null)
             {
-                filterData = _context.Search<TblLoanMaster>(search).Where(x => x.IsDeleted != true).Include(u => u.TblUserMaster)
+                filterData = _context.Search<TblLoanMaster>(search).Where(x => x.IsDeleted != true).Include(b => b.TblBankMaster)
+                                                           .Include(l => l.TblLoanTypeMaster).Include(u => u.TblUserMaster)
                                                            .ThenInclude(c => c.TblUserCategoryMaster).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
