@@ -21,23 +21,11 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get all emplloyees
         [HttpGet]
-        public async Task<ActionResult<ResponseDto<UserMasterDto>>> GetEmployees([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<ActionResult<ResponseDto<UserMasterDto>>> GetEmployees([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var data = new Dictionary<string, object>();
-                if (searchingParams != null)
-                {
-                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                        new JsonSerializerOptions
-                        {
-                            Converters =
-                            {
-                            new ObjectDeserializer()
-                            }
-                        });
-                }
-                var employees = await _employeeService.GetEmployeesAsync(data, sortingParams);
+                var employees = await _employeeService.GetEmployeesAsync(search, sortingParams);
                 return Ok(employees);
             }
             catch (Exception ex)

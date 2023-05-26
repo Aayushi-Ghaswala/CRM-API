@@ -17,15 +17,15 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         }
 
         #region Get all employees
-        public async Task<Response<TblUserMaster>> GetEmployees(int categoryId, Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblUserMaster>> GetEmployees(int categoryId, string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
             var filterData = _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false).AsQueryable();
 
-            if (searchingParams.Count > 0)
+            if (search != null)
             {
-                filterData = _context.SearchByField<TblUserMaster>(searchingParams);
+                filterData = _context.Search<TblUserMaster>(search).Where(x => x.CatId == categoryId && x.UserIsactive != false).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 

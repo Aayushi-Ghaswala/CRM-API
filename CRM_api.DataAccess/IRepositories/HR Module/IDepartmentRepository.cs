@@ -6,7 +6,7 @@ namespace CRM_api.DataAccess.IRepositories.HR_Module
 {
     public interface IDepartmentRepository
     {
-        Task<Response<TblDepartmentMaster>> GetDepartments(Dictionary<string, object> searchingParams, SortingParams sortingParams);
+        Task<Response<TblDepartmentMaster>> GetDepartments(string search, SortingParams sortingParams);
         Task<TblDepartmentMaster> GetDepartmentById(int id);
         Task<int> AddDepartment(TblDepartmentMaster departmentMaster);
         Task<int> UpdateDepartment(TblDepartmentMaster departmentMaster);

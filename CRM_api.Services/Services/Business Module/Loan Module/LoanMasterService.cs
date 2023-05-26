@@ -20,9 +20,9 @@ namespace CRM_api.Services.Services.Business_Module.Loan_Module
         }
 
         #region Get All Loan Details
-        public async Task<ResponseDto<LoanMasterDto>> GetLoanDetailsAsync(Dictionary<string, object> searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<LoanMasterDto>> GetLoanDetailsAsync(string search, SortingParams sortingParams)
         {
-            var loanDetails = await _loanMasterRepository.GetLoanDetails(searchingParams, sortingParams);
+            var loanDetails = await _loanMasterRepository.GetLoanDetails(search, sortingParams);
             var mapLoanDetails = _mapper.Map<ResponseDto<LoanMasterDto>>(loanDetails);
 
             return mapLoanDetails;
@@ -39,6 +39,16 @@ namespace CRM_api.Services.Services.Business_Module.Loan_Module
         }
         #endregion
 
+        #region Get All Bank Details
+        public async Task<ResponseDto<BankMasterDto>> GetBankDetailsAsync(SortingParams sortingParams)
+        {
+            var bankDetails = await _loanMasterRepository.GetBankDetails(sortingParams);
+            var mapBankeDetails = _mapper.Map<ResponseDto<BankMasterDto>>(bankDetails);
+
+            return mapBankeDetails;
+        }
+        #endregion
+       
         #region Add Loan Detail
         public Task<int> AddLoanDetailAsync(AddLoanMasterDto loanMasterDto)
         {
@@ -54,16 +64,6 @@ namespace CRM_api.Services.Services.Business_Module.Loan_Module
             var addLoanDetail = _mapper.Map<TblLoanMaster>(loanMasterDto);
 
             return _loanMasterRepository.UpdateLoanDetail(addLoanDetail);
-        }
-        #endregion
-
-        #region Get All Bank Details
-        public async Task<ResponseDto<BankMasterDto>> GetBankDetailsAsync(SortingParams sortingParams)
-        {
-            var bankDetails = await _loanMasterRepository.GetLBankDetails(sortingParams);
-            var mapBankeDetails = _mapper.Map<ResponseDto<BankMasterDto>>(bankDetails);
-
-            return mapBankeDetails;
         }
         #endregion
 

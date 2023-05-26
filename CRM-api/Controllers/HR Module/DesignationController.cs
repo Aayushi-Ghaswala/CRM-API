@@ -20,23 +20,11 @@ namespace CRM_api.Controllers.HR_Module
 
         #region Get all Designations
         [HttpGet]
-        public async Task<IActionResult> GetDesignation([FromHeader] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetDesignation([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var data = new Dictionary<string, object>();
-                if (searchingParams != null)
-                {
-                    data = JsonSerializer.Deserialize<Dictionary<string, object>>(searchingParams,
-                        new JsonSerializerOptions
-                        {
-                            Converters =
-                            {
-                            new ObjectDeserializer()
-                            }
-                        });
-                }
-                var designations = await _designationService.GetDesignation(data, sortingParams);
+                var designations = await _designationService.GetDesignation(search, sortingParams);
                 return Ok(designations);
             }
             catch (Exception ex)

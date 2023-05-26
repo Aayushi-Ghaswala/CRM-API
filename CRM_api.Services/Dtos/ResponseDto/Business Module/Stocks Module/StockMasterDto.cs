@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module
+
 {
     public class StockMasterDto
     {
@@ -25,5 +26,9 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module
         public decimal? StNetcostvalue { get; set; }
         public int? Userid { get; set; }
         public string? FirmName { get; set; }
+        public decimal? TotalPurchase { get; set; } = 0;
+        public decimal? TotalPurchaseQty { get; set; } = 0;
+        public decimal? TotalSale { get; set; } = 0;
+        public decimal? TotalSaleQty { get; set; } = 0;
     }
 }

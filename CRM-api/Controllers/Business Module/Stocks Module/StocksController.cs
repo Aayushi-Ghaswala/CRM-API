@@ -65,7 +65,7 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region Import Sharekhan All Trade File[.csv]
         [HttpPost("ImportSharekhanAllTradeFile")]
-        public async Task<ActionResult> ImportSharekhanAllTradeFile(IFormFile formFile, string firmName, bool overrideData = false)
+        public async Task<IActionResult> ImportSharekhanAllTradeFile(IFormFile formFile, string firmName, bool overrideData = false)
         {
             try
             {
@@ -81,7 +81,7 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region Import Sharekhan Individual Trade File[.csv]
         [HttpPost("ImportSharekhanIndividualTradeFile")]
-        public async Task<ActionResult> ImportSharekhanIndividualTradeFile(IFormFile formFile, string firmName, int id, bool overrideData = false)
+        public async Task<IActionResult> ImportSharekhanIndividualTradeFile(IFormFile formFile, string firmName, int id, bool overrideData = false)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region Import Jainam Individual Trade File[.xls]
         [HttpPost("ImportJainamIndividualTradeFile")]
-        public async Task<ActionResult> ImportJainamIndividualTradeFile(IFormFile formFile, string firmName, string clientName, bool overrideData = false)
+        public async Task<IActionResult> ImportJainamIndividualTradeFile(IFormFile formFile, string firmName, string clientName, bool overrideData = false)
         {
             try
             {
