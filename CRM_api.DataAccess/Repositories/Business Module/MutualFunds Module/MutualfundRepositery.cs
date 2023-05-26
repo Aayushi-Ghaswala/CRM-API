@@ -85,9 +85,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             var redemUnit = redemptionUnit.Sum(x => x.Noofunit);
             var redemAmount = redemptionUnit.Sum(x => x.Invamount);
 
-            var TotalpurchaseUnit = mftransactions.Where(x => x.Transactiontype != "SWO" || x.Transactiontype != "RED" || x.Transactiontype != "Sale");
-            var purchaseUnit = redemptionUnit.Sum(x => x.Noofunit);
-            var purchaseAmount = redemptionUnit.Sum(x => x.Invamount);
+            var TotalpurchaseUnit = mftransactions.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" && x.Transactiontype != "Sale");
+            var purchaseUnit = TotalpurchaseUnit.Sum(x => x.Noofunit);
+            var purchaseAmount = TotalpurchaseUnit.Sum(x => x.Invamount);
 
             decimal? totalPurchaseunit = purchaseUnit - redemUnit;
             decimal? totalAmount = purchaseAmount - redemAmount;
@@ -117,7 +117,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             {
                 response = mutualfundData,
                 totalAmount = totalAmount,
-                totalPurchaseUnit = totalPurchaseunit,
+                totalBalanceUnit = totalPurchaseunit,
             };
 
             return mutualfundResponse;
@@ -151,6 +151,40 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             var mfSummary = mfTransaction.GroupBy(x => x.Username).ToList();
 
             return mfSummary;
+        }
+        #endregion
+
+        #region Get All MF User Name
+        public async Task<Response<TblMftransaction>> GetMFUserName(string? searchingParams, SortingParams sortingParams)
+        {
+            var mfUser = await _context.TblMftransactions.ToListAsync();
+            var userName = mfUser.DistinctBy(x => x.Userid).AsQueryable();
+            double pageCount = 0;
+
+            if(searchingParams != null)
+            {
+                userName = _context.Search<TblMftransaction>(searchingParams);
+            }
+
+            pageCount = Math.Ceiling(userName.Count() / sortingParams.PageSize);
+
+            //Apply sorting
+            var sortingData = SortingExtensions.ApplySorting(userName, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            //Apply Pagination
+            var paginatedData = SortingExtensions.ApplyPagination(userName, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var responseData = new Response<TblMftransaction>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+
+            return responseData;
         }
         #endregion
 

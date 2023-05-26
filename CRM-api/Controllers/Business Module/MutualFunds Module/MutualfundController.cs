@@ -80,6 +80,15 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         }
         #endregion
 
+        [HttpGet("GetMFUserName")]
+        #region Get Mf UserName
+        public async Task<IActionResult> GetMfUserName([FromQuery] string? searchingParams,[FromQuery] SortingParams sortingParams)
+        {
+            var mfUser = await _mutualfundService.GetMFUserName(searchingParams, sortingParams);
+            return Ok(mfUser);
+        }
+        #endregion
+
         [HttpGet("SchemaName")]
         #region Display Scheme Name by UserId
         public async Task<IActionResult> GetSchemeName(int userId, [FromQuery] string? searchingParams, [FromQuery] SortingParams? sortingParams)

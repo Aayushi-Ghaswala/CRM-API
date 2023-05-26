@@ -30,6 +30,8 @@ namespace CRM_api.Services.MapperProfile
                 .ForMember(x => x.TotalRedemptionUnit, opt => opt.MapFrom(dest => dest.Noofunit))
                 .ForMember(x => x.BalanceUnit, opt => opt.MapFrom(dest => dest.Noofunit))
                 .ForMember(x => x.CurrentValue, opt => opt.MapFrom(dest => dest.Invamount));
+            CreateMap<TblMftransaction, MFUserNameDto>();
+            CreateMap<Response<TblMftransaction>, ResponseDto<MFUserNameDto>>();
         }
     }
 }
