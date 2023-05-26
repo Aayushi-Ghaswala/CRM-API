@@ -25,7 +25,11 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             Services.AddDbContext<CRMDbContext>(options =>
             {
                 options.UseSqlServer(config.GetConnectionString("DefaultConnection"),
-                    sql => sql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+                    sql =>
+                    {
+                        sql.CommandTimeout(60);
+                        sql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                    });
             });
 
             Services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);

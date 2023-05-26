@@ -25,6 +25,15 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             _mapper = mapper;
         }
 
+        #region Get stock user's client names
+        public async Task<ResponseDto<StocksClientNamesDto>> GetStocksUsersName(string? searchingParams, SortingParams sortingParams)
+        {
+            var usernames = await _stocksRepository.GetStocksUsersName(searchingParams, sortingParams);
+            var mappedUsernames = _mapper.Map<ResponseDto<StocksClientNamesDto>>(usernames);
+            return mappedUsernames;
+        }
+        #endregion
+
         #region Get all/client wise script names
         public async Task<ResponseDto<ScriptNamesDto>> GetAllScriptNames(string clientName, string? searchingParams, SortingParams sortingParams)
         {
@@ -76,6 +85,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 stockDataList = new CsvReader(fs, culture).GetRecords<AddSharekhanStocksDto>().ToList();
             }
             var mappedStockModel = _mapper.Map<List<TblStockData>>(stockDataList);
+            //mappedStockModel.Reverse();
 
             //For individual Trade File
             if (id != 0)
@@ -202,7 +212,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                         NetRate = Convert.ToDouble(worksheet.Rows[i].Columns[8].Value.ToString()),
                         NetAmount = Convert.ToDecimal(worksheet.Rows[i].Columns[9].Value.ToString())
                     };
-                    listStocks.Add(trans);
+                    listStocks.Insert(0, trans);
                 }
             }
             //i = 25
