@@ -41,14 +41,15 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         {
             List<MFSummaryDto> mutualFundSummaries = new List<MFSummaryDto>();
 
-            decimal? redemptionUnit = 0;
-            decimal? totalPurchaseUnits = 0;
+            
             double pageCount = 0;
             var mfSummary = await _mutualfundRepositry.GetMFTransactionSummary(userId);
 
             foreach (var records in mfSummary)
             {
                 var mfSummaryDto = new MFSummaryDto();
+                decimal? redemptionUnit = 0;
+                decimal? totalPurchaseUnits = 0;
 
                 mfSummaryDto.NAV = Math.Round((double)records.Average(x => x.Nav), 3);
                 mfSummaryDto.SchemeId = records.DistinctBy(x => x.SchemeId).Select(x => x.SchemeId).FirstOrDefault();
@@ -61,7 +62,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                     redemptionUnit += transaction.Noofunit;
                 }
 
-                var purchaseTransaction = records.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" || x.Transactiontype != "Sale");
+                var purchaseTransaction = records.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" && x.Transactiontype != "Sale");
                 foreach (var transaction in purchaseTransaction)
                 {
                     totalPurchaseUnits += transaction.Noofunit;
@@ -76,7 +77,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             }
             IQueryable<MFSummaryDto> mutualFundSummaryDto = mutualFundSummaries.AsQueryable();
 
-            var totalPurchaseUnit = mutualFundSummaries.Sum(x => x.BalanceUnit);
+            var totalBalanceUnit = mutualFundSummaries.Sum(x => x.BalanceUnit);
             var totalAmount = mutualFundSummaries.Sum(x => x.CurrentValue);
 
             if (searchingParams != null)
@@ -107,7 +108,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             var mutualfundResponse = new MFTransactionDto<MFSummaryDto>()
             {
                 response = mutualfundData,
-                totalPurchaseUnit = totalPurchaseUnit,
+                totalBalanceUnit = totalBalanceUnit,
                 totalAmount = totalAmount,
             };
 
@@ -120,14 +121,14 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         {
             List<MFCategoryWiseDto> mutualFundSummaries = new List<MFCategoryWiseDto>();
 
-            decimal? redemptionUnit = 0;
-            decimal? totalPurchaseUnits = 0;
             double pageCount = 0;
             var mfSummary = await _mutualfundRepositry.GetMFTransactionSummaryByCategory(userId);
 
             foreach (var records in mfSummary)
             {
                 var mfCategoryWise = new MFCategoryWiseDto();
+                decimal? redemptionUnit = 0;
+                decimal? totalPurchaseUnits = 0;
 
                 mfCategoryWise.NAV = Math.Round((double)records.Average(x => x.Nav), 3);
                 mfCategoryWise.CategoryName = records.DistinctBy(x => x.TblMfSchemeMaster.SchemeCategorytype).Select(x => x.TblMfSchemeMaster.SchemeName).FirstOrDefault();
@@ -153,7 +154,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             }
             IQueryable<MFCategoryWiseDto> mutualFundSummaryDto = mutualFundSummaries.AsQueryable();
 
-            var totalPurchaseUnit = mutualFundSummaries.Sum(x => x.BalanceUnit);
+            var totalBalanceUnit = mutualFundSummaries.Sum(x => x.BalanceUnit);
             var totalAmount = mutualFundSummaries.Sum(x => x.CurrentValue);
 
             if (searchingParams != null)
@@ -184,7 +185,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             var mutualfundResponse = new MFTransactionDto<MFCategoryWiseDto>()
             {
                 response = mutualfundData,
-                totalPurchaseUnit = totalPurchaseUnit,
+                totalBalanceUnit = totalBalanceUnit,
                 totalAmount = totalAmount,
             };
 
@@ -197,14 +198,14 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         {
             List<AllClientMFSummaryDto> mutualFundSummaries = new List<AllClientMFSummaryDto>();
 
-            decimal? redemptionUnit = 0;
-            decimal? totalPurchaseUnits = 0;
             double pageCount = 0;
             var mfSummary = await _mutualfundRepositry.GetAllCLientMFSummary(FromDate, ToDate);
 
             foreach (var records in mfSummary)
             {
                 var allClientMFSummary = new AllClientMFSummaryDto();
+                decimal? redemptionUnit = 0;
+                decimal? totalPurchaseUnits = 0;
 
                 allClientMFSummary.NAV = Math.Round((double)records.Average(x => x.Nav), 3);
                 allClientMFSummary.Userid = records.DistinctBy(x => x.Userid).Select(x => x.Userid).FirstOrDefault();
@@ -231,7 +232,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             }
             IQueryable<AllClientMFSummaryDto> mutualFundSummaryDto = mutualFundSummaries.AsQueryable();
 
-            var totalPurchaseUnit = mutualFundSummaries.Sum(x => x.BalanceUnit);
+            var totalBalanceUnit = mutualFundSummaries.Sum(x => x.BalanceUnit);
             var totalAmount = mutualFundSummaries.Sum(x => x.CurrentValue);
 
             if (searchingParams != null)
@@ -262,7 +263,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             var mutualfundResponse = new MFTransactionDto<AllClientMFSummaryDto>()
             {
                 response = mutualfundData,
-                totalPurchaseUnit = totalPurchaseUnit,
+                totalBalanceUnit = totalBalanceUnit,
                 totalAmount = totalAmount,
             };
 
