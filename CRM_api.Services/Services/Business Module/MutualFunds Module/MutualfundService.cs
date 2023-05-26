@@ -271,6 +271,15 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         }
         #endregion
 
+        #region Get All MFUserName
+        public async Task<ResponseDto<MFUserNameDto>> GetMFUserName(string? searchingParams, SortingParams sortingParams)
+        {
+            var mfUser = await _mutualfundRepositry.GetMFUserName(searchingParams, sortingParams);
+            var mapMFUser = _mapper.Map<ResponseDto<MFUserNameDto>>(mfUser);
+            return mapMFUser;
+        }
+        #endregion
+
         #region Display SchemeName
         public async Task<ResponseDto<SchemaNameDto>> DisplayschemeName(int userId, string? searchingParams, SortingParams sortingParams)
         {
