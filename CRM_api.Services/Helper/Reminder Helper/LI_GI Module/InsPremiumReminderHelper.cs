@@ -37,15 +37,15 @@ namespace CRM_api.Services.Helper.Reminder_Helper.LI_GI_Module
                     }
                 }
 
-                switch (insClient.InsFrequency)
+                switch (insClient.InsFrequency.ToLower())
                 {
-                    case "Yearly":
+                    case "yearly":
                         insClient.InsPremiumRmdDate = insClient.InsPremiumRmdDate.Value.AddYears(1);
                         break;
-                    case "Monthly":
+                    case "monthly":
                         insClient.InsPremiumRmdDate = insClient.InsPremiumRmdDate.Value.AddMonths(1);
                         break;
-                    case "Quarterly":
+                    case "quarterly":
                         insClient.InsPremiumRmdDate = insClient.InsPremiumRmdDate.Value.AddMonths(3);
                         break;
                 }
