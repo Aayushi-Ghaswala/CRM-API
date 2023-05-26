@@ -81,8 +81,16 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
                     mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date >= StartDate && x.Date <= EndDate).AsQueryable();
             }
 
-            decimal? totalPurchaseunit = mftransactions.Sum(x => x.Noofunit);
-            decimal? totalAmount = mftransactions.Sum(x => x.Invamount);
+            var redemptionUnit = mftransactions.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale");
+            var redemUnit = redemptionUnit.Sum(x => x.Noofunit);
+            var redemAmount = redemptionUnit.Sum(x => x.Invamount);
+
+            var TotalpurchaseUnit = mftransactions.Where(x => x.Transactiontype != "SWO" || x.Transactiontype != "RED" || x.Transactiontype != "Sale");
+            var purchaseUnit = redemptionUnit.Sum(x => x.Noofunit);
+            var purchaseAmount = redemptionUnit.Sum(x => x.Invamount);
+
+            decimal? totalPurchaseunit = purchaseUnit - redemUnit;
+            decimal? totalAmount = purchaseAmount - redemAmount;
 
             if (searchingParams != null)
                 mftransactions = _context.Search<TblMftransaction>(searchingParams);
