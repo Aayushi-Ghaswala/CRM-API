@@ -4,7 +4,9 @@ using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using CRM_api.DataAccess.ResponseModel.Stocks_Module;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
 {
@@ -16,6 +18,43 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         {
             _context = context;
         }
+
+        #region Get stock user's names
+        public async Task<Response<TblStockData>> GetStocksUsersName(string? searchingParams, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+            List<TblStockData> data = new List<TblStockData>();
+            IQueryable<TblStockData> filterData = data.AsQueryable();
+
+            var usersData = await _context.TblStockData.ToListAsync();
+            filterData = usersData.DistinctBy(s => s.StClientname).AsQueryable();
+
+            if (searchingParams != null)
+            {
+                filterData = _context.Search<TblStockData>(searchingParams);
+            }
+
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+            paginatedData = paginatedData.DistinctBy(sd => sd.StClientname).ToList();
+
+            var stockData = new Response<TblStockData>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+            return stockData;
+        }
+        #endregion
 
         #region Get all/client wise script names
         public async Task<Response<TblStockData>> GetAllScriptNames(string clientName, string? searchingParams, SortingParams sortingParams)
