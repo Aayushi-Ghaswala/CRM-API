@@ -51,6 +51,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblMftransaction> TblMftransactions { get; set; } = null!;
         public virtual DbSet<TblMgainInvesment> TblMgainInvesments { get; set; } = null!;
         public virtual DbSet<TblMgainLedger> TblMgainLedgers { get; set; } = null!;
+        public virtual DbSet<TblMgainSchemeMaster> TblMgainSchemeMasters { get; set; } = null!;
         public virtual DbSet<TblMgainTransactionAccountTem> TblMgainTransactionAccountTems { get; set; } = null!;
         public virtual DbSet<TblMgaindetail> TblMgaindetails { get; set; } = null!;
         public virtual DbSet<TblMgaindetailsTruncate> TblMgaindetailsTruncates { get; set; } = null!;
@@ -1273,6 +1274,54 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.Name)
                     .HasMaxLength(100)
                     .IsUnicode(false);
+            });
+            modelBuilder.Entity<TblMgainSchemeMaster>(entity =>
+            {
+                entity.ToTable("tbl_mgain_scheme_master");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.AdditionalInterest10).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.AdditionalInterest4).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.AdditionalInterest5).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.AdditionalInterest6).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.AdditionalInterest7).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.AdditionalInterest8).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.AdditionalInterest9).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.EndDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Interst1).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst10).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst2).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst3).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst4).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst5).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst6).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst7).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst8).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst9).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Schemename)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.StartDate).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<TblMgainTransactionAccountTem>(entity =>

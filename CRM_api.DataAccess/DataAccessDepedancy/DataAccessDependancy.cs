@@ -44,6 +44,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             Services.AddScoped<IStocksRepository, StocksRepository>();
             Services.AddScoped<IMutualfundRepositry, MutualfundRepositery>();
             Services.AddScoped<IInsuranceClientRepository, InsuranceClientRepository>();
+            Services.AddScoped<IMGainSchemeRepository, MGainSchemeRepository>();
 
             //HR Module
             Services.AddScoped<IEmployeeRepository, EmployeeRepository>();

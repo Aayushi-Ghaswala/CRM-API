@@ -39,6 +39,7 @@ namespace CRM_api.Services.ServicesDepedancy
             Services.AddScoped<IStockService, StockService>();
             Services.AddScoped<IInsuranceClientService, InsuranceClientService>();
             Services.AddScoped<IMutualfundService, MutualfundService>();
+            Services.AddScoped<IMGainSchemeService, MGainSchemeService>();
 
             //Hr Module
             Services.AddScoped<IEmployeeService, EmployeeService>();
