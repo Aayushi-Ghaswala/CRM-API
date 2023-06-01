@@ -16,6 +16,54 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
             _wbcService = wBCService;
         }
 
+        #region Get all Wbc scheme types
+        [HttpGet("GetAllWbcSchemeTypes")]
+        public async Task<IActionResult> GetAllWbcSchemeTypes([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        {
+            try
+            {
+                var schemes = await _wbcService.GetAllWbcSchemeTypesAsync(search, sortingParams);
+                return Ok(schemes);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get all subInvestment types
+        [HttpGet("GetAllSubInvestmentTypes")]
+        public async Task<IActionResult> GetAllSubInvestmentTypes([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        {
+            try
+            {
+                var schemes = await _wbcService.GetAllSubInvestmentTypesAsync(search, sortingParams);
+                return Ok(schemes);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get all subSubInvestment types
+        [HttpGet("GetAllSubSubInvestmentTypes")]
+        public async Task<IActionResult> GetAllSubSubInvestmentTypes([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        {
+            try
+            {
+                var schemes = await _wbcService.GetAllSubSubInvestmentTypesAsync(search, sortingParams);
+                return Ok(schemes);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region Get all wbc schemes
         [HttpGet("GetAllWbcSchemes")]
         public async Task<IActionResult> GetAllWbcSchemes([FromQuery] string? search, [FromQuery] SortingParams? sortingParams) 
@@ -39,7 +87,7 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
             try
             {
                 var result = await _wbcService.AddWbcSchemeAsync(addWBCSchemeDto);
-                return result != 0 ? Ok(new { Message = "WBC scheme added successfully" }) : BadRequest(new { Message = "Unable to add wbc scheme" });
+                return result != 0 ? Ok(new { Message = "WBC scheme added successfully." }) : BadRequest(new { Message = "Unable to add wbc scheme." });
             }
             catch (Exception)
             {
@@ -55,7 +103,7 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
             try
             {
                 var result = await _wbcService.UpdateWbcSchemeAsync(updateWBCSchemeDto);
-                return result != 0 ? Ok(new { Message = "WBC scheme updated successfully" }) : BadRequest(new { Message = "Unable to update wbc scheme" });
+                return result != 0 ? Ok(new { Message = "WBC scheme updated successfully." }) : BadRequest(new { Message = "Unable to update wbc scheme." });
             }
             catch (Exception)
             {
@@ -71,7 +119,7 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
             try
             {
                 var result = await _wbcService.DeleteWbcSchemeAsync(id);
-                return result != 0 ? Ok(new { Message = "WBC scheme deleted successfully" }) : BadRequest(new { Message = "Unable to delete wbc scheme" });
+                return result != 0 ? Ok(new { Message = "WBC scheme deleted successfully." }) : BadRequest(new { Message = "Unable to delete wbc scheme." });
             }
             catch (Exception)
             {

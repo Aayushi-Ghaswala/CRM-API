@@ -1,6 +1,4 @@
-﻿using CRM_api.DataAccess.Models;
-
-namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.WBC_Module
+﻿namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.WBC_Module
 {
     public class WBCSchemeMasterDto
     {
@@ -15,8 +13,8 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.WBC_Module
         public int? GoldPoint { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
-        public virtual TblWbcTypeMaster? TblWbcTypeMaster { get; set; }
-        public virtual TblSubInvesmentType? TblSubInvesmentType { get; set; }
-        public virtual TblSubsubInvType? TblSubsubInvType { get; set; }
+        public virtual WbcTypeDto? TblWbcTypeMaster { get; set; }
+        public virtual SubInvestmentTypeDto? TblSubInvesmentType { get; set; }
+        public virtual SubSubInvestmentTypeDto? TblSubsubInvType { get; set; }
     }
 }

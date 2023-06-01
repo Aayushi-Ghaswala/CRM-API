@@ -20,6 +20,33 @@ namespace CRM_api.Services.Services.Business_Module.WBC_Module
             _mapper = mapper;
         }
 
+        #region Get all Wbc scheme types
+        public async Task<ResponseDto<WbcTypeDto>> GetAllWbcSchemeTypesAsync(string? searchingParams, SortingParams sortingParams)
+        {
+            var response = await _wbcRepository.GetAllWbcSchemeTypes(searchingParams, sortingParams);
+            var mappedResponse = _mapper.Map<ResponseDto<WbcTypeDto>>(response);
+            return mappedResponse;
+        }
+        #endregion
+
+        #region Get all subInvestment types
+        public async Task<ResponseDto<SubInvestmentTypeDto>> GetAllSubInvestmentTypesAsync(string? searchingParams, SortingParams sortingParams)
+        {
+            var response = await _wbcRepository.GetAllSubInvestmentTypes(searchingParams, sortingParams);
+            var mappedResponse = _mapper.Map<ResponseDto<SubInvestmentTypeDto>>(response);
+            return mappedResponse;
+        }
+        #endregion
+
+        #region Get all subSubInvestment types
+        public async Task<ResponseDto<SubSubInvestmentTypeDto>> GetAllSubSubInvestmentTypesAsync(string? searchingParams, SortingParams sortingParams)
+        {
+            var response = await _wbcRepository.GetAllSubSubInvestmentTypes(searchingParams, sortingParams);
+            var mappedResponse = _mapper.Map<ResponseDto<SubSubInvestmentTypeDto>>(response);
+            return mappedResponse;
+        }
+        #endregion
+
         #region Gel all wbc scheme
         public async Task<ResponseDto<WBCSchemeMasterDto>> GetAllWbcSchemesAsync(string? searchingParams, SortingParams sortingParams)
         {

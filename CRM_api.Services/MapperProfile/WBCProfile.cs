@@ -11,10 +11,18 @@ namespace CRM_api.Services.MapperProfile
     {
         public WBCProfile()
         {
+            CreateMap<TblWbcTypeMaster, WbcTypeDto>();
+            CreateMap<TblSubInvesmentType, SubInvestmentTypeDto>();
+            CreateMap<TblSubsubInvType, SubSubInvestmentTypeDto>();
+
             CreateMap<TblWbcSchemeMaster, WBCSchemeMasterDto>();
             CreateMap<Response<TblWbcSchemeMaster>, ResponseDto<WBCSchemeMasterDto>>();
             CreateMap<AddWBCSchemeDto, TblWbcSchemeMaster>();
             CreateMap<UpdateWBCSchemeDto, TblWbcSchemeMaster>();
+
+            CreateMap<Response<TblWbcTypeMaster>, ResponseDto<WbcTypeDto>>();
+            CreateMap<Response<TblSubInvesmentType>, ResponseDto<SubInvestmentTypeDto>>();
+            CreateMap<Response<TblSubsubInvType>, ResponseDto<SubSubInvestmentTypeDto>>();
         }
     }
 }
