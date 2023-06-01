@@ -28,9 +28,9 @@ namespace CRM_api.Controllers.HR_Module
 
                 return Ok(departments);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -41,12 +41,12 @@ namespace CRM_api.Controllers.HR_Module
         {
             try
             {
-                var department = await _departmentService.GetDepartmentById(deptId);
+                var department = await _departmentService.GetDepartmentByIdAsync(deptId);
                 return department.DepartmentId != 0 ? Ok(department) : NoContent();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -60,9 +60,9 @@ namespace CRM_api.Controllers.HR_Module
                 int row = await _departmentService.AddDepartmentAsync(addDepartmentDto);
                 return row > 0 ? Ok(new { Message = "Department added successfully."}) : BadRequest(new { Message = "Unable to add department."});
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -76,9 +76,9 @@ namespace CRM_api.Controllers.HR_Module
                 int row = await _departmentService.UpdateDepartmentAsync(updateDepartmentDto);
                 return row != 0 ? Ok(new { Message = "Department updated successfully."}) : BadRequest(new { Message = "Unable to update department."});
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -87,8 +87,15 @@ namespace CRM_api.Controllers.HR_Module
         [HttpDelete]
         public async Task<IActionResult> DeactivateDepartment(int id)
         {
-            var department = _departmentService.DeactivateDepartmentAsync(id);
-            return await department !=0 ? Ok(new { Message = "Department deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate department."});
+            try
+            {
+                var department = _departmentService.DeactivateDepartmentAsync(id);
+                return await department != 0 ? Ok(new { Message = "Department deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate department." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         #endregion
     }

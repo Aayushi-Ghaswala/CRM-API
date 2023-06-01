@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using CRM_api.DataAccess.Models;
+﻿using CRM_api.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace CRM_api.DataAccess.Context
 {
@@ -32,6 +29,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblFamilyMember> TblFamilyMembers { get; set; } = null!;
         public virtual DbSet<TblFaq> TblFaqs { get; set; } = null!;
         public virtual DbSet<TblFasttrackLedger> TblFasttrackLedgers { get; set; } = null!;
+        public virtual DbSet<TblFasttrackSchemeMaster> TblFasttrackSchemeMasters { get; set; } = null!;
         public virtual DbSet<TblFasttrackSubscription> TblFasttrackSubscriptions { get; set; } = null!;
         public virtual DbSet<TblFolioDetail> TblFolioDetails { get; set; } = null!;
         public virtual DbSet<TblFolioMaster> TblFolioMasters { get; set; } = null!;
@@ -78,6 +76,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblStateMaster> TblStateMasters { get; set; } = null!;
         public virtual DbSet<TblStockData> TblStockData { get; set; } = null!;
         public virtual DbSet<TblSubInvesmentType> TblSubInvesmentTypes { get; set; } = null!;
+        public virtual DbSet<TblSubsubInvType> TblSubsubInvTypes { get; set; } = null!;
         public virtual DbSet<TblTempUserpan> TblTempUserpans { get; set; } = null!;
         public virtual DbSet<TblTermsCondition> TblTermsConditions { get; set; } = null!;
         public virtual DbSet<TblUserCategoryMaster> TblUserCategoryMasters { get; set; } = null!;
@@ -86,6 +85,8 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblVendorMaster> TblVendorMasters { get; set; } = null!;
         public virtual DbSet<TblWbcMallCategory> TblWbcMallCategories { get; set; } = null!;
         public virtual DbSet<TblWbcMallProduct> TblWbcMallProducts { get; set; } = null!;
+        public virtual DbSet<TblWbcSchemeMaster> TblWbcSchemeMasters { get; set; } = null!;
+        public virtual DbSet<TblWbcTypeMaster> TblWbcTypeMasters { get; set; } = null!;
         public virtual DbSet<Usercleantable> Usercleantables { get; set; } = null!;
         public virtual DbSet<TblLoanMaster> TblLoanMasters { get; set; } = null!;
         public virtual DbSet<TblLoanTypeMaster> TblLoanTypeMasters { get; set; } = null!;
@@ -716,6 +717,26 @@ namespace CRM_api.DataAccess.Context
                     .WithMany(p => p.TblFasttrackLedgers)
                     .HasForeignKey(d => d.Userid)
                     .HasConstraintName("FK_tbl_Fasttrack_Ledger_tbl_User_Master");
+            });
+
+            modelBuilder.Entity<TblFasttrackSchemeMaster>(entity =>
+            {
+                entity.ToTable("tbl_fasttrack_scheme_master");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Goldpoint).HasColumnName("goldpoint");
+
+                entity.Property(e => e.Level)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("level");
+
+                entity.Property(e => e.NoOfFasttrackClients).HasColumnName("No_of_fasttrack_clients");
+
+                entity.Property(e => e.NoOfNonFasttrackClients).HasColumnName("No_of_non_fasttrack_clients");
+
+                entity.Property(e => e.TotalClient).HasColumnName("total_client");
             });
 
             modelBuilder.Entity<TblFasttrackSubscription>(entity =>
@@ -2259,7 +2280,7 @@ namespace CRM_api.DataAccess.Context
 
             modelBuilder.Entity<TblSubInvesmentType>(entity =>
             {
-                entity.ToTable("tbl_Sub_Invesment_Type");
+                entity.ToTable("tbl_sub_invesment_type");
 
                 entity.Property(e => e.InvestmentType)
                     .HasMaxLength(30)
@@ -2270,6 +2291,20 @@ namespace CRM_api.DataAccess.Context
                     .HasForeignKey(d => d.InvesmentTypeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tbl_Sub_Invesment_Type_tbl_Invesment_Type");
+            });
+
+            modelBuilder.Entity<TblSubsubInvType>(entity =>
+            {
+                entity.ToTable("tbl_subsub_inv_type");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.SubInvType)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("sub_inv_type");
+
+                entity.Property(e => e.SubInvTypeId).HasColumnName("sub_inv_type_id");
             });
 
             modelBuilder.Entity<TblTempUserpan>(entity =>
@@ -2534,6 +2569,46 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.ProdRating)
                     .HasColumnType("decimal(2, 1)")
                     .HasColumnName("prod_rating");
+            });
+
+            modelBuilder.Entity<TblWbcSchemeMaster>(entity =>
+            {
+                entity.ToTable("tbl_wbc_scheme_master");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Business)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FromDate)
+                    .HasColumnType("date")
+                    .HasColumnName("From_Date");
+
+                entity.Property(e => e.GoldPoint).HasColumnName("Gold_Point");
+
+                entity.Property(e => e.NoOfContactsAllowed).HasColumnName("No_of_Contacts_Allowed");
+
+                entity.Property(e => e.ParticularsId).HasColumnName("Particulars_Id");
+
+                entity.Property(e => e.ParticularsSubTypeId)
+                    .HasColumnName("Particulars_SubType_Id");
+
+                entity.Property(e => e.ToDate)
+                    .HasColumnType("date")
+                    .HasColumnName("To_Date");
+
+                entity.Property(e => e.WbcTypeId).HasColumnName("Wbc_Type_id");
+            });
+
+            modelBuilder.Entity<TblWbcTypeMaster>(entity =>
+            {
+                entity.ToTable("tbl_wbc_type_master");
+
+                entity.Property(e => e.WbcType)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("wbc_type");
             });
 
             modelBuilder.Entity<Usercleantable>(entity =>

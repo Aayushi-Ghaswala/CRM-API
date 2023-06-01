@@ -1,9 +1,7 @@
 ﻿using CRM_api.DataAccess.Helper;
 using CRM_api.Services.Dtos.AddDataDto.HR_Module;
-using CRM_api.Services.Dtos.ResponseDto.HR_Module;
 using CRM_api.Services.IServices.HR_Module;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace CRM_api.Controllers.HR_Module
 {
@@ -27,9 +25,9 @@ namespace CRM_api.Controllers.HR_Module
                 var leaveTypes = await _leaveTypeService.GetLeaveTypesAsync(search, sortingParams);
                 return Ok(leaveTypes);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -40,12 +38,12 @@ namespace CRM_api.Controllers.HR_Module
         {
             try
             {
-                var leaveType = await _leaveTypeService.GetLeaveTypeById(leaveTypeId);
+                var leaveType = await _leaveTypeService.GetLeaveTypeByIdAsync(leaveTypeId);
                 return leaveType.LeaveId != 0 ? Ok(leaveType) : NoContent();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -56,12 +54,12 @@ namespace CRM_api.Controllers.HR_Module
         {
             try
             {
-                var leaveType = await _leaveTypeService.GetLeaveTypeByName(Name);
+                var leaveType = await _leaveTypeService.GetLeaveTypeByNameAsync(Name);
                 return leaveType.LeaveId != 0 ? Ok(leaveType) : NoContent();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -75,9 +73,9 @@ namespace CRM_api.Controllers.HR_Module
                 int row = await _leaveTypeService.AddLeaveTypeAsync(addLeaveTypeDto);
                 return row > 0 ? Ok(new { Message = "LeaveType added successfully."}) : BadRequest(new { Message = "Unable to add leaveType."});
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -91,9 +89,9 @@ namespace CRM_api.Controllers.HR_Module
                 int row = await _leaveTypeService.UpdateLeaveTypeAsync(updateLeaveTypeDto);
                 return row > 0 ? Ok(new { Message = "LeaveType updated successfully."}) : BadRequest(new { Message = "Unable to update leaveType."});
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -102,8 +100,15 @@ namespace CRM_api.Controllers.HR_Module
         [HttpDelete]
         public async Task<IActionResult> DeactivateLeaveType(int id)
         {
-            var leaveType = await _leaveTypeService.DeactivateLeaveTypeAsync(id);
-            return leaveType != 0 ? Ok(new { Message = "LeaveType deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate leaveType."});
+            try
+            {
+                var leaveType = await _leaveTypeService.DeactivateLeaveTypeAsync(id);
+                return leaveType != 0 ? Ok(new { Message = "LeaveType deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate leaveType." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         #endregion
     }

@@ -29,7 +29,7 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get All State By Country
-        public async Task<ResponseDto<StateMasterDto>> GetstateByCountry(int countryId, string search, SortingParams sortingParams)
+        public async Task<ResponseDto<StateMasterDto>> GetstateByCountryAsync(int countryId, string search, SortingParams sortingParams)
         {
             var states = await _regionRepository.GetStateBycountry(countryId, search, sortingParams);
             var mapStates = _mapper.Map<ResponseDto<StateMasterDto>>(states);
@@ -39,7 +39,7 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get All Cities By State
-        public async Task<ResponseDto<CityMasterDto>> GetCityByState(int stateId, string search, SortingParams sortingParams)
+        public async Task<ResponseDto<CityMasterDto>> GetCityByStateAsync(int stateId, string search, SortingParams sortingParams)
         {
             var cities = await _regionRepository.GetCityByState(stateId, search, sortingParams);
             var mapCities = _mapper.Map<ResponseDto<CityMasterDto>>(cities);

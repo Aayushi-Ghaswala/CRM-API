@@ -36,7 +36,7 @@ namespace CRM_api.Services.Services.HR_Module
         #endregion
 
         #region Get Employee by Id
-        public async Task<UserMasterDto> GetEmployeeById(int id)
+        public async Task<UserMasterDto> GetEmployeeByIdAsync(int id)
         {
             var employees = await _employeeRepository.GetEmployeebyId(id);
             var mappedEmployees = _mapper.Map<UserMasterDto>(employees);

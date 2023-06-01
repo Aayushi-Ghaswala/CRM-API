@@ -2,7 +2,6 @@
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.LI_GI_Module;
 using CRM_api.Services.IServices.Business_Module.LI_GI_Module;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace CRM_api.Controllers.Business_Module.LI_GI_Module
 {

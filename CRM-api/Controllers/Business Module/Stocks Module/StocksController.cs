@@ -21,7 +21,7 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         {
             try
             {
-                var result = await _stockService.GetStocksUsersName(searchingParams, sortingParams);
+                var result = await _stockService.GetStocksUsersNameAsync(searchingParams, sortingParams);
                 return Ok(result);
             }
             catch (Exception)
@@ -37,7 +37,7 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         {
             try
             {
-                var scriptNames = await _stockService.GetAllScriptNames(clientName, searchingParams, sortingParams);
+                var scriptNames = await _stockService.GetAllScriptNamesAsync(clientName, searchingParams, sortingParams);
                 return Ok(scriptNames);
             }
             catch (Exception)
@@ -53,7 +53,7 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         {
             try
             {
-                var stocksData = await _stockService.GetStockData(clientName, fromDate, toDate, scriptName, searchingParams, sortingParams);
+                var stocksData = await _stockService.GetStockDataAsync(clientName, fromDate, toDate, scriptName, searchingParams, sortingParams);
                 return Ok(stocksData);
             }
             catch (Exception)
@@ -69,12 +69,12 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         {
             try
             {
-                var res = await _stockService.ImportSharekhanTradeFile(formFile, firmName, 0, overrideData);
+                var res = await _stockService.ImportSharekhanTradeFileAsync(formFile, firmName, 0, overrideData);
                 return res != 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -85,12 +85,12 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         {
             try
             {
-                var res = await _stockService.ImportSharekhanTradeFile(formFile, firmName, id, overrideData);
+                var res = await _stockService.ImportSharekhanTradeFileAsync(formFile, firmName, id, overrideData);
                 return res != 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -101,12 +101,12 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         {
             try
             {
-                var res = await _stockService.ImportJainamTradeFile(formFile, firmName, clientName, overrideData);
+                var res = await _stockService.ImportJainamTradeFileAsync(formFile, firmName, clientName, overrideData);
                 return res != 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion

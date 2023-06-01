@@ -8,8 +8,8 @@ namespace CRM_api.Services.IServices.HR_Module
     public interface ILeaveTypeService
     {
         Task<ResponseDto<LeaveTypeDto>> GetLeaveTypesAsync(string search, SortingParams sortingParams);
-        Task<LeaveTypeDto> GetLeaveTypeById(int id);
-        Task<LeaveTypeDto> GetLeaveTypeByName(string Name);
+        Task<LeaveTypeDto> GetLeaveTypeByIdAsync(int id);
+        Task<LeaveTypeDto> GetLeaveTypeByNameAsync(string Name);
         Task<int> AddLeaveTypeAsync(AddLeaveTypeDto leaveTtypeDto);
         Task<int> UpdateLeaveTypeAsync(UpdateLeaveTypeDto leaveTypeDto);
         Task<int> DeactivateLeaveTypeAsync(int id);

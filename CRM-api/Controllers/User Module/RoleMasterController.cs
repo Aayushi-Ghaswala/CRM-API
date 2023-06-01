@@ -3,7 +3,6 @@ using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.AddDataDto.User_Module;
 using CRM_api.Services.IServices.User_Module;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace CRM_api.Controllers.User_Module
 {

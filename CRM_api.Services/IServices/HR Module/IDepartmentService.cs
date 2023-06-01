@@ -8,7 +8,7 @@ namespace CRM_api.Services.IServices.HR_Module
     public interface IDepartmentService
     {
         Task<ResponseDto<DepartmentDto>> GetDepartmentAsync(string search, SortingParams sortingParams);
-        Task<DepartmentDto> GetDepartmentById(int id);
+        Task<DepartmentDto> GetDepartmentByIdAsync(int id);
         Task<int> AddDepartmentAsync(AddDepartmentDto departmentDto);
         Task<int> UpdateDepartmentAsync(UpdateDepartmentDto departmentDto);
         Task<int> DeactivateDepartmentAsync(int id);

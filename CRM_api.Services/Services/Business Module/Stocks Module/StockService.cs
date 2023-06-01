@@ -26,7 +26,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         }
 
         #region Get stock user's client names
-        public async Task<ResponseDto<StocksClientNamesDto>> GetStocksUsersName(string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<StocksClientNamesDto>> GetStocksUsersNameAsync(string? searchingParams, SortingParams sortingParams)
         {
             var usernames = await _stocksRepository.GetStocksUsersName(searchingParams, sortingParams);
             var mappedUsernames = _mapper.Map<ResponseDto<StocksClientNamesDto>>(usernames);
@@ -35,7 +35,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #endregion
 
         #region Get all/client wise script names
-        public async Task<ResponseDto<ScriptNamesDto>> GetAllScriptNames(string clientName, string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<ScriptNamesDto>> GetAllScriptNamesAsync(string clientName, string? searchingParams, SortingParams sortingParams)
         {
             var scriptData = await _stocksRepository.GetAllScriptNames(clientName, searchingParams, sortingParams);
             var mappedScriptData = _mapper.Map<ResponseDto<ScriptNamesDto>>(scriptData);
@@ -44,7 +44,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #endregion
 
         #region Get All or clientwise stocks data
-        public async Task<StockResponseDto<StockMasterDto>> GetStockData(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string? searchingParams, SortingParams sortingParams)
+        public async Task<StockResponseDto<StockMasterDto>> GetStockDataAsync(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string? searchingParams, SortingParams sortingParams)
         {
             var stocksData = await _stocksRepository.GetStocksTransactions(clientName, fromDate, toDate, scriptName, searchingParams, sortingParams);
             var stockResult = _mapper.Map<StockResponseDto<StockMasterDto>>(stocksData);
@@ -53,7 +53,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #endregion
 
         #region Import Sharekhan trade file for all and/or individual client.
-        public async Task<int> ImportSharekhanTradeFile(IFormFile formFile, string firmName, int id, bool overrideData)
+        public async Task<int> ImportSharekhanTradeFileAsync(IFormFile formFile, string firmName, int id, bool overrideData)
         {
             CultureInfo culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
             culture.DateTimeFormat.ShortDatePattern = "dd-MM-yyyy";
@@ -107,7 +107,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #endregion
 
         #region Import Jainam trade file for individual client.
-        public async Task<int> ImportJainamTradeFile(IFormFile formFile, string firmName, string clientName, bool overrideData)
+        public async Task<int> ImportJainamTradeFileAsync(IFormFile formFile, string firmName, string clientName, bool overrideData)
         {
             var filename = "";
             var xlsxFilePath = "";

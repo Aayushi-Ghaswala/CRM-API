@@ -21,7 +21,7 @@ namespace CRM_api.Services.Services.HR_Module
         }
 
         #region Get Designations
-        public async Task<ResponseDto<DesignationDto>> GetDesignation(string search, SortingParams sortingParams)
+        public async Task<ResponseDto<DesignationDto>> GetDesignationAsync(string search, SortingParams sortingParams)
         {
             var designations = await _designationRepository.GetDesignation(search, sortingParams);
             var mappedDesignation = _mapper.Map<ResponseDto<DesignationDto>>(designations);
@@ -30,14 +30,14 @@ namespace CRM_api.Services.Services.HR_Module
         #endregion
 
         #region Get Designations By
-        public async Task<IEnumerable<DesignationDto>> GetDesignationByDepartment(int departmentId)
+        public async Task<IEnumerable<DesignationDto>> GetDesignationByDepartmentAsync(int departmentId)
         {
             var designations = await _designationRepository.GetDesignationByDepartment(departmentId);
             var mappedDesignation = _mapper.Map<IEnumerable<DesignationDto>>(designations);
             return mappedDesignation;
         }
 
-        public async Task<DesignationDto> GetDesignationById(int id)
+        public async Task<DesignationDto> GetDesignationByIdAsync(int id)
         {
             var designation = await _designationRepository.GetDesignationById(id);
             var mapDesignation = _mapper.Map<DesignationDto>(designation);
@@ -46,7 +46,7 @@ namespace CRM_api.Services.Services.HR_Module
         #endregion
 
         #region Add designation
-        public async Task<int> AddDesignation(AddDesignationDto designationMaster)
+        public async Task<int> AddDesignationAsync(AddDesignationDto designationMaster)
         {
             var mappedDesignation = _mapper.Map<TblDesignationMaster>(designationMaster);
             return await _designationRepository.AddDesignation(mappedDesignation);
@@ -54,7 +54,7 @@ namespace CRM_api.Services.Services.HR_Module
         #endregion
 
         #region Update designation
-        public async Task<int> UpdateDesignation(UpdateDesignationDto designationMaster)
+        public async Task<int> UpdateDesignationAsync(UpdateDesignationDto designationMaster)
         {
             var designation = _mapper.Map<TblDesignationMaster>(designationMaster);
             return await _designationRepository.UpdateDesignation(designation);
@@ -62,7 +62,7 @@ namespace CRM_api.Services.Services.HR_Module
         #endregion
 
         #region Deactivate designation
-        public async Task<int> DeactivateDesignation(int id)
+        public async Task<int> DeactivateDesignationAsync(int id)
         {
             return await _designationRepository.DeactivateDesignation(id);
         }

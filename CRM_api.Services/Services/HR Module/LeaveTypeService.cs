@@ -30,7 +30,7 @@ namespace CRM_api.Services.Services.HR_Module
         #endregion
 
         #region Get LeaveType By Id
-        public async Task<LeaveTypeDto> GetLeaveTypeById(int id)
+        public async Task<LeaveTypeDto> GetLeaveTypeByIdAsync(int id)
         {
             var leaveType = await _leaveTypeRepository.GetLeaveTypeById(id);
             var mappedLeaveType = _mapper.Map<LeaveTypeDto>(leaveType);
@@ -39,7 +39,7 @@ namespace CRM_api.Services.Services.HR_Module
         #endregion
 
         #region Get LeaveType By Name
-        public async Task<LeaveTypeDto> GetLeaveTypeByName(string Name)
+        public async Task<LeaveTypeDto> GetLeaveTypeByNameAsync(string Name)
         {
             var leaveType = await _leaveTypeRepository.GetLeaveTypeByName(Name);
             var mappedLeaveType = _mapper.Map<LeaveTypeDto>(leaveType);
