@@ -24,12 +24,12 @@ namespace CRM_api.Controllers.HR_Module
         {
             try
             {
-                var designations = await _designationService.GetDesignation(search, sortingParams);
+                var designations = await _designationService.GetDesignationAsync(search, sortingParams);
                 return Ok(designations);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -40,12 +40,12 @@ namespace CRM_api.Controllers.HR_Module
         {
             try
             {
-                var designations = await _designationService.GetDesignationByDepartment(departmentId);
+                var designations = await _designationService.GetDesignationByDepartmentAsync(departmentId);
                 return designations.Count() > 0 ? Ok(designations) : NoContent();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
 
@@ -54,12 +54,12 @@ namespace CRM_api.Controllers.HR_Module
         {
             try
             {
-                var designation = await _designationService.GetDesignationById(id);
+                var designation = await _designationService.GetDesignationByIdAsync(id);
                 return designation.DesignationId != 0 ? Ok(designation) : NoContent();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
 
@@ -71,12 +71,12 @@ namespace CRM_api.Controllers.HR_Module
         {
             try
             {
-                int row = await _designationService.AddDesignation(addDesignationDto);
+                int row = await _designationService.AddDesignationAsync(addDesignationDto);
                 return row > 0 ? Ok(new { Message = "Designation added successfully"}) : BadRequest(new { Message = "Unable to add designation"});
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -87,12 +87,12 @@ namespace CRM_api.Controllers.HR_Module
         {
             try
             {
-                int row = await _designationService.UpdateDesignation(updateDesignationDto);
+                int row = await _designationService.UpdateDesignationAsync(updateDesignationDto);
                 return row != 0 ? Ok(new { Message = "Designation updated successfully"}) : BadRequest(new { Message = "Unable to update designation"});
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                throw;
             }
         }
         #endregion
@@ -101,8 +101,15 @@ namespace CRM_api.Controllers.HR_Module
         [HttpDelete]
         public async Task<IActionResult> DeactivateDesignation(int id)
         {
-            int row = await _designationService.DeactivateDesignation(id);
-            return row !=0 ? Ok(new { Message = "Designation deactivated successfully"}) : BadRequest(new { Message = "Unable to deactivate designation"});
+            try
+            {
+                int row = await _designationService.DeactivateDesignationAsync(id);
+                return row != 0 ? Ok(new { Message = "Designation deactivated successfully" }) : BadRequest(new { Message = "Unable to deactivate designation" });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         #endregion
     }

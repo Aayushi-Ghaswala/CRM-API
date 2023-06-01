@@ -22,7 +22,7 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         {
             try
             {
-                var mfDetails = await _mutualfundService.GetClientwiseMutualFundTransaction(userId, schemeId, searchingParams, sortingParams, StartDate, EndDate);
+                var mfDetails = await _mutualfundService.GetClientwiseMutualFundTransactionAsync(userId, schemeId, searchingParams, sortingParams, StartDate, EndDate);
                 return Ok(mfDetails);
             }
             catch (Exception)
@@ -38,7 +38,7 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         {
             try
             {
-                var getData = await _mutualfundService.GetMFSummary(userId, searchingParams, sortingParams);
+                var getData = await _mutualfundService.GetMFSummaryAsync(userId, searchingParams, sortingParams);
                 return Ok(getData);
             }
             catch (Exception)
@@ -54,7 +54,7 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         {
             try
             {
-                var getData = await _mutualfundService.GetMFCategoryWise(userId, searchingParams, sortingParams);
+                var getData = await _mutualfundService.GetMFCategoryWiseAsync(userId, searchingParams, sortingParams);
                 return Ok(getData);
             }
             catch (Exception)
@@ -70,7 +70,7 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         {
             try
             {
-                var getData = await _mutualfundService.GetAllClientMFSummary(FromDate, ToDate, searchingParams, sortingParams);
+                var getData = await _mutualfundService.GetAllClientMFSummaryAsync(FromDate, ToDate, searchingParams, sortingParams);
                 return Ok(getData);
             }
             catch (Exception)
@@ -84,7 +84,7 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         #region Get Mf UserName
         public async Task<IActionResult> GetMfUserName([FromQuery] string? searchingParams,[FromQuery] SortingParams sortingParams)
         {
-            var mfUser = await _mutualfundService.GetMFUserName(searchingParams, sortingParams);
+            var mfUser = await _mutualfundService.GetMFUserNameAsync(searchingParams, sortingParams);
             return Ok(mfUser);
         }
         #endregion
@@ -95,7 +95,7 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         {
             try
             {
-                var schemeName = await _mutualfundService.DisplayschemeName(userId, searchingParams, sortingParams);
+                var schemeName = await _mutualfundService.DisplayschemeNameAsync(userId, searchingParams, sortingParams);
                 return Ok(schemeName);
             }
             catch (Exception)
@@ -111,7 +111,7 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         {
             try
             {
-                var flag = await _mutualfundService.ImportNJClientFile(file, UpdateIfExist);
+                var flag = await _mutualfundService.ImportNJClientFileAsync(file, UpdateIfExist);
                 return (flag == 0) ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
             }
             catch (Exception)

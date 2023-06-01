@@ -1,7 +1,6 @@
 ﻿using CRM_api.DataAccess.Helper;
 using CRM_api.Services.IServices.User_Module;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace CRM_api.Controllers.User_Module
 {
@@ -39,7 +38,7 @@ namespace CRM_api.Controllers.User_Module
         {
             try
             {
-                var states = await _regionService.GetstateByCountry(countryId, search, sortingParams);
+                var states = await _regionService.GetstateByCountryAsync(countryId, search, sortingParams);
                 
                 return Ok(states);
             }
@@ -56,7 +55,7 @@ namespace CRM_api.Controllers.User_Module
         {
             try
             {
-                var cities = await _regionService.GetCityByState(stateId, search, sortingParams);
+                var cities = await _regionService.GetCityByStateAsync(stateId, search, sortingParams);
                 
                 return Ok(cities);
             }
@@ -71,8 +70,15 @@ namespace CRM_api.Controllers.User_Module
         #region Deactivate Country
         public async Task<IActionResult> DeactivateCountry(int countryId)
         {
-            var country = await _regionService.DeactivateCountryAsync(countryId);
-            return country != 0 ? Ok(new { Message = "Country deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate country."});
+            try
+            {
+                var country = await _regionService.DeactivateCountryAsync(countryId);
+                return country != 0 ? Ok(new { Message = "Country deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate country." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         #endregion
 
@@ -80,8 +86,15 @@ namespace CRM_api.Controllers.User_Module
         #region Deactivate State
         public async Task<IActionResult> DeactivateState(int stateId)
         {
-            var state = await _regionService.DeactivateStateAsync(stateId);
-            return state !=0 ? Ok(new { Message = "State deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate state."});
+            try
+            {
+                var state = await _regionService.DeactivateStateAsync(stateId);
+                return state != 0 ? Ok(new { Message = "State deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate state." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         #endregion
 
@@ -89,8 +102,15 @@ namespace CRM_api.Controllers.User_Module
         #region Deactivate City
         public async Task<IActionResult> DeactivateCity(int cityId)
         {
-            var city = await _regionService.DeactivateCityAsync(cityId);
-            return city != 0 ? Ok(new { Message = "City deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate city."});
+            try
+            {
+                var city = await _regionService.DeactivateCityAsync(cityId);
+                return city != 0 ? Ok(new { Message = "City deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate city." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         #endregion
     }

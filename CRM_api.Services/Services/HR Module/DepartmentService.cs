@@ -30,7 +30,7 @@ namespace CRM_api.Services.Services.HR_Module
         #endregion
 
         #region Get Department By Id
-        public async Task<DepartmentDto> GetDepartmentById(int id)
+        public async Task<DepartmentDto> GetDepartmentByIdAsync(int id)
         {
             var dept = await _departmentRepository.GetDepartmentById(id);
             var mappedDept = _mapper.Map<DepartmentDto>(dept);

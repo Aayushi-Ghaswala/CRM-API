@@ -27,7 +27,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         }
 
         #region Get Client wise Mutual Fund Transaction
-        public async Task<MFTransactionDto<MutualFundDto>> GetClientwiseMutualFundTransaction(int userId, int? schemeId
+        public async Task<MFTransactionDto<MutualFundDto>> GetClientwiseMutualFundTransactionAsync(int userId, int? schemeId
             , string? searchingParams, SortingParams sortingParams, DateTime? StartDate, DateTime? EndDate)
         {
             var mutualFundTransaction = await _mutualfundRepositry.GetTblMftransactions(userId, schemeId, searchingParams, sortingParams, StartDate, EndDate);
@@ -37,7 +37,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get Client wise MF Summary
-        public async Task<MFTransactionDto<MFSummaryDto>> GetMFSummary(int userId, string? searchingParams, SortingParams sortingParams)
+        public async Task<MFTransactionDto<MFSummaryDto>> GetMFSummaryAsync(int userId, string? searchingParams, SortingParams sortingParams)
         {
             List<MFSummaryDto> mutualFundSummaries = new List<MFSummaryDto>();
 
@@ -117,7 +117,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get Client wise MF Summary Category Wise
-        public async Task<MFTransactionDto<MFCategoryWiseDto>> GetMFCategoryWise(int userId, string? searchingParams, SortingParams sortingParams)
+        public async Task<MFTransactionDto<MFCategoryWiseDto>> GetMFCategoryWiseAsync(int userId, string? searchingParams, SortingParams sortingParams)
         {
             List<MFCategoryWiseDto> mutualFundSummaries = new List<MFCategoryWiseDto>();
 
@@ -194,7 +194,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get All Client MF Summary 
-        public async Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummary(DateTime FromDate, DateTime ToDate, string? searchingParams, SortingParams sortingParams)
+        public async Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummaryAsync(DateTime FromDate, DateTime ToDate, string? searchingParams, SortingParams sortingParams)
         {
             List<AllClientMFSummaryDto> mutualFundSummaries = new List<AllClientMFSummaryDto>();
 
@@ -272,7 +272,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get All MFUserName
-        public async Task<ResponseDto<MFUserNameDto>> GetMFUserName(string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<MFUserNameDto>> GetMFUserNameAsync(string? searchingParams, SortingParams sortingParams)
         {
             var mfUser = await _mutualfundRepositry.GetMFUserName(searchingParams, sortingParams);
             var mapMFUser = _mapper.Map<ResponseDto<MFUserNameDto>>(mfUser);
@@ -281,7 +281,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Display SchemeName
-        public async Task<ResponseDto<SchemaNameDto>> DisplayschemeName(int userId, string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<SchemaNameDto>> DisplayschemeNameAsync(int userId, string? searchingParams, SortingParams sortingParams)
         {
             var mutualfunds = await _mutualfundRepositry.GetSchemeName(userId, searchingParams, sortingParams);
 
@@ -292,7 +292,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Import NJ Client File
-        public async Task<int> ImportNJClientFile(IFormFile file, bool UpdateIfExist)
+        public async Task<int> ImportNJClientFileAsync(IFormFile file, bool UpdateIfExist)
         {
             List<AddMutualfundsDto> existUserTransaction = new List<AddMutualfundsDto>();
             List<AddMutualfundsDto> notExistUserTransaction = new List<AddMutualfundsDto>();

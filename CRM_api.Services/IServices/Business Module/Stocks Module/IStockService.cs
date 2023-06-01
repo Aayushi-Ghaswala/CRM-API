@@ -7,10 +7,10 @@ namespace CRM_api.Services.IServices.Business_Module.Stocks_Module
 {
     public interface IStockService
     {
-        Task<ResponseDto<StocksClientNamesDto>> GetStocksUsersName(string? searchingParams, SortingParams sortingParams);
-        Task<ResponseDto<ScriptNamesDto>> GetAllScriptNames(string clientName, string? searchingParams, SortingParams sortingParams);
-        Task<StockResponseDto<StockMasterDto>> GetStockData(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string? searchingParams, SortingParams sortingParams);
-        Task<int> ImportSharekhanTradeFile(IFormFile formFile, string firmName, int id, bool overrideData);
-        Task<int> ImportJainamTradeFile(IFormFile formFile, string firmName, string clientName, bool overrideData);
+        Task<ResponseDto<StocksClientNamesDto>> GetStocksUsersNameAsync(string? searchingParams, SortingParams sortingParams);
+        Task<ResponseDto<ScriptNamesDto>> GetAllScriptNamesAsync(string clientName, string? searchingParams, SortingParams sortingParams);
+        Task<StockResponseDto<StockMasterDto>> GetStockDataAsync(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string? searchingParams, SortingParams sortingParams);
+        Task<int> ImportSharekhanTradeFileAsync(IFormFile formFile, string firmName, int id, bool overrideData);
+        Task<int> ImportJainamTradeFileAsync(IFormFile formFile, string firmName, string clientName, bool overrideData);
     }
 }
