@@ -39,9 +39,9 @@ namespace CRM_api.Services.Services.Business_Module.WBC_Module
         #endregion
 
         #region Get all subSubInvestment types
-        public async Task<ResponseDto<SubSubInvestmentTypeDto>> GetAllSubSubInvestmentTypesAsync(string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<SubSubInvestmentTypeDto>> GetAllSubSubInvestmentTypesAsync(string? searchingParams, SortingParams sortingParams, int? subInvestmentTypeId)
         {
-            var response = await _wbcRepository.GetAllSubSubInvestmentTypes(searchingParams, sortingParams);
+            var response = await _wbcRepository.GetAllSubSubInvestmentTypes(searchingParams, sortingParams, subInvestmentTypeId);
             var mappedResponse = _mapper.Map<ResponseDto<SubSubInvestmentTypeDto>>(response);
             return mappedResponse;
         }

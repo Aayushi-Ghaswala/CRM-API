@@ -83,11 +83,16 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         #endregion
 
         #region Get all subSubInvestment types
-        public async Task<Response<TblSubsubInvType>> GetAllSubSubInvestmentTypes(string? searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblSubsubInvType>> GetAllSubSubInvestmentTypes(string? searchingParams, SortingParams sortingParams, int? subInvestmentTypeId)
         {
             double pageCount = 0;
+            List<TblSubsubInvType> data = new List<TblSubsubInvType>();
+            IQueryable<TblSubsubInvType> filterData = data.AsQueryable();
 
-            var filterData = _context.TblSubsubInvTypes.Include(s => s.TblSubInvesmentType).AsQueryable();
+            if (subInvestmentTypeId != null) 
+                filterData = _context.TblSubsubInvTypes.Include(s => s.TblSubInvesmentType).Where(s => s.SubInvTypeId == subInvestmentTypeId).AsQueryable();
+            else
+                filterData = _context.TblSubsubInvTypes.Include(s => s.TblSubInvesmentType).AsQueryable();
 
             if (searchingParams != null)
             {

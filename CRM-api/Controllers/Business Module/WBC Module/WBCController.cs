@@ -50,11 +50,11 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
 
         #region Get all subSubInvestment types
         [HttpGet("GetAllSubSubInvestmentTypes")]
-        public async Task<IActionResult> GetAllSubSubInvestmentTypes([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetAllSubSubInvestmentTypes([FromQuery] string? search, [FromQuery] SortingParams? sortingParams, int? subInvestmentTypeId)
         {
             try
             {
-                var schemes = await _wbcService.GetAllSubSubInvestmentTypesAsync(search, sortingParams);
+                var schemes = await _wbcService.GetAllSubSubInvestmentTypesAsync(search, sortingParams, subInvestmentTypeId);
                 return Ok(schemes);
             }
             catch (Exception)
