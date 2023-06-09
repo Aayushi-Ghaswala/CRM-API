@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace CRM_api.DataAccess.Models
+﻿namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
 {
-    public partial class TblMgaindetail
+    public class MGainDetailsDto
     {
         public int Id { get; set; }
         public DateTime? Date { get; set; }
@@ -12,6 +10,7 @@ namespace CRM_api.DataAccess.Models
         public string? Mgain1stholderpan { get; set; }
         public decimal? MgainInvamt { get; set; }
         public string? MgainType { get; set; }
+        public ProjectMasterDto? ProjectMaster { get; set; }
         public string? MgainProjectname { get; set; }
         public string? MgainPlotno { get; set; }
         public decimal? MgainAllocatedsqft { get; set; }
@@ -21,10 +20,10 @@ namespace CRM_api.DataAccess.Models
         public string? MgainAggre { get; set; }
         public DateTime? MgainRedemdate { get; set; }
         public decimal? MgainRedemamt { get; set; }
-        public int? MgainUserid { get; set; }
+        public UserMasterDto TblUserMaster { get; set; }
         public bool? MgainIsactive { get; set; }
-        public int? MgainEmployeeid { get; set; }
-        public int? MgainSchemeid { get; set; }
+        public UserMasterDto EmployeeMaster { get; set; }
+        public MGainSchemeDto TblMgainSchemeMaster { get; set; }
         public DateTime? Mgain1stholderDob { get; set; }
         public string? Mgain1stholderGender { get; set; }
         public string? Mgain1stholderMaritalstatus { get; set; }
@@ -69,13 +68,6 @@ namespace CRM_api.DataAccess.Models
         public bool? MgainIsTdsDeduction { get; set; }
         public bool? MgainIsclosed { get; set; }
 
-        [ForeignKey(nameof(MgainUserid))]
-        public virtual TblUserMaster TblUserMaster { get; set; }
-        [ForeignKey(nameof(MgainEmployeeid))]
-        public virtual TblUserMaster EmployeeMaster { get; set; }
-        [ForeignKey(nameof(MgainSchemeid))]
-        public virtual TblMgainSchemeMaster TblMgainSchemeMaster { get; set; }
-
-        public virtual ICollection<TblMgainPaymentMethod> TblMgainPaymentMethods { get; set; }
+        public List<MGainPaymentDto> TblMgainPaymentMethods { get; set; }
     }
 }

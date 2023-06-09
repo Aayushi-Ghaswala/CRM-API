@@ -12,11 +12,10 @@
     <PackageReference Include="IronXL.Excel" Version="2023.5.4" />
     <PackageReference Include="MailKit" Version="3.6.0" />
     <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001" />
-    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001" />
     <PackageReference Include="CsvHelper.Excel.Core" Version="27.2.1" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
-    <PackageReference Include="IronXL.Excel" Version="2023.5.4" />
+    <PackageReference Include="Select.HtmlToPdf.NetCore" Version="22.2.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -46,8 +46,10 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblLeaveType> TblLeaveTypes { get; set; } = null!;
         public virtual DbSet<TblMfSchemeMaster> TblMfSchemeMasters { get; set; } = null!;
         public virtual DbSet<TblMftransaction> TblMftransactions { get; set; } = null!;
+        public virtual DbSet<TblMgainCurrancyMaster> TblMgainCurrancyMasters { get; set; } = null!;
         public virtual DbSet<TblMgainInvesment> TblMgainInvesments { get; set; } = null!;
         public virtual DbSet<TblMgainLedger> TblMgainLedgers { get; set; } = null!;
+        public virtual DbSet<TblMgainPaymentMethod> TblMgainPaymentMethods { get; set; } = null!;
         public virtual DbSet<TblMgainSchemeMaster> TblMgainSchemeMasters { get; set; } = null!;
         public virtual DbSet<TblMgainTransactionAccountTem> TblMgainTransactionAccountTems { get; set; } = null!;
         public virtual DbSet<TblMgaindetail> TblMgaindetails { get; set; } = null!;
@@ -58,9 +60,13 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblOfferMaster> TblOfferMasters { get; set; } = null!;
         public virtual DbSet<TblOrder> TblOrders { get; set; } = null!;
         public virtual DbSet<TblOrderDetail> TblOrderDetails { get; set; } = null!;
+        public virtual DbSet<TblPlotMaster> TblPlotMasters { get; set; } = null!;
         public virtual DbSet<TblPortfolioReviewRequest> TblPortfolioReviewRequests { get; set; } = null!;
         public virtual DbSet<TblProductBanner> TblProductBanners { get; set; } = null!;
         public virtual DbSet<TblProductImg> TblProductImgs { get; set; } = null!;
+        public virtual DbSet<TblProjectMaster> TblProjectMasters { get; set; } = null!;
+        public virtual DbSet<TblProjectTypeDetail> TblProjectTypeDetails { get; set; } = null!;
+        public virtual DbSet<TblProjectTypeMaster> TblProjectTypeMasters { get; set; } = null!;
         public virtual DbSet<TblRealEastateReview> TblRealEastateReviews { get; set; } = null!;
         public virtual DbSet<TblRealEastateReviewImg> TblRealEastateReviewImgs { get; set; } = null!;
         public virtual DbSet<TblReferralMaster> TblReferralMasters { get; set; } = null!;
@@ -1111,7 +1117,7 @@ namespace CRM_api.DataAccess.Context
 
             modelBuilder.Entity<TblInvesmentType>(entity =>
             {
-                entity.ToTable("tbl_Invesment_Type");
+                entity.ToTable("tbl_invesment_type");
 
                 entity.Property(e => e.InvestmentName)
                     .HasMaxLength(30)
@@ -1230,6 +1236,17 @@ namespace CRM_api.DataAccess.Context
                     .HasColumnName("username");
             });
 
+            modelBuilder.Entity<TblMgainCurrancyMaster>(entity =>
+            {
+                entity.ToTable("tbl_mgain_currancy_master");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Currancy)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+            });
+
             modelBuilder.Entity<TblMgainInvesment>(entity =>
             {
                 entity.HasKey(e => e.MgainId)
@@ -1274,6 +1291,90 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.Name)
                     .HasMaxLength(100)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<TblMgainPaymentMethod>(entity =>
+            {
+                entity.ToTable("tbl_mgain_payment_method");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.BankName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ChequeDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ChequeNo)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Ifsc)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("IFSC");
+
+                entity.Property(e => e.Mgainid).HasColumnName("mgainid");
+
+                entity.Property(e => e.PaymentMode)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ReferenceNo).IsUnicode(false);
+
+                entity.Property(e => e.UpiDate).HasColumnType("datetime");
+
+                entity.Property(e => e.UpiTransactionNo).IsUnicode(false);
+            });
+            modelBuilder.Entity<TblMgainSchemeMaster>(entity =>
+            {
+                entity.ToTable("tbl_mgain_scheme_master");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.AdditionalInterest10).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.AdditionalInterest4).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.AdditionalInterest5).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.AdditionalInterest6).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.AdditionalInterest7).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.AdditionalInterest8).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.AdditionalInterest9).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.EndDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Interst1).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst10).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst2).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst3).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst4).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst5).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst6).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst7).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst8).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Interst9).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Schemename)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.StartDate).HasColumnType("datetime");
             });
             modelBuilder.Entity<TblMgainSchemeMaster>(entity =>
             {
@@ -1379,10 +1480,144 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false)
                     .HasColumnName("mgain_1stholder");
 
+                entity.Property(e => e.Mgain1stholderAadhar)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderAadhar");
+
+                entity.Property(e => e.Mgain1stholderAddress)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderAddress");
+
+                entity.Property(e => e.Mgain1stholderDob)
+                    .HasColumnType("date")
+                    .HasColumnName("mgain_1stholderDob");
+
+                entity.Property(e => e.Mgain1stholderEmail)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderEmail");
+
+                entity.Property(e => e.Mgain1stholderFathername)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderFathername");
+
+                entity.Property(e => e.Mgain1stholderGender)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderGender");
+
+                entity.Property(e => e.Mgain1stholderMaritalstatus)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderMaritalstatus");
+
+                entity.Property(e => e.Mgain1stholderMobile)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderMobile");
+
+                entity.Property(e => e.Mgain1stholderMothername)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderMothername");
+
+                entity.Property(e => e.Mgain1stholderOccupation)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderOccupation");
+
+                entity.Property(e => e.Mgain1stholderSignature)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderSignature");
+
+                entity.Property(e => e.Mgain1stholderStatus)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderStatus");
+
                 entity.Property(e => e.Mgain1stholderpan)
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("mgain_1stholderpan");
+
+                entity.Property(e => e.Mgain2ndholderAadhar)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndholderAadhar");
+
+                entity.Property(e => e.Mgain2ndholderAddress)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndholderAddress");
+
+                entity.Property(e => e.Mgain2ndholderDob)
+                    .HasColumnType("date")
+                    .HasColumnName("mgain_2ndholderDob");
+
+                entity.Property(e => e.Mgain2ndholderEmail)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndholderEmail");
+
+                entity.Property(e => e.Mgain2ndholderFatherName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndholderFatherName");
+
+                entity.Property(e => e.Mgain2ndholderGender)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndholderGender");
+
+                entity.Property(e => e.Mgain2ndholderMaritalStatus)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndholderMaritalStatus");
+
+                entity.Property(e => e.Mgain2ndholderMobile)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndholderMobile");
+
+                entity.Property(e => e.Mgain2ndholderMotherName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndholderMotherName");
+
+                entity.Property(e => e.Mgain2ndholderOccupation)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndholderOccupation");
+
+                entity.Property(e => e.Mgain2ndholderPan)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndholderPan");
+
+                entity.Property(e => e.Mgain2ndholderSignature)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndholderSignature");
+
+                entity.Property(e => e.Mgain2ndholderStatus)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndholderStatus");
+
+                entity.Property(e => e.Mgain2ndholdername)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndholdername");
+
+                entity.Property(e => e.MgainAccHolderName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_AccHolderName");
+
+                entity.Property(e => e.MgainAccountNumber)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_AccountNumber");
 
                 entity.Property(e => e.MgainAccountnum).HasColumnName("mgain_accountnum");
 
@@ -1399,16 +1634,75 @@ namespace CRM_api.DataAccess.Context
                     .HasColumnType("decimal(25, 4)")
                     .HasColumnName("mgain_allocatedsqftamt");
 
+                entity.Property(e => e.MgainBankName)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_BankName");
+
+                entity.Property(e => e.MgainCancelledCheque)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_CancelledCheque");
+
+                entity.Property(e => e.MgainEmployeeid).HasColumnName("mgain_employeeid");
+
+                entity.Property(e => e.MgainGuardianAddress)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_GuardianAddress");
+
+                entity.Property(e => e.MgainGuardianMobile)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_GuardianMobile");
+
+                entity.Property(e => e.MgainGuardianName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_GuardianName");
+
+                entity.Property(e => e.MgainIfsc)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_IFSC");
+
                 entity.Property(e => e.MgainInvamt)
                     .HasColumnType("decimal(18, 2)")
                     .HasColumnName("mgain_invamt");
 
+                entity.Property(e => e.MgainIsAnotherBank).HasColumnName("mgain_IsAnotherBank");
+
+                entity.Property(e => e.MgainIsSecondHolder).HasColumnName("mgain_IsSecondHolder");
+
+                entity.Property(e => e.MgainIsTdsDeduction).HasColumnName("mgain_IsTdsDeduction");
+
                 entity.Property(e => e.MgainIsactive).HasColumnName("mgain_isactive");
+
+                entity.Property(e => e.MgainIsclosed).HasColumnName("mgain_ISClosed");
 
                 entity.Property(e => e.MgainModeholder)
                     .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("mgain_modeholder");
+
+                entity.Property(e => e.MgainNomineeAadhar)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_NomineeAadhar");
+
+                entity.Property(e => e.MgainNomineeBirthCertificate)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_NomineeBirthCertificate");
+
+                entity.Property(e => e.MgainNomineeDob)
+                    .HasColumnType("date")
+                    .HasColumnName("mgain_NomineeDob");
+
+                entity.Property(e => e.MgainNomineeName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_NomineeName");
+
+                entity.Property(e => e.MgainNomineePan)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_NomineePan");
 
                 entity.Property(e => e.MgainPlotno)
                     .HasMaxLength(50)
@@ -1427,6 +1721,8 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.MgainRedemdate)
                     .HasColumnType("datetime")
                     .HasColumnName("mgain_redemdate");
+
+                entity.Property(e => e.MgainSchemeid).HasColumnName("mgain_schemeid");
 
                 entity.Property(e => e.MgainTotalplotamt)
                     .HasColumnType("decimal(25, 3)")
@@ -1774,6 +2070,30 @@ namespace CRM_api.DataAccess.Context
                     .HasConstraintName("FK_tbl_OrderDetails_tbl_WBC_Mall_Products");
             });
 
+            modelBuilder.Entity<TblPlotMaster>(entity =>
+            {
+
+                entity.ToTable("tbl_plot_master");
+
+                entity.Property(e => e.HeightFt).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.PlotNo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PlotValue).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Rate).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.SqFt).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.SqMt).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.WidthFt).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Yard).HasColumnType("decimal(18, 2)");
+            });
+
             modelBuilder.Entity<TblPortfolioReviewRequest>(entity =>
             {
                 entity.HasKey(e => e.RequestId)
@@ -1878,6 +2198,89 @@ namespace CRM_api.DataAccess.Context
                     .HasForeignKey(d => d.ProductId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tbl_ProductIMGs_tbl_ProductIMGs");
+            });
+
+            modelBuilder.Entity<TblProjectMaster>(entity =>
+            {
+                entity.ToTable("tbl_project_master");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Address)
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.City)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Description).IsUnicode(false);
+
+                entity.Property(e => e.Features).IsUnicode(false);
+
+                entity.Property(e => e.LocationId).HasColumnName("Location_Id");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Pincode)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PricePerFoot)
+                    .HasColumnType("numeric(7, 2)")
+                    .HasColumnName("Price_Per_Foot");
+
+                entity.Property(e => e.PricePerYard)
+                    .HasColumnType("numeric(7, 2)")
+                    .HasColumnName("Price_Per_Yard");
+
+                entity.Property(e => e.ProjectDocument)
+                    .IsUnicode(false)
+                    .HasColumnName("Project_Document");
+
+                entity.Property(e => e.ProjectTypeId).HasColumnName("Project_Type_Id");
+
+                entity.Property(e => e.Remark)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ShowDetails).HasColumnName("show_details");
+
+                entity.Property(e => e.State)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Taluko)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TotalProperties)
+                    .HasColumnType("numeric(3, 0)")
+                    .HasColumnName("Total_Properties");
+            });
+
+            modelBuilder.Entity<TblProjectTypeDetail>(entity =>
+            {
+                entity.ToTable("tbl_project_type_details");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.ProjectTypeDetail)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<TblProjectTypeMaster>(entity =>
+            {
+                entity.ToTable("tbl_project_type_master");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.ProjectType)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<TblRealEastateReview>(entity =>
