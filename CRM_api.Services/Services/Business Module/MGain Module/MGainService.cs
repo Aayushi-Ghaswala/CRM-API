@@ -59,7 +59,7 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
             var paymentMode = mGain.TblMgainPaymentMethods.First().PaymentMode;
             var currancy = mGain.TblMgainPaymentMethods.First().TblMgainCurrancyMaster.Currancy;
 
-            var filePath = "C:\\juhil\\CRM-Api\\CRM-api\\wwwroot\\MGain Module\\MGainAggrement.html";
+            var filePath = Directory.GetCurrentDirectory() + "\\wwwroot\\MGain Module\\MGainAggrement.html";
             var streamReader = new StreamReader(filePath);
             var aggrement = streamReader.ReadToEnd();
 
@@ -178,7 +178,7 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
         <div id=""main"">
           <div id=""main-header1"">
             <center>
-              <img src=""C:\juhil\CRM-Api\CRM-api\wwwroot\MGain Module\KA_Group.png"" width=""250"" height=""250""/>
+              <img src='{Directory.GetCurrentDirectory()}\wwwroot\MGain Module\KA_Group.png' width=""250"" height=""250""/>
             </center>
             <p><b> KA FINANCIAL SERVICES LLP </b></p>
             <p>715 - ROYAL TRADE CENTRE,
