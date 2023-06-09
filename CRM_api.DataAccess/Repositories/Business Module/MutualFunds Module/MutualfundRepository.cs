@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
 {
-    public class MutualfundRepositery : IMutualfundRepositry
+    public class MutualfundRepository : IMutualfundRepository
     {
         private readonly CRMDbContext _context;
 
-        public MutualfundRepositery(CRMDbContext context)
+        public MutualfundRepository(CRMDbContext context)
         {
             _context = context;
         }

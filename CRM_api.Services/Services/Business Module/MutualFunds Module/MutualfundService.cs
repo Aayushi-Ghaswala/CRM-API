@@ -15,11 +15,11 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 {
     public class MutualfundService : IMutualfundService
     {
-        private readonly IMutualfundRepositry _mutualfundRepositry;
+        private readonly IMutualfundRepository _mutualfundRepositry;
         private readonly IMapper _mapper;
         private readonly IUserMasterRepository _userMasterRepository;
 
-        public MutualfundService(IMutualfundRepositry mutualfundRepositry, IMapper mapper, IUserMasterRepository userMasterRepository)
+        public MutualfundService(IMutualfundRepository mutualfundRepositry, IMapper mapper, IUserMasterRepository userMasterRepository)
         {
             _mutualfundRepositry = mutualfundRepositry;
             _mapper = mapper;
@@ -303,7 +303,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                 await file.CopyToAsync(stream);
             }
 
-            var directoryPath = System.IO.Path.Combine("C:", "juhil", "CRM-Documents");
+            var directoryPath = Directory.GetCurrentDirectory() + "\\CRM-Document\\NJCLientFile";
 
             if (!(Directory.Exists(directoryPath)))
             {

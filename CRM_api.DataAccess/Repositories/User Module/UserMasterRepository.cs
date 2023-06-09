@@ -235,5 +235,13 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             return user.UserId;
         }
         #endregion
+
+        #region Get User By User Pan
+        public TblUserMaster GetUserByUserPan(string UserPan)
+        {
+            var user = _context.TblUserMasters.Where(x => x.UserPan == UserPan).FirstOrDefault();
+            return user;
+        }
+        #endregion
     }
 }

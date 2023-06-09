@@ -5,7 +5,7 @@ using CRM_api.DataAccess.ResponseModel.Generic_Response;
 
 namespace CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module
 {
-    public interface IMutualfundRepositry
+    public interface IMutualfundRepository
     {
         Task<List<TblMftransaction>> GetMFInSpecificDateForExistUser(DateTime? StartDate, DateTime? EndDate);
         Task<List<TblNotexistuserMftransaction>> GetMFInSpecificDateForNotExistUser(DateTime? StartDate, DateTime? EndDate);
