@@ -17,11 +17,11 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region Get stock user's names
         [HttpGet("GetStocksUsersName")]
-        public async Task<IActionResult> GetStocksUsersName([FromQuery] string? searchingParams, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetStocksUsersName([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var result = await _stockService.GetStocksUsersNameAsync(searchingParams, sortingParams);
+                var result = await _stockService.GetStocksUsersNameAsync(search, sortingParams);
                 return Ok(result);
             }
             catch (Exception)
@@ -33,11 +33,11 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region Get script names
         [HttpGet("GetAllScriptNames")]
-        public async Task<IActionResult> GetAllScriptNames([FromQuery] string? searchingParams, [FromQuery] SortingParams? sortingParams, string? clientName = null)
+        public async Task<IActionResult> GetAllScriptNames([FromQuery] string? search, [FromQuery] SortingParams? sortingParams, string? clientName = null)
         {
             try
             {
-                var scriptNames = await _stockService.GetAllScriptNamesAsync(clientName, searchingParams, sortingParams);
+                var scriptNames = await _stockService.GetAllScriptNamesAsync(clientName, search, sortingParams);
                 return Ok(scriptNames);
             }
             catch (Exception)
@@ -49,11 +49,11 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region Get stocks data
         [HttpGet("GetStocksData")]
-        public async Task<IActionResult> GetStocksData([FromQuery] string? searchingParams, [FromQuery] SortingParams? sortingParams, string? clientName = null, DateTime? fromDate = null, DateTime? toDate = null, string? scriptName = null)
+        public async Task<IActionResult> GetStocksData([FromQuery] string? search, [FromQuery] SortingParams? sortingParams, string? clientName = null, DateTime? fromDate = null, DateTime? toDate = null, string? scriptName = null)
         {
             try
             {
-                var stocksData = await _stockService.GetStockDataAsync(clientName, fromDate, toDate, scriptName, searchingParams, sortingParams);
+                var stocksData = await _stockService.GetStockDataAsync(clientName, fromDate, toDate, scriptName, search, sortingParams);
                 return Ok(stocksData);
             }
             catch (Exception)

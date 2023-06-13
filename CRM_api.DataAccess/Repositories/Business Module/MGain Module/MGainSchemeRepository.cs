@@ -17,7 +17,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         }
 
         #region Get All MGain Scheme
-        public async Task<Response<TblMgainSchemeMaster>> GetMGainSchemeDetails(bool? IsActive,string? searchingParamas, SortingParams sortingParams)
+        public async Task<Response<TblMgainSchemeMaster>> GetMGainSchemeDetails(bool? IsActive, string? searchingParamas, SortingParams sortingParams)
         {
             double pageCount = 0;
             List<TblMgainSchemeMaster> tblMgainSchemes = new List<TblMgainSchemeMaster>();
@@ -59,6 +59,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #region Add MGain Scheme
         public async Task<int> AddMGainScheme(TblMgainSchemeMaster tblMgainSchemeMaster)
         {
+            if (_context.TblMgainSchemeMasters.Any(x => x.Schemename == tblMgainSchemeMaster.Schemename))
+                return 0;
+
             _context.TblMgainSchemeMasters.Add(tblMgainSchemeMaster);
             return await _context.SaveChangesAsync();
         }
