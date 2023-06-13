@@ -1,4 +1,5 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -68,12 +69,22 @@ namespace CRM_api.DataAccess.Helper
         public static IQueryable<T> Search<T>(this CRMDbContext dbContext, string value) where T : class
         {
             var parameter = Expression.Parameter(typeof(T), "x");
-            Expression expression = null;
-            var fieldValues = typeof(T).GetProperties().Where(x => x.PropertyType != typeof(bool));
+            Expression expression = BuildExpression(parameter, null, value);
+
+            var lambda = Expression.Lambda<Func<T, bool>>(expression, parameter);
+
+            return dbContext.Set<T>().Where(lambda);
+        }
+
+        private static Expression BuildExpression(Expression parameter, Expression expression, string value)
+        {
+            var fieldValues = parameter.Type.GetProperties().Where(x => x.PropertyType != typeof(bool) && x.PropertyType != typeof(bool?) && x.PropertyType != parameter.Type);
 
             foreach (var fieldValue in fieldValues)
             {
                 var fieldName = fieldValue.Name;
+                if (fieldValue.PropertyType.IsClass && !fieldValue.PropertyType.FullName.StartsWith("System."))
+                    expression = BuildExpression(Expression.Property(parameter, fieldName), expression, value);
 
                 var property = Expression.Property(parameter, fieldName);
                 var propertyType = property.Type;
@@ -91,7 +102,7 @@ namespace CRM_api.DataAccess.Helper
 
                     var constant = Expression.Constant(convertedValue, property.Type);
 
-                    if(property.Type.Name == typeof(Nullable<>).Name)
+                    if (property.Type.Name == typeof(Nullable<>).Name)
                     {
                         comparisonExpression = Expression.NotEqual(property, Expression.Constant(null));
                         comparisonExpression = Expression.And(comparisonExpression, Expression.Equal(property, constant));
@@ -101,25 +112,24 @@ namespace CRM_api.DataAccess.Helper
                         comparisonExpression = Expression.Equal(property, constant);
                     }
                 }
-                else if(propertyType == typeof(string))
+                else if (propertyType == typeof(string))
                 {
                     var containsMethodInfo = typeof(string).GetMethod("Contains", new[] { typeof(string) });
                     var searchValue = Expression.Constant(value, typeof(string));
                     comparisonExpression = Expression.Call(property, containsMethodInfo, searchValue);
                 }
-                
-                if(comparisonExpression != null)    
+
+                if (comparisonExpression != null)
                 {
                     if (expression == null)
-                            expression = comparisonExpression;
+                        expression = comparisonExpression;
                     else
                         expression = Expression.Or(expression, comparisonExpression);
                 }
+
             }
 
-            var lambda = Expression.Lambda<Func<T, bool>>(expression, parameter);
-
-            return dbContext.Set<T>().Where(lambda);
+            return expression;
         }
     }
 }
