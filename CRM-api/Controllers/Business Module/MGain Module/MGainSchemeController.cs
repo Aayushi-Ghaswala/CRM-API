@@ -39,7 +39,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             try
             {
                 var mGain = await _mGainSchemeService.AddMGainSchemeAsync(MGainSchemeDto);
-                return mGain != 0 ? Ok(new { Message = "MGain scheme added successfully." }) : BadRequest(new { Message = "Unable to add mgain scheme." });
+                return mGain != 0 ? Ok(new { Message = "MGain scheme added successfully." }) : BadRequest(new { Message = "MGain scheme already exists." });
             }
             catch (Exception)
             {

@@ -17,6 +17,7 @@ using CRM_api.Services.Services.HR_Module;
 using CRM_api.Services.Services.User_Module;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text;
 
 namespace CRM_api.Services.ServicesDepedancy
 {
@@ -27,6 +28,8 @@ namespace CRM_api.Services.ServicesDepedancy
             services.InjectDataAccessDependecy(config);
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             ////Background Service
             //Services.AddHostedService<InsPremiumReminderService>();
@@ -51,7 +54,6 @@ namespace CRM_api.Services.ServicesDepedancy
             services.AddScoped<IDepartmentService, DepartmentService>();
             services.AddScoped<IDesignationService, DesignationService>();
             services.AddScoped<ILeaveTypeService, LeaveTypeService>();
-
         }
     }
 }

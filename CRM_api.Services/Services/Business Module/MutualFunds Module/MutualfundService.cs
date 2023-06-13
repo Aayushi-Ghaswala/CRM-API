@@ -15,22 +15,22 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 {
     public class MutualfundService : IMutualfundService
     {
-        private readonly IMutualfundRepository _mutualfundRepositry;
+        private readonly IMutualfundRepository _mutualfundRepository;
         private readonly IMapper _mapper;
         private readonly IUserMasterRepository _userMasterRepository;
 
-        public MutualfundService(IMutualfundRepository mutualfundRepositry, IMapper mapper, IUserMasterRepository userMasterRepository)
+        public MutualfundService(IMutualfundRepository mutualfundReposiory, IMapper mapper, IUserMasterRepository userMasterRepository)
         {
-            _mutualfundRepositry = mutualfundRepositry;
+            _mutualfundRepository = mutualfundReposiory;
             _mapper = mapper;
             _userMasterRepository = userMasterRepository;
         }
 
         #region Get Client wise Mutual Fund Transaction
         public async Task<MFTransactionDto<MutualFundDto>> GetClientwiseMutualFundTransactionAsync(int userId, int? schemeId
-            , string? searchingParams, SortingParams sortingParams, DateTime? StartDate, DateTime? EndDate)
+            , string? searchingParams, SortingParams sortingParams, DateTime? startDate, DateTime? endDate)
         {
-            var mutualFundTransaction = await _mutualfundRepositry.GetTblMftransactions(userId, schemeId, searchingParams, sortingParams, StartDate, EndDate);
+            var mutualFundTransaction = await _mutualfundRepository.GetTblMftransactions(userId, schemeId, searchingParams, sortingParams, startDate, endDate);
             var mapMutualFundTransaction = _mapper.Map<MFTransactionDto<MutualFundDto>>(mutualFundTransaction);
             return mapMutualFundTransaction;
         }
@@ -41,9 +41,8 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         {
             List<MFSummaryDto> mutualFundSummaries = new List<MFSummaryDto>();
 
-            
             double pageCount = 0;
-            var mfSummary = await _mutualfundRepositry.GetMFTransactionSummary(userId);
+            var mfSummary = await _mutualfundRepository.GetMFTransactionSummary(userId);
 
             foreach (var records in mfSummary)
             {
@@ -122,7 +121,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             List<MFCategoryWiseDto> mutualFundSummaries = new List<MFCategoryWiseDto>();
 
             double pageCount = 0;
-            var mfSummary = await _mutualfundRepositry.GetMFTransactionSummaryByCategory(userId);
+            var mfSummary = await _mutualfundRepository.GetMFTransactionSummaryByCategory(userId);
 
             foreach (var records in mfSummary)
             {
@@ -139,7 +138,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                     redemptionUnit += transaction.Noofunit;
                 }
 
-                var purchaseTransaction = records.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" || x.Transactiontype != "Sale");
+                var purchaseTransaction = records.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" && x.Transactiontype != "Sale");
                 foreach (var transaction in purchaseTransaction)
                 {
                     totalPurchaseUnits += transaction.Noofunit;
@@ -194,12 +193,12 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get All Client MF Summary 
-        public async Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummaryAsync(DateTime FromDate, DateTime ToDate, string? searchingParams, SortingParams sortingParams)
+        public async Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummaryAsync(DateTime fromDate, DateTime toDate, string? searchingParams, SortingParams sortingParams)
         {
             List<AllClientMFSummaryDto> mutualFundSummaries = new List<AllClientMFSummaryDto>();
 
             double pageCount = 0;
-            var mfSummary = await _mutualfundRepositry.GetAllCLientMFSummary(FromDate, ToDate);
+            var mfSummary = await _mutualfundRepository.GetAllCLientMFSummary(fromDate, toDate);
 
             foreach (var records in mfSummary)
             {
@@ -217,7 +216,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                     redemptionUnit += transaction.Noofunit;
                 }
 
-                var purchaseTransaction = records.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" || x.Transactiontype != "Sale");
+                var purchaseTransaction = records.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" && x.Transactiontype != "Sale");
                 foreach (var transaction in purchaseTransaction)
                 {
                     totalPurchaseUnits += transaction.Noofunit;
@@ -274,16 +273,16 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #region Get All MFUserName
         public async Task<ResponseDto<MFUserNameDto>> GetMFUserNameAsync(string? searchingParams, SortingParams sortingParams)
         {
-            var mfUser = await _mutualfundRepositry.GetMFUserName(searchingParams, sortingParams);
+            var mfUser = await _mutualfundRepository.GetMFUserName(searchingParams, sortingParams);
             var mapMFUser = _mapper.Map<ResponseDto<MFUserNameDto>>(mfUser);
             return mapMFUser;
         }
-        #endregion
+        #endregion 
 
         #region Display SchemeName
         public async Task<ResponseDto<SchemaNameDto>> DisplayschemeNameAsync(int userId, string? searchingParams, SortingParams sortingParams)
         {
-            var mutualfunds = await _mutualfundRepositry.GetSchemeName(userId, searchingParams, sortingParams);
+            var mutualfunds = await _mutualfundRepository.GetSchemeName(userId, searchingParams, sortingParams);
 
             var schemeName = _mapper.Map<ResponseDto<SchemaNameDto>>(mutualfunds);
 
@@ -292,7 +291,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Import NJ Client File
-        public async Task<int> ImportNJClientFileAsync(IFormFile file, bool UpdateIfExist)
+        public async Task<int> ImportNJClientFileAsync(IFormFile file, bool updateIfExist)
         {
             List<AddMutualfundsDto> existUserTransaction = new List<AddMutualfundsDto>();
             List<AddMutualfundsDto> notExistUserTransaction = new List<AddMutualfundsDto>();
@@ -320,104 +319,112 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
             using (var stream = File.Open(localFilePath, FileMode.Open, FileAccess.Read))
             {
-                using (var reader = ExcelReaderFactory.CreateReader(stream))
+                try
                 {
-                    var dataset = reader.AsDataSet(new ExcelDataSetConfiguration
+                    using (var reader = ExcelReaderFactory.CreateReader(stream))
                     {
-                        ConfigureDataTable = _ => new ExcelDataTableConfiguration
+                        var dataset = reader.AsDataSet(new ExcelDataSetConfiguration
                         {
-                            UseHeaderRow = true,
-                            ReadHeaderRow = rowReader =>
+                            ConfigureDataTable = _ => new ExcelDataTableConfiguration
                             {
-                                // Read the header row starting from the fourth row
-                                for (var i = 0; i < 3; i++)
+                                UseHeaderRow = true,
+                                ReadHeaderRow = rowReader =>
                                 {
-                                    rowReader.Read();
+                                    // Read the header row starting from the fourth row
+                                    for (var i = 0; i < 3; i++)
+                                    {
+                                        rowReader.Read();
+                                    }
+
+                                },
+                            }
+                        });
+
+                        var datatable = dataset.Tables[0];
+
+                        var records = datatable.AsEnumerable().SkipLast(5).ToList().ConvertAll<AddMutualfundsDto>(row =>
+                        {
+                            var obj = new AddMutualfundsDto();
+
+                            obj.Username = row["Investor"] == DBNull.Value ? null : row["Investor"].ToString();
+                            obj.Transactiontype = row["Type"] == DBNull.Value ? null : row["Type"].ToString();
+                            obj.Schemename = row["Scheme"] == DBNull.Value ? null : row["Scheme"].ToString();
+                            obj.Foliono = row["Folio No/Demat A/C"] == DBNull.Value ? null : row["Folio No/Demat A/C"].ToString();
+                            obj.Tradeno = row["Tr. No."] == DBNull.Value ? null : row["Tr. No."].ToString();
+                            obj.Date = Convert.ToDateTime(row["Purchase Date"] == DBNull.Value ? null : row["Purchase Date"]);
+                            obj.Nav = Convert.ToDouble(row["NAV(₹)"] == DBNull.Value ? null : row["NAV(₹)"]);
+                            obj.Noofunit = Convert.ToDecimal(row["Purchase units"] == DBNull.Value ? null : row["Purchase units"]);
+                            obj.Invamount = Convert.ToDecimal(row["Inv. Amount(₹)"] == DBNull.Value ? null : row["Inv. Amount(₹)"]);
+                            obj.Userpan = row["PAN"] == DBNull.Value ? null : row["PAN"].ToString();
+
+                            var userId = _userMasterRepository.GetUserIdByUserPan(obj.Userpan);
+                            var schemeId = _mutualfundRepository.GetSchemeIdBySchemeName(obj.Schemename);
+
+                            if (userId == 0)
+                                obj.Userid = null;
+                            else
+                                obj.Userid = userId;
+
+                            if (schemeId == 0)
+                                obj.SchemeId = null;
+                            else
+                                obj.SchemeId = schemeId;
+
+                            return obj;
+                        });
+
+                        var notExistUser = records.Where(x => x.Userid == null).ToList();
+                        notExistUserTransaction.AddRange(notExistUser);
+
+                        var existUser = records.Where(x => x.Userid != null).ToList();
+                        existUserTransaction.AddRange(existUser);
+
+                        var mapRecordsForExistUser = _mapper.Map<List<TblMftransaction>>(existUserTransaction);
+                        var mapRecordsForNotExistUser = _mapper.Map<List<TblNotexistuserMftransaction>>(notExistUserTransaction);
+
+                        if (updateIfExist)
+                        {
+                            if (mapRecordsForExistUser.Count > 0)
+                            {
+                                var GetDataForExistUser = await _mutualfundRepository.GetMFInSpecificDateForExistUser(
+                                                            mapRecordsForExistUser.First().Date, mapRecordsForExistUser.First().Date);
+
+                                if (GetDataForExistUser.Count > 0)
+                                {
+                                    foreach (var record in GetDataForExistUser)
+                                    {
+                                        await _mutualfundRepository.DeleteMFForUserExist(record);
+                                    }
                                 }
+                            }
 
-                            },
+                            if (mapRecordsForNotExistUser.Count > 0)
+                            {
+                                var GetDataForNotExistUser = await _mutualfundRepository.GetMFInSpecificDateForNotExistUser(
+                                                                mapRecordsForNotExistUser.First().Date, mapRecordsForNotExistUser.Last().Date);
+
+                                if (GetDataForNotExistUser.Count > 0)
+                                {
+                                    foreach (var record in GetDataForNotExistUser)
+                                    {
+                                        await _mutualfundRepository.DeleteMFForNotUserExist(record);
+                                    }
+                                }
+                            }
                         }
-                    });
-
-                    var datatable = dataset.Tables[0];
-
-                    var records = datatable.AsEnumerable().SkipLast(5).ToList().ConvertAll<AddMutualfundsDto>(row =>
-                    {
-                        var obj = new AddMutualfundsDto();
-
-                        obj.Username = row["Investor"] == DBNull.Value ? null : row["Investor"].ToString();
-                        obj.Transactiontype = row["Type"] == DBNull.Value ? null : row["Type"].ToString();
-                        obj.Schemename = row["Scheme"] == DBNull.Value ? null : row["Scheme"].ToString();
-                        obj.Foliono = row["Folio No/Demat A/C"] == DBNull.Value ? null : row["Folio No/Demat A/C"].ToString();
-                        obj.Tradeno = row["Tr. No."] == DBNull.Value ? null : row["Tr. No."].ToString();
-                        obj.Date = Convert.ToDateTime(row["Purchase Date"] == DBNull.Value ? null : row["Purchase Date"]);
-                        obj.Nav = Convert.ToDouble(row["NAV(₹)"] == DBNull.Value ? null : row["NAV(₹)"]);
-                        obj.Noofunit = Convert.ToDecimal(row["Purchase units"] == DBNull.Value ? null : row["Purchase units"]);
-                        obj.Invamount = Convert.ToDecimal(row["Inv. Amount(₹)"] == DBNull.Value ? null : row["Inv. Amount(₹)"]);
-                        obj.Userpan = row["PAN"] == DBNull.Value ? null : row["PAN"].ToString();
-
-                        var userId = _userMasterRepository.GetUserIdByUserPan(obj.Userpan);
-                        var schemeId = _mutualfundRepositry.GetSchemeIdBySchemeName(obj.Schemename);
-
-                        if (userId == 0)
-                            obj.Userid = null;
-                        else
-                            obj.Userid = userId;
-
-                        if (schemeId == 0)
-                            obj.SchemeId = null;
-                        else
-                            obj.SchemeId = schemeId;
-
-                        return obj;
-                    });
-
-                    var notExistUser = records.Where(x => x.Userid == null).ToList();
-                    notExistUserTransaction.AddRange(notExistUser);
-
-                    var existUser = records.Where(x => x.Userid != null).ToList();
-                    existUserTransaction.AddRange(existUser);
-
-                    var mapRecordsForExistUser = _mapper.Map<List<TblMftransaction>>(existUserTransaction);
-                    var mapRecordsForNotExistUser = _mapper.Map<List<TblNotexistuserMftransaction>>(notExistUserTransaction);
-
-                    if (UpdateIfExist)
-                    {
                         if (mapRecordsForExistUser.Count > 0)
                         {
-                            var GetDataForExistUser = await _mutualfundRepositry.GetMFInSpecificDateForExistUser(
-                                                        mapRecordsForExistUser.First().Date, mapRecordsForExistUser.First().Date);
-
-                            if (GetDataForExistUser.Count > 0)
-                            {
-                                foreach (var record in GetDataForExistUser)
-                                {
-                                    await _mutualfundRepositry.DeleteMFForUserExist(record);
-                                }
-                            }
+                            await _mutualfundRepository.AddMFDataForExistUser(mapRecordsForExistUser);
                         }
-
-                        if (mapRecordsForNotExistUser.Count > 0)
-                        {
-                            var GetDataForNotExistUser = await _mutualfundRepositry.GetMFInSpecificDateForNotExistUser(
-                                                            mapRecordsForNotExistUser.First().Date, mapRecordsForNotExistUser.Last().Date);
-
-                            if (GetDataForNotExistUser.Count > 0)
-                            {
-                                foreach (var record in GetDataForNotExistUser)
-                                {
-                                    await _mutualfundRepositry.DeleteMFForNotUserExist(record);
-                                }
-                            }
-                        }
+                        await _mutualfundRepository.AddMFDataForNotExistUser(mapRecordsForNotExistUser);
                     }
-                    if (mapRecordsForExistUser.Count > 0)
-                    {
-                        await _mutualfundRepositry.AddMFDataForExistUser(mapRecordsForExistUser);
-                    }
-                    await _mutualfundRepositry.AddMFDataForNotExistUser(mapRecordsForNotExistUser);
+                    return 1;
                 }
-                return 0;
+                catch (Exception)
+                {
+                    return 0;
+                }
+                
             }
         }
         #endregion

@@ -18,17 +18,17 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         }
 
         #region Get Mutual Funds Record in Specific Date
-        public async Task<List<TblMftransaction>> GetMFInSpecificDateForExistUser(DateTime? StartDate, DateTime? EndDate)
+        public async Task<List<TblMftransaction>> GetMFInSpecificDateForExistUser(DateTime? startDate, DateTime? endDate)
         {
-            var getData = await _context.TblMftransactions.Where(x => x.Date >= StartDate && x.Date <= EndDate).ToListAsync();
+            var getData = await _context.TblMftransactions.Where(x => x.Date >= startDate && x.Date <= endDate).ToListAsync();
             return getData;
         }
         #endregion
 
         #region Get Mutual Funds Record in Specific Date For Not Exist User 
-        public async Task<List<TblNotexistuserMftransaction>> GetMFInSpecificDateForNotExistUser(DateTime? StartDate, DateTime? EndDate)
+        public async Task<List<TblNotexistuserMftransaction>> GetMFInSpecificDateForNotExistUser(DateTime? startDate, DateTime? endDate)
         {
-            var getData = await _context.TblNotexistuserMftransactions.Where(x => x.Date >= StartDate && x.Date <= EndDate).ToListAsync();
+            var getData = await _context.TblNotexistuserMftransactions.Where(x => x.Date >= startDate && x.Date <= endDate).ToListAsync();
             return getData;
         }
         #endregion
@@ -46,39 +46,39 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
 
         #region Get Client Wise Mutual Fund Transaction
         public async Task<BussinessResponse<TblMftransaction>> GetTblMftransactions(int userId, int? schemeId
-            , string? searchingParams, SortingParams sortingParams, DateTime? StartDate, DateTime? EndDate)
+            , string? searchingParams, SortingParams sortingParams, DateTime? startDate, DateTime? endDate)
         {
             List<TblMftransaction> TblMftransaction = new List<TblMftransaction>();
             IQueryable<TblMftransaction> mftransactions = TblMftransaction.AsQueryable();
             double pageCount = 0;
 
-            if (StartDate == null && EndDate == null)
+            if (startDate == null && endDate == null)
             {
                 if (schemeId == null)
                     mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId).AsQueryable();
                 else
                     mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId).AsQueryable();
             }
-            else if (EndDate == null)
+            else if (endDate == null)
             {
                 if (schemeId == null)
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Date >= StartDate).AsQueryable();
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Date >= startDate).AsQueryable();
                 else
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date >= StartDate).AsQueryable();
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date >= startDate).AsQueryable();
             }
-            else if (StartDate == null)
+            else if (startDate == null)
             {
                 if (schemeId == null)
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Date <= EndDate).AsQueryable();
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Date <= endDate).AsQueryable();
                 else
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date <= EndDate).AsQueryable();
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date <= endDate).AsQueryable();
             }
             else
             {
                 if (schemeId == null)
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Date >= StartDate && x.Date <= EndDate).AsQueryable();
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Date >= startDate && x.Date <= endDate).AsQueryable();
                 else
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date >= StartDate && x.Date <= EndDate).AsQueryable();
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date >= startDate && x.Date <= endDate).AsQueryable();
             }
 
             var redemptionUnit = mftransactions.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale");
@@ -145,9 +145,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get All Client  MF Transaction Summary
-        public async Task<List<IGrouping<string?, TblMftransaction>>> GetAllCLientMFSummary(DateTime FromDate, DateTime ToDate)
+        public async Task<List<IGrouping<string?, TblMftransaction>>> GetAllCLientMFSummary(DateTime fromDate, DateTime toDate)
         {
-            var mfTransaction = await _context.TblMftransactions.Where(x => x.Date >= FromDate && x.Date <= ToDate).Include(x => x.TblMfSchemeMaster).ToListAsync();
+            var mfTransaction = await _context.TblMftransactions.Where(x => x.Date >= fromDate && x.Date <= toDate).Include(x => x.TblMfSchemeMaster).ToListAsync();
             var mfSummary = mfTransaction.GroupBy(x => x.Username).ToList();
 
             return mfSummary;
