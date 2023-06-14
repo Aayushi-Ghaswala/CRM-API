@@ -112,7 +112,7 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                var user = await _userMasterService.AddUserAsync(addUser);
-                return user != 0 ? Ok(new { Message = "User added successfully."}) : BadRequest(new { Message = "Username already exist."});
+                return user != 0 ? Ok(new { Message = "User added successfully."}) : BadRequest(new { Message = "Unable to add user."});
             }
             catch (Exception)
             {

@@ -20,7 +20,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblUserMasters.Where(x => x.UserIsactive != false).Include(x => x.TblUserCategoryMaster)
+            var filterData = _context.TblUserMasters.Where(x => x.UserIsactive == true).Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .Include(x => x.TblStateMaster)
                                                     .Include(x => x.TblCityMaster)
@@ -32,10 +32,10 @@ namespace CRM_api.DataAccess.Repositories.User_Module
                 switch (filterString.ToLower())
                 {
                     case "client":
-                        filterData = filterData.Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "customer").AsQueryable();
+                        filterData = filterData.Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "customer" && x.UserIsactive == true).AsQueryable();
                         break;
                     case "fasttrack":
-                        filterData = filterData.Where(x => x.UserFasttrack == true).AsQueryable();
+                        filterData = filterData.Where(x => x.UserFasttrack == true && x.UserIsactive == true).AsQueryable();
                         break;
                     default:
                         break;
@@ -44,7 +44,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
             if (search != null)
             {
-                filterData = _context.Search<TblUserMaster>(search).Where(x => x.UserIsactive != false)
+                filterData = _context.Search<TblUserMaster>(search).Where(x => x.UserIsactive == true)
                                                     .Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .Include(x => x.TblStateMaster)
@@ -90,14 +90,14 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         public async Task<Dictionary<string, int>> GetUserCount()
         {
             Dictionary<string, int> counts = new Dictionary<string, int>();
-            var dataCount = _context.TblUserMasters.Where(x => x.UserIsactive != false).AsQueryable().Count();
+            var dataCount = _context.TblUserMasters.Where(x => x.UserIsactive == true).AsQueryable().Count();
             counts.Add("AllCount", dataCount);
 
             var clientCount = _context.TblUserMasters.Include(x => x.TblUserCategoryMaster)
-                                                    .Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "customer").AsQueryable().Count();
+                                                    .Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "customer" && x.UserIsactive == true).AsQueryable().Count();
             counts.Add("ClientCount", clientCount);
 
-            var fastTrackCount = _context.TblUserMasters.Where(x => x.UserFasttrack == true).AsQueryable().Count();
+            var fastTrackCount = _context.TblUserMasters.Where(x => x.UserFasttrack == true && x.UserIsactive == true).AsQueryable().Count();
             counts.Add("FastTrackCount", fastTrackCount);
 
             return counts;
@@ -193,22 +193,25 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region AddUser
-        public async Task<int> AddUser(TblUserMaster userMaster)
+        public async Task<TblUserMaster> AddUser(TblUserMaster userMaster)
         {
-            if (_context.TblUserMasters.Any(x => x.UserUname == userMaster.UserUname))
-                return 0;
-
             _context.TblUserMasters.Add(userMaster);
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+            return userMaster;
         }
         #endregion
 
         #region Update User
         public async Task<int> UpdateUser(TblUserMaster userMaster)
         {
-            var user = _context.TblUserMasters.AsNoTracking().Where(x => x.UserId == userMaster.UserId);
+            var user = await _context.TblUserMasters.AsNoTracking().Where(x => x.UserId == userMaster.UserId).FirstAsync();
 
             if (user == null) return 0;
+            if (user.UserFasttrack == false)
+            {
+                if (userMaster.UserFasttrack == true)
+                    userMaster.FastTrackActivationDate = DateTime.Now;
+            }
 
             _context.TblUserMasters.Update(userMaster);
             return await _context.SaveChangesAsync();

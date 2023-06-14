@@ -9,6 +9,12 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<Response<TblCountryMaster>> GetCountries(string search, SortingParams sortingParams);
         Task<Response<TblStateMaster>> GetStateBycountry(int countryId, string search, SortingParams sortingParams);
         Task<Response<TblCityMaster>> GetCityByState(int stateId, string search, SortingParams sortingParams);
+        Task<int> AddCountry(TblCountryMaster countryMaster);
+        Task<int> AddState(TblStateMaster stateMaster);
+        Task<int> AddCity(TblCityMaster cityMaster);
+        Task<int> UpdateCountry(TblCountryMaster countryMaster);
+        Task<int> UpdateState(TblStateMaster stateMaster);
+        Task<int> UpdateCity(TblCityMaster cityMaster);
         Task<int> DeactivateCountry(int CountryId);
         Task<int> DeactivateState(int StateId);
         Task<int> DeactivateCity(int CityId);

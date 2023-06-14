@@ -6,7 +6,7 @@ namespace CRM_api.Services.Dtos.ResponseDto
     {
         public int Id { get; set; }
         public RoleMasterDto TblRoleMaster { get; set; }
-        public string? ModuleName { get; set; }
+        public ModuleMasterDto TblModuleMaster { get; set; }
         public bool? AllowAdd { get; set; }
         public bool? AllowEdit { get; set; }
         public bool? AllowDelete { get; set; }

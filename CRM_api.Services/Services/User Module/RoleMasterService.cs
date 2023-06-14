@@ -6,6 +6,7 @@ using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.AddDataDto.User_Module;
 using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
+using CRM_api.Services.Dtos.ResponseDto.User_Module;
 using CRM_api.Services.IServices.User_Module;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +48,15 @@ namespace CRM_api.Services.Services.User_Module
         }
         #endregion
 
+        #region Add Module
+        public async Task<int> AddModuleAsync(AddModuleMasterDto moduleMasterDto)
+        {
+            var module = _mapper.Map<TblModuleMaster>(moduleMasterDto);
+
+            return await _roleMasterRepository.AddModule(module);
+        }
+        #endregion
+
         #region Update Role
         public async Task<int> UpdateRoleAsync(UpdateRoleMasterDto roleMasterDto)
         {
@@ -73,6 +83,15 @@ namespace CRM_api.Services.Services.User_Module
         }
         #endregion
 
+        #region Update Module
+        public async Task<int> UpdateModuleAsync(UpdateModuleMasterDto moduleMasterDto)
+        {
+            var module = _mapper.Map<TblModuleMaster>(moduleMasterDto);
+
+            return await _roleMasterRepository.UpdateModule(module);
+        }
+        #endregion
+
         #region Deactivate Role
         public async Task<int> DeactivateRoleAsync(int id)
         {
@@ -91,6 +110,13 @@ namespace CRM_api.Services.Services.User_Module
         public async Task<int> DeactivateRoleAssignmentAsync(int id)
         {
             return await _roleMasterRepository.DeactivateRoleAssignment(id);
+        }
+        #endregion
+
+        #region Deactivate Module
+        public async Task<int> DeactivateModuleAsync(int id)
+        {
+            return await _roleMasterRepository.DeactivateModule(id);
         }
         #endregion
 
@@ -121,6 +147,16 @@ namespace CRM_api.Services.Services.User_Module
             var mapUserAssignRoles = _mapper.Map<ResponseDto<UserRoleAssignmentDto>>(userAssignRoles);
 
             return mapUserAssignRoles;
+        }
+        #endregion
+
+        #region Get All Modules
+        public async Task<ResponseDto<ModuleMasterDto>> GetModulesAsync(string search, SortingParams sortingParams)
+        {
+            var modules = await _roleMasterRepository.GetModules(search, sortingParams);
+            var mapModules = _mapper.Map<ResponseDto<ModuleMasterDto>>(modules);
+
+            return mapModules;
         }
         #endregion
     }
