@@ -19,6 +19,9 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Add Role
         public async Task<int> AddRole(TblRoleMaster roleMaster)
         {
+            if (_context.TblRoleMasters.Any(x => x.RoleName.ToLower() == roleMaster.RoleName.ToLower() && !x.IsDeleted))
+                return 0;
+
             await _context.TblRoleMasters.AddAsync(roleMaster);
             return await _context.SaveChangesAsync();
         }
@@ -27,6 +30,8 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Add RolePermission
         public async Task<int> AddRolePermission(TblRolePermission rolePermission)
         {
+            if (_context.TblRolePermissions.Any(x => x.RoleId == rolePermission.RoleId && x.ModuleId == rolePermission.ModuleId && !x.IsDeleted))
+                return 0;
             await _context.TblRolePermissions.AddAsync(rolePermission);
             return await _context.SaveChangesAsync();
         }
@@ -35,7 +40,20 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Add UserRoleAssignment
         public async Task<int> AddUserRoleAssignment(TblRoleAssignment userRoleAssignment)
         {
+            if (_context.TblRoleAssignments.Any(x => x.UserId == userRoleAssignment.UserId && x.RoleId == userRoleAssignment.RoleId && !x.IsDeleted))
+                return 0;
             await _context.TblRoleAssignments.AddAsync(userRoleAssignment);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Add Module
+        public async Task<int> AddModule(TblModuleMaster moduleMaster)
+        {
+            if (_context.TblModuleMasters.Any(x => x.ModuleName.ToLower() == moduleMaster.ModuleName.ToLower() && !x.IsDeleted))
+                return 0;
+
+            await _context.TblModuleMasters.AddAsync(moduleMaster);
             return await _context.SaveChangesAsync();
         }
         #endregion
@@ -76,12 +94,24 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
         #endregion
 
+        #region Update Module
+        public async Task<int> UpdateModule(TblModuleMaster moduleMaster)
+        {
+            var module = _context.TblModuleMasters.AsNoTracking().Where(x => x.Id == moduleMaster.Id);
+
+            if (module == null) return 0;
+
+            _context.TblModuleMasters.Update(moduleMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
         #region Deactivate Role
         public async Task<int> DeactivateRole(int id)
         {
             var role = await _context.TblRoleMasters.FindAsync(id);
-
-            if (role == null) return 0;
+            if (_context.TblRoleAssignments.Any(x => x.RoleId == id && !x.IsDeleted))
+                return 0;
 
             role.IsDeleted = true;
             return await _context.SaveChangesAsync();
@@ -93,7 +123,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             var rolePermission = await _context.TblRolePermissions.FindAsync(id);
 
-            if (rolePermission == null) return 0;
+            if (_context.TblRoleAssignments.Any(x => x.RoleId == rolePermission.RoleId && !x.IsDeleted)) return 0;
 
             rolePermission.IsDeleted = true;
             return await _context.SaveChangesAsync();
@@ -108,6 +138,18 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             if (roleAssignment == null) return 0;
 
             roleAssignment.IsDeleted = true;
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Deactivate Module
+        public async Task<int> DeactivateModule(int id)
+        {
+            var module = await _context.TblModuleMasters.FindAsync(id);
+            if (_context.TblRolePermissions.Any(x => x.ModuleId == id && !x.IsDeleted))
+                return 0;
+
+            module.IsDeleted = true;
             return await _context.SaveChangesAsync();
         }
         #endregion
@@ -178,11 +220,11 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblRolePermissions.Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster).AsQueryable();
+            var filterData = _context.TblRolePermissions.Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster).Include(x => x.TblModuleMaster).AsQueryable();
 
             if (search != null)
             {
-                filterData = _context.Search<TblRolePermission>(search).Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster).AsQueryable();
+                filterData = _context.Search<TblRolePermission>(search).Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster).Include(x => x.TblModuleMaster).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -238,6 +280,39 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             };
 
             return userAssignRolesResponse;
+        }
+        #endregion
+
+        #region Get All Module
+        public async Task<Response<TblModuleMaster>> GetModules(string search, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+
+            var filterData = _context.TblModuleMasters.Where(x => !x.IsDeleted).AsQueryable();
+
+            if (search != null)
+            {
+                filterData = _context.Search<TblModuleMaster>(search).Where(x => !x.IsDeleted).AsQueryable();
+            }
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var modulesResponse = new Response<TblModuleMaster>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+
+            return modulesResponse;
         }
         #endregion
     }

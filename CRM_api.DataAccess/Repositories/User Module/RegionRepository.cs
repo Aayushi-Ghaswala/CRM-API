@@ -115,12 +115,81 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
         #endregion
 
+        #region Add Country
+        public async Task<int> AddCountry(TblCountryMaster countryMaster)
+        {
+            if (_context.TblCountryMasters.Any(x => x.CountryName.ToLower() == countryMaster.CountryName.ToLower() && !x.IsDeleted))
+                return 0;
+
+            await _context.TblCountryMasters.AddAsync(countryMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Add State
+        public async Task<int> AddState(TblStateMaster stateMaster)
+        {
+            if (_context.TblStateMasters.Any(x => x.StateName.ToLower() == stateMaster.StateName.ToLower() && x.CountryId == stateMaster.StateId && !x.IsDeleted))
+                return 0;
+
+            await _context.TblStateMasters.AddAsync(stateMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Add City
+        public async Task<int> AddCity(TblCityMaster cityMaster)
+        {
+            if (_context.TblCityMasters.Any(x => x.CityName.ToLower() == cityMaster.CityName.ToLower() && x.StateId == cityMaster.StateId && !x.IsDeleted))
+                return 0;
+
+            await _context.TblCityMasters.AddAsync(cityMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Update Country
+        public async Task<int> UpdateCountry(TblCountryMaster countryMaster)
+        {
+            var country = _context.TblCountryMasters.AsNoTracking().Where(x => x.CountryId == countryMaster.CountryId);
+
+            if (country == null) return 0;
+
+            _context.TblCountryMasters.Update(countryMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Update State
+        public async Task<int> UpdateState(TblStateMaster stateMaster)
+        {
+            var state = _context.TblStateMasters.AsNoTracking().Where(x => x.StateId == stateMaster.StateId);
+
+            if (state == null) return 0;
+
+            _context.TblStateMasters.Update(stateMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Update City
+        public async Task<int> UpdateCity(TblCityMaster cityMaster)
+        {
+            var city = _context.TblCityMasters.AsNoTracking().Where(x => x.CityId == cityMaster.CityId);
+
+            if (city == null) return 0;
+
+            _context.TblCityMasters.Update(cityMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
         #region Deactivate Country
         public async Task<int> DeactivateCountry(int CountryId)
         {
             var country = await _context.TblCountryMasters.FindAsync(CountryId);
 
-            if(country == null) return 0;
+            if (country == null) return 0;
 
             var states = _context.TblStateMasters.Where(x => x.CountryId == CountryId).ToList();
             foreach (var item in states)
@@ -143,7 +212,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             var states = await _context.TblStateMasters.FindAsync(StateId);
 
-            if(states == null) return 0;
+            if (states == null) return 0;
 
             var cities = _context.TblCityMasters.Where(x => x.StateId == StateId).ToList();
             foreach (var item in cities)

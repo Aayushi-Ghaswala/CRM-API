@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.User_Module;
+using CRM_api.DataAccess.Models;
+using CRM_api.Services.Dtos.AddDataDto.User_Module;
 using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.User_Module;
@@ -45,6 +47,60 @@ namespace CRM_api.Services.Services.User_Module
             var mapCities = _mapper.Map<ResponseDto<CityMasterDto>>(cities);
 
             return mapCities;
+        }
+        #endregion
+
+        #region Add Country
+        public async Task<int> AddCountryAsync(AddCountryDto countryDto)
+        {
+            var country = _mapper.Map<TblCountryMaster>(countryDto);
+
+            return await _regionRepository.AddCountry(country);
+        }
+        #endregion
+
+        #region Add State
+        public async Task<int> AddStateAsync(AddStateDto stateDto)
+        {
+            var state = _mapper.Map<TblStateMaster>(stateDto);
+
+            return await _regionRepository.AddState(state);
+        }
+        #endregion
+
+        #region Add City
+        public async Task<int> AddCityAsync(AddCityDto cityDto)
+        {
+            var city = _mapper.Map<TblCityMaster>(cityDto);
+
+            return await _regionRepository.AddCity(city);
+        }
+        #endregion
+
+        #region Update Country
+        public async Task<int> UpdateCountryAsync(UpdateCountryDto countryDto)
+        {
+            var country = _mapper.Map<TblCountryMaster>(countryDto);
+
+            return await _regionRepository.UpdateCountry(country);
+        }
+        #endregion
+
+        #region Update State
+        public async Task<int> UpdateStateAsync(UpdateStateDto stateDto)
+        {
+            var state = _mapper.Map<TblStateMaster>(stateDto);
+
+            return await _regionRepository.UpdateState(state);
+        }
+        #endregion
+
+        #region Update City
+        public async Task<int> UpdateCityAsync(UpdateCityDto cityDto)
+        {
+            var city = _mapper.Map<TblCityMaster>(cityDto);
+
+            return await _regionRepository.UpdateCity(city);
         }
         #endregion
 

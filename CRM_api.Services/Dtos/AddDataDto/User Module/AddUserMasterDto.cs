@@ -17,7 +17,6 @@
         public Nullable<int> UserCityId { get; set; }
         public string? UserUname { get; set; }
         public string? UserPasswd { get; set; }
-        public Nullable<bool> UserIsActive { get; set; }
         public string? UserProfilePhoto { get; set; }
         public string? UserPromoCode { get; set; }
         public string? UserSubCategory { get; set; }
@@ -27,6 +26,5 @@
         public Nullable<bool> UserfastTrack { get; set; }
         public Nullable<bool> UserWbcActive { get; set; }
         public Nullable<bool> UserTermAndCondition { get; set; }
-        public string? UserNjName { get; set; }
     }
 }

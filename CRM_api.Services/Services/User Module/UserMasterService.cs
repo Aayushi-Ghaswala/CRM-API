@@ -81,7 +81,20 @@ namespace CRM_api.Services.Services.User_Module
         {
             var user = _mapper.Map<TblUserMaster>(addUser);
 
-            return await _userMasterRepository.AddUser(user);
+            var addedUser = await _userMasterRepository.AddUser(user);
+            var uname = addUser.UserName.Split(' ');
+            switch(uname.Length)
+            {
+                case 1:
+                    addedUser.UserUname = string.Concat(uname[0], "_", addedUser.UserId);
+                    break;
+                case 2:
+                    addedUser.UserUname = string.Concat(uname[0], "_", uname[1], "_", addedUser.UserId);
+                    break;
+                default: addedUser.UserUname = string.Concat(uname[0], "_", uname[2], "_", addedUser.UserId);
+                    break;
+            }
+            return await _userMasterRepository.UpdateUser(addedUser);
         }
         #endregion
 

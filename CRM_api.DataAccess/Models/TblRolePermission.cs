@@ -6,7 +6,7 @@ namespace CRM_api.DataAccess.Models
     {
         public int Id { get; set; }
         public int? RoleId { get; set; }
-        public string? ModuleName { get; set; }
+        public int? ModuleId { get; set; }
         public bool? AllowAdd { get; set; }
         public bool? AllowEdit { get; set; }
         public bool? AllowDelete { get; set; }
@@ -15,6 +15,7 @@ namespace CRM_api.DataAccess.Models
 
         [ForeignKey(nameof(RoleId))]
         public virtual TblRoleMaster TblRoleMaster { get; set; }
-
+        [ForeignKey(nameof(ModuleId))]
+        public virtual TblModuleMaster TblModuleMaster { get; set; }
     }
 }

@@ -54,6 +54,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblMgainTransactionAccountTem> TblMgainTransactionAccountTems { get; set; } = null!;
         public virtual DbSet<TblMgaindetail> TblMgaindetails { get; set; } = null!;
         public virtual DbSet<TblMgaindetailsTruncate> TblMgaindetailsTruncates { get; set; } = null!;
+        public virtual DbSet<TblModuleMaster> TblModuleMasters { get; set; } = null!;
         public virtual DbSet<TblMunafeKiClass> TblMunafeKiClasses { get; set; } = null!;
         public virtual DbSet<TblNotexistuserMftransaction> TblNotexistuserMftransactions { get; set; } = null!;
         public virtual DbSet<TblNotfoundInsuranceclient> TblNotfoundInsuranceclients { get; set; } = null!;
@@ -1820,6 +1821,15 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.MgainUserid).HasColumnName("mgain_userid");
             });
 
+            modelBuilder.Entity<TblModuleMaster>(entity =>
+            {
+                entity.ToTable("tbl_module_master");
+
+                entity.Property(e => e.ModuleName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
             modelBuilder.Entity<TblMunafeKiClass>(entity =>
             {
                 entity.ToTable("tbl_MunafeKiClass");
@@ -2481,10 +2491,7 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted").HasDefaultValue(0);
 
-                entity.Property(e => e.ModuleName)
-                    .HasMaxLength(30)
-                    .IsUnicode(false)
-                    .UseCollation("SQL_Latin1_General_CP1_CI_AS");
+                entity.Property(e => e.ModuleId).HasColumnName("ModuleId");
 
                 entity.Property(e => e.RoleId).HasColumnName("role_id");
             });

@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public int? RoleId { get; set; }
-        public string? ModuleName { get; set; }
+        public int ModuleId { get; set; }
         public bool? AllowAdd { get; set; }
         public bool? AllowEdit { get; set; }
         public bool? AllowDelete { get; set; }

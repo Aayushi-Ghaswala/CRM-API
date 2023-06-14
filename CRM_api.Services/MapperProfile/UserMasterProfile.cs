@@ -24,7 +24,10 @@ namespace CRM_api.Services.MapperProfile
                 .AfterMap((dto, user) =>
                 {
                     user.UserFcmid = Guid.NewGuid().ToString();
+                    if (dto.UserfastTrack == true)
+                        user.FastTrackActivationDate = DateTime.Now;
+                    user.UserIsactive = true;
                 });
-        }
+        }   
     }
 }
