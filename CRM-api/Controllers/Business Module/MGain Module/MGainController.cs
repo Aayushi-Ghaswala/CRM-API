@@ -1,5 +1,6 @@
 ﻿using CRM_api.DataAccess.Helper;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module;
+using CRM_api.Services.Helper.File_Helper;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
 using Microsoft.AspNetCore.Mvc;
 
@@ -55,7 +56,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         public async Task<IActionResult> MGainAggrement(int Id)
         {
             var MGain = await _mGainService.MGainAggrementAsync(Id);
-            return Ok(MGain);
+            return Ok(new {Aggrement = MGain});
         }
         #endregion
 
@@ -75,13 +76,72 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion 
 
-        [HttpGet("GetAllProjects")]
-        #region Get All Projects
-        public async Task<IActionResult> GetAllProjects([FromQuery] string? searchingParams, [FromQuery] SortingParams sortingParams)
+        [HttpGet("GetBase64File")]
+        #region Get Base 64 File From Location
+        public async Task<IActionResult> GetBase64File(string? path)
         {
             try
             {
-                var getData = await _mGainService.GetAllProjectAsync(searchingParams, sortingParams);
+                var base64 = GetBase64FileHelper.GetBase64File(path);
+                var ext = Path.GetExtension(path);
+                return Ok(new { Base64 =  base64 , Extension = ext});
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpGet("MGainMonthlyNon-CumulativeInterest")]
+        #region MGain Monthly Non-Cumulative Interest Computation & Release
+        public async Task<IActionResult> GetNonCumulativeMonthlyReport(int month, int year, int? schemaId,decimal? tds, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var getData = await _mGainService.GetNonCumulativeMonthlyReportAsync(month, year, schemaId, tds, isJournal, jvEntryDate, jvNarration, isPayment, crEntryDate, crNarration, search, sortingParams);
+
+                return Ok(getData);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpGet("GetValuationReportByUserId")]
+        #region Get Valuation Report By UserId
+        public async Task<IActionResult> GetValuationReportByUserId(int UserId)
+        {
+            try
+            {
+                var getData = await _mGainService.GetValuationReportByUserIdAsync(UserId);
+                return Ok(getData);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpGet("GetMonthWiseInterestPaid")]
+        #region MGain Month wise Total Interest Paid
+        public async Task<IActionResult> GetMonthWiseInterestPaid(int month, int year)
+        {
+            var intrestPaid = await _mGainService.GetMonthWiseInterestPaidAsync(month, year);
+            return Ok(intrestPaid);
+        }
+        #endregion
+
+        [HttpGet("GetAllProjects")]
+        #region Get All Projects
+        public async Task<IActionResult> GetAllProjects([FromQuery] string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var getData = await _mGainService.GetAllProjectAsync(search, sortingParams);
                 return Ok(getData);
             }
             catch (Exception)
@@ -93,11 +153,11 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
 
         [HttpGet("GetPlotsByProjectId")]
         #region Get Plots By ProjectId
-        public async Task<IActionResult> GetPlotsByProjectId(int projectId, decimal invAmount, [FromQuery] string? searchingParama, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetPlotsByProjectId(int projectId, decimal invAmount, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var getData = await _mGainService.GetPlotsByProjectIdAsync(projectId, invAmount, searchingParama, sortingParams);
+                var getData = await _mGainService.GetPlotsByProjectIdAsync(projectId, invAmount, search, sortingParams);
                 return Ok(getData);
             }
             catch (Exception)
@@ -165,7 +225,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             try
             {
                 var pdf = await _mGainService.GenerateMGainAggrementAsync(id, htmlContent);
-                return File(pdf.file, "application/pdf", pdf.FileName);
+                return Ok(new {file = File(pdf.file, "application/pdf", pdf.FileName)} );
             }
             catch (Exception)
             {

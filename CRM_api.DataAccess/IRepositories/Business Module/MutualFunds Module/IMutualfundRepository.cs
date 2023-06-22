@@ -13,7 +13,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module
         Task<BussinessResponse<TblMftransaction>> GetTblMftransactions(int userId, int? schemeId
             , string? searchingParams, SortingParams sortingParams, DateTime? startDate, DateTime? endDate);
         Task<List<IGrouping<string?, TblMftransaction>>> GetMFTransactionSummary(int userId);
-        Task<Response<TblMftransaction>> GetMFUserName(string? searchingParams, SortingParams sortingParams);
+        Task<Response<UserNameResponse>> GetMFUserName(string? searchingParams, SortingParams sortingParams);
         Task<Response<TblMftransaction>> GetSchemeName(int userId, string? searchingParams, SortingParams sortingParams);
         Task<List<IGrouping<string?, TblMftransaction>>> GetMFTransactionSummaryByCategory(int userId);
         Task<List<IGrouping<string?, TblMftransaction>>> GetAllCLientMFSummary(DateTime fromDate, DateTime toDate);

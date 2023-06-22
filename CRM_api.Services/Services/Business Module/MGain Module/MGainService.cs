@@ -7,34 +7,46 @@ using CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Helper.ConstantValue;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
+using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using Microsoft.AspNetCore.JsonPatch.Internal;
+using Org.BouncyCastle.Asn1.Crmf;
 using SelectPdf;
 
 namespace CRM_api.Services.Services.Business_Module.MGain_Module
 {
     public class MGainService : IMGainService
     {
-        private readonly IMGainRepository _mGainRepositery;
+        private readonly IMGainRepository _mGainRepository;
         private readonly IMapper _mapper;
 
-        public MGainService(IMGainRepository mGainRepositery, IMapper mapper)
+        public MGainService(IMGainRepository mGainRepository, IMapper mapper)
         {
-            _mGainRepositery = mGainRepositery;
+            _mGainRepository = mGainRepository;
             _mapper = mapper;
         }
 
         #region Get All MGain Details
         public async Task<MGainResponseDto<MGainDetailsDto>> GetAllMGainDetailsAsync(int? currancyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams)
         {
-            var mGainDetails = await _mGainRepositery.GetMGainDetails(currancyId, type, isClosed, fromDate, toDate, searchingParams, sortingParams);
+            var mGainDetails = await _mGainRepository.GetMGainDetails(currancyId, type, isClosed, fromDate, toDate, searchingParams, sortingParams);
             var mapMGainDetails = _mapper.Map<MGainResponseDto<MGainDetailsDto>>(mGainDetails);
 
             foreach (var mGain in mapMGainDetails.response.Values)
             {
-                if (mGain.MgainProjectname is not null)
+                if (mGain.MgainProjectname is not null && mGain.MgainPlotno is not null)
                 {
-                    var project = await _mGainRepositery.GetProjectByProjectName(mGain.MgainProjectname);
+                    //Find project
+                    var project = await _mGainRepository.GetProjectByProjectName(mGain.MgainProjectname);
                     var mapProject = _mapper.Map<ProjectMasterDto>(project);
                     mGain.ProjectMaster = mapProject;
+
+                    //Find plot
+                    var plot = await _mGainRepository.GetPlotByProjectAndPlotNo(mGain.MgainProjectname, mGain.MgainPlotno);
+                    var mapPlot = _mapper.Map<PlotMasterDto>(plot);
+                    mGain.PlotMaster = mapPlot;
+
+                    mGain.Tenure = 10;
                 }
             }
 
@@ -45,7 +57,7 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
         #region Get Payment Details By MGain Id
         public async Task<List<MGainPaymentDto>> GetPaymentByMgainIdAsync(int mGainId)
         {
-            var mGainPatyment = await _mGainRepositery.GetPaymentByMGainId(mGainId);
+            var mGainPatyment = await _mGainRepository.GetPaymentByMGainId(mGainId);
             var mapMGainPayment = _mapper.Map<List<MGainPaymentDto>>(mGainPatyment);
             return mapMGainPayment;
         }
@@ -54,8 +66,8 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
         #region MGain Aggrement HTML
         public async Task<string> MGainAggrementAsync(int mGainId)
         {
-            var mGain = await _mGainRepositery.GetMGainDetailById(mGainId);
-            var mGainProject = await _mGainRepositery.GetProjectByProjectName(mGain.MgainProjectname);
+            var mGain = await _mGainRepository.GetMGainDetailById(mGainId);
+            var mGainProject = await _mGainRepository.GetProjectByProjectName(mGain.MgainProjectname);
             var paymentMode = mGain.TblMgainPaymentMethods.First().PaymentMode;
             var currancy = mGain.TblMgainPaymentMethods.First().TblMgainCurrancyMaster.Currancy;
 
@@ -94,7 +106,7 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
         #region MGain Payment Receipt
         public async Task<MGainPDFResponseDto> MGainPaymentReceipt(int id)
         {
-            var mGain = await _mGainRepositery.GetMGainDetailById(id);
+            var mGain = await _mGainRepository.GetMGainDetailById(id);
             var mapMGainPaymentReciept = _mapper.Map<MGainPaymentRecieptDto>(mGain);
             mapMGainPaymentReciept.ReleaseDate = mapMGainPaymentReciept.Date.Value.AddYears(10).AddDays(-1);
 
@@ -286,7 +298,7 @@ SURAT - 395009 <p>
                     </li>
                     <li>anytime Withdrawal after 3 years</li>
                     <li>Senior Citizen get extra 1% on Interest Rate</li>
-                  </ul>
+                  </ul> 
                 </div>
                 <div style=""text-align:right;"">
                 	<p><b>For, KA FINANCIAL SERVICES LLP</b></p>
@@ -329,10 +341,208 @@ SURAT - 395009 <p>
         }
         #endregion
 
+        #region MGain Monthly Non-Cumulative Interest Computation & Release
+        public async Task<MGainNCmonthlyTotalDto> GetNonCumulativeMonthlyReportAsync(int month, int year, int? schemeId, decimal? tds, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? searchingParams, SortingParams sortingParams)
+        {
+            DateTime date = Convert.ToDateTime("01" + "-" + month + "-" + year);
+            DateTime currentDate = date.AddDays(-1);
+
+            var mGainDetails = await _mGainRepository.GetAllMGainDetailsMonthly(schemeId, searchingParams, sortingParams, MGainTypeConstant.nonCumulative, currentDate);
+
+            List<MGainNonCumulativeMonthlyReportDto> MGainNonCumulativeMonthlyReports = new List<MGainNonCumulativeMonthlyReportDto>();
+            List<TblAccountTransaction> allAccountTransactions = new List<TblAccountTransaction>();
+
+            foreach (var MGainDetail in mGainDetails)
+            {
+                if (MGainDetail.Date.Value.AddYears(10) > currentDate)
+                {
+                    var MGainNonCumulativeMonthlyReport = new MGainNonCumulativeMonthlyReportDto();
+                    List<TblAccountTransaction> accountTransactions = new List<TblAccountTransaction>();
+
+                    List<decimal?> interestRates = new List<decimal?>();
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst1);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst2);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst3);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst4 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest4);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst5 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest5);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst6 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest6);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst7 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest7);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst8 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest8);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst9 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest9);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst10 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest10);
+
+                    var yearDifference = currentDate.Year - MGainDetail.Date.Value.Year;
+
+                    if (currentDate.Month < MGainDetail.Date.Value.Month)
+                    {
+                        yearDifference -= 1;
+                    }
+
+                    MGainNonCumulativeMonthlyReport.Interst1 = MGainDetail.TblMgainSchemeMaster.Interst1;
+                    MGainNonCumulativeMonthlyReport.Interst4 = MGainDetail.TblMgainSchemeMaster.Interst4;
+                    MGainNonCumulativeMonthlyReport.Interst8 = MGainDetail.TblMgainSchemeMaster.Interst8;
+                    MGainNonCumulativeMonthlyReport.Date = MGainDetail.Date.Value.ToString("dd-MM-yyyy");
+                    MGainNonCumulativeMonthlyReport.IntAccNo = 12345679890;
+                    MGainNonCumulativeMonthlyReport.IntBankName = "State Bank Of India";
+                    MGainNonCumulativeMonthlyReport.MgainInvamt = MGainDetail.MgainInvamt;
+                    MGainNonCumulativeMonthlyReport.Mgain1stholder = MGainDetail.Mgain1stholder;
+
+                    if (MGainDetail.MgainRedemdate is not null)
+                        MGainNonCumulativeMonthlyReport.MgainRedemdate = MGainDetail.MgainRedemdate.Value.ToString("dd-MM-yyyy");
+                    else MGainNonCumulativeMonthlyReport.MgainRedemdate = null;
+
+                    MGainNonCumulativeMonthlyReport.MgainType = MGainDetail.MgainType;
+                    MGainNonCumulativeMonthlyReport.YearlyInterest = MGainDetail.TblMgainSchemeMaster.YearlyInterest;
+                    MGainNonCumulativeMonthlyReport.MonthlyInterest = MGainDetail.TblMgainSchemeMaster.MonthlyInterest;
+
+                    if (yearDifference == 0)
+                    {
+                        if (currentDate.Month == MGainDetail.Date.Value.Month)
+                        {
+                            var daysInMonth = DateTime.DaysInMonth(MGainDetail.Date.Value.Year, MGainDetail.Date.Value.Month);
+                            var days = daysInMonth - (MGainDetail.Date.Value.Day - 1);
+
+                            MGainNonCumulativeMonthlyReport.InterstRate = interestRates.First();
+
+                            MGainNonCumulativeMonthlyReport.InterestAmount = Math.Round((decimal)((MGainDetail.MgainInvamt * days * (MGainNonCumulativeMonthlyReport.InterstRate / 100)) / 365), 0);
+
+                            if (MGainDetail.MgainIsTdsDeduction is true)
+                                MGainNonCumulativeMonthlyReport.TDS = Math.Round((decimal)((MGainNonCumulativeMonthlyReport.InterestAmount * tds) / 100));
+                            else MGainNonCumulativeMonthlyReport.TDS = 0;
+
+                            MGainNonCumulativeMonthlyReport.PayAmount = MGainNonCumulativeMonthlyReport.InterestAmount - MGainNonCumulativeMonthlyReport.TDS;
+
+                            MGainNonCumulativeMonthlyReports.Add(MGainNonCumulativeMonthlyReport);
+
+                            if (isJournal is true)
+                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null);
+                            else if(isPayment is true)
+                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate,crNarration);
+
+                            allAccountTransactions.AddRange(accountTransactions);
+                        }
+                        else if (currentDate.Month > MGainDetail.Date.Value.AddMonths(3).Month)
+                        {
+                            MGainNonCumulativeMonthlyReport.InterstRate = interestRates.First();
+                            MGainNonCumulativeMonthlyReport.InterestAmount = Math.Round((decimal)(((MGainDetail.MgainInvamt * MGainNonCumulativeMonthlyReport.InterstRate) / 100) / 12), 0);
+
+                            if (MGainDetail.MgainIsTdsDeduction is true)
+                                MGainNonCumulativeMonthlyReport.TDS = Math.Round((decimal)((MGainNonCumulativeMonthlyReport.InterestAmount * tds) / 100), 0);
+                            else MGainNonCumulativeMonthlyReport.TDS = 0;
+
+                            MGainNonCumulativeMonthlyReport.PayAmount = MGainNonCumulativeMonthlyReport.InterestAmount - MGainNonCumulativeMonthlyReport.TDS;
+
+                            MGainNonCumulativeMonthlyReports.Add(MGainNonCumulativeMonthlyReport);
+
+                            if (isJournal is true)
+                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null);
+                            else if(isPayment is true)
+                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration);
+
+                            allAccountTransactions.AddRange(accountTransactions);
+                        }
+                    }
+                    else
+                    {
+                        MGainNonCumulativeMonthlyReport.InterstRate = interestRates.Skip(yearDifference).First();
+                        MGainNonCumulativeMonthlyReport.InterestAmount = Math.Round((decimal)(((MGainDetail.MgainInvamt * MGainNonCumulativeMonthlyReport.InterstRate) / 100) / 12), 0);
+
+                        if (MGainDetail.MgainIsTdsDeduction is true)
+                            MGainNonCumulativeMonthlyReport.TDS = Math.Round((decimal)((MGainNonCumulativeMonthlyReport.InterestAmount * tds) / 100), 0);
+                        else MGainNonCumulativeMonthlyReport.TDS = 0;
+
+                        MGainNonCumulativeMonthlyReport.PayAmount = MGainNonCumulativeMonthlyReport.InterestAmount - MGainNonCumulativeMonthlyReport.TDS;
+
+                        MGainNonCumulativeMonthlyReports.Add(MGainNonCumulativeMonthlyReport);
+
+                        if (isJournal is true)
+                            accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null);
+                        else if(isPayment is true)
+                            accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate,crNarration);
+
+                        allAccountTransactions.AddRange(accountTransactions);
+                    }
+                }
+            }
+
+            var totalInterstAmount = MGainNonCumulativeMonthlyReports.Sum(x => x.InterestAmount);
+            var totalTDSAmount = MGainNonCumulativeMonthlyReports.Sum(x => x.TDS);
+            var totalPayAmount = MGainNonCumulativeMonthlyReports.Sum(x => x.PayAmount);
+
+            var mGainNCMonthlytotal = new MGainNCmonthlyTotalDto()
+            {
+                MGainNonCumulativeMonthlyReports = MGainNonCumulativeMonthlyReports,
+                TotalInterestAmount = totalInterstAmount,
+                TotalTDSAmount = totalTDSAmount,
+                TotalPayAmount = totalPayAmount
+            };
+
+            await _mGainRepository.AddMGainInterest(allAccountTransactions, currentDate);
+            return mGainNCMonthlytotal;
+        }
+        #endregion
+
+        #region Get Valuation Report By User
+        public async Task<List<MGainValuationDto>> GetValuationReportByUserIdAsync(int UserId)
+        {
+            var mGainDetails = await _mGainRepository.GetMGainDetailsByUserId(UserId);
+            List<MGainValuationDto> mGainValuations = new List<MGainValuationDto>();
+
+            foreach (var mGainDetail in mGainDetails)
+            {
+                var mGainValuation = new MGainValuationDto();
+
+                List<decimal?> interestRates = new List<decimal?>();
+                interestRates.Add(mGainDetail.TblMgainSchemeMaster.Interst1);
+                interestRates.Add(mGainDetail.TblMgainSchemeMaster.Interst2);
+                interestRates.Add(mGainDetail.TblMgainSchemeMaster.Interst3);
+                interestRates.Add(mGainDetail.TblMgainSchemeMaster.Interst4 + mGainDetail.TblMgainSchemeMaster.AdditionalInterest4);
+                interestRates.Add(mGainDetail.TblMgainSchemeMaster.Interst5 + mGainDetail.TblMgainSchemeMaster.AdditionalInterest5);
+                interestRates.Add(mGainDetail.TblMgainSchemeMaster.Interst6 + mGainDetail.TblMgainSchemeMaster.AdditionalInterest6);
+                interestRates.Add(mGainDetail.TblMgainSchemeMaster.Interst7 + mGainDetail.TblMgainSchemeMaster.AdditionalInterest7);
+                interestRates.Add(mGainDetail.TblMgainSchemeMaster.Interst8 + mGainDetail.TblMgainSchemeMaster.AdditionalInterest8);
+                interestRates.Add(mGainDetail.TblMgainSchemeMaster.Interst9 + mGainDetail.TblMgainSchemeMaster.AdditionalInterest9);
+                interestRates.Add(mGainDetail.TblMgainSchemeMaster.Interst10 + mGainDetail.TblMgainSchemeMaster.AdditionalInterest10);
+
+                mGainValuation.MGainId = mGainDetail.Id;
+                mGainValuation.Date = mGainDetail.Date;
+                mGainValuation.MgainInvamt = mGainDetail.MgainInvamt;
+                mGainValuation.TblMgainPaymentMethods = _mapper.Map<List<MGainPaymentDto>>(mGainDetail.TblMgainPaymentMethods);
+                mGainValuation.MgainType = mGainDetail.MgainType;
+                mGainValuation.Schemename = mGainDetail.TblMgainSchemeMaster.Schemename;
+                mGainValuation.MgainBankName = mGainDetail.MgainBankName;
+                mGainValuation.Tenure = 12 * (DateTime.Now.Year - mGainDetail.Date.Value.Year) + DateTime.Now.Month - mGainDetail.Date.Value.Month;
+
+                var accountTransactions = await _mGainRepository.GetAccountTransactionByMgainId(mGainDetail.Id, 0, 0);
+                mGainValuation.InterestPayout = accountTransactions.Where(x => x.DocType.ToLower() == MGainAccountPaymentConstant.MGainPayment.Payment.ToString().ToLower()).Sum(x => x.Debit);
+                var year = DateTime.Now.Year - mGainDetail.Date.Value.Year;
+                mGainValuation.InterestRate = interestRates.Take(year).Average();
+                mGainValuation.AmountUnlockDate = mGainValuation.Date.Value.AddYears(3).AddDays(-1);
+                if (mGainValuation.AmountUnlockDate > DateTime.Now)
+                {
+                    mGainValuation.RemainingLockinPeriod = Math.Round((mGainValuation.AmountUnlockDate.Value - DateTime.Now).TotalDays, 0);
+                }
+
+                mGainValuations.Add(mGainValuation);
+            }
+
+            return mGainValuations;
+        }
+        #endregion
+
+        #region Get MGain Month wise Total Interest Paid
+        public async Task<decimal?> GetMonthWiseInterestPaidAsync(int month, int year)
+        {
+            var accountTransactions = await _mGainRepository.GetAccountTransactionByMgainId(0, month, year);
+            var interestPaid = accountTransactions.Where(x => x.DocType.ToLower() == MGainAccountPaymentConstant.MGainPayment.Payment.ToString().ToLower()).Sum(x => x.Debit);
+            return interestPaid;
+        }
+        #endregion
+
         #region Get All Projects
         public async Task<ResponseDto<ProjectMasterDto>> GetAllProjectAsync(string? searchingParams, SortingParams sortingParams)
         {
-            var projects = await _mGainRepositery.GetAllProject(searchingParams, sortingParams);
+            var projects = await _mGainRepository.GetAllProject(searchingParams, sortingParams);
             var mapProjects = _mapper.Map<ResponseDto<ProjectMasterDto>>(projects);
             return mapProjects;
         }
@@ -341,7 +551,7 @@ SURAT - 395009 <p>
         #region Get Plots By ProjectId
         public async Task<ResponseDto<PlotMasterDto>> GetPlotsByProjectIdAsync(int projectId, decimal invAmount, string? searchingParams, SortingParams sortingParams)
         {
-            var plots = await _mGainRepositery.GetPlotsByProjectId(projectId, invAmount, searchingParams, sortingParams);
+            var plots = await _mGainRepository.GetPlotsByProjectId(projectId, invAmount, searchingParams, sortingParams);
             var mapPlots = _mapper.Map<ResponseDto<PlotMasterDto>>(plots);
             return mapPlots;
         }
@@ -350,7 +560,7 @@ SURAT - 395009 <p>
         #region Get All Currency
         public async Task<List<MGainCurrancyDto>> GetAllCurrenciesAsync()
         {
-            var currancy = await _mGainRepositery.GetAllCurrencies();
+            var currancy = await _mGainRepository.GetAllCurrencies();
             var mapCurrency = _mapper.Map<List<MGainCurrancyDto>>(currancy);
             return mapCurrency;
         }
@@ -467,7 +677,14 @@ SURAT - 395009 <p>
             }
             else mGainDetails.MgainNomineeBirthCertificate = null;
 
-            var mGain = await _mGainRepositery.AddMGainDetails(mGainDetails);
+            var mGain = await _mGainRepository.AddMGainDetails(mGainDetails);
+
+            TblAccountMaster tblAccountMaster = new TblAccountMaster();
+            tblAccountMaster.UserId = mGain.MgainUserid;
+            tblAccountMaster.AccountName = mGain.Mgain1stholder;
+            tblAccountMaster.OpeningBalance = 0;
+
+            await _mGainRepository.AddUserAccount(tblAccountMaster);
             return mGain;
         }
         #endregion
@@ -476,14 +693,14 @@ SURAT - 395009 <p>
         public async Task<int> AddPaymentDetailsAsync(List<AddMGainPaymentDto> paymentDtos)
         {
             var mGainPayments = _mapper.Map<List<TblMgainPaymentMethod>>(paymentDtos);
-            return await _mGainRepositery.AddPaymentDetails(mGainPayments);
+            return await _mGainRepository.AddPaymentDetails(mGainPayments);
         }
         #endregion
 
         #region MGain Aggrement PDF
         public async Task<MGainPDFResponseDto> GenerateMGainAggrementAsync(int id, string htmlContent)
         {
-            var MGain = await _mGainRepositery.GetMGainDetailById(id);
+            var MGain = await _mGainRepository.GetMGainDetailById(id);
 
             var directoryPath = Directory.GetCurrentDirectory() + "\\MGain-Documents\\";
 
@@ -550,9 +767,9 @@ SURAT - 395009 <p>
         public async Task<int> UpdateMGainDetailsAsync(UpdateMGainDetailsDto updateMGainDetails)
         {
             var updateMGain = _mapper.Map<TblMgaindetail>(updateMGainDetails);
-            var mgain = await _mGainRepositery.GetMGainDetailById(updateMGain.Id);
-            var plot = await _mGainRepositery.GetPlotById(updateMGainDetails.PlotId);
-            var mGainPlot = await _mGainRepositery.GetPlotByProjectAndPlotNo(mgain.MgainTotalsqft, mgain.MgainPlotno);
+            var mgain = await _mGainRepository.GetMGainDetailById(updateMGain.Id);
+            var plot = await _mGainRepository.GetPlotById(updateMGainDetails.PlotId);
+            var mGainPlot = new TblPlotMaster();
 
             var directoryPath = Directory.GetCurrentDirectory() + "\\MGain-Documents\\";
 
@@ -672,34 +889,22 @@ SURAT - 395009 <p>
             }
             else updateMGain.MgainCancelledCheque = null;
 
-
-            if (updateMGainDetails.MgainProjectname == mgain.MgainProjectname && plot.PlotNo == mgain.MgainPlotno)
+            if (mgain.MgainProjectname is not null && mgain.MgainPlotno is not null)
             {
-                if (updateMGain.MgainInvamt != mgain.MgainInvamt)
-                {
-                    plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
-                    plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
+                mGainPlot = await _mGainRepository.GetPlotByProjectAndPlotNo(mgain.MgainProjectname, mgain.MgainPlotno);
+            }
 
-                    updateMGain.MgainPlotno = plot.PlotNo;
-                    updateMGain.MgainAllocatedsqft = Math.Round((decimal)((updateMGain.MgainInvamt * plot.SqFt) / (plot.SqFt * plot.Rate)), 4);
-                    updateMGain.MgainAllocatedsqftamt = Math.Round((decimal)(updateMGain.MgainAllocatedsqft * plot.Rate), 4);
-                    updateMGain.MgainTotalsqft = Math.Round((decimal)plot.SqFt, 4);
-                    updateMGain.MgainTotalplotamt = Math.Round((decimal)(plot.SqFt * plot.Rate), 3);
-
-                    plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt - updateMGain.MgainAllocatedsqft), 4);
-                    plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue - updateMGain.MgainAllocatedsqftamt), 4);
-                }
-                else if (updateMGain.MgainRedemamt > 0)
+            if (updateMGainDetails.PlotId != 0)
+            {
+                if (updateMGainDetails.MgainProjectname == mgain.MgainProjectname && plot.PlotNo == mgain.MgainPlotno)
                 {
-                    if (updateMGain.MgainRedemamt < updateMGain.MgainInvamt)
+                    if (updateMGain.MgainInvamt != mgain.MgainInvamt)
                     {
                         plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
                         plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
 
-                        var availableAmount = updateMGain.MgainInvamt - updateMGain.MgainRedemamt;
-
                         updateMGain.MgainPlotno = plot.PlotNo;
-                        updateMGain.MgainAllocatedsqft = Math.Round((decimal)((availableAmount * plot.SqFt) / (plot.SqFt * plot.Rate)), 4);
+                        updateMGain.MgainAllocatedsqft = Math.Round((decimal)((updateMGain.MgainInvamt * plot.SqFt) / (plot.SqFt * plot.Rate)), 4);
                         updateMGain.MgainAllocatedsqftamt = Math.Round((decimal)(updateMGain.MgainAllocatedsqft * plot.Rate), 4);
                         updateMGain.MgainTotalsqft = Math.Round((decimal)plot.SqFt, 4);
                         updateMGain.MgainTotalplotamt = Math.Round((decimal)(plot.SqFt * plot.Rate), 3);
@@ -707,50 +912,96 @@ SURAT - 395009 <p>
                         plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt - updateMGain.MgainAllocatedsqft), 4);
                         plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue - updateMGain.MgainAllocatedsqftamt), 4);
                     }
-                }
-            }
-            else
-            {
-                if (mgain.MgainPlotno is not null && mgain.MgainProjectname is not null)
-                {
-                    mGainPlot.Available_SqFt = Math.Round((decimal)(mGainPlot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
-                    mGainPlot.Available_PlotValue = Math.Round((decimal)(mGainPlot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
+                    else if (updateMGain.MgainRedemamt > 0)
+                    {
+                        if (updateMGain.MgainRedemamt < updateMGain.MgainInvamt)
+                        {
+                            plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
+                            plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
 
-                    updateMGain.MgainPlotno = plot.PlotNo;
-                    updateMGain.MgainAllocatedsqft = Math.Round((decimal)((updateMGain.MgainInvamt * plot.SqFt) / (plot.SqFt * plot.Rate)), 4);
-                    updateMGain.MgainAllocatedsqftamt = Math.Round((decimal)(updateMGain.MgainAllocatedsqft * plot.Rate), 4);
-                    updateMGain.MgainTotalsqft = Math.Round((decimal)plot.SqFt, 4);
-                    updateMGain.MgainTotalplotamt = Math.Round((decimal)(plot.SqFt * plot.Rate), 3);
+                            var availableAmount = updateMGain.MgainInvamt - updateMGain.MgainRedemamt;
 
-                    await _mGainRepositery.UpdatePlotDetails(mGainPlot);
+                            updateMGain.MgainPlotno = plot.PlotNo;
+                            updateMGain.MgainAllocatedsqft = Math.Round((decimal)((availableAmount * plot.SqFt) / (plot.SqFt * plot.Rate)), 4);
+                            updateMGain.MgainAllocatedsqftamt = Math.Round((decimal)(updateMGain.MgainAllocatedsqft * plot.Rate), 4);
+                            updateMGain.MgainTotalsqft = Math.Round((decimal)plot.SqFt, 4);
+                            updateMGain.MgainTotalplotamt = Math.Round((decimal)(plot.SqFt * plot.Rate), 3);
+
+                            plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt - updateMGain.MgainAllocatedsqft), 4);
+                            plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue - updateMGain.MgainAllocatedsqftamt), 4);
+
+                            updateMGain.MgainInvamt = availableAmount;
+                        }
+                    }
+                    else
+                    {
+                        updateMGain.MgainPlotno = mgain.MgainPlotno;
+                        updateMGain.MgainAllocatedsqft = mgain.MgainAllocatedsqft;
+                        updateMGain.MgainAllocatedsqftamt = mgain.MgainAllocatedsqftamt;
+                        updateMGain.MgainTotalsqft = mgain.MgainTotalsqft;
+                        updateMGain.MgainTotalplotamt = mgain.MgainTotalplotamt;
+                    }
                 }
                 else
                 {
-                    updateMGain.MgainPlotno = plot.PlotNo;
-                    updateMGain.MgainAllocatedsqft = Math.Round((decimal)((updateMGain.MgainInvamt * plot.SqFt) / (plot.SqFt * plot.Rate)), 4);
-                    updateMGain.MgainAllocatedsqftamt = Math.Round((decimal)(updateMGain.MgainAllocatedsqft * plot.Rate), 4);
-                    updateMGain.MgainTotalsqft = Math.Round((decimal)plot.SqFt, 4);
-                    updateMGain.MgainTotalplotamt = Math.Round((decimal)(plot.SqFt * plot.Rate), 3);
+                    if (mgain.MgainPlotno is not null && mgain.MgainProjectname is not null)
+                    {
+                        mGainPlot.Available_SqFt = Math.Round((decimal)(mGainPlot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
+                        mGainPlot.Available_PlotValue = Math.Round((decimal)(mGainPlot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
+
+                        updateMGain.MgainPlotno = plot.PlotNo;
+                        updateMGain.MgainAllocatedsqft = Math.Round((decimal)((updateMGain.MgainInvamt * plot.SqFt) / (plot.SqFt * plot.Rate)), 4);
+                        updateMGain.MgainAllocatedsqftamt = Math.Round((decimal)(updateMGain.MgainAllocatedsqft * plot.Rate), 4);
+                        updateMGain.MgainTotalsqft = Math.Round((decimal)plot.SqFt, 4);
+                        updateMGain.MgainTotalplotamt = Math.Round((decimal)(plot.SqFt * plot.Rate), 3);
+
+                        await _mGainRepository.UpdatePlotDetails(mGainPlot);
+                    }
+                    else
+                    {
+                        updateMGain.MgainPlotno = plot.PlotNo;
+                        updateMGain.MgainAllocatedsqft = Math.Round((decimal)((updateMGain.MgainInvamt * plot.SqFt) / (plot.SqFt * plot.Rate)), 4);
+                        updateMGain.MgainAllocatedsqftamt = Math.Round((decimal)(updateMGain.MgainAllocatedsqft * plot.Rate), 4);
+                        updateMGain.MgainTotalsqft = Math.Round((decimal)plot.SqFt, 4);
+                        updateMGain.MgainTotalplotamt = Math.Round((decimal)(plot.SqFt * plot.Rate), 3);
+                    }
+
+                    plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt - updateMGain.MgainAllocatedsqft), 4);
+                    plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue - updateMGain.MgainAllocatedsqftamt), 4);
                 }
 
-                plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt - updateMGain.MgainAllocatedsqft), 4);
-                plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue - updateMGain.MgainAllocatedsqftamt), 4);
-            }
+                if (updateMGain.MgainIsclosed is true)
+                {
+                    updateMGain.MgainPlotno = mgain.MgainPlotno;
+                    updateMGain.MgainAllocatedsqft = mgain.MgainAllocatedsqft;
+                    updateMGain.MgainAllocatedsqftamt = mgain.MgainAllocatedsqftamt;
+                    updateMGain.MgainTotalsqft = mgain.MgainTotalsqft;
+                    updateMGain.MgainTotalplotamt = mgain.MgainTotalplotamt;
+                    updateMGain.MgainRedemdate = DateTime.Now.Date;
 
-            if (updateMGain.MgainIsclosed is true)
+                    plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
+                    plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
+                }
+                await _mGainRepository.UpdatePlotDetails(plot);
+            }
+            else
             {
-                updateMGain.MgainPlotno = mgain.MgainPlotno;
-                updateMGain.MgainAllocatedsqft = mgain.MgainAllocatedsqft;
-                updateMGain.MgainAllocatedsqftamt = mgain.MgainAllocatedsqftamt;
-                updateMGain.MgainTotalsqft = mgain.MgainTotalsqft;
-                updateMGain.MgainTotalplotamt = mgain.MgainTotalplotamt;
+                if (mgain.MgainProjectname is not null && mgain.MgainPlotno is not null)
+                {
+                    updateMGain.MgainPlotno = null;
+                    updateMGain.MgainAllocatedsqft = null;
+                    updateMGain.MgainAllocatedsqftamt = null;
+                    updateMGain.MgainTotalsqft = null;
+                    updateMGain.MgainTotalplotamt = null;
 
-                plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
-                plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
+                    mGainPlot.Available_SqFt = Math.Round((decimal)(mGainPlot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
+                    mGainPlot.Available_PlotValue = Math.Round((decimal)(mGainPlot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
+
+                    await _mGainRepository.UpdatePlotDetails(mGainPlot);
+                }
             }
 
-            await _mGainRepositery.UpdatePlotDetails(plot);
-            return await _mGainRepositery.UpdateMGainDetails(updateMGain);
+            return await _mGainRepository.UpdateMGainDetails(updateMGain);
         }
         #endregion  
 
@@ -760,7 +1011,7 @@ SURAT - 395009 <p>
             foreach (var mGainDetails in updateMGainPayment)
             {
                 var mapMGainPayment = _mapper.Map<TblMgainPaymentMethod>(mGainDetails);
-                await _mGainRepositery.UpdateMGainPayment(mapMGainPayment);
+                await _mGainRepository.UpdateMGainPayment(mapMGainPayment);
             }
             return 1;
         }
@@ -769,8 +1020,120 @@ SURAT - 395009 <p>
         #region Delete MGain Payment Details
         public async Task<int> DeleteMGainPaymentAsync(int id)
         {
-            var mGainPayment = await _mGainRepositery.GetPaymentById(id);
-            return await _mGainRepositery.DeleteMGainPayment(mGainPayment);
+            var mGainPayment = await _mGainRepository.GetPaymentById(id);
+            return await _mGainRepository.DeleteMGainPayment(mGainPayment);
+        }
+        #endregion
+
+        #region Method For Account Entry
+        public List<TblAccountTransaction> AccountEntry(MGainNonCumulativeMonthlyReportDto MGainNonCumulativeMonthlyReport, int? mGainId, int? mGainUserId, DateTime? date, bool? isTdsDeduction, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration)
+        {
+            List<TblAccountTransaction> accountTransactions = new List<TblAccountTransaction>();
+            if (isJournal is true)
+            {
+                TblAccountTransaction creditAccountTransaction = new TblAccountTransaction();
+                TblAccountTransaction debitAccountTransaction = new TblAccountTransaction();
+
+                //Journal Credit Entry
+                creditAccountTransaction.DocDate = jvEntryDate;
+                creditAccountTransaction.DocParticulars = jvNarration;
+                creditAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Journal.ToString();
+                creditAccountTransaction.DocNo = "JV" + mGainId;
+                creditAccountTransaction.Debit = 0;
+                creditAccountTransaction.Credit = MGainNonCumulativeMonthlyReport.InterestAmount;
+                creditAccountTransaction.DocUserid = mGainUserId;
+                creditAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
+                creditAccountTransaction.Mgainid = mGainId;
+
+                //Journal Debit Entry
+                debitAccountTransaction.DocDate = jvEntryDate;
+                debitAccountTransaction.DocParticulars = jvNarration;
+                debitAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Journal.ToString();
+                debitAccountTransaction.DocNo = "JV" + mGainId;
+                debitAccountTransaction.Debit = MGainNonCumulativeMonthlyReport.InterestAmount;
+                debitAccountTransaction.Credit = 0;
+                debitAccountTransaction.DocUserid = mGainUserId;
+                debitAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(0, jvNarration).Result.AccountId;
+                debitAccountTransaction.Mgainid = mGainId;
+
+                accountTransactions.Add(debitAccountTransaction);
+                accountTransactions.Add(creditAccountTransaction);
+
+                if (isTdsDeduction is true)
+                {
+                    TblAccountTransaction creditTDCAccountTransaction = new TblAccountTransaction();
+                    TblAccountTransaction debitTDCAccountTransaction = new TblAccountTransaction();
+                    string? tdsYear = null;
+
+                    var currYear = date.Value.Year;
+
+                    if(date.Value.Month >= 4)
+                    {
+                        tdsYear = "TDS " + currYear + "-" + (currYear + 1).ToString().Substring((currYear + 1).ToString().Length - 2);
+                    }
+                    else
+                    {
+                        tdsYear = "TDS " + (currYear - 1).ToString() + "-" + currYear.ToString().Substring(currYear.ToString().Length - 2); 
+                    }
+
+                    //Journal TDS Credit Entry
+                    creditTDCAccountTransaction.DocDate = jvEntryDate;
+                    creditTDCAccountTransaction.DocParticulars = "TDS " + DateTime.Now.Date.ToString("dd-MM-yyyy");
+                    creditTDCAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Journal.ToString();
+                    creditTDCAccountTransaction.DocNo = "JV" + mGainId;
+                    creditTDCAccountTransaction.Debit = 0;
+                    creditTDCAccountTransaction.Credit = MGainNonCumulativeMonthlyReport.TDS;
+                    creditTDCAccountTransaction.DocUserid = mGainUserId;
+                    creditTDCAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(0, tdsYear).Result.AccountId;
+                    creditTDCAccountTransaction.Mgainid = mGainId;
+
+                    //Journal TDs Debit Entry
+                    debitTDCAccountTransaction.DocDate = jvEntryDate;
+                    debitTDCAccountTransaction.DocParticulars = "TDS " + DateTime.Now.Date.ToString("dd-MM-yyyy");
+                    debitTDCAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Journal.ToString();
+                    debitTDCAccountTransaction.DocNo = "JV" + mGainId;
+                    debitTDCAccountTransaction.Debit = MGainNonCumulativeMonthlyReport.TDS;
+                    debitTDCAccountTransaction.Credit = 0;
+                    debitTDCAccountTransaction.DocUserid = mGainUserId;
+                    debitTDCAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
+                    debitTDCAccountTransaction.Mgainid = mGainId;
+
+                    accountTransactions.Add(debitTDCAccountTransaction);
+                    accountTransactions.Add(creditTDCAccountTransaction);
+                }
+            }
+
+            if (isPayment is true)
+            {
+                TblAccountTransaction creditAccountTransaction = new TblAccountTransaction();
+                TblAccountTransaction debitAccountTransaction = new TblAccountTransaction();
+
+                //Payment Credit Entry
+                creditAccountTransaction.DocDate = crEntryDate;
+                creditAccountTransaction.DocParticulars = crNarration;
+                creditAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Payment.ToString();
+                creditAccountTransaction.DocNo = "CP" + mGainId;
+                creditAccountTransaction.Debit = 0;
+                creditAccountTransaction.Credit = MGainNonCumulativeMonthlyReport.InterestAmount;
+                creditAccountTransaction.DocUserid = mGainUserId;
+                creditAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(0, crNarration).Result.AccountId;
+                creditAccountTransaction.Mgainid = mGainId;
+
+                //Payment Debit Entry
+                debitAccountTransaction.DocDate = crEntryDate;
+                debitAccountTransaction.DocParticulars = crNarration;
+                debitAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Payment.ToString();
+                debitAccountTransaction.DocNo = "CP" + mGainId;
+                debitAccountTransaction.Debit = MGainNonCumulativeMonthlyReport.InterestAmount;
+                debitAccountTransaction.Credit = 0;
+                debitAccountTransaction.DocUserid = mGainUserId;
+                debitAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
+                debitAccountTransaction.Mgainid = mGainId;
+
+                accountTransactions.Add(debitAccountTransaction);
+                accountTransactions.Add(creditAccountTransaction);
+            }
+            return accountTransactions;
         }
         #endregion
     }

@@ -11,7 +11,7 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module
         public decimal? MgainInvamt { get; set; }
         public string? MgainType { get; set; }
         public string? MgainProjectname { get; set; }
-        public int PlotId { get; set; }
+        public int? PlotId { get; set; }
         public string? MgainAggre { get; set; }
         public DateTime? MgainRedemdate { get; set; }
         public decimal? MgainRedemamt { get; set; }

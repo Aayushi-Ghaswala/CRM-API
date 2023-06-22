@@ -5,6 +5,7 @@ using CRM_api.DataAccess.ResponseModel.Stocks_Module;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.Stocks_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
+using CRM_api.Services.Dtos.ResponseDto.User_Module;
 
 namespace CRM_api.Services.MapperProfile
 {
@@ -37,8 +38,8 @@ namespace CRM_api.Services.MapperProfile
             CreateMap<StocksResponse<TblStockData>, StockResponseDto<StockMasterDto>>();
             CreateMap<TblStockData, ScriptNamesDto>();
             CreateMap<Response<TblStockData>, ResponseDto<ScriptNamesDto>>();
-            CreateMap<TblStockData, StocksClientNamesDto>();
-            CreateMap<Response<TblStockData>, ResponseDto<StocksClientNamesDto>>();
+            CreateMap<TblStockData, UserNameDto>();
+            CreateMap<Response<TblStockData>, ResponseDto<UserNameDto>>();
         }
     }
 }
