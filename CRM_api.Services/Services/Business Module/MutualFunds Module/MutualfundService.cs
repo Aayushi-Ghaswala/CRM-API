@@ -6,6 +6,7 @@ using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.MutualFunds_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.MutualFunds_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
+using CRM_api.Services.Dtos.ResponseDto.User_Module;
 using CRM_api.Services.IServices.Business_Module.MutualFunds_Module;
 using ExcelDataReader;
 using Microsoft.AspNetCore.Http;
@@ -271,10 +272,10 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get All MFUserName
-        public async Task<ResponseDto<MFUserNameDto>> GetMFUserNameAsync(string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<UserNameDto>> GetMFUserNameAsync(string? searchingParams, SortingParams sortingParams)
         {
             var mfUser = await _mutualfundRepository.GetMFUserName(searchingParams, sortingParams);
-            var mapMFUser = _mapper.Map<ResponseDto<MFUserNameDto>>(mfUser);
+            var mapMFUser = _mapper.Map<ResponseDto<UserNameDto>>(mfUser);
             return mapMFUser;
         }
         #endregion 

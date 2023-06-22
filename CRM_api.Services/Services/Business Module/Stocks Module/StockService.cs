@@ -3,8 +3,10 @@ using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.Stocks_Module;
+using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
+using CRM_api.Services.Dtos.ResponseDto.User_Module;
 using CRM_api.Services.IServices.Business_Module.Stocks_Module;
 using CsvHelper;
 using IronXL;
@@ -26,10 +28,10 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         }
 
         #region Get stock user's client names
-        public async Task<ResponseDto<StocksClientNamesDto>> GetStocksUsersNameAsync(string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<UserNameDto>> GetStocksUsersNameAsync(string? searchingParams, SortingParams sortingParams)
         {
             var usernames = await _stocksRepository.GetStocksUsersName(searchingParams, sortingParams);
-            var mappedUsernames = _mapper.Map<ResponseDto<StocksClientNamesDto>>(usernames);
+            var mappedUsernames = _mapper.Map<ResponseDto<UserNameDto>>(usernames);
             return mappedUsernames;
         }
         #endregion

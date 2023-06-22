@@ -10,8 +10,10 @@
         public string? Mgain1stholderpan { get; set; }
         public decimal? MgainInvamt { get; set; }
         public string? MgainType { get; set; }
+        public int? Tenure { get; set; }
         public ProjectMasterDto? ProjectMaster { get; set; }
         public string? MgainProjectname { get; set; }
+        public PlotMasterDto? PlotMaster { get; set; }
         public string? MgainPlotno { get; set; }
         public decimal? MgainAllocatedsqft { get; set; }
         public decimal? MgainAllocatedsqftamt { get; set; }

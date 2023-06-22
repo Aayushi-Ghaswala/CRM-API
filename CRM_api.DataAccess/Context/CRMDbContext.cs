@@ -18,6 +18,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<Sheet2> Sheet2s { get; set; } = null!;
         public virtual DbSet<Tbl5paisaResponse> Tbl5paisaResponses { get; set; } = null!;
         public virtual DbSet<TblAccountMaster> TblAccountMasters { get; set; } = null!;
+        public virtual DbSet<TblAccountTransaction> TblAccountTransactions { get; set; } = null!;
         public virtual DbSet<TblBankMaster> TblBankMasters { get; set; } = null!;
         public virtual DbSet<TblCityMaster> TblCityMasters { get; set; } = null!;
         public virtual DbSet<TblContactMaster> TblContactMasters { get; set; } = null!;
@@ -359,11 +360,59 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false)
                     .HasColumnName("account_name");
 
-                entity.Property(e => e.OpeningBalance)
-                    .HasColumnType("decimal(18, 0)")
-                    .HasColumnName("opening_balance");
+                entity.Property(e => e.DebitCredit)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("debit_credit");
+
+                entity.Property(e => e.OpeningBalance).HasColumnName("opening_balance");
+
+                entity.Property(e => e.OpeningBalanceDate)
+                    .HasColumnType("date")
+                    .HasColumnName("opening_balance_date");
 
                 entity.Property(e => e.UserId).HasColumnName("user_id");
+            });
+
+            modelBuilder.Entity<TblAccountTransaction>(entity =>
+            {
+                entity.ToTable("tbl_account_transaction");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Accountid).HasColumnName("accountid");
+
+                entity.Property(e => e.Credit)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("credit");
+
+                entity.Property(e => e.Debit)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("debit");
+
+                entity.Property(e => e.DocDate)
+                    .HasColumnType("date")
+                    .HasColumnName("doc_date");
+
+                entity.Property(e => e.DocNo)
+                    .HasMaxLength(20)
+                    .HasColumnName("doc_no");
+
+                entity.Property(e => e.DocParticulars)
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasColumnName("doc_particulars");
+
+                entity.Property(e => e.DocSubType).HasColumnName("doc_sub_type");
+
+                entity.Property(e => e.DocType)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("doc_type");
+
+                entity.Property(e => e.DocUserid).HasColumnName("doc_userid");
+
+                entity.Property(e => e.Mgainid).HasColumnName("mgainid");
             });
 
             modelBuilder.Entity<TblBankMaster>(entity =>

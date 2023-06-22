@@ -8,6 +8,8 @@ namespace CRM_api.DataAccess.Models
         public int AccountId { get; set; }
         public string? AccountName { get; set; }
         public int? UserId { get; set; }
-        public decimal? OpeningBalance { get; set; }
+        public double? OpeningBalance { get; set; }
+        public string? DebitCredit { get; set; }
+        public DateTime? OpeningBalanceDate { get; set; }
     }
 }

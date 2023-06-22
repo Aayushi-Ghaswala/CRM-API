@@ -22,7 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Text;
 
 namespace CRM_api.Services.ServicesDepedancy
-{
+{ 
     public static class ServicesDependancy
     {
         public static void InjectServiceDependecy(this IServiceCollection services, IConfiguration config)

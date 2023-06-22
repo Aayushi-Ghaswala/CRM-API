@@ -93,8 +93,36 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             decimal? totalAmount = purchaseAmount - redemAmount;
 
             if (searchingParams != null)
-                mftransactions = _context.Search<TblMftransaction>(searchingParams);
-
+            {
+                if (startDate == null && endDate == null)
+                {
+                    if (schemeId == null)
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId).AsQueryable();
+                    else
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.SchemeId == schemeId).AsQueryable();
+                }
+                else if (endDate == null)
+                {
+                    if (schemeId == null)
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Date >= startDate).AsQueryable();
+                    else
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date >= startDate).AsQueryable();
+                }
+                else if (startDate == null)
+                {
+                    if (schemeId == null)
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Date <= endDate).AsQueryable();
+                    else
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date <= endDate).AsQueryable();
+                }
+                else
+                {
+                    if (schemeId == null)
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Date >= startDate && x.Date <= endDate).AsQueryable();
+                    else
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date >= startDate && x.Date <= endDate).AsQueryable();
+                }
+            }
             pageCount = Math.Ceiling(mftransactions.Count() / sortingParams.PageSize);
 
             //Apply Sorting
@@ -155,15 +183,14 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get All MF User Name
-        public async Task<Response<TblMftransaction>> GetMFUserName(string? searchingParams, SortingParams sortingParams)
+        public async Task<Response<UserNameResponse>> GetMFUserName(string? searchingParams, SortingParams sortingParams)
         {
-            var mfUser = await _context.TblMftransactions.ToListAsync();
-            var userName = mfUser.DistinctBy(x => x.Userid).AsQueryable();
+            var userName = _context.TblMftransactions.Select(x => new UserNameResponse { UserId = x.Userid, UserName = x.Username }).Distinct().AsQueryable();
             double pageCount = 0;
 
-            if(searchingParams != null)
+            if (searchingParams != null)
             {
-                userName = _context.Search<TblMftransaction>(searchingParams);
+                userName = userName.Where(x => x.UserName.ToLower().Contains(searchingParams.ToLower()));
             }
 
             pageCount = Math.Ceiling(userName.Count() / sortingParams.PageSize);
@@ -172,9 +199,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             var sortingData = SortingExtensions.ApplySorting(userName, sortingParams.SortBy, sortingParams.IsSortAscending);
 
             //Apply Pagination
-            var paginatedData = SortingExtensions.ApplyPagination(userName, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+            var paginatedData = SortingExtensions.ApplyPagination(sortingData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
-            var responseData = new Response<TblMftransaction>()
+            var responseData = new Response<UserNameResponse>()
             {
                 Values = paginatedData,
                 Pagination = new Pagination()
@@ -196,7 +223,11 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             var schemeName = mftransactions.DistinctBy(x => x.Schemename).AsQueryable();
 
             if (searchingParams != null)
-                schemeName = _context.Search<TblMftransaction>(searchingParams);
+            {
+                mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId).ToList();
+                schemeName = mftransactions.DistinctBy(x => x.Schemename).AsQueryable();
+            }
+                
 
             pageCount = Math.Ceiling(schemeName.Count() / sortingParams.PageSize);
 

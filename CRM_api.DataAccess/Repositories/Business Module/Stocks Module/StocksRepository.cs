@@ -4,7 +4,6 @@ using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using CRM_api.DataAccess.ResponseModel.Stocks_Module;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
 
@@ -20,18 +19,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         }
 
         #region Get stock user's names
-        public async Task<Response<TblStockData>> GetStocksUsersName(string? searchingParams, SortingParams sortingParams)
+        public async Task<Response<UserNameResponse>> GetStocksUsersName(string? searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
-            List<TblStockData> data = new List<TblStockData>();
-            IQueryable<TblStockData> filterData = data.AsQueryable();
 
-            var usersData = await _context.TblStockData.ToListAsync();
-            filterData = usersData.DistinctBy(s => s.StClientname).AsQueryable();
+            var filterData = _context.TblStockData.Select(x => new UserNameResponse { UserName = x.StClientname }).Distinct().AsQueryable();
 
             if (searchingParams != null)
             {
-                filterData = _context.Search<TblStockData>(searchingParams);
+                filterData = filterData.Where(x => x.UserName.ToLower().Contains(searchingParams.ToLower()));
             }
 
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
@@ -41,9 +37,8 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
 
             // Apply pagination
             var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
-            paginatedData = paginatedData.DistinctBy(sd => sd.StClientname).ToList();
 
-            var stockData = new Response<TblStockData>()
+            var stockData = new Response<UserNameResponse>()
             {
                 Values = paginatedData,
                 Pagination = new Pagination()
@@ -105,7 +100,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
             double pageCount = 0;
             List<TblStockData> data = new List<TblStockData>();
             IQueryable<TblStockData> filterData = data.AsQueryable();
-            
+
             decimal? totalPurchase = 0;
             //decimal? totalPurchaseQty = 0;
             decimal? totalSale = 0;
