@@ -49,11 +49,11 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region Get stocks data
         [HttpGet("GetStocksData")]
-        public async Task<IActionResult> GetStocksData([FromQuery] string? search, [FromQuery] SortingParams? sortingParams, string? clientName = null, DateTime? fromDate = null, DateTime? toDate = null, string? scriptName = null)
+        public async Task<IActionResult> GetStocksData([FromQuery] string? search, [FromQuery] SortingParams? sortingParams, string? clientName = null, DateTime? fromDate = null, DateTime? toDate = null, string? scriptName = null, string? firmName = null)
         {
             try
             {
-                var stocksData = await _stockService.GetStockDataAsync(clientName, fromDate, toDate, scriptName, search, sortingParams);
+                var stocksData = await _stockService.GetStockDataAsync(clientName, fromDate, toDate, scriptName, firmName, search, sortingParams);
                 return Ok(stocksData);
             }
             catch (Exception)

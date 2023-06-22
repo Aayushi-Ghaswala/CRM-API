@@ -6,8 +6,8 @@ namespace CRM_api.DataAccess.ResponseModel.Stocks_Module
     {
         public Response<T> response { get; set; }
         public decimal? TotalPurchase { get; set; } = 0;
-        public decimal? TotalPurchaseQty { get; set; } = 0;
+        //public decimal? TotalPurchaseQty { get; set; } = 0;
         public decimal? TotalSale { get; set; } = 0;
-        public decimal? TotalSaleQty { get; set; } = 0;
+        //public decimal? TotalSaleQty { get; set; } = 0;
     }
 }

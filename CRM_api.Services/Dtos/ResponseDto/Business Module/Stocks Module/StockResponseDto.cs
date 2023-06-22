@@ -6,8 +6,8 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module
     {
         public ResponseDto<T> response { get; set; }
         public decimal? TotalPurchase { get; set; } = 0;
-        public decimal? TotalPurchaseQty { get; set; } = 0;
+        //public decimal? TotalPurchaseQty { get; set; } = 0;
         public decimal? TotalSale { get; set; } = 0;
-        public decimal? TotalSaleQty { get; set; } = 0;
+        //public decimal? TotalSaleQty { get; set; } = 0;
     }
 }

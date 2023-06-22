@@ -5,7 +5,7 @@ using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.WBC_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.WBC_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
-using CRM_api.Services.IServices.WBC_Module;
+using CRM_api.Services.IServices.Business_Module.WBC_Module;
 
 namespace CRM_api.Services.Services.Business_Module.WBC_Module
 {

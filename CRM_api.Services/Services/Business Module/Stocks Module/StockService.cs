@@ -44,9 +44,9 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #endregion
 
         #region Get All or clientwise stocks data
-        public async Task<StockResponseDto<StockMasterDto>> GetStockDataAsync(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string? searchingParams, SortingParams sortingParams)
+        public async Task<StockResponseDto<StockMasterDto>> GetStockDataAsync(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string firmName, string? searchingParams, SortingParams sortingParams)
         {
-            var stocksData = await _stocksRepository.GetStocksTransactions(clientName, fromDate, toDate, scriptName, searchingParams, sortingParams);
+            var stocksData = await _stocksRepository.GetStocksTransactions(clientName, fromDate, toDate, scriptName, firmName, searchingParams, sortingParams);
             var stockResult = _mapper.Map<StockResponseDto<StockMasterDto>>(stocksData);
             return stockResult;
         }
@@ -81,6 +81,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 File.Copy(filePath, localFilePath);
 
                 List<AddSharekhanStocksDto> stockDataList = new List<AddSharekhanStocksDto>();
+
                 using (var fs = new StreamReader(localFilePath))
                 {
                     // to load the records from the file in my List<CsvLine>
@@ -155,8 +156,6 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
                 if (ex.Equals(".xls"))
                 {
-                    //var name = formFile.FileName.Split(".");
-                    //filename = name[0] + ".xlsx";
                     // Create an Excel Application object
                     Excel.Application excelApp = new Excel.Application();
 
@@ -219,7 +218,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                             SellQty = Convert.ToInt32(worksheet.Rows[i].Columns[5].Value),
                             SellNetRate = Convert.ToDouble(worksheet.Rows[i].Columns[6].Value.ToString()),
                             NetRate = Convert.ToDouble(worksheet.Rows[i].Columns[8].Value.ToString()),
-                            NetAmount = Convert.ToDecimal(worksheet.Rows[i].Columns[9].Value.ToString())
+                            NetAmount = Math.Abs(Convert.ToDecimal(worksheet.Rows[i].Columns[9].Value.ToString()))
                         };
                         listStocks.Insert(0, trans);
                     }
@@ -237,8 +236,6 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                             listStocks[i].SellNetRate = 0;
 
                             var stock = new AddJainamStocksDto(listStocks[i]);
-
-                            //var stock = new AddJainamStocksDto(listStocks[i].ScriptName, listStocks[i].Company, listStocks[i].Date, listStocks[i].Narration, listStocks[i].BuyQty, listStocks[i].BuyNetRate, listStocks[i].SellQty, listStocks[i].SellNetRate, listStocks[i].NetRate, listStocks[i].NetAmount);
                             stock.BuyQty = 0;
                             stock.BuyNetRate = 0;
                             stock.SellQty = sellQty;

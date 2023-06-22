@@ -29,6 +29,8 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblFamilyMember> TblFamilyMembers { get; set; } = null!;
         public virtual DbSet<TblFaq> TblFaqs { get; set; } = null!;
         public virtual DbSet<TblFasttrackLedger> TblFasttrackLedgers { get; set; } = null!;
+        public virtual DbSet<TblFasttrackLevelCommission> TblFasttrackLevelCommissions { get; set; } = null!;
+        public virtual DbSet<TblFasttrackSchemeMaster> TblFasttrackSchemeMasters { get; set; } = null!;
         public virtual DbSet<TblFasttrackSubscription> TblFasttrackSubscriptions { get; set; } = null!;
         public virtual DbSet<TblFolioDetail> TblFolioDetails { get; set; } = null!;
         public virtual DbSet<TblFolioMaster> TblFolioMasters { get; set; } = null!;
@@ -724,7 +726,48 @@ namespace CRM_api.DataAccess.Context
                     .HasForeignKey(d => d.Userid)
                     .HasConstraintName("FK_tbl_Fasttrack_Ledger_tbl_User_Master");
             });
-            
+
+            modelBuilder.Entity<TblFasttrackLevelCommission>(entity =>
+            {
+                entity.ToTable("tbl_fasttrack_level_commission");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Parent_Level).HasColumnName("Parent_Level");
+
+                entity.Property(e => e.Level_Income).HasColumnName("Level_Income");
+
+                entity.Property(e => e.Basic).HasColumnName("Basic");
+
+                entity.Property(e => e.Silver).HasColumnName("Silver");
+
+                entity.Property(e => e.Gold).HasColumnName("Gold");
+
+                entity.Property(e => e.Platinum).HasColumnName("Platinum");
+
+                entity.Property(e => e.Diamond).HasColumnName("Diamond");
+            });
+
+            modelBuilder.Entity<TblFasttrackSchemeMaster>(entity =>
+            {
+                entity.ToTable("tbl_fasttrack_scheme_master");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Goldpoint).HasColumnName("goldpoint");
+
+                entity.Property(e => e.Level)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("level");
+
+                entity.Property(e => e.NoOfFasttrackClients).HasColumnName("No_of_fasttrack_clients");
+
+                entity.Property(e => e.NoOfNonFasttrackClients).HasColumnName("No_of_non_fasttrack_clients");
+
+                entity.Property(e => e.TotalClient).HasColumnName("total_client");
+            });
+
             modelBuilder.Entity<TblFasttrackSubscription>(entity =>
             {
                 entity.ToTable("tbl_Fasttrack_Subscription");

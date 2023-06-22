@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.Helper;
+using CRM_api.DataAccess.IRepositories.Business_Module.Fasttrack_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto;
@@ -12,10 +13,12 @@ namespace CRM_api.Services.Services.User_Module
     public class UserMasterService : IUserMasterService
     {
         private readonly IUserMasterRepository _userMasterRepository;
+        private readonly IFasttrackRepository _fasttrackRepository;
         private readonly IMapper _mapper;
-        public UserMasterService(IUserMasterRepository userMasterRepository, IMapper mapper)
+        public UserMasterService(IUserMasterRepository userMasterRepository, IFasttrackRepository fasttrackRepository, IMapper mapper)
         {
             _userMasterRepository = userMasterRepository;
+            _fasttrackRepository = fasttrackRepository;
             _mapper = mapper;
         }
 
@@ -24,7 +27,14 @@ namespace CRM_api.Services.Services.User_Module
         {
             var users = await _userMasterRepository.GetUsers(filterString, search, sortingParams);
             var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(users);
-
+            foreach (var user in mapUsers.Values)
+            {
+                if (user.UserFasttrack == true)
+                {
+                    var fasttrackCategory = await _fasttrackRepository.GetUserFasttrackCategory(user.UserId);
+                    user.UserFasttrackCategory = fasttrackCategory;
+                }
+            }
             return mapUsers;
         }
         #endregion
