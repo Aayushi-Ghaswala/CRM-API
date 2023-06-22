@@ -72,7 +72,11 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
 
             if (searchingParams != null)
             {
-                filterData = _context.Search<TblStockData>(searchingParams);
+                if (!string.IsNullOrEmpty(clientName))
+                    data = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower())).ToList();
+                else
+                    data = _context.Search<TblStockData>(searchingParams).ToList();
+                filterData = data.DistinctBy(s => s.StScripname).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -96,17 +100,28 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         #endregion
 
         #region Get stocks transaction data
-        public async Task<StocksResponse<TblStockData>> GetStocksTransactions(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string? searchingParams, SortingParams sortingParams)
+        public async Task<StocksResponse<TblStockData>> GetStocksTransactions(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string firmName, string? searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
             List<TblStockData> data = new List<TblStockData>();
             IQueryable<TblStockData> filterData = data.AsQueryable();
             
             decimal? totalPurchase = 0;
-            decimal? totalPurchaseQty = 0;
+            //decimal? totalPurchaseQty = 0;
             decimal? totalSale = 0;
-            decimal? totalSaleQty = 0;
-            if(!string.IsNullOrEmpty(clientName) && !string.IsNullOrEmpty(scriptName))
+            //decimal? totalSaleQty = 0;
+            if (!string.IsNullOrEmpty(clientName) && !string.IsNullOrEmpty(scriptName) && !string.IsNullOrEmpty(firmName))
+            {
+                if (fromDate != null && toDate != null)
+                    filterData = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate && s.StDate <= toDate).AsQueryable();
+                else if (fromDate != null)
+                    filterData = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate).AsQueryable();
+                else if (toDate != null)
+                    filterData = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate <= toDate).AsQueryable();
+                else
+                    filterData = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower())).AsQueryable();
+            }
+            else if (!string.IsNullOrEmpty(clientName) && !string.IsNullOrEmpty(scriptName))
             {
                 if (fromDate != null && toDate != null)
                     filterData = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.StDate >= fromDate && s.StDate <= toDate).AsQueryable();
@@ -116,6 +131,39 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
                     filterData = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.StDate <= toDate).AsQueryable();
                 else
                     filterData = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower())).AsQueryable();
+            }
+            else if (!string.IsNullOrEmpty(clientName) && !string.IsNullOrEmpty(firmName))
+            {
+                if (fromDate != null && toDate != null)
+                    filterData = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate && s.StDate <= toDate).AsQueryable();
+                else if (fromDate != null)
+                    filterData = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate).AsQueryable();
+                else if (toDate != null)
+                    filterData = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate <= toDate).AsQueryable();
+                else
+                    filterData = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower())).AsQueryable();
+            }
+            else if (!string.IsNullOrEmpty(scriptName) && !string.IsNullOrEmpty(firmName))
+            {
+                if (fromDate != null && toDate != null)
+                    filterData = _context.TblStockData.Where(s => s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate && s.StDate <= toDate).AsQueryable();
+                else if (fromDate != null)
+                    filterData = _context.TblStockData.Where(s => s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate).AsQueryable();
+                else if (toDate != null)
+                    filterData = _context.TblStockData.Where(s => s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate <= toDate).AsQueryable();
+                else
+                    filterData = _context.TblStockData.Where(s => s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower())).AsQueryable();
+            }
+            else if (!string.IsNullOrEmpty(firmName) || !string.IsNullOrWhiteSpace(firmName))
+            {
+                if (fromDate != null && toDate != null)
+                    filterData = _context.TblStockData.Where(s => s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate && s.StDate <= toDate).AsQueryable();
+                else if (fromDate != null)
+                    filterData = _context.TblStockData.Where(s => s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate).AsQueryable();
+                else if (toDate != null)
+                    filterData = _context.TblStockData.Where(s => s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate <= toDate).AsQueryable();
+                else
+                    filterData = _context.TblStockData.Where(s => s.FirmName.ToLower().Equals(firmName.ToLower())).AsQueryable();
             }
             else if (!string.IsNullOrEmpty(clientName) || !string.IsNullOrWhiteSpace(clientName))
             {
@@ -150,15 +198,104 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
                 else
                     filterData = _context.TblStockData.AsQueryable();
             }
-            totalPurchase = filterData.Where(s => s.StType.Equals("B")).Sum(x => x.StNetcostvalue);
-            totalPurchaseQty = filterData.Where(s => s.StType.Equals("B")).Sum(x => x.StQty);
-            totalSale = filterData.Where(s => s.StType.Equals("S")).Sum(x => x.StNetcostvalue);
-            totalSaleQty = filterData.Where(s => s.StType.Equals("S")).Sum(x => x.StQty);
 
             if (searchingParams != null)
             {
-                filterData = _context.Search<TblStockData>(searchingParams);
+                if (!string.IsNullOrEmpty(clientName) && !string.IsNullOrEmpty(scriptName) && !string.IsNullOrEmpty(firmName))
+                {
+                    if (fromDate != null && toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate && s.StDate <= toDate).AsQueryable();
+                    else if (fromDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate).AsQueryable();
+                    else if (toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate <= toDate).AsQueryable();
+                    else
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower())).AsQueryable();
+                }
+                else if (!string.IsNullOrEmpty(clientName) && !string.IsNullOrEmpty(scriptName))
+                {
+                    if (fromDate != null && toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.StDate >= fromDate && s.StDate <= toDate);
+                    else if (fromDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.StDate >= fromDate);
+                    else if (toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.StDate <= toDate);
+                    else
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StScripname.ToLower().Equals(scriptName.ToLower()));
+                }
+                else if (!string.IsNullOrEmpty(clientName) && !string.IsNullOrEmpty(firmName))
+                {
+                    if (fromDate != null && toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate && s.StDate <= toDate).AsQueryable();
+                    else if (fromDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate).AsQueryable();
+                    else if (toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate <= toDate).AsQueryable();
+                    else
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower())).AsQueryable();
+                }
+                else if (!string.IsNullOrEmpty(scriptName) && !string.IsNullOrEmpty(firmName))
+                {
+                    if (fromDate != null && toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate && s.StDate <= toDate).AsQueryable();
+                    else if (fromDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate).AsQueryable();
+                    else if (toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate <= toDate).AsQueryable();
+                    else
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower())).AsQueryable();
+                }
+                else if (!string.IsNullOrEmpty(firmName) || !string.IsNullOrWhiteSpace(firmName))
+                {
+                    if (fromDate != null && toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate && s.StDate <= toDate).AsQueryable();
+                    else if (fromDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate >= fromDate).AsQueryable();
+                    else if (toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.FirmName.ToLower().Equals(firmName.ToLower()) && s.StDate <= toDate).AsQueryable();
+                    else
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.FirmName.ToLower().Equals(firmName.ToLower())).AsQueryable();
+                }
+                else if (!string.IsNullOrEmpty(clientName) || !string.IsNullOrWhiteSpace(clientName))
+                {
+                    if (fromDate != null && toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StDate >= fromDate && s.StDate <= toDate).AsQueryable();
+                    else if (fromDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StDate >= fromDate).AsQueryable();
+                    else if (toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.StDate <= toDate).AsQueryable();
+                    else
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower())).AsQueryable();
+                }
+                else if (!string.IsNullOrEmpty(scriptName) || !string.IsNullOrWhiteSpace(scriptName))
+                {
+                    if (fromDate != null && toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.StDate >= fromDate && s.StDate <= toDate).AsQueryable();
+                    else if (fromDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.StDate >= fromDate).AsQueryable();
+                    else if (toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StScripname.ToLower().Equals(scriptName.ToLower()) && s.StDate <= toDate).AsQueryable();
+                    else
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StScripname.ToLower().Equals(scriptName.ToLower())).AsQueryable();
+                }
+                else
+                {
+                    if (fromDate != null && toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StDate >= fromDate && s.StDate <= toDate).AsQueryable();
+                    else if (fromDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StDate >= fromDate).AsQueryable();
+                    else if (toDate != null)
+                        filterData = _context.Search<TblStockData>(searchingParams).Where(s => s.StDate <= toDate).AsQueryable();
+                    else
+                        filterData = _context.Search<TblStockData>(searchingParams).AsQueryable();
+                }
+                //filterData = _context.Search<TblStockData>(searchingParams).Where(s => );
+                //filterData = _context.Search<TblStockData>(searchingParams);
             }
+            totalPurchase = filterData.Where(s => s.StType.Equals("B")).Sum(x => x.StNetcostvalue);
+            //totalPurchaseQty = filterData.Where(s => s.StType.Equals("B")).Sum(x => x.StQty);
+            totalSale = filterData.Where(s => s.StType.Equals("S")).Sum(x => x.StNetcostvalue);
+            //totalSaleQty = filterData.Where(s => s.StType.Equals("S")).Sum(x => x.StQty);
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -180,9 +317,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
             {
                 response = stockData,
                 TotalPurchase = totalPurchase,
-                TotalPurchaseQty = totalPurchaseQty,
+                //TotalPurchaseQty = totalPurchaseQty,
                 TotalSale = totalSale,
-                TotalSaleQty = totalSaleQty
+                //TotalSaleQty = totalSaleQty
             };
             return stockResponse;
         }

@@ -1,12 +1,14 @@
 ﻿using CRM_api.DataAccess.DataAccessDepedancy;
+using CRM_api.Services.IServices.Business_Module.Fasttrack_Module;
 using CRM_api.Services.IServices.Business_Module.LI_GI_Module;
 using CRM_api.Services.IServices.Business_Module.Loan_Module;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
 using CRM_api.Services.IServices.Business_Module.MutualFunds_Module;
 using CRM_api.Services.IServices.Business_Module.Stocks_Module;
+using CRM_api.Services.IServices.Business_Module.WBC_Module;
 using CRM_api.Services.IServices.HR_Module;
 using CRM_api.Services.IServices.User_Module;
-using CRM_api.Services.IServices.WBC_Module;
+using CRM_api.Services.Services.Business_Module.Fasttrack_Module;
 using CRM_api.Services.Services.Business_Module.LI_GI_Module;
 using CRM_api.Services.Services.Business_Module.Loan_Module;
 using CRM_api.Services.Services.Business_Module.MGain_Module;
@@ -48,6 +50,7 @@ namespace CRM_api.Services.ServicesDepedancy
             services.AddScoped<IMGainService, MGainService>();
             services.AddScoped<IMGainSchemeService, MGainSchemeService>();
             services.AddScoped<IWBCService, WBCService>();
+            services.AddScoped<IFasttrackService, FasttrackService>();
 
             //Hr Module
             services.AddScoped<IEmployeeService, EmployeeService>();

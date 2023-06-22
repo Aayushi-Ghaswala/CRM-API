@@ -17,7 +17,7 @@ namespace CRM_api.Services.MapperProfile
                 .ForMember(dest => dest.StScripname, opt => opt.MapFrom(src => src.ScriptName))
                 .ForMember(dest => dest.StSettno, opt => opt.MapFrom(src => src.Narration))
                 .ForMember(dest => dest.StDate, opt => opt.MapFrom(src => src.Date))
-                .ForMember(dest => dest.StRate, opt => opt.MapFrom(src => src.NetRate))
+                .ForMember(dest => dest.StNetsharerate, opt => opt.MapFrom(src => src.NetRate))
                 .ForMember(dest => dest.StTransactionDetails, opt => opt.MapFrom(src => src.Company))
                 .ForMember(dest => dest.StNetcostvalue, opt => opt.MapFrom(src => src.NetAmount))
                 .ForMember(dest => dest.FirmName, opt => opt.MapFrom(src => src.FirmName))

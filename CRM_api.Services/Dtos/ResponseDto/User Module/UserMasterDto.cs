@@ -42,5 +42,6 @@ namespace CRM_api.Services.Dtos.ResponseDto
         public int? FamilyId { get; set; }
         public string? UserNjname { get; set; }
         public DateTime? FastTrackActivationDate { get; set; }
+        public string UserFasttrackCategory { get; set; }
     }
 }
