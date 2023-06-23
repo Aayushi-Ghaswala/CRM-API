@@ -3,6 +3,7 @@ using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.MGain_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
+using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
 {
@@ -57,6 +58,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             };
 
             return mGainResponse;
+        }
+        #endregion
+
+        #region Get MGain Shceme By Id
+        public async Task<TblMgainSchemeMaster> GetMGainSchemeById(int id)
+        {
+            var mgainShceme = await _context.TblMgainSchemeMasters.Where(x => x.Id == id).FirstAsync();
+
+            return mgainShceme;
         }
         #endregion
 

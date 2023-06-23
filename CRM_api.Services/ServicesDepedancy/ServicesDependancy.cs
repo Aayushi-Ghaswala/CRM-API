@@ -1,4 +1,5 @@
 ﻿using CRM_api.DataAccess.DataAccessDepedancy;
+using CRM_api.Services.IServices.Business_Module.Dashboard;
 using CRM_api.Services.IServices.Business_Module.Fasttrack_Module;
 using CRM_api.Services.IServices.Business_Module.LI_GI_Module;
 using CRM_api.Services.IServices.Business_Module.Loan_Module;
@@ -8,6 +9,7 @@ using CRM_api.Services.IServices.Business_Module.Stocks_Module;
 using CRM_api.Services.IServices.Business_Module.WBC_Module;
 using CRM_api.Services.IServices.HR_Module;
 using CRM_api.Services.IServices.User_Module;
+using CRM_api.Services.Services.Business_Module.Dashboard;
 using CRM_api.Services.Services.Business_Module.Fasttrack_Module;
 using CRM_api.Services.Services.Business_Module.LI_GI_Module;
 using CRM_api.Services.Services.Business_Module.Loan_Module;
@@ -22,7 +24,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Text;
 
 namespace CRM_api.Services.ServicesDepedancy
-{ 
+{
     public static class ServicesDependancy
     {
         public static void InjectServiceDependecy(this IServiceCollection services, IConfiguration config)
@@ -50,6 +52,7 @@ namespace CRM_api.Services.ServicesDepedancy
             services.AddScoped<IMGainService, MGainService>();
             services.AddScoped<IMGainSchemeService, MGainSchemeService>();
             services.AddScoped<IWBCService, WBCService>();
+            services.AddScoped<IBusinessDashboardService, BusinessDashboardService>();
             services.AddScoped<IFasttrackService, FasttrackService>();
 
             //Hr Module

@@ -135,6 +135,69 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
+        [HttpGet("GetMgGainCumulativeInterestReport")]
+        #region Get MGain Cumulative Interest Computation
+        public async Task<IActionResult> GetMgGainCumulativeInterestReport(int fromYear, int toYear, int? schemeId, string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var details = await _mGainService.GetMgGainCumulativeInterestReportAsync(fromYear, toYear, schemeId, search, sortingParams);
+                return Ok(details);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpGet("GetMGain10YearsInterestDetails")]
+        #region Get MGain 10 Years Interest Details
+        public async Task<IActionResult> GetMGain10YearsInterestDetails(string userName, int schemeId, DateTime invDate, decimal mGainAmount, string mGainType)
+        {
+            try
+            {
+                return Ok(await _mGainService.GetMGain10YearsInterestDetailsAsync(userName, schemeId, invDate, mGainAmount, mGainType));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpGet("GetMGainInterestCertificate")]
+        #region Get MGain Interest Certificate
+        public async Task<ActionResult> GetMGainInterestCertificate(int userId, int year)
+        {
+            try
+            {
+                var file = await _mGainService.GetMGainIntertestCertificateAsync(userId, year);
+                return Ok(file);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpGet("GetMGainInterestLedger")]
+        #region Get MGain Interest Ledger
+        public async Task<ActionResult> GetMGainInterestLedger(int userId, int year)
+        {
+            try
+            {
+                var file = await _mGainService.GetMGainInterestLedgerAsync(userId, year);
+                return Ok(file);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         [HttpGet("GetAllProjects")]
         #region Get All Projects
         public async Task<IActionResult> GetAllProjects([FromQuery] string? search, [FromQuery] SortingParams sortingParams)

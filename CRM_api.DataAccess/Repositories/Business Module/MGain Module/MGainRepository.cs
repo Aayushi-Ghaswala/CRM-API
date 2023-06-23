@@ -250,6 +250,45 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         }
         #endregion
 
+        #region Get MGain Ledger For Interest Certificate By User Id
+        public async Task<List<TblAccountTransaction>> GetMGainAccTransactionByUserId(int userId, int year)
+        {
+            var startDate = Convert.ToDateTime((year - 1) + "-04-01");
+            var endDate = Convert.ToDateTime(year + "-03-31");
+
+            var transactionDetails = await _context.TblAccountTransactions.Where(t => t.DocUserid == userId && t.DocDate >= startDate && t.DocDate <= endDate).OrderBy(x => x.DocDate)
+                                                   .Include(x => x.TblMgaindetail).ToListAsync();
+
+            return transactionDetails;
+        }
+        #endregion
+
+        #region Get MGain Cumulative Details In Date Range
+        public async Task<IQueryable<TblMgaindetail>> GetMGainCumulativeDetails(int fromYear, int toYear, int? schemeId, string? search, SortingParams sortingParams, string mgainType)
+        {
+            List<TblMgaindetail> details = new List<TblMgaindetail>();
+            IQueryable<TblMgaindetail> filterData = details.AsQueryable();
+
+            if (schemeId is not null) filterData = _context.TblMgaindetails.Where(x => x.MgainIsclosed != true && x.MgainSchemeid == schemeId && x.Date.Value.Year >= fromYear && x.Date.Value.Year <= toYear
+                                                                           && x.MgainType.ToLower() == mgainType.ToLower()).Include(x => x.TblMgainSchemeMaster).AsQueryable();
+            else filterData = _context.TblMgaindetails.Where(x => x.MgainIsclosed != true && x.Date.Value.Year >= fromYear && x.Date.Value.Year <= toYear && x.MgainType.ToLower() == mgainType.ToLower())
+                                         .Include(x => x.TblMgainSchemeMaster).AsQueryable();
+
+            if (search is not null)
+            {
+                if (schemeId is not null) filterData = _context.Search<TblMgaindetail>(search).Where(x => x.MgainIsclosed != true && x.MgainSchemeid == schemeId && x.Date.Value.Year >= fromYear
+                                                                && x.Date.Value.Year <= toYear && x.MgainType.ToLower() == mgainType.ToLower()).Include(x => x.TblMgainSchemeMaster).AsQueryable();
+                else filterData = _context.Search<TblMgaindetail>(search).Where(x => x.MgainIsclosed != true && x.Date.Value.Year >= fromYear && x.Date.Value.Year <= toYear
+                                          && x.MgainType.ToLower() == mgainType.ToLower()).Include(x => x.TblMgainSchemeMaster).AsQueryable();
+            }
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            return sortedData;
+        }
+        #endregion
+
         #region Get All Project
         public async Task<Response<TblProjectMaster>> GetAllProject(string? searchingParams, SortingParams sortingParams)
         {

@@ -15,6 +15,7 @@ namespace CRM_api.Services.IServices.User_Module
         Task<ResponseDto<UserCategoryDto>> GetUserCategoriesAsync(string search, SortingParams sortingParams);
         Task<ResponseDto<UserMasterDto>> GetUsersByCategoryIdAsync(int categoryId, string search, SortingParams sortingParams);
         Task<TblUserCategoryMaster> GetCategoryByNameAsync(string name);
+        int PanOrAadharExistAsync(string? pan, string? aadhar);
         Task<int> AddUserAsync(AddUserMasterDto addUser);
         Task<int> UpdateUserAsync(UpdateUserMasterDto updateUser);
         Task<int> DeactivateUserAsync(int id);

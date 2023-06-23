@@ -21,5 +21,8 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module
         Task<int> AddMFDataForNotExistUser(List<TblNotexistuserMftransaction> tblNotexistuserMftransaction);
         Task<int> DeleteMFForUserExist(TblMftransaction tblMftransaction);
         Task<int> DeleteMFForNotUserExist(TblNotexistuserMftransaction tblMftransaction);
+        Task<decimal?> GetMFTransactionByUserId(int userId);
+        Task<List<TblMftransaction>> GetMonthlyMFTransactionSIPLumpsum();
+        Task<decimal?> GetMFTransactionSIPByUserId(int userId);
     }
 }

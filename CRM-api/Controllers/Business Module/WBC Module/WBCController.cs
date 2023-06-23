@@ -1,6 +1,6 @@
 ﻿using CRM_api.DataAccess.Helper;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.WBC_Module;
-using CRM_api.Services.IServices.WBC_Module;
+using CRM_api.Services.IServices.Business_Module.WBC_Module;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CRM_api.Controllers.Business_Module.WBC_Module
@@ -66,7 +66,7 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
 
         #region Get all wbc schemes
         [HttpGet("GetAllWbcSchemes")]
-        public async Task<IActionResult> GetAllWbcSchemes([FromQuery] string? search, [FromQuery] SortingParams? sortingParams) 
+        public async Task<IActionResult> GetAllWbcSchemes([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {

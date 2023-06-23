@@ -1,29 +1,33 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.MGain_Module;
+using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Helper.ConstantValue;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Office2010.ExcelAc;
-using Microsoft.AspNetCore.JsonPatch.Internal;
-using Org.BouncyCastle.Asn1.Crmf;
 using SelectPdf;
+using static CRM_api.Services.Helper.ConstantValue.GenderConstant;
+using static CRM_api.Services.Helper.ConstantValue.MaritalStatusConstant;
+using static CRM_api.Services.Helper.ConstantValue.MGainAccountPaymentConstant;
 
 namespace CRM_api.Services.Services.Business_Module.MGain_Module
 {
     public class MGainService : IMGainService
     {
         private readonly IMGainRepository _mGainRepository;
+        private readonly IMGainSchemeRepository _mGainSchemeRepository;
+        private readonly IUserMasterRepository _userMasterRepository;
         private readonly IMapper _mapper;
 
-        public MGainService(IMGainRepository mGainRepository, IMapper mapper)
+        public MGainService(IMGainRepository mGainRepository, IMapper mapper, IMGainSchemeRepository mGainSchemeRepository, IUserMasterRepository userMasterRepository)
         {
             _mGainRepository = mGainRepository;
             _mapper = mapper;
+            _mGainSchemeRepository = mGainSchemeRepository;
+            _userMasterRepository = userMasterRepository;
         }
 
         #region Get All MGain Details
@@ -341,6 +345,379 @@ SURAT - 395009 <p>
         }
         #endregion
 
+        #region Get MGain Cumulative Interest Computation
+        public async Task<MGainCumulativeReportDto> GetMgGainCumulativeInterestReportAsync(int fromYear, int toYear, int? schemeId, string? search, SortingParams sortingParams)
+        {
+            var mgainDetails = await _mGainRepository.GetMGainCumulativeDetails(fromYear, toYear, schemeId, search, sortingParams, MGainTypeConstant.cumulative);
+            var cumulativeInterests = new List<MgainCumulativeInterestDto>();
+            var cumulativeReport = new MGainCumulativeReportDto();
+
+            if (mgainDetails is not null)
+            {
+                foreach (var mgainDetail in mgainDetails)
+                {
+                    var cumulativeInterest = new MgainCumulativeInterestDto();
+                    cumulativeInterest.Date = mgainDetail.Date.Value;
+                    cumulativeInterest.MGainId = mgainDetail.Id;
+                    cumulativeInterest.ClientName = mgainDetail.Mgain1stholder;
+                    cumulativeInterest.SchemeName = mgainDetail.TblMgainSchemeMaster.Schemename;
+                    cumulativeInterest.InvestmentAmount = (decimal)mgainDetail.MgainInvamt;
+                    cumulativeInterest.FinalAmount = (decimal)mgainDetail.MgainInvamt;
+
+                    var mgainDate = mgainDetail.Date.Value;
+                    var yearDifference = (toYear - mgainDate.Year) - 1;
+
+                    if (yearDifference >= 0)
+                    {
+                        List<decimal?> interestRates = new List<decimal?>()
+                        {
+                            mgainDetail.TblMgainSchemeMaster.Interst1,
+                            mgainDetail.TblMgainSchemeMaster.Interst2,
+                            mgainDetail.TblMgainSchemeMaster.Interst3,
+                            mgainDetail.TblMgainSchemeMaster.Interst4 + mgainDetail.TblMgainSchemeMaster.AdditionalInterest4,
+                            mgainDetail.TblMgainSchemeMaster.Interst5 + mgainDetail.TblMgainSchemeMaster.AdditionalInterest5,
+                            mgainDetail.TblMgainSchemeMaster.Interst6 + mgainDetail.TblMgainSchemeMaster.AdditionalInterest6,
+                            mgainDetail.TblMgainSchemeMaster.Interst7 + mgainDetail.TblMgainSchemeMaster.AdditionalInterest7,
+                            mgainDetail.TblMgainSchemeMaster.Interst8 + mgainDetail.TblMgainSchemeMaster.AdditionalInterest8,
+                            mgainDetail.TblMgainSchemeMaster.Interst9 + mgainDetail.TblMgainSchemeMaster.AdditionalInterest9,
+                            mgainDetail.TblMgainSchemeMaster.Interst10 + mgainDetail.TblMgainSchemeMaster.AdditionalInterest10
+                        };
+
+                        for (var i = 0; i <= yearDifference; i++)
+                        {
+                            if (i <= 9)
+                            {
+                                var interestRate = interestRates[i];
+
+                                if (i is 0)
+                                {
+                                    var monthDifference = (12 - mgainDate.AddYears(1).Month) + 3;
+                                    decimal? firstYearTotalInterest = Math.Round((decimal)(cumulativeInterest.FinalAmount * (interestRate / 100)));
+
+                                    for (var j = 0; j <= monthDifference; j++)
+                                    {
+                                        if (j == 0)
+                                        {
+                                            var daysInMonth = DateTime.DaysInMonth(mgainDetail.Date.Value.Year, mgainDetail.Date.Value.Month);
+                                            var days = daysInMonth - (mgainDate.Day - 1);
+                                            cumulativeInterest.InterestForPeriod += Math.Round((decimal)(cumulativeInterest.FinalAmount * days * (interestRate / 100)) / 365);
+                                        }
+                                        else cumulativeInterest.InterestForPeriod += Math.Round((decimal)firstYearTotalInterest / 12);
+                                    }
+                                    cumulativeInterest.FinalAmount = cumulativeInterest.InvestmentAmount + cumulativeInterest.InterestForPeriod;
+                                }
+                                else if (i == 9)
+                                {
+                                    if ((mgainDetail.Date.Value.Month) < 4)
+                                    {
+                                        cumulativeInterest.InterestForPeriod += Math.Round((decimal)(cumulativeInterest.FinalAmount * (9 + mgainDetail.Date.Value.Month) * (interestRate / 100)) / 12);
+                                        cumulativeInterest.FinalAmount = cumulativeInterest.InvestmentAmount + cumulativeInterest.InterestForPeriod;
+                                    }
+                                    else
+                                    {
+                                        cumulativeInterest.InterestForPeriod += Math.Round((decimal)(cumulativeInterest.FinalAmount * (mgainDetail.Date.Value.Month - 4) * (interestRate / 100)) / 12);
+                                        cumulativeInterest.FinalAmount = cumulativeInterest.InvestmentAmount + cumulativeInterest.InterestForPeriod;
+                                    }
+                                }
+                                else
+                                {
+                                    cumulativeInterest.InterestForPeriod += Math.Round((decimal)(cumulativeInterest.FinalAmount * (interestRate / 100)));
+                                    cumulativeInterest.FinalAmount = cumulativeInterest.InvestmentAmount + cumulativeInterest.InterestForPeriod;
+                                }
+                            }
+                        }
+
+                        cumulativeInterests.Add(cumulativeInterest);
+                    }
+                }
+
+                cumulativeReport.CumulativeInterests = cumulativeInterests;
+                cumulativeReport.TotalInterestForPeriod = Math.Round((decimal)cumulativeInterests.Sum(x => x.InterestForPeriod));
+                cumulativeReport.TotalFinalAmount = Math.Round((decimal)cumulativeInterests.Sum(x => x.FinalAmount));
+            }
+
+            return cumulativeReport;
+        }
+        #endregion
+
+        #region Get MGain 10 Years Interest Details
+        public async Task<MGainTenYearReportDto> GetMGain10YearsInterestDetailsAsync(string userName, int schemeId, DateTime invDate, decimal mGainAmount, string mGainType)
+        {
+            var mgainScheme = await _mGainSchemeRepository.GetMGainSchemeById(schemeId);
+            var mgainAmount = mGainAmount;
+            var daysInMonth = DateTime.DaysInMonth(invDate.Year, invDate.Month);
+            var days = daysInMonth - (invDate.Day - 1);
+
+            var date = invDate;
+            var startDate = invDate.AddYears(1);
+            List<string> months = new List<string>();
+            while (date != startDate)
+            {
+                months.Add(date.ToString("MMMM"));
+                date = date.AddMonths(1);
+                if (date.Month == startDate.Month && date.Year == startDate.Year)
+                    break;
+
+            }
+
+            List<decimal?> interestRates = new List<decimal?>();
+            interestRates.Add(mgainScheme.Interst1);
+            interestRates.Add(mgainScheme.Interst2);
+            interestRates.Add(mgainScheme.Interst3);
+            interestRates.Add(mgainScheme.Interst4 + mgainScheme.AdditionalInterest4);
+            interestRates.Add(mgainScheme.Interst5 + mgainScheme.AdditionalInterest5);
+            interestRates.Add(mgainScheme.Interst6 + mgainScheme.AdditionalInterest6);
+            interestRates.Add(mgainScheme.Interst7 + mgainScheme.AdditionalInterest7);
+            interestRates.Add(mgainScheme.Interst8 + mgainScheme.AdditionalInterest8);
+            interestRates.Add(mgainScheme.Interst9 + mgainScheme.AdditionalInterest9);
+            interestRates.Add(mgainScheme.Interst10 + mgainScheme.AdditionalInterest10);
+
+            var yearlyInterests = new List<MonthDetailDto>();
+            bool flag = true;
+            if (mGainType is MGainTypeConstant.nonCumulative)
+            {
+                interestRates.ForEach(interestRate =>
+                {
+                    if (flag)
+                    {
+                        var firstYear = CalculateFirstYearInterestAsync(mgainAmount, interestRate, days);
+                        yearlyInterests.Add(firstYear);
+                        flag = false;
+                    }
+                    else
+                    {
+                        var yearlyInterest = CalculateYearlyInterestAsync(mgainAmount, interestRate);
+                        yearlyInterests.Add(yearlyInterest);
+                    }
+                });
+            }
+            else
+            {
+                interestRates.ForEach(interestRate =>
+                {
+                    if (flag)
+                    {
+                        var firstYear = CalculateCumulativeFirstYearInterestAsync(mgainAmount, interestRate, days);
+                        yearlyInterests.Add(firstYear);
+                        mgainAmount += firstYear.TotalInterest;
+                        flag = false;
+                    }
+                    else
+                    {
+                        var yearlyInterest = CalculateYearlyInterestAsync(mgainAmount, interestRate);
+                        yearlyInterests.Add(yearlyInterest);
+                        mgainAmount += yearlyInterest.TotalInterest;
+                    }
+                });
+            }
+
+            var interestCalculation = new MGainTenYearReportDto();
+            interestCalculation.UserName = userName;
+            interestCalculation.Months = months;
+            interestCalculation.YearlyInterests = yearlyInterests;
+            interestCalculation.InvDate = invDate;
+            interestCalculation.MGainAmount = mGainAmount;
+            interestCalculation.InterestRates = interestRates;
+            interestCalculation.MGainType = mGainType;
+            interestCalculation.MGainScheme = mgainScheme.Schemename;
+            interestCalculation.TenYearTotalInterest = yearlyInterests.Sum(x => x.TotalInterest);
+            interestCalculation.TotalReturn = interestCalculation.MGainAmount + interestCalculation.TenYearTotalInterest;
+            interestCalculation.TotalReturnRecievedOn = invDate.AddYears(10).Date;
+
+            return interestCalculation;
+        }
+        #endregion
+
+        #region Get MGain Interest Certificate
+        public async Task<InterestCertificateDto> GetMGainIntertestCertificateAsync(int userId, int year)
+        {
+            var user = await _userMasterRepository.GetUserMasterbyId(userId);
+            var mgainAccDetails = await _mGainRepository.GetMGainAccTransactionByUserId(userId, year);
+            var mgain = await _mGainRepository.GetMGainDetailById((int)mgainAccDetails.Select(x => x.Mgainid).First());
+
+
+            var interestCertificate = new InterestCertificateDto();
+            if (mgain.Mgain1stholderGender == Gender.Male.ToString())
+                interestCertificate.UserName = "Mr. " + user.UserName;
+            else if (mgain.Mgain1stholderGender == Gender.Female.ToString() && mgain.Mgain1stholderMaritalstatus == MaritalStatus.Married.ToString())
+                interestCertificate.UserName = "Mrs. " + user.UserName;
+            else if (mgain.Mgain1stholderGender == Gender.Female.ToString() && mgain.Mgain1stholderMaritalstatus == MaritalStatus.Unmarried.ToString())
+                interestCertificate.UserName = "Ms. " + user.UserName;
+            else
+                interestCertificate.UserName = user.UserName;
+            interestCertificate.UserId = userId;
+            var months = new List<string>()
+            {
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "Nevember",
+                "December",
+                "January",
+                "February",
+                "March"
+            };
+
+            var interestReports = new List<InterestReportDto>();
+            foreach (var month in months)
+            {
+                var prevMonth = "";
+                if (month == "April")
+                    prevMonth = "March";
+                else
+                {
+                    var index = months.FindIndex(x => x == month);
+                    prevMonth = months[index - 1];
+                }
+                var details = mgainAccDetails.Where(x => x.DocType == MGainPayment.Payment.ToString() && x.DocDate.Value.ToString("MMMM") == month).ToList();
+                if (details.Count > 0)
+                {
+                    foreach (var detail in details)
+                    {
+                        var interestReport = new InterestReportDto();
+                        interestReport.DepositeCode = detail.Id;
+                        interestReport.Date = detail.DocDate;
+                        interestReport.InterestPaid = detail.Debit;
+                        interestReport.InterestAccrued = 0;
+                        var tax = mgainAccDetails.Where(x => x.DocType == MGainPayment.Journal.ToString() && x.DocDate.Value.ToString("MMMM") == prevMonth && x.Mgainid == detail.Mgainid
+                                                    && x.DocParticulars == "TDS " + (year - 1) + "-" + year.ToString().Substring(year.ToString().Length - 2) && x.Debit != 0).FirstOrDefault();
+                        interestReport.TaxDeducted = 0;
+                        if (tax is not null)
+                            interestReport.TaxDeducted = tax.Debit;
+                        interestReport.ShcemeName = mgain.TblMgainSchemeMaster.Schemename;
+                        interestReport.ACDescription = mgain.MgainType;
+                        interestReport.Currency = "₹";
+                        interestReport.OverheadTaxDeducted = "N/A";
+                        interestReports.Add(interestReport);
+                    }
+                    if (month == "March")
+                    {
+                        foreach (var detail in details)
+                        {
+                            var interestMarchReport = new InterestReportDto();
+                            interestMarchReport.DepositeCode = detail.Id;
+                            interestMarchReport.InterestAccrued = detail.Debit;
+                            interestMarchReport.InterestPaid = 0;
+                            var tax = mgainAccDetails.Where(x => x.DocType == MGainPayment.Journal.ToString() && x.DocDate.Value.ToString("MMMM") == prevMonth && x.Mgainid == detail.Mgainid
+                                                    && x.DocParticulars == "TDS " + (year - 1) + "-" + year.ToString().Substring(year.ToString().Length - 2) && x.Debit != 0).FirstOrDefault();
+                            interestMarchReport.TaxDeducted = 0;
+                            if (tax is not null)
+                                interestMarchReport.TaxDeducted = tax.Debit;
+                            interestMarchReport.ShcemeName = mgain.TblMgainSchemeMaster.Schemename;
+                            interestMarchReport.ACDescription = mgain.MgainType;
+                            interestMarchReport.Currency = "₹";
+                            interestMarchReport.OverheadTaxDeducted = "N/A";
+                            interestReports.Add(interestMarchReport);
+                        }
+                    }
+                }
+            }
+            interestCertificate.InterestReports = interestReports;
+            return interestCertificate;
+        }
+        #endregion
+
+        #region Get MGain Interest Ledger
+        public async Task<MGainLedgerDto> GetMGainInterestLedgerAsync(int userId, int year)
+        {
+            var mgainDetails = await _mGainRepository.GetMGainAccTransactionByUserId(userId, year);
+            var user = await _userMasterRepository.GetUserMasterbyId(userId);
+            var mgainLedger = new MGainLedgerDto();
+            mgainLedger.UserId = userId;
+            mgainLedger.UserName = user.UserName;
+            var months = new List<string>()
+            {
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "Nevember",
+                "December",
+                "January",
+                "February",
+                "March"
+            };
+            var interestLedgers = new List<InterestLedgerDto>();
+            foreach (var month in months)
+            {
+                var details = mgainDetails.Where(x => x.DocType == MGainPayment.Payment.ToString() && x.DocDate.Value.ToString("MMMM") == month && x.Credit != 0).ToList();
+
+                if (details.Count > 0)
+                {
+                    var prevMonth = "";
+                    if (month == "April")
+                        prevMonth = "March";
+                    else
+                    {
+                        var index = months.FindIndex(x => x == month);
+                        prevMonth = months[index - 1];
+                    }
+                    var flag = true;
+                    foreach (var detail in details)
+                    {
+                        if (flag)
+                        {
+                            var interestLedger = new InterestLedgerDto();
+                            interestLedger.Perticular = "M-GAIN INTEREST_" + detail.Mgainid;
+                            interestLedger.Date = detail.DocDate.Value.ToString("dd-MM-yyyy");
+                            interestLedger.Debit = detail.Debit;
+                            interestLedger.Credit = detail.Credit;
+                            interestLedgers.Add(interestLedger);
+
+                            if (detail.TblMgaindetail.MgainIsTdsDeduction == true)
+                            {
+                                var taxDetail = mgainDetails.Where(x => x.DocType == MGainPayment.Journal.ToString() && x.DocDate.Value.ToString("MMMM") == prevMonth && x.Mgainid == detail.Mgainid
+                                                    && x.DocParticulars == "TDS " + (year - 1) + "-" + year.ToString().Substring(year.ToString().Length - 2) && x.Debit != 0).FirstOrDefault();
+                                var taxLedger = new InterestLedgerDto();
+                                taxLedger.Perticular = taxDetail.DocParticulars + "_" + detail.Mgainid;
+                                taxLedger.Debit = detail.Debit;
+                                taxLedger.Credit = detail.Credit;
+                                interestLedgers.Add(taxLedger);
+                            }
+
+                            flag = false;
+                        }
+                        else
+                        {
+                            var interestLedger = new InterestLedgerDto();
+                            interestLedger.Perticular = "M-GAIN INTEREST_" + detail.Mgainid;
+                            interestLedger.Debit = detail.Debit;
+                            interestLedger.Credit = detail.Credit;
+                            interestLedgers.Add(interestLedger);
+
+                            if (detail.TblMgaindetail.MgainIsTdsDeduction == true)
+                            {
+                                var taxDetail = mgainDetails.Where(x => x.DocType == MGainPayment.Journal.ToString() && x.DocDate.Value.ToString("MMMM") == prevMonth && x.Mgainid == detail.Mgainid
+                                                    && x.DocParticulars == "TDS " + (year - 1) + "-" + year.ToString().Substring(year.ToString().Length - 2) && x.Debit != 0).FirstOrDefault();
+                                var taxLedger = new InterestLedgerDto();
+                                taxLedger.Perticular = taxDetail.DocParticulars + "_" + detail.Mgainid;
+                                taxLedger.Debit = detail.Debit;
+                                taxLedger.Credit = detail.Credit;
+                                interestLedgers.Add(taxLedger);
+                            }
+                        }
+                    }
+
+                    var interestMonthLedger = new InterestLedgerDto();
+                    interestMonthLedger.Perticular = string.Concat(prevMonth, " ", "Month Interest", "").ToUpper();
+                    interestLedgers.Add(interestMonthLedger);
+                }
+            }
+
+            mgainLedger.Total = interestLedgers.Sum(x => x.Credit);
+            mgainLedger.InterestsLedger = interestLedgers;
+
+            return mgainLedger;
+        }
+        #endregion
+
         #region MGain Monthly Non-Cumulative Interest Computation & Release
         public async Task<MGainNCmonthlyTotalDto> GetNonCumulativeMonthlyReportAsync(int month, int year, int? schemeId, decimal? tds, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? searchingParams, SortingParams sortingParams)
         {
@@ -416,8 +793,8 @@ SURAT - 395009 <p>
 
                             if (isJournal is true)
                                 accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null);
-                            else if(isPayment is true)
-                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate,crNarration);
+                            else if (isPayment is true)
+                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration);
 
                             allAccountTransactions.AddRange(accountTransactions);
                         }
@@ -436,7 +813,7 @@ SURAT - 395009 <p>
 
                             if (isJournal is true)
                                 accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null);
-                            else if(isPayment is true)
+                            else if (isPayment is true)
                                 accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration);
 
                             allAccountTransactions.AddRange(accountTransactions);
@@ -457,8 +834,8 @@ SURAT - 395009 <p>
 
                         if (isJournal is true)
                             accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null);
-                        else if(isPayment is true)
-                            accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate,crNarration);
+                        else if (isPayment is true)
+                            accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration);
 
                         allAccountTransactions.AddRange(accountTransactions);
                     }
@@ -477,7 +854,9 @@ SURAT - 395009 <p>
                 TotalPayAmount = totalPayAmount
             };
 
-            await _mGainRepository.AddMGainInterest(allAccountTransactions, currentDate);
+            if(allAccountTransactions.Count > 0)
+                await _mGainRepository.AddMGainInterest(allAccountTransactions, currentDate);
+
             return mGainNCMonthlytotal;
         }
         #endregion
@@ -1067,13 +1446,13 @@ SURAT - 395009 <p>
 
                     var currYear = date.Value.Year;
 
-                    if(date.Value.Month >= 4)
+                    if (date.Value.Month >= 4)
                     {
                         tdsYear = "TDS " + currYear + "-" + (currYear + 1).ToString().Substring((currYear + 1).ToString().Length - 2);
                     }
                     else
                     {
-                        tdsYear = "TDS " + (currYear - 1).ToString() + "-" + currYear.ToString().Substring(currYear.ToString().Length - 2); 
+                        tdsYear = "TDS " + (currYear - 1).ToString() + "-" + currYear.ToString().Substring(currYear.ToString().Length - 2);
                     }
 
                     //Journal TDS Credit Entry
@@ -1136,5 +1515,76 @@ SURAT - 395009 <p>
             return accountTransactions;
         }
         #endregion
+
+        #region Calculate Non-Cumulative First Year Interest
+        private static MonthDetailDto CalculateFirstYearInterestAsync(decimal mgainAmount, decimal? interestRate, int days)
+        {
+            var firstYear = new MonthDetailDto();
+            decimal? mgainFirstYearTotalInterest = Math.Round((decimal)(mgainAmount * (interestRate / 100)));
+            firstYear.FirstMonthInterest = Math.Round((decimal)((mgainAmount * days * (interestRate / 100)) / 365), 0);
+            firstYear.FifthMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.SixthMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.SeventhMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.EighthMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.NinethMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.TenthMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.EleventhMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.TwelfthMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.TotalInterest = firstYear.FirstMonthInterest + firstYear.FifthMonthInterest + firstYear.SixthMonthInterest + firstYear.SeventhMonthInterest +
+                                      firstYear.EighthMonthInterest + firstYear.NinethMonthInterest + firstYear.TenthMonthInterest + firstYear.EleventhMonthInterest +
+                                      firstYear.TwelfthMonthInterest;
+            firstYear.Days = days;
+
+            return firstYear;
+        }
+        #endregion
+
+        #region Calculate Non-Cumulative Yearly Interest
+        private static MonthDetailDto CalculateYearlyInterestAsync(decimal mgainAmount, decimal? interestRate)
+        {
+            var yearlyInterest = new MonthDetailDto();
+            yearlyInterest.TotalInterest = Math.Round((decimal)(mgainAmount * (interestRate / 100)));
+            yearlyInterest.FirstMonthInterest = Math.Round((decimal)yearlyInterest.TotalInterest / 12);
+            yearlyInterest.SecondMonthInterest = Math.Round((decimal)yearlyInterest.TotalInterest / 12);
+            yearlyInterest.ThirdMonthInterest = Math.Round((decimal)yearlyInterest.TotalInterest / 12);
+            yearlyInterest.FourthMonthInterest = Math.Round((decimal)yearlyInterest.TotalInterest / 12);
+            yearlyInterest.FifthMonthInterest = Math.Round((decimal)yearlyInterest.TotalInterest / 12);
+            yearlyInterest.SixthMonthInterest = Math.Round((decimal)yearlyInterest.TotalInterest / 12);
+            yearlyInterest.SeventhMonthInterest = Math.Round((decimal)yearlyInterest.TotalInterest / 12);
+            yearlyInterest.EighthMonthInterest = Math.Round((decimal)yearlyInterest.TotalInterest / 12);
+            yearlyInterest.NinethMonthInterest = Math.Round((decimal)yearlyInterest.TotalInterest / 12);
+            yearlyInterest.TenthMonthInterest = Math.Round((decimal)yearlyInterest.TotalInterest / 12);
+            yearlyInterest.EleventhMonthInterest = Math.Round((decimal)yearlyInterest.TotalInterest / 12);
+            yearlyInterest.TwelfthMonthInterest = Math.Round((decimal)yearlyInterest.TotalInterest / 12);
+
+            return yearlyInterest;
+        }
+        #endregion
+
+        #region Calculate Cumulative First Year Interest
+        private static MonthDetailDto CalculateCumulativeFirstYearInterestAsync(decimal mgainAmount, decimal? interestRate, int days)
+        {
+            var firstYear = new MonthDetailDto();
+            decimal? mgainFirstYearTotalInterest = Math.Round((decimal)(mgainAmount * (interestRate / 100)));
+            firstYear.FirstMonthInterest = Math.Round((decimal)((mgainAmount * days * (interestRate / 100)) / 365), 0);
+            firstYear.SecondMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.ThirdMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.FourthMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.FifthMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.SixthMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.SeventhMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.EighthMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.NinethMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.TenthMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.EleventhMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.TwelfthMonthInterest = Math.Round((decimal)mgainFirstYearTotalInterest / 12);
+            firstYear.TotalInterest = firstYear.FirstMonthInterest + firstYear.FifthMonthInterest + firstYear.SixthMonthInterest + firstYear.SeventhMonthInterest +
+                                      firstYear.EighthMonthInterest + firstYear.NinethMonthInterest + firstYear.TenthMonthInterest + firstYear.EleventhMonthInterest +
+                                      firstYear.TwelfthMonthInterest + firstYear.SecondMonthInterest + firstYear.ThirdMonthInterest + firstYear.FourthMonthInterest;
+            firstYear.Days = days;
+
+            return firstYear;
+        }
+                #endregion
     }
 }

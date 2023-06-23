@@ -13,5 +13,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module
         Task<List<TblStockData>> GetStockDataForSpecificDateRange(DateTime? startDate, DateTime? endDate, string firmName);
         Task<int> AddData(List<TblStockData> tblStockData);
         Task<int> DeleteData(List<TblStockData> tblStockData);
+        Task<decimal?> GetStockDataByUserName(string userName);
+        Task<List<TblStockData>> GetCurrentStockDataByUserName(string userName);
     }
 }
