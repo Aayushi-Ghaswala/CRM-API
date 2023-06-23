@@ -96,7 +96,10 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
 
             if (searchingParams != null)
             {
-                filterData = _context.Search<TblSubsubInvType>(searchingParams).AsQueryable();
+                if (subInvestmentTypeId != null) 
+                    filterData = _context.Search<TblSubsubInvType>(searchingParams).Include(s => s.TblSubInvesmentType).Where(s => s.SubInvTypeId == subInvestmentTypeId).AsQueryable();
+                else
+                    filterData = _context.Search<TblSubsubInvType>(searchingParams).Include(s => s.TblSubInvesmentType).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -129,7 +132,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
 
             if (searchingParams != null)
             {
-                filterData = _context.Search<TblWbcSchemeMaster>(searchingParams).AsQueryable();
+                filterData = _context.Search<TblWbcSchemeMaster>(searchingParams).Include(w => w.TblWbcTypeMaster).Include(s => s.TblSubInvesmentType).Include(w => w.TblSubsubInvType).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
