@@ -12,7 +12,11 @@ namespace CRM_api.Services.MapperProfile
     {
         public LoanMasterProfile()
         {
-            CreateMap<AddLoanMasterDto, TblLoanMaster>();
+            CreateMap<AddLoanMasterDto, TblLoanMaster>()
+                .AfterMap((dto, model) =>
+                {
+                    model.Frequency = "Monthly";
+                });
             CreateMap<UpdateLoanMasterDto, TblLoanMaster>();
 
             CreateMap<TblUserMaster, UserNameDto>();

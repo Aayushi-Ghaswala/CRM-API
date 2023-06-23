@@ -215,6 +215,44 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         }
         #endregion
 
+        #region Get Mutual Funds Total Amount By UserId
+        public async Task<decimal?> GetMFTransactionByUserId(int userId)
+        {
+            var mfTransactions = await _context.TblMftransactions.Where(u => u.Userid == userId).ToListAsync();
+
+            var redemptionUnit = mfTransactions.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale");
+            var redemAmount = redemptionUnit.Sum(x => x.Invamount);
+
+            var TotalpurchaseUnit = mfTransactions.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" && x.Transactiontype != "Sale");
+            var purchaseAmount = TotalpurchaseUnit.Sum(x => x.Invamount);
+
+            decimal? totalAmount = purchaseAmount - redemAmount;
+
+            return totalAmount;
+        }
+        #endregion
+
+        #region Get Mutual Funds SIP By userId
+        public async Task<decimal?> GetMFTransactionSIPByUserId(int userId)
+        {
+            var mfTransactions = await _context.TblMftransactions.Where(u => u.Userid == userId && u.Transactiontype == "PIP (SIP)"
+                                                                        && u.Date.Value.Month == DateTime.Now.Month && u.Date.Value.Year == DateTime.Now.Year).ToListAsync();
+            var totalAmount = mfTransactions.Sum(x => x.Invamount);
+
+            return totalAmount;
+        }
+        #endregion
+
+        #region Get Mutual Funds SIP
+        public async Task<List<TblMftransaction>> GetMonthlyMFTransactionSIPLumpsum()
+        {
+            var mfTransactions = await _context.TblMftransactions.Where(u => (u.Transactiontype == "PIP (SIP)" || u.Transactiontype == "PIP")
+                                                                        && u.Date.Value.Month == DateTime.Now.Month && u.Date.Value.Year == DateTime.Now.Year).ToListAsync();
+
+            return mfTransactions;
+        }
+        #endregion
+
         #region Display Scheme List
         public async Task<Response<TblMftransaction>> GetSchemeName(int userId, string? searchingParams, SortingParams sortingParams)
         {

@@ -44,13 +44,42 @@ namespace CRM_api.DataAccess.Repositories.User_Module
 
             if (search != null)
             {
-                filterData = _context.Search<TblUserMaster>(search).Where(x => x.UserIsactive == true)
+                if (!string.IsNullOrEmpty(filterString))
+                {
+                    switch (filterString.ToLower())
+                    {
+                        case "client":
+                            filterData = _context.Search<TblUserMaster>(search).Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "customer" && x.UserIsactive == true)
                                                     .Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .Include(x => x.TblStateMaster)
                                                     .Include(x => x.TblCityMaster)
                                                     .Include(x => x.ParentName)
                                                     .Include(x => x.SponserName).AsQueryable();
+                            break;
+                        case "fasttrack":
+                            filterData = _context.Search<TblUserMaster>(search).Where(x => x.UserFasttrack == true && x.UserIsactive == true)
+                                                    .Include(x => x.TblUserCategoryMaster)
+                                                    .Include(x => x.TblCountryMaster)
+                                                    .Include(x => x.TblStateMaster)
+                                                    .Include(x => x.TblCityMaster)
+                                                    .Include(x => x.ParentName)
+                                                    .Include(x => x.SponserName).AsQueryable();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    filterData = _context.Search<TblUserMaster>(search).Where(x => x.UserIsactive == true)
+                                                        .Include(x => x.TblUserCategoryMaster)
+                                                        .Include(x => x.TblCountryMaster)
+                                                        .Include(x => x.TblStateMaster)
+                                                        .Include(x => x.TblCityMaster)
+                                                        .Include(x => x.ParentName)
+                                                        .Include(x => x.SponserName).AsQueryable();
+                }
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -189,6 +218,23 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             ArgumentNullException.ThrowIfNull(cat);
 
             return cat;
+        }
+        #endregion
+
+        #region Check Pan or Aadhar Exist
+        public int PanOrAadharExist(string? pan, string? aadhar)
+        {
+            if (pan is not null)
+            {
+                if (_context.TblUserMasters.Any(x => x.UserPan == pan))
+                    return 0;
+            }
+            else if (aadhar is not null)
+            {
+                if (_context.TblUserMasters.Any(x => x.UserAadhar.Equals(aadhar)))
+                    return 0;
+            }
+            return 1;
         }
         #endregion
 

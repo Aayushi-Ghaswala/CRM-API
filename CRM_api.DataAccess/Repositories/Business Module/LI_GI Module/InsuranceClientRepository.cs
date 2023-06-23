@@ -133,6 +133,38 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
         }
         #endregion
 
+        #region Get Insurance Client Total Amount Details By UserId
+        public async Task<int?> GetInsDetailsByUserId(int userId, int subTypeId)
+        {
+            var insDetails = await _context.TblInsuranceclients.Where(x => x.InsUserid == userId && x.IsDeleted != true && x.InvSubtype == subTypeId).ToListAsync();
+
+            var totalAmount = insDetails.Sum(x => x.InsAmount);
+
+            return totalAmount;
+        }
+        #endregion
+
+        #region Get Insurance CLient Premium Amount By UserId
+        public async Task<decimal?> GetInsPremiumAmountByUserId(int userId, int subTypeId)
+        {
+            var insDetail = await _context.TblInsuranceclients.Where(x => x.InsUserid == userId && x.IsDeleted != true && x.InvSubtype == subTypeId).FirstOrDefaultAsync();
+            decimal? premiumAmount = 0;
+            if (insDetail is not null)
+                premiumAmount = insDetail.PremiumAmount;
+
+            return premiumAmount;
+        }
+        #endregion
+
+        #region Get Sub Invesment TypeId by Name
+        public async Task<int> GetSubInsTypeIdByName(string name)
+        {
+            var subTypeId = await _context.TblSubInvesmentTypes.Where(x => x.InvestmentType.ToLower() == name.ToLower()).Select(x => x.Id).FirstOrDefaultAsync();
+
+            return subTypeId;
+        }
+        #endregion
+
         #region Add InsuranceClient Detail
         public async Task<int> AddInsuranceDetail(TblInsuranceclient tblInsuranceclient)
         {

@@ -327,6 +327,29 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         }
         #endregion
 
+        #region Get stocks transaction current stock amount by user name
+        public async Task<decimal?> GetStockDataByUserName(string userName)
+        {
+            var stockData = await _context.TblStockData.Where(x => x.StClientname.ToLower() == userName.ToLower()).ToListAsync();
+
+            var totalPurchase = stockData.Where(s => s.StType.Equals("B")).Sum(x => x.StNetcostvalue);
+            var totalSale = stockData.Where(s => s.StType.Equals("S")).Sum(x => x.StNetcostvalue);
+            var currentStockAmount = totalPurchase - totalSale;
+
+            return currentStockAmount;
+        }
+        #endregion
+
+        #region Get monthly stock transaction by user name
+        public async Task<List<TblStockData>> GetCurrentStockDataByUserName(string userName)
+        {
+            var stockData = await _context.TblStockData.Where(x => x.StClientname.ToLower() == userName.ToLower() && x.StDate.Value.Month == DateTime.Now.Month && x.StDate.Value.Year == DateTime.Now.Year 
+                                                        && x.StType.Equals("B") && x.StType.Equals("S")).ToListAsync();
+
+            return stockData;
+        }
+        #endregion
+
         #region Add stocks data
         public async Task<int> AddData(List<TblStockData> tblStockData)
         {

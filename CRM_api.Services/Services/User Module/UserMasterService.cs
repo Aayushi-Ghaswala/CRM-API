@@ -86,6 +86,13 @@ namespace CRM_api.Services.Services.User_Module
         }
         #endregion
 
+        #region Check Pan Or Addhar Exist
+        public int PanOrAadharExistAsync(string? pan, string? aadhar)
+        {
+            return _userMasterRepository.PanOrAadharExist(pan, aadhar);
+        }
+        #endregion
+
         #region Add User
         public async Task<int> AddUserAsync(AddUserMasterDto addUser)
         {
