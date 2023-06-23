@@ -1635,6 +1635,14 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false)
                     .HasColumnName("mgain_1stholderpan");
 
+                entity.Property(e => e.Mgain2ndallocatedsqft)
+                    .HasColumnType("decimal(20, 2)")
+                    .HasColumnName("mgain_2ndallocatedsqft");
+
+                entity.Property(e => e.Mgain2ndallocatedsqftamt)
+                    .HasColumnType("decimal(24, 2)")
+                    .HasColumnName("mgain_2ndallocatedsqftamt");
+
                 entity.Property(e => e.Mgain2ndholderAadhar)
                     .HasMaxLength(20)
                     .IsUnicode(false)
@@ -1701,6 +1709,20 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("mgain_2ndholdername");
+
+                entity.Property(e => e.Mgain2ndplotno)
+                    .HasMaxLength(10)
+                    .HasColumnName("mgain_2ndplotno")
+                    .IsFixedLength();
+
+                entity.Property(e => e.Mgain2ndprojectname)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_2ndprojectname");
+
+                entity.Property(e => e.Mgain2ndtotalsqft)
+                    .HasColumnType("decimal(24, 2)")
+                    .HasColumnName("mgain_2ndtotalsqft");
 
                 entity.Property(e => e.MgainAccHolderName)
                     .HasMaxLength(50)
@@ -1817,6 +1839,11 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.MgainSchemeid).HasColumnName("mgain_schemeid");
 
+                entity.Property(e => e.MgainSchemename)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_schemename");
+
                 entity.Property(e => e.MgainTotalplotamt)
                     .HasColumnType("decimal(25, 3)")
                     .HasColumnName("mgain_totalplotamt");
@@ -1831,6 +1858,11 @@ namespace CRM_api.DataAccess.Context
                     .HasColumnName("mgain_type");
 
                 entity.Property(e => e.MgainUserid).HasColumnName("mgain_userid");
+
+                entity.Property(e => e._15h15g)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("15H/15G");
             });
 
             modelBuilder.Entity<TblMgaindetailsTruncate>(entity =>

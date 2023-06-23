@@ -24,7 +24,7 @@ namespace CRM_api.DataAccess.Models
         public int? MgainUserid { get; set; }
         public bool? MgainIsactive { get; set; }
         public int? MgainEmployeeid { get; set; }
-        public int? MgainSchemeid { get; set; }
+        public string? MgainSchemename { get; set; }
         public DateTime? Mgain1stholderDob { get; set; }
         public string? Mgain1stholderGender { get; set; }
         public string? Mgain1stholderMaritalstatus { get; set; }
@@ -68,6 +68,13 @@ namespace CRM_api.DataAccess.Models
         public string? MgainCancelledCheque { get; set; }
         public bool? MgainIsTdsDeduction { get; set; }
         public bool? MgainIsclosed { get; set; }
+        public string? _15h15g { get; set; }
+        public string? Mgain2ndprojectname { get; set; }
+        public string? Mgain2ndplotno { get; set; }
+        public decimal? Mgain2ndallocatedsqft { get; set; }
+        public decimal? Mgain2ndallocatedsqftamt { get; set; }
+        public decimal? Mgain2ndtotalsqft { get; set; }
+        public int? MgainSchemeid { get; set; }
 
         [ForeignKey(nameof(MgainUserid))]
         public virtual TblUserMaster TblUserMaster { get; set; }

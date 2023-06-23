@@ -17,12 +17,12 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
 
         [HttpGet("MFClientWiseTransaction")]
         #region Display Mutual Fund By UserId and SchemeName
-        public async Task<IActionResult> GetUserWiseMFTransaction(int userId, int? schemeId
+        public async Task<IActionResult> GetUserWiseMFTransaction(int userId, int? schemeId, string? folioNo
                                             , [FromQuery] string? search, [FromQuery] SortingParams? sortingParams, DateTime? startDate, DateTime? endDate)
         {
             try
             {
-                var mfDetails = await _mutualfundService.GetClientwiseMutualFundTransactionAsync(userId, schemeId, search, sortingParams, startDate, endDate);
+                var mfDetails = await _mutualfundService.GetClientwiseMutualFundTransactionAsync(userId, schemeId, folioNo, search, sortingParams, startDate, endDate);
                 return Ok(mfDetails);
             }
             catch (Exception)
@@ -97,6 +97,22 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
             {
                 var schemeName = await _mutualfundService.DisplayschemeNameAsync(userId, search, sortingParams);
                 return Ok(schemeName);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        [HttpGet("FolioNo")]
+        #region Display Folio Number by UserId
+        public async Task<IActionResult> GetFolioNo(int userId, int? schemeId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        {
+            try
+            {
+                var folioNo = await _mutualfundService.DisplayFolioNoAsync(userId, schemeId, search, sortingParams);
+                return Ok(folioNo);
             }
             catch (Exception)
             {

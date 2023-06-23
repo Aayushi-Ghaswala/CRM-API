@@ -2,6 +2,7 @@
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module;
 using CRM_api.Services.Helper.File_Helper;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
+using DocumentFormat.OpenXml.VariantTypes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CRM_api.Controllers.Business_Module.MGain_Module
@@ -173,7 +174,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             try
             {
                 var file = await _mGainService.GetMGainIntertestCertificateAsync(userId, year);
-                return Ok(file);
+                return file != null ? Ok(file) : BadRequest(new { Message = "Interest details not found." });
             }
             catch (Exception)
             {
