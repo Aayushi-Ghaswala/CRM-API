@@ -28,10 +28,10 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         }
 
         #region Get Client wise Mutual Fund Transaction
-        public async Task<MFTransactionDto<MutualFundDto>> GetClientwiseMutualFundTransactionAsync(int userId, int? schemeId
+        public async Task<MFTransactionDto<MutualFundDto>> GetClientwiseMutualFundTransactionAsync(int userId, int? schemeId, string? folioNo
             , string? searchingParams, SortingParams sortingParams, DateTime? startDate, DateTime? endDate)
         {
-            var mutualFundTransaction = await _mutualfundRepository.GetTblMftransactions(userId, schemeId, searchingParams, sortingParams, startDate, endDate);
+            var mutualFundTransaction = await _mutualfundRepository.GetTblMftransactions(userId, schemeId, folioNo, searchingParams, sortingParams, startDate, endDate);
             var mapMutualFundTransaction = _mapper.Map<MFTransactionDto<MutualFundDto>>(mutualFundTransaction);
             return mapMutualFundTransaction;
         }
@@ -288,6 +288,17 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             var schemeName = _mapper.Map<ResponseDto<SchemaNameDto>>(mutualfunds);
 
             return schemeName;
+        }
+        #endregion
+
+        #region Display Folio Number List
+        public async Task<ResponseDto<SchemaNameDto>> DisplayFolioNoAsync(int userId, int? schemeId, string? searchingParams, SortingParams sortingParams)
+        {
+            var mutualfunds = await _mutualfundRepository.GetFolioNo(userId, schemeId, searchingParams, sortingParams);
+
+            var folioNo = _mapper.Map<ResponseDto<SchemaNameDto>>(mutualfunds);
+
+            return folioNo;
         }
         #endregion
 

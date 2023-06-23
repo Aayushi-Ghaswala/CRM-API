@@ -2,10 +2,10 @@
 {
     public class MgainCumulativeInterestDto
     {
+        public int? Id { get; set; }
         public DateTime? Date { get; set; }
-        public int MGainId { get; set; }
-        public string? ClientName { get; set; }
-        public string? SchemeName { get; set; }
+        public string? Mgain1stholder { get; set; }
+        public string? MgainSchemename { get; set; }
         public decimal InvestmentAmount { get; set; } = 0;
         public decimal InterestForPeriod { get; set; } = 0;
         public decimal FinalAmount { get; set; } = 0;

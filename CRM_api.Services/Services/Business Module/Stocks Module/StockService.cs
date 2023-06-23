@@ -125,10 +125,13 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 var xlsxFilePath = "";
                 var listStocks = new List<AddJainamStocksDto>();
                 var filePath = Path.GetTempFileName();
+
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await formFile.CopyToAsync(stream);
+                    await stream.DisposeAsync();
                 }
+
                 var directory = Directory.GetCurrentDirectory() + "\\CRM-Document\\Jainam";
                 if (!Directory.Exists(directory))
                 {
@@ -139,9 +142,13 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
                 //Delete file if already exists with same name
                 // For .xls file
-                if (File.Exists(Path.Combine(directory, formFile.FileName)))
+                var tmpFilePath = Path.Combine(directory, formFile.FileName);
+
+
+                if (File.Exists(tmpFilePath))
                 {
-                    File.Delete(Path.Combine(directory, formFile.FileName));
+                    GC.Collect();
+                    File.Delete(tmpFilePath);
                 }
 
                 // For .xlsx file

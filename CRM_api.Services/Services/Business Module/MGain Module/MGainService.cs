@@ -358,9 +358,9 @@ SURAT - 395009 <p>
                 {
                     var cumulativeInterest = new MgainCumulativeInterestDto();
                     cumulativeInterest.Date = mgainDetail.Date.Value;
-                    cumulativeInterest.MGainId = mgainDetail.Id;
-                    cumulativeInterest.ClientName = mgainDetail.Mgain1stholder;
-                    cumulativeInterest.SchemeName = mgainDetail.TblMgainSchemeMaster.Schemename;
+                    cumulativeInterest.Id = mgainDetail.Id;
+                    cumulativeInterest.Mgain1stholder = mgainDetail.Mgain1stholder;
+                    cumulativeInterest.MgainSchemename = mgainDetail.TblMgainSchemeMaster.Schemename;
                     cumulativeInterest.InvestmentAmount = (decimal)mgainDetail.MgainInvamt;
                     cumulativeInterest.FinalAmount = (decimal)mgainDetail.MgainInvamt;
 
@@ -533,20 +533,21 @@ SURAT - 395009 <p>
         {
             var user = await _userMasterRepository.GetUserMasterbyId(userId);
             var mgainAccDetails = await _mGainRepository.GetMGainAccTransactionByUserId(userId, year);
-            var mgain = await _mGainRepository.GetMGainDetailById((int)mgainAccDetails.Select(x => x.Mgainid).First());
+            if (mgainAccDetails.Count > 0)
+            {
+                var mgain = await _mGainRepository.GetMGainDetailById((int)mgainAccDetails.Select(x => x.Mgainid).First());
 
-
-            var interestCertificate = new InterestCertificateDto();
-            if (mgain.Mgain1stholderGender == Gender.Male.ToString())
-                interestCertificate.UserName = "Mr. " + user.UserName;
-            else if (mgain.Mgain1stholderGender == Gender.Female.ToString() && mgain.Mgain1stholderMaritalstatus == MaritalStatus.Married.ToString())
-                interestCertificate.UserName = "Mrs. " + user.UserName;
-            else if (mgain.Mgain1stholderGender == Gender.Female.ToString() && mgain.Mgain1stholderMaritalstatus == MaritalStatus.Unmarried.ToString())
-                interestCertificate.UserName = "Ms. " + user.UserName;
-            else
-                interestCertificate.UserName = user.UserName;
-            interestCertificate.UserId = userId;
-            var months = new List<string>()
+                var interestCertificate = new InterestCertificateDto();
+                if (mgain.Mgain1stholderGender == Gender.Male.ToString())
+                    interestCertificate.UserName = "Mr. " + user.UserName;
+                else if (mgain.Mgain1stholderGender == Gender.Female.ToString() && mgain.Mgain1stholderMaritalstatus == MaritalStatus.Married.ToString())
+                    interestCertificate.UserName = "Mrs. " + user.UserName;
+                else if (mgain.Mgain1stholderGender == Gender.Female.ToString() && mgain.Mgain1stholderMaritalstatus == MaritalStatus.Unmarried.ToString())
+                    interestCertificate.UserName = "Ms. " + user.UserName;
+                else
+                    interestCertificate.UserName = user.UserName;
+                interestCertificate.UserId = userId;
+                var months = new List<string>()
             {
                 "April",
                 "May",
@@ -562,62 +563,64 @@ SURAT - 395009 <p>
                 "March"
             };
 
-            var interestReports = new List<InterestReportDto>();
-            foreach (var month in months)
-            {
-                var prevMonth = "";
-                if (month == "April")
-                    prevMonth = "March";
-                else
+                var interestReports = new List<InterestReportDto>();
+                foreach (var month in months)
                 {
-                    var index = months.FindIndex(x => x == month);
-                    prevMonth = months[index - 1];
-                }
-                var details = mgainAccDetails.Where(x => x.DocType == MGainPayment.Payment.ToString() && x.DocDate.Value.ToString("MMMM") == month).ToList();
-                if (details.Count > 0)
-                {
-                    foreach (var detail in details)
+                    var prevMonth = "";
+                    if (month == "April")
+                        prevMonth = "March";
+                    else
                     {
-                        var interestReport = new InterestReportDto();
-                        interestReport.DepositeCode = detail.Id;
-                        interestReport.Date = detail.DocDate;
-                        interestReport.InterestPaid = detail.Debit;
-                        interestReport.InterestAccrued = 0;
-                        var tax = mgainAccDetails.Where(x => x.DocType == MGainPayment.Journal.ToString() && x.DocDate.Value.ToString("MMMM") == prevMonth && x.Mgainid == detail.Mgainid
-                                                    && x.DocParticulars == "TDS " + (year - 1) + "-" + year.ToString().Substring(year.ToString().Length - 2) && x.Debit != 0).FirstOrDefault();
-                        interestReport.TaxDeducted = 0;
-                        if (tax is not null)
-                            interestReport.TaxDeducted = tax.Debit;
-                        interestReport.ShcemeName = mgain.TblMgainSchemeMaster.Schemename;
-                        interestReport.ACDescription = mgain.MgainType;
-                        interestReport.Currency = "₹";
-                        interestReport.OverheadTaxDeducted = "N/A";
-                        interestReports.Add(interestReport);
+                        var index = months.FindIndex(x => x == month);
+                        prevMonth = months[index - 1];
                     }
-                    if (month == "March")
+                    var details = mgainAccDetails.Where(x => x.DocType == MGainPayment.Payment.ToString() && x.DocDate.Value.ToString("MMMM") == month).ToList();
+                    if (details.Count > 0)
                     {
                         foreach (var detail in details)
                         {
-                            var interestMarchReport = new InterestReportDto();
-                            interestMarchReport.DepositeCode = detail.Id;
-                            interestMarchReport.InterestAccrued = detail.Debit;
-                            interestMarchReport.InterestPaid = 0;
+                            var interestReport = new InterestReportDto();
+                            interestReport.DepositeCode = detail.Id;
+                            interestReport.Date = detail.DocDate;
+                            interestReport.InterestPaid = detail.Debit;
+                            interestReport.InterestAccrued = 0;
                             var tax = mgainAccDetails.Where(x => x.DocType == MGainPayment.Journal.ToString() && x.DocDate.Value.ToString("MMMM") == prevMonth && x.Mgainid == detail.Mgainid
-                                                    && x.DocParticulars == "TDS " + (year - 1) + "-" + year.ToString().Substring(year.ToString().Length - 2) && x.Debit != 0).FirstOrDefault();
-                            interestMarchReport.TaxDeducted = 0;
+                                                        && x.DocParticulars == "TDS " + (year - 1) + "-" + year.ToString().Substring(year.ToString().Length - 2) && x.Debit != 0).FirstOrDefault();
+                            interestReport.TaxDeducted = 0;
                             if (tax is not null)
-                                interestMarchReport.TaxDeducted = tax.Debit;
-                            interestMarchReport.ShcemeName = mgain.TblMgainSchemeMaster.Schemename;
-                            interestMarchReport.ACDescription = mgain.MgainType;
-                            interestMarchReport.Currency = "₹";
-                            interestMarchReport.OverheadTaxDeducted = "N/A";
-                            interestReports.Add(interestMarchReport);
+                                interestReport.TaxDeducted = tax.Debit;
+                            interestReport.ShcemeName = mgain.TblMgainSchemeMaster.Schemename;
+                            interestReport.ACDescription = mgain.MgainType;
+                            interestReport.Currency = "₹";
+                            interestReport.OverheadTaxDeducted = "N/A";
+                            interestReports.Add(interestReport);
+                        }
+                        if (month == "March")
+                        {
+                            foreach (var detail in details)
+                            {
+                                var interestMarchReport = new InterestReportDto();
+                                interestMarchReport.DepositeCode = detail.Id;
+                                interestMarchReport.InterestAccrued = detail.Debit;
+                                interestMarchReport.InterestPaid = 0;
+                                var tax = mgainAccDetails.Where(x => x.DocType == MGainPayment.Journal.ToString() && x.DocDate.Value.ToString("MMMM") == prevMonth && x.Mgainid == detail.Mgainid
+                                                        && x.DocParticulars == "TDS " + (year - 1) + "-" + year.ToString().Substring(year.ToString().Length - 2) && x.Debit != 0).FirstOrDefault();
+                                interestMarchReport.TaxDeducted = 0;
+                                if (tax is not null)
+                                    interestMarchReport.TaxDeducted = tax.Debit;
+                                interestMarchReport.ShcemeName = mgain.TblMgainSchemeMaster.Schemename;
+                                interestMarchReport.ACDescription = mgain.MgainType;
+                                interestMarchReport.Currency = "₹";
+                                interestMarchReport.OverheadTaxDeducted = "N/A";
+                                interestReports.Add(interestMarchReport);
+                            }
                         }
                     }
                 }
+                interestCertificate.InterestReports = interestReports;
+                return interestCertificate;
             }
-            interestCertificate.InterestReports = interestReports;
-            return interestCertificate;
+            return null;
         }
         #endregion
 
@@ -949,7 +952,7 @@ SURAT - 395009 <p>
         public async Task<TblMgaindetail> AddMGainDetailAsync(AddMGainDetailsDto addMGainDetails)
         {
             var mGainDetails = _mapper.Map<TblMgaindetail>(addMGainDetails);
-
+            mGainDetails.MgainSchemename = _mGainSchemeRepository.GetMGainSchemeById((int)addMGainDetails.MgainSchemeid).Result.Schemename;
             var directoryPath = Directory.GetCurrentDirectory() + "\\MGain-Documents\\";
 
             if (!Directory.Exists(directoryPath))

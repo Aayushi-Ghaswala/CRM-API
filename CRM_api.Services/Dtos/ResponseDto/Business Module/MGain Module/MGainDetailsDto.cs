@@ -25,7 +25,7 @@
         public UserMasterDto TblUserMaster { get; set; }
         public bool? MgainIsactive { get; set; }
         public UserMasterDto EmployeeMaster { get; set; }
-        public MGainSchemeDto TblMgainSchemeMaster { get; set; }
+        public string? MgainSchemename { get; set; }
         public DateTime? Mgain1stholderDob { get; set; }
         public string? Mgain1stholderGender { get; set; }
         public string? Mgain1stholderMaritalstatus { get; set; }
@@ -69,6 +69,13 @@
         public string? MgainCancelledCheque { get; set; }
         public bool? MgainIsTdsDeduction { get; set; }
         public bool? MgainIsclosed { get; set; }
+        public string? _15h15g { get; set; }
+        public string? Mgain2ndprojectname { get; set; }
+        public string? Mgain2ndplotno { get; set; }
+        public decimal? Mgain2ndallocatedsqft { get; set; }
+        public decimal? Mgain2ndallocatedsqftamt { get; set; }
+        public decimal? Mgain2ndtotalsqft { get; set; }
+        public MGainSchemeDto TblMgainSchemeMaster { get; set; }
 
         public List<MGainPaymentDto> TblMgainPaymentMethods { get; set; }
     }
