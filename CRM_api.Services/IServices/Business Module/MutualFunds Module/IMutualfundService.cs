@@ -8,7 +8,7 @@ namespace CRM_api.Services.IServices.Business_Module.MutualFunds_Module
 {
     public interface IMutualfundService
     {
-        Task<MFTransactionDto<MutualFundDto>> GetClientwiseMutualFundTransactionAsync(int userId, int? schemeId, string? folioNo
+        Task<MFTransactionDto<MutualFundDto>> GetClientwiseMutualFundTransactionAsync(int userId, string? schemeName, string? folioNo
             , string? searchingParams, SortingParams sortingParams, DateTime? startDate, DateTime? endDate);
         Task<MFTransactionDto<MFSummaryDto>> GetMFSummaryAsync(int userId, string? searchingParams, SortingParams sortingParams);
         Task<MFTransactionDto<MFCategoryWiseDto>> GetMFCategoryWiseAsync(int userId, string? searchingParams, SortingParams sortingParams);

@@ -45,7 +45,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get Client Wise Mutual Fund Transaction
-        public async Task<BussinessResponse<TblMftransaction>> GetTblMftransactions(int userId, int? schemeId, string? folioNo
+        public async Task<BussinessResponse<TblMftransaction>> GetTblMftransactions(int userId, string? schemeName, string? folioNo
             , string? searchingParams, SortingParams sortingParams, DateTime? startDate, DateTime? endDate)
         {
             List<TblMftransaction> TblMftransaction = new List<TblMftransaction>();
@@ -54,47 +54,47 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
 
             if (startDate == null && endDate == null)
             {
-                if (schemeId == null && folioNo == null)
+                if (schemeName == null && folioNo == null)
                     mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId).AsQueryable();
                 else if (folioNo == null)
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId).AsQueryable();
-                else if (schemeId == null)
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Schemename == schemeName).AsQueryable();
+                else if (schemeName == null)
                     mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Foliono == folioNo).AsQueryable();
                 else
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Foliono == folioNo).AsQueryable();
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Schemename == schemeName && x.Foliono == folioNo).AsQueryable();
             }
             else if (endDate == null)
             {
-                if (schemeId == null && folioNo == null)
+                if (schemeName == null && folioNo == null)
                     mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Date >= startDate).AsQueryable();
                 else if (folioNo == null)
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date >= startDate).AsQueryable();
-                else if (schemeId == null)
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Schemename == schemeName && x.Date >= startDate).AsQueryable();
+                else if (schemeName == null)
                     mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Foliono == folioNo && x.Date >= startDate).AsQueryable();
                 else
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Foliono == folioNo && x.Date >= startDate).AsQueryable();
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Schemename == schemeName && x.Foliono == folioNo && x.Date >= startDate).AsQueryable();
             }
             else if (startDate == null)
             {
-                if (schemeId == null && folioNo == null)
+                if (schemeName == null && folioNo == null)
                     mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Date <= endDate).AsQueryable();
                 else if (folioNo == null)
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date <= endDate).AsQueryable();
-                else if (schemeId == null)
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Schemename == schemeName && x.Date <= endDate).AsQueryable();
+                else if (schemeName == null)
                     mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Foliono == folioNo && x.Date <= endDate).AsQueryable();
                 else
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Foliono == folioNo && x.Date <= endDate).AsQueryable();
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Schemename == schemeName && x.Foliono == folioNo && x.Date <= endDate).AsQueryable();
             }
             else
             {
-                if (schemeId == null && folioNo == null)
+                if (schemeName == null && folioNo == null)
                     mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Date >= startDate && x.Date <= endDate).AsQueryable();
                 else if(folioNo == null)
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date >= startDate && x.Date <= endDate).AsQueryable();
-                else if (schemeId == null)
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Schemename == schemeName && x.Date >= startDate && x.Date <= endDate).AsQueryable();
+                else if (schemeName == null)
                     mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Foliono == folioNo && x.Date >= startDate && x.Date <= endDate).AsQueryable();
                 else
-                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Foliono == folioNo && x.Date >= startDate && x.Date <= endDate).AsQueryable();
+                    mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Schemename == schemeName && x.Foliono == folioNo && x.Date >= startDate && x.Date <= endDate).AsQueryable();
             }
 
             var redemptionUnit = mftransactions.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale");
@@ -112,47 +112,47 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             {
                 if (startDate == null && endDate == null)
                 {
-                    if (schemeId == null && folioNo == null)
+                    if (schemeName == null && folioNo == null)
                         mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId).AsQueryable();
                     else if (folioNo == null)
-                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.SchemeId == schemeId).AsQueryable();
-                    else if (schemeId == null)
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Schemename == schemeName).AsQueryable();
+                    else if (schemeName == null)
                         mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Foliono == folioNo).AsQueryable();
                     else
-                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Foliono == folioNo).AsQueryable();
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Schemename == schemeName && x.Foliono == folioNo).AsQueryable();
                 }
                 else if (endDate == null)
                 {
-                    if (schemeId == null && folioNo == null)
+                    if (schemeName == null && folioNo == null)
                         mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Date >= startDate).AsQueryable();
                     else if (folioNo == null)
-                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date >= startDate).AsQueryable();
-                    else if (schemeId == null)
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Schemename == schemeName && x.Date >= startDate).AsQueryable();
+                    else if (schemeName == null)
                         mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Foliono == folioNo && x.Date >= startDate).AsQueryable();
                     else
-                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Foliono == folioNo && x.Date >= startDate).AsQueryable();
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Schemename == schemeName && x.Foliono == folioNo && x.Date >= startDate).AsQueryable();
                 }
                 else if (startDate == null)
                 {
-                    if (schemeId == null && folioNo == null)
+                    if (schemeName == null && folioNo == null)
                         mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Date <= endDate).AsQueryable();
                     else if (folioNo == null)
-                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date <= endDate).AsQueryable();
-                    else if (schemeId == null)
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Schemename == schemeName && x.Date <= endDate).AsQueryable();
+                    else if (schemeName == null)
                         mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Foliono == folioNo && x.Date <= endDate).AsQueryable();
                     else
-                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Foliono == folioNo && x.Date <= endDate).AsQueryable();
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Schemename == schemeName && x.Foliono == folioNo && x.Date <= endDate).AsQueryable();
                 }
                 else
                 {
-                    if (schemeId == null && folioNo == null)
+                    if (schemeName == null && folioNo == null)
                         mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Date >= startDate && x.Date <= endDate).AsQueryable();
                     else if (folioNo == null)
-                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Date >= startDate && x.Date <= endDate).AsQueryable();
-                    else if (schemeId == null)
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Schemename == schemeName && x.Date >= startDate && x.Date <= endDate).AsQueryable();
+                    else if (schemeName == null)
                         mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Foliono == folioNo && x.Date >= startDate && x.Date <= endDate).AsQueryable();
                     else
-                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.SchemeId == schemeId && x.Foliono == folioNo && x.Date >= startDate && x.Date <= endDate).AsQueryable();
+                        mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Schemename == schemeName && x.Foliono == folioNo && x.Date >= startDate && x.Date <= endDate).AsQueryable();
                 }
             }
             pageCount = Math.Ceiling(mftransactions.Count() / sortingParams.PageSize);

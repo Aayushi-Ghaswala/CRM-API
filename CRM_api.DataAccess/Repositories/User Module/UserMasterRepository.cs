@@ -222,17 +222,33 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Check Pan or Aadhar Exist
-        public int PanOrAadharExist(string? pan, string? aadhar)
+        public int PanOrAadharExist(int? id, string? pan, string? aadhar)
         {
-            if (pan is not null)
+            if (id is null)
             {
-                if (_context.TblUserMasters.Any(x => x.UserPan == pan))
-                    return 0;
+                if (pan is not null)
+                {
+                    if (_context.TblUserMasters.Any(x => x.UserPan == pan))
+                        return 0;
+                }
+                else if (aadhar is not null)
+                {
+                    if (_context.TblUserMasters.Any(x => x.UserAadhar == aadhar))
+                        return 0;
+                }
             }
-            else if (aadhar is not null)
+            else
             {
-                if (_context.TblUserMasters.Any(x => x.UserAadhar.Equals(aadhar)))
-                    return 0;
+                if (pan is not null)
+                {
+                    if (_context.TblUserMasters.Any(x => x.UserPan == pan && x.UserId != id))
+                        return 0;
+                }
+                else if (aadhar is not null)
+                {
+                    if (_context.TblUserMasters.Any(x => x.UserAadhar == aadhar && x.UserId != id))
+                        return 0;
+                }
             }
             return 1;
         }
@@ -241,6 +257,9 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region AddUser
         public async Task<TblUserMaster> AddUser(TblUserMaster userMaster)
         {
+            if (_context.TblUserMasters.Any(x => x.UserPan == userMaster.UserPan || x.UserAadhar == userMaster.UserAadhar))
+                return null;
+
             _context.TblUserMasters.Add(userMaster);
             await _context.SaveChangesAsync();
             return userMaster;

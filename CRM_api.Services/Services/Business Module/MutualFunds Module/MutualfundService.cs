@@ -28,10 +28,10 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         }
 
         #region Get Client wise Mutual Fund Transaction
-        public async Task<MFTransactionDto<MutualFundDto>> GetClientwiseMutualFundTransactionAsync(int userId, int? schemeId, string? folioNo
+        public async Task<MFTransactionDto<MutualFundDto>> GetClientwiseMutualFundTransactionAsync(int userId, string? schemeName, string? folioNo
             , string? searchingParams, SortingParams sortingParams, DateTime? startDate, DateTime? endDate)
         {
-            var mutualFundTransaction = await _mutualfundRepository.GetTblMftransactions(userId, schemeId, folioNo, searchingParams, sortingParams, startDate, endDate);
+            var mutualFundTransaction = await _mutualfundRepository.GetTblMftransactions(userId, schemeName, folioNo, searchingParams, sortingParams, startDate, endDate);
             var mapMutualFundTransaction = _mapper.Map<MFTransactionDto<MutualFundDto>>(mutualFundTransaction);
             return mapMutualFundTransaction;
         }
@@ -276,6 +276,12 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         {
             var mfUser = await _mutualfundRepository.GetMFUserName(searchingParams, sortingParams);
             var mapMFUser = _mapper.Map<ResponseDto<UserNameDto>>(mfUser);
+
+            foreach(var user in mapMFUser.Values)
+            {
+                user.UserName = user.UserName.ToLower();
+            }
+
             return mapMFUser;
         }
         #endregion 
@@ -284,8 +290,12 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         public async Task<ResponseDto<SchemaNameDto>> DisplayschemeNameAsync(int userId, string? searchingParams, SortingParams sortingParams)
         {
             var mutualfunds = await _mutualfundRepository.GetSchemeName(userId, searchingParams, sortingParams);
-
             var schemeName = _mapper.Map<ResponseDto<SchemaNameDto>>(mutualfunds);
+
+            foreach(var scheme in schemeName.Values)
+            {
+                scheme.Schemename = scheme.Schemename.ToLower();
+            }
 
             return schemeName;
         }
@@ -295,7 +305,6 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         public async Task<ResponseDto<SchemaNameDto>> DisplayFolioNoAsync(int userId, int? schemeId, string? searchingParams, SortingParams sortingParams)
         {
             var mutualfunds = await _mutualfundRepository.GetFolioNo(userId, schemeId, searchingParams, sortingParams);
-
             var folioNo = _mapper.Map<ResponseDto<SchemaNameDto>>(mutualfunds);
 
             return folioNo;

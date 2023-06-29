@@ -31,6 +31,11 @@ namespace CRM_api.Services.Services.HR_Module
             var employees = await _employeeRepository.GetEmployees(category.CatId, search, sortingParams);
 
             var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(employees);
+
+            foreach(var user in mapUsers.Values)
+            {
+                user.UserName = user.UserName.ToLower();
+            } 
             return mapUsers;
         }
         #endregion

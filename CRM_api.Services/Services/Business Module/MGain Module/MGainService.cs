@@ -7,6 +7,7 @@ using CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Helper.ConstantValue;
+using CRM_api.Services.Helper.Reminder_Helper;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
 using SelectPdf;
 using static CRM_api.Services.Helper.ConstantValue.GenderConstant;
@@ -31,9 +32,9 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
         }
 
         #region Get All MGain Details
-        public async Task<MGainResponseDto<MGainDetailsDto>> GetAllMGainDetailsAsync(int? currancyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams)
+        public async Task<MGainResponseDto<MGainDetailsDto>> GetAllMGainDetailsAsync(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams)
         {
-            var mGainDetails = await _mGainRepository.GetMGainDetails(currancyId, type, isClosed, fromDate, toDate, searchingParams, sortingParams);
+            var mGainDetails = await _mGainRepository.GetMGainDetails(currencyId, type, isClosed, fromDate, toDate, searchingParams, sortingParams);
             var mapMGainDetails = _mapper.Map<MGainResponseDto<MGainDetailsDto>>(mGainDetails);
 
             foreach (var mGain in mapMGainDetails.response.Values)
@@ -49,9 +50,9 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
                     var plot = await _mGainRepository.GetPlotByProjectAndPlotNo(mGain.MgainProjectname, mGain.MgainPlotno);
                     var mapPlot = _mapper.Map<PlotMasterDto>(plot);
                     mGain.PlotMaster = mapPlot;
-
-                    mGain.Tenure = 10;
                 }
+
+                mGain.Tenure = 10;
             }
 
             return mapMGainDetails;
@@ -110,56 +111,50 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
         #region MGain Payment Receipt
         public async Task<MGainPDFResponseDto> MGainPaymentReceipt(int id)
         {
-            var mGain = await _mGainRepository.GetMGainDetailById(id);
-            var mapMGainPaymentReciept = _mapper.Map<MGainPaymentRecieptDto>(mGain);
-            mapMGainPaymentReciept.ReleaseDate = mapMGainPaymentReciept.Date.Value.AddYears(10).AddDays(-1);
-
-            var directoryPath = Directory.GetCurrentDirectory() + "\\MGain-Documents\\";
-
-            if (!Directory.Exists(directoryPath))
+            try
             {
-                Directory.CreateDirectory(directoryPath);
-            }
+                var mGain = await _mGainRepository.GetMGainDetailById(id);
+                var mapMGainPaymentReciept = _mapper.Map<MGainPaymentRecieptDto>(mGain);
+                mapMGainPaymentReciept.ReleaseDate = mapMGainPaymentReciept.Date.Value.AddYears(10).AddDays(-1);
 
-            var folderPath = Path.Combine(directoryPath) + $"{mGain.Mgain1stholder}\\";
+                var directoryPath = Directory.GetCurrentDirectory() + "\\MGain-Documents\\";
 
-            if (!Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-
-            var fileName = "MGainReciept" + $"{mGain.Id}" + ".pdf";
-
-            var filePath = folderPath + fileName;
-
-            if (File.Exists(filePath))
-            {
-                byte[] fileByte = File.ReadAllBytes(filePath);
-
-                var pdfFile = new MGainPDFResponseDto()
+                if (!Directory.Exists(directoryPath))
                 {
-                    file = fileByte,
-                    FileName = fileName,
-                };
+                    Directory.CreateDirectory(directoryPath);
+                }
 
-                return pdfFile;
-            }
+                var folderPath = Path.Combine(directoryPath) + $"{mGain.Mgain1stholder}\\";
 
-            List<decimal?> interestRates = new List<decimal?>();
-            interestRates.Add(mGain.TblMgainSchemeMaster.Interst1);
-            interestRates.Add(mGain.TblMgainSchemeMaster.Interst2);
-            interestRates.Add(mGain.TblMgainSchemeMaster.Interst3);
-            interestRates.Add(mGain.TblMgainSchemeMaster.Interst4 + mGain.TblMgainSchemeMaster.AdditionalInterest4);
-            interestRates.Add(mGain.TblMgainSchemeMaster.Interst5 + mGain.TblMgainSchemeMaster.AdditionalInterest5);
-            interestRates.Add(mGain.TblMgainSchemeMaster.Interst6 + mGain.TblMgainSchemeMaster.AdditionalInterest6);
-            interestRates.Add(mGain.TblMgainSchemeMaster.Interst7 + mGain.TblMgainSchemeMaster.AdditionalInterest7);
-            interestRates.Add(mGain.TblMgainSchemeMaster.Interst8 + mGain.TblMgainSchemeMaster.AdditionalInterest8);
-            interestRates.Add(mGain.TblMgainSchemeMaster.Interst9 + mGain.TblMgainSchemeMaster.AdditionalInterest9);
-            interestRates.Add(mGain.TblMgainSchemeMaster.Interst10 + mGain.TblMgainSchemeMaster.AdditionalInterest10);
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
 
-            mapMGainPaymentReciept.AverageROI = interestRates.Average();
+                var fileName = "MGainReciept" + $"{mGain.Id}" + ".pdf";
 
-            var htmlContent = @"<!DOCTYPE html >
+                var filePath = folderPath + fileName;
+
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+
+                List<decimal?> interestRates = new List<decimal?>();
+                interestRates.Add(mGain.TblMgainSchemeMaster.Interst1);
+                interestRates.Add(mGain.TblMgainSchemeMaster.Interst2);
+                interestRates.Add(mGain.TblMgainSchemeMaster.Interst3);
+                interestRates.Add(mGain.TblMgainSchemeMaster.Interst4 + mGain.TblMgainSchemeMaster.AdditionalInterest4);
+                interestRates.Add(mGain.TblMgainSchemeMaster.Interst5 + mGain.TblMgainSchemeMaster.AdditionalInterest5);
+                interestRates.Add(mGain.TblMgainSchemeMaster.Interst6 + mGain.TblMgainSchemeMaster.AdditionalInterest6);
+                interestRates.Add(mGain.TblMgainSchemeMaster.Interst7 + mGain.TblMgainSchemeMaster.AdditionalInterest7);
+                interestRates.Add(mGain.TblMgainSchemeMaster.Interst8 + mGain.TblMgainSchemeMaster.AdditionalInterest8);
+                interestRates.Add(mGain.TblMgainSchemeMaster.Interst9 + mGain.TblMgainSchemeMaster.AdditionalInterest9);
+                interestRates.Add(mGain.TblMgainSchemeMaster.Interst10 + mGain.TblMgainSchemeMaster.AdditionalInterest10);
+
+                mapMGainPaymentReciept.AverageROI = interestRates.Average();
+
+                var htmlContent = @"<!DOCTYPE html >
   <html>
     <head>
       <style>
@@ -188,7 +183,7 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
       </style>
     </head>";
 
-            htmlContent += $@"
+                htmlContent += $@"
 <body style = ""font-size:20px"">
       <div>
         <div id=""main"">
@@ -223,12 +218,12 @@ SURAT - 395009 <p>
                   <b>Pan No : </b><span>{mapMGainPaymentReciept.Mgain1stholderpan}</span><br>
                     <b>Email Addrss : </b><span>{mapMGainPaymentReciept.Mgain1stholderEmail}</span><br>";
 
-            if (mGain.MgainIsSecondHolder is true)
-                htmlContent += @$"<b>Second Holder : </b><span>{mapMGainPaymentReciept.Mgain2ndholdername}</span><br>";
-            htmlContent += $@"<b>Second Holder : </b><span><b>NO</b></span><br>";
+                if (mGain.MgainIsSecondHolder is true)
+                    htmlContent += @$"<b>Second Holder : </b><span>{mapMGainPaymentReciept.Mgain2ndholdername}</span><br>";
+                htmlContent += $@"<b>Second Holder : </b><span><b>NO</b></span><br>";
 
 
-            htmlContent += @$"<b>Nominee First : </b><span>{mapMGainPaymentReciept.MgainNomineeName}</span><br>
+                htmlContent += @$"<b>Nominee First : </b><span>{mapMGainPaymentReciept.MgainNomineeName}</span><br>
                         </div>
                       </div>
                     </div>
@@ -246,11 +241,11 @@ SURAT - 395009 <p>
                     </tr>";
 
 
-            foreach (var payment in mGain.TblMgainPaymentMethods)
-            {
-                if (payment.PaymentMode.ToLower() == MGainPaymentConstant.cheque.ToLower())
+                foreach (var payment in mGain.TblMgainPaymentMethods)
                 {
-                    htmlContent += @$"<tr>
+                    if (payment.PaymentMode.ToLower() == MGainPaymentConstant.cheque.ToLower())
+                    {
+                        htmlContent += @$"<tr>
                       <td>{mapMGainPaymentReciept.Date.Value.ToString("dd-MM-yyyy")}</td>
                       <td>{mGain.MgainInvamt}</td>
                       <td>{payment.PaymentMode}</td>
@@ -259,10 +254,10 @@ SURAT - 395009 <p>
                       <td>{mapMGainPaymentReciept.AverageROI}</td>
                       <td>{mapMGainPaymentReciept.MgainType}</td>
                     </tr>";
-                }
-                else if (payment.PaymentMode.ToLower() == MGainPaymentConstant.rtgs.ToLower())
-                {
-                    htmlContent += @$"<tr>
+                    }
+                    else if (payment.PaymentMode.ToLower() == MGainPaymentConstant.rtgs.ToLower())
+                    {
+                        htmlContent += @$"<tr>
                       <td>{mapMGainPaymentReciept.Date.Value.ToString("dd-MM-yyyy")}</td>
                       <td>{mGain.MgainInvamt}</td>
                       <td>{payment.PaymentMode}</td>
@@ -271,10 +266,10 @@ SURAT - 395009 <p>
                       <td>{mapMGainPaymentReciept.AverageROI}</td>
                       <td>{mapMGainPaymentReciept.MgainType}</td>
                     </tr>";
-                }
-                else
-                {
-                    htmlContent += @$"<tr>
+                    }
+                    else
+                    {
+                        htmlContent += @$"<tr>
                       <td>{mapMGainPaymentReciept.Date.Value.ToString("dd-MM-yyyy")}</td>
                       <td>{mGain.MgainInvamt}</td>
                       <td>{payment.PaymentMode}</td>
@@ -283,10 +278,10 @@ SURAT - 395009 <p>
                       <td>{mapMGainPaymentReciept.AverageROI}</td>
                       <td>{mapMGainPaymentReciept.MgainType}</td>
                     </tr>";
+                    }
                 }
-            }
 
-            htmlContent += @$"</table>
+                htmlContent += @$"</table>
                 </div>
                 <p style=""padding-top:30px; padding-bottom:30px; text-align:center;""><b>We Acknowledge Hereby The Receipt Of Rs. {mapMGainPaymentReciept.MgainInvamt} On {mapMGainPaymentReciept.Date.Value.ToString("dd-MM-yyyy")} For M-Gain By Way Of {mapMGainPaymentReciept.TblMgainPaymentMethods.First().PaymentMode}.</b></p>
 
@@ -314,34 +309,39 @@ SURAT - 395009 <p>
               </body>
             </html>";
 
-            PdfDocument document = new PdfDocument();
+                PdfDocument document = new PdfDocument();
 
-            // Create a new HTML to PDF converter
-            HtmlToPdf converter = new HtmlToPdf();
+                // Create a new HTML to PDF converter
+                HtmlToPdf converter = new HtmlToPdf();
 
-            converter.Options.PdfPageSize = PdfPageSize.A4;
-            converter.Options.MarginTop = 50;
-            converter.Options.MarginLeft = 30;
-            converter.Options.MarginRight = 30;
+                converter.Options.PdfPageSize = PdfPageSize.A4;
+                converter.Options.MarginTop = 50;
+                converter.Options.MarginLeft = 30;
+                converter.Options.MarginRight = 30;
 
-            // Convert the HTML string to PDF
-            PdfDocument result = converter.ConvertHtmlString(htmlContent);
+                // Convert the HTML string to PDF
+                PdfDocument result = converter.ConvertHtmlString(htmlContent);
 
-            // Save the PDF document to a memory stream
-            MemoryStream stream = new MemoryStream();
-            result.Save(stream);
-            stream.Position = 0;
+                // Save the PDF document to a memory stream
+                MemoryStream stream = new MemoryStream();
+                result.Save(stream);
+                stream.Position = 0;
 
-            FileStream stream1 = new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite);
-            stream.CopyTo(stream1);
+                FileStream stream1 = new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite);
+                stream.CopyTo(stream1);
 
-            var pdfResponse = new MGainPDFResponseDto()
+                var pdfResponse = new MGainPDFResponseDto()
+                {
+                    file = stream.ToArray(),
+                    FileName = fileName
+                };
+
+                return pdfResponse;
+            }
+            catch (Exception)
             {
-                file = stream.ToArray(),
-                FileName = fileName
-            };
-
-            return pdfResponse;
+                return null;
+            }
         }
         #endregion
 
@@ -678,11 +678,14 @@ SURAT - 395009 <p>
                             {
                                 var taxDetail = mgainDetails.Where(x => x.DocType == MGainPayment.Journal.ToString() && x.DocDate.Value.ToString("MMMM") == prevMonth && x.Mgainid == detail.Mgainid
                                                     && x.DocParticulars == "TDS " + (year - 1) + "-" + year.ToString().Substring(year.ToString().Length - 2) && x.Debit != 0).FirstOrDefault();
-                                var taxLedger = new InterestLedgerDto();
-                                taxLedger.Perticular = taxDetail.DocParticulars + "_" + detail.Mgainid;
-                                taxLedger.Debit = detail.Debit;
-                                taxLedger.Credit = detail.Credit;
-                                interestLedgers.Add(taxLedger);
+                                if (taxDetail is not null)
+                                {
+                                    var taxLedger = new InterestLedgerDto();
+                                    taxLedger.Perticular = taxDetail.DocParticulars + "_" + detail.Mgainid;
+                                    taxLedger.Debit = taxDetail.Debit;
+                                    taxLedger.Credit = taxDetail.Credit;
+                                    interestLedgers.Add(taxLedger);
+                                }
                             }
 
                             flag = false;
@@ -722,7 +725,7 @@ SURAT - 395009 <p>
         #endregion
 
         #region MGain Monthly Non-Cumulative Interest Computation & Release
-        public async Task<MGainNCmonthlyTotalDto> GetNonCumulativeMonthlyReportAsync(int month, int year, int? schemeId, decimal? tds, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? searchingParams, SortingParams sortingParams)
+        public async Task<MGainNCmonthlyTotalDto> GetNonCumulativeMonthlyReportAsync(int month, int year, int? schemeId, decimal? tds, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? searchingParams, SortingParams sortingParams, bool? isSendSMS)
         {
             DateTime date = Convert.ToDateTime("01" + "-" + month + "-" + year);
             DateTime currentDate = date.AddDays(-1);
@@ -799,6 +802,13 @@ SURAT - 395009 <p>
                             else if (isPayment is true)
                                 accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration);
 
+                            if (isSendSMS is true)
+                            {
+                                string message = $"Dear Investors,Greetings from KA Group!MGain interest of Rs. {MGainNonCumulativeMonthlyReport.InterestAmount} - for the month of {month}-{year} has been credited in your Respective Bank.Thank You.";
+                                string mobile = "9173230023";
+                                SMSHelper.SendSMS(mobile, message, "");
+                            }
+
                             allAccountTransactions.AddRange(accountTransactions);
                         }
                         else if (currentDate.Month > MGainDetail.Date.Value.AddMonths(3).Month)
@@ -818,6 +828,13 @@ SURAT - 395009 <p>
                                 accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null);
                             else if (isPayment is true)
                                 accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration);
+
+                            if (isSendSMS is true)
+                            {
+                                string message = $"Dear Investors,Greetings from KA Group!MGain interest of Rs{MGainNonCumulativeMonthlyReport.InterestAmount} - for the month of {month}-{year} has been credited in your Respective Bank.Thank You.";
+                                string mobile = "9173230023";
+                                SMSHelper.SendSMS(mobile, message, "");
+                            }
 
                             allAccountTransactions.AddRange(accountTransactions);
                         }
@@ -840,6 +857,13 @@ SURAT - 395009 <p>
                         else if (isPayment is true)
                             accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration);
 
+                        if (isSendSMS is true)
+                        {
+                            string message = $"Dear Investors,Greetings from KA Group!MGain interest of Rs{MGainNonCumulativeMonthlyReport.InterestAmount} - for the month of {month}-{year} has been credited in your Respective Bank.Thank You.";
+                            string mobile = "9173230023";
+                            SMSHelper.SendSMS(mobile, message, "");
+                        }
+
                         allAccountTransactions.AddRange(accountTransactions);
                     }
                 }
@@ -857,7 +881,7 @@ SURAT - 395009 <p>
                 TotalPayAmount = totalPayAmount
             };
 
-            if(allAccountTransactions.Count > 0)
+            if (allAccountTransactions.Count > 0)
                 await _mGainRepository.AddMGainInterest(allAccountTransactions, currentDate);
 
             return mGainNCMonthlytotal;
@@ -913,11 +937,58 @@ SURAT - 395009 <p>
         #endregion
 
         #region Get MGain Month wise Total Interest Paid
-        public async Task<decimal?> GetMonthWiseInterestPaidAsync(int month, int year)
+        public async Task<MGainTotalInterestPaidDto<MGainUserInterestPaidDto>> GetMonthWiseInterestPaidAsync(int month, int year, string? searchingParams, SortingParams sortingParams)
         {
+            double? pageCount = 0;
             var accountTransactions = await _mGainRepository.GetAccountTransactionByMgainId(0, month, year);
-            var interestPaid = accountTransactions.Where(x => x.DocType.ToLower() == MGainAccountPaymentConstant.MGainPayment.Payment.ToString().ToLower()).Sum(x => x.Debit);
-            return interestPaid;
+            var userwiseAccountTransaction = accountTransactions.GroupBy(x => x.DocUserid).ToList();
+            List<MGainUserInterestPaidDto> userwiseinterstPaid = new List<MGainUserInterestPaidDto>();
+
+            foreach (var transaction in userwiseAccountTransaction)
+            {
+                MGainUserInterestPaidDto mGainTotalInterestPaid = new MGainUserInterestPaidDto();
+
+                var mGain = await _mGainRepository.GetMGainDetailsByUserId((int)transaction.Key);
+                mGainTotalInterestPaid.UserName = mGain.Select(x => x.Mgain1stholder).FirstOrDefault();
+                mGainTotalInterestPaid.totalInterestPaid = transaction.Where(x => x.DocType.ToLower() == MGainAccountPaymentConstant.MGainPayment.Payment.ToString().ToLower()).Sum(x => x.Credit);
+
+                userwiseinterstPaid.Add(mGainTotalInterestPaid);
+            }
+
+            if (searchingParams != null)
+            {
+                userwiseinterstPaid = userwiseinterstPaid.Where(x => x.UserName.ToLower().Contains(searchingParams.ToLower()) || x.totalInterestPaid.ToString().Contains(searchingParams)).ToList();
+            }
+
+            var InterestPaid = userwiseinterstPaid.Sum(x => x.totalInterestPaid);
+
+            IQueryable<MGainUserInterestPaidDto> mGainTotalInterests = userwiseinterstPaid.AsQueryable();
+
+            pageCount = Math.Ceiling(userwiseinterstPaid.Count / sortingParams.PageSize);
+
+            //Apply Sorting
+            var sortedData = SortingExtensions.ApplySorting(mGainTotalInterests, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            //Apply Pagination 
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var userInterestData = new ResponseDto<MGainUserInterestPaidDto>()
+            {
+                Values = paginatedData,
+                Pagination = new PaginationDto()
+                {
+                    Count = (int)pageCount,
+                    CurrentPage = sortingParams.PageNumber
+                }
+            };
+
+            var totalInterestData = new MGainTotalInterestPaidDto<MGainUserInterestPaidDto>()
+            {
+                response = userInterestData,
+                TotalInterestPaid = InterestPaid
+            };
+
+            return totalInterestData;
         }
         #endregion
 
@@ -926,6 +997,11 @@ SURAT - 395009 <p>
         {
             var projects = await _mGainRepository.GetAllProject(searchingParams, sortingParams);
             var mapProjects = _mapper.Map<ResponseDto<ProjectMasterDto>>(projects);
+
+            foreach (var project in projects.Values)
+            {
+                project.Name = project.Name.ToLower();
+            }
             return mapProjects;
         }
         #endregion
@@ -1167,109 +1243,109 @@ SURAT - 395009 <p>
                 Directory.CreateDirectory(folderPath);
             }
 
-            if (updateMGainDetails.Mgain1stholderSignature is not null)
+            if (updateMGainDetails.Mgain1stholderSignatureFile is not null)
             {
                 if (File.Exists(mgain.Mgain1stholderSignature))
                 {
                     File.Delete(mgain.Mgain1stholderSignature);
                 }
 
-                var firstHolderSignature = updateMGainDetails.Mgain1stholderSignature.FileName;
+                var firstHolderSignature = updateMGainDetails.Mgain1stholderSignatureFile.FileName;
                 var firstHolderSignaturePath = Path.Combine(folderPath, firstHolderSignature);
                 using (var fs = new FileStream(firstHolderSignaturePath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
-                    updateMGainDetails.Mgain1stholderSignature.CopyTo(fs);
+                    updateMGainDetails.Mgain1stholderSignatureFile.CopyTo(fs);
                 }
                 updateMGain.Mgain1stholderSignature = firstHolderSignaturePath;
             }
-            else updateMGain.Mgain1stholderSignature = null;
+            else updateMGain.Mgain1stholderSignature = updateMGainDetails.Mgain1stholderSignature;
 
 
-            if (updateMGainDetails.Mgain2ndholderSignature is not null)
+            if (updateMGainDetails.Mgain2ndholderSignatureFile is not null)
             {
                 if (File.Exists(mgain.Mgain2ndholderSignature))
                 {
                     File.Delete(mgain.Mgain2ndholderSignature);
                 }
 
-                var secondHolderSignature = updateMGainDetails.Mgain2ndholderSignature.FileName;
+                var secondHolderSignature = updateMGainDetails.Mgain2ndholderSignatureFile.FileName;
                 var secondHolderSignaturePath = Path.Combine(folderPath, secondHolderSignature);
                 using (var fs = new FileStream(secondHolderSignaturePath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
-                    updateMGainDetails.Mgain2ndholderSignature.CopyTo(fs);
+                    updateMGainDetails.Mgain2ndholderSignatureFile.CopyTo(fs);
                 }
                 updateMGain.Mgain2ndholderSignature = secondHolderSignaturePath;
             }
-            else updateMGain.Mgain2ndholderSignature = null;
+            else updateMGain.Mgain2ndholderSignature = updateMGainDetails.Mgain2ndholderSignature;
 
-            if (updateMGainDetails.MgainNomineePan is not null)
+            if (updateMGainDetails.MgainNomineePanFile is not null)
             {
                 if (File.Exists(mgain.MgainNomineePan))
                 {
                     File.Delete(mgain.MgainNomineePan);
                 }
 
-                var nomineePan = updateMGainDetails.MgainNomineePan.FileName;
+                var nomineePan = updateMGainDetails.MgainNomineePanFile.FileName;
                 var nomineePanPath = Path.Combine(folderPath, nomineePan);
                 using (var fs = new FileStream(nomineePanPath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
-                    updateMGainDetails.MgainNomineePan.CopyTo(fs);
+                    updateMGainDetails.MgainNomineePanFile.CopyTo(fs);
                 }
 
                 updateMGain.MgainNomineePan = nomineePanPath;
             }
-            else updateMGain.MgainNomineePan = null;
+            else updateMGain.MgainNomineePan = updateMGainDetails.MgainNomineePan;
 
-            if (updateMGainDetails.MgainNomineeAadhar is not null)
+            if (updateMGainDetails.MgainNomineeAadharFile is not null)
             {
                 if (File.Exists(mgain.MgainNomineeAadhar))
                 {
                     File.Delete(mgain.MgainNomineeAadhar);
                 }
 
-                var nomineeAadhar = updateMGainDetails.MgainNomineeAadhar.FileName;
+                var nomineeAadhar = updateMGainDetails.MgainNomineeAadharFile.FileName;
                 var nomineeAadharPath = Path.Combine(folderPath, nomineeAadhar);
                 using (var fs = new FileStream(nomineeAadharPath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
-                    updateMGainDetails.MgainNomineeAadhar.CopyTo(fs);
+                    updateMGainDetails.MgainNomineeAadharFile.CopyTo(fs);
                 }
                 updateMGain.MgainNomineeAadhar = nomineeAadharPath;
             }
-            else updateMGain.MgainNomineeAadhar = null;
+            else updateMGain.MgainNomineeAadhar = updateMGainDetails.MgainNomineeAadhar;
 
-            if (updateMGainDetails.MgainNomineeBirthCertificate is not null)
+            if (updateMGainDetails.MgainNomineeBirthCertificateFile is not null)
             {
                 if (File.Exists(mgain.MgainNomineeBirthCertificate))
                 {
                     File.Delete(mgain.MgainNomineeBirthCertificate);
                 }
 
-                var birthCertificate = updateMGainDetails.MgainNomineeBirthCertificate.FileName;
+                var birthCertificate = updateMGainDetails.MgainNomineeBirthCertificateFile.FileName;
                 var birthCertificatePath = Path.Combine(folderPath, birthCertificate);
                 using (var fs = new FileStream(birthCertificatePath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
-                    updateMGainDetails.MgainNomineeBirthCertificate.CopyTo(fs);
+                    updateMGainDetails.MgainNomineeBirthCertificateFile.CopyTo(fs);
                 }
                 updateMGain.MgainNomineeBirthCertificate = birthCertificatePath;
             }
-            else updateMGain.MgainNomineeBirthCertificate = null;
+            else updateMGain.MgainNomineeBirthCertificate = updateMGainDetails.MgainNomineeBirthCertificate;
 
-            if (updateMGainDetails.MgainCancelledCheque is not null)
+            if (updateMGainDetails.MgainCancelledChequeFile is not null)
             {
                 if (File.Exists(mgain.MgainCancelledCheque))
                 {
                     File.Delete(mgain.MgainCancelledCheque);
                 }
 
-                var cancelledCheque = updateMGainDetails.MgainCancelledCheque.FileName;
+                var cancelledCheque = updateMGainDetails.MgainCancelledChequeFile.FileName;
                 var cancelledChequePath = Path.Combine(folderPath, cancelledCheque);
                 using (var fs = new FileStream(cancelledChequePath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
-                    updateMGainDetails.MgainCancelledCheque.CopyTo(fs);
+                    updateMGainDetails.MgainCancelledChequeFile.CopyTo(fs);
                 }
                 updateMGain.MgainCancelledCheque = cancelledChequePath;
             }
-            else updateMGain.MgainCancelledCheque = null;
+            else updateMGain.MgainCancelledCheque = updateMGainDetails.MgainCancelledCheque;
 
             if (mgain.MgainProjectname is not null && mgain.MgainPlotno is not null)
             {
@@ -1588,6 +1664,6 @@ SURAT - 395009 <p>
 
             return firstYear;
         }
-                #endregion
+        #endregion
     }
 }

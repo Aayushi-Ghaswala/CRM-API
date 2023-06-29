@@ -17,11 +17,11 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region Get stock user's names
         [HttpGet("GetStocksUsersName")]
-        public async Task<IActionResult> GetStocksUsersName([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetStocksUsersName(string? scriptName, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var result = await _stockService.GetStocksUsersNameAsync(search, sortingParams);
+                var result = await _stockService.GetStocksUsersNameAsync(scriptName, search, sortingParams);
                 return Ok(result);
             }
             catch (Exception)

@@ -10,7 +10,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module
         Task<List<TblMftransaction>> GetMFInSpecificDateForExistUser(DateTime? startDate, DateTime? endDate);
         Task<List<TblNotexistuserMftransaction>> GetMFInSpecificDateForNotExistUser(DateTime? startDate, DateTime? endDate);
         int GetSchemeIdBySchemeName(string schemeName);
-        Task<BussinessResponse<TblMftransaction>> GetTblMftransactions(int userId, int? schemeId, string? folioNo
+        Task<BussinessResponse<TblMftransaction>> GetTblMftransactions(int userId, string? schemeName, string? folioNo
             , string? searchingParams, SortingParams sortingParams, DateTime? startDate, DateTime? endDate);
         Task<List<IGrouping<string?, TblMftransaction>>> GetMFTransactionSummary(int userId);
         Task<Response<UserNameResponse>> GetMFUserName(string? searchingParams, SortingParams sortingParams);
