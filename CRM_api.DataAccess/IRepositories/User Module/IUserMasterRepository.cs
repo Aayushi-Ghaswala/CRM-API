@@ -13,7 +13,7 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<Response<TblUserMaster>> GetUsersByCategoryId(int categoryId, string search, SortingParams sortingParams);
         Task<TblUserCategoryMaster> GetCategoryByName(string name);
         TblUserMaster GetUserByUserPan(string UserPan);
-        int PanOrAadharExist(string? pan, string? aadhar);
+        int PanOrAadharExist(int? id, string? pan, string? aadhar);
         Task<TblUserMaster> AddUser(TblUserMaster userMaster);
         Task<int> UpdateUser(TblUserMaster userMaster);
         Task<int> DeactivateUser(int id);

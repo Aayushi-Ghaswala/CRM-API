@@ -25,6 +25,11 @@ namespace CRM_api.Services.Services.Business_Module.WBC_Module
         {
             var response = await _wbcRepository.GetAllWbcSchemeTypes(searchingParams, sortingParams);
             var mappedResponse = _mapper.Map<ResponseDto<WbcTypeDto>>(response);
+
+            foreach(var item in mappedResponse.Values)
+            {
+                item.WbcType = item.WbcType.ToLower();
+            }
             return mappedResponse;
         }
         #endregion
@@ -34,6 +39,11 @@ namespace CRM_api.Services.Services.Business_Module.WBC_Module
         {
             var response = await _wbcRepository.GetAllSubInvestmentTypes(searchingParams, sortingParams);
             var mappedResponse = _mapper.Map<ResponseDto<SubInvestmentTypeDto>>(response);
+
+            foreach(var item in mappedResponse.Values)
+            {
+                item.InvestmentType = item.InvestmentType.ToLower();
+            }
             return mappedResponse;
         }
         #endregion
@@ -43,6 +53,11 @@ namespace CRM_api.Services.Services.Business_Module.WBC_Module
         {
             var response = await _wbcRepository.GetAllSubSubInvestmentTypes(searchingParams, sortingParams, subInvestmentTypeId);
             var mappedResponse = _mapper.Map<ResponseDto<SubSubInvestmentTypeDto>>(response);
+
+            foreach(var item in mappedResponse.Values)
+            {
+                item.SubInvType = item.SubInvType.ToLower();
+            }
             return mappedResponse;
         }
         #endregion

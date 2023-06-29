@@ -45,6 +45,11 @@ namespace CRM_api.Services.Services.Business_Module.Loan_Module
             var bankDetails = await _loanMasterRepository.GetBankDetails(sortingParams);
             var mapBankeDetails = _mapper.Map<ResponseDto<BankMasterDto>>(bankDetails);
 
+            foreach(var bank in mapBankeDetails.Values)
+            {
+                bank.Bankname = bank.Bankname.ToLower();
+            }
+
             return mapBankeDetails;
         }
         #endregion

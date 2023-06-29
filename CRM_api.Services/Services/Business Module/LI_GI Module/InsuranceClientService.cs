@@ -40,6 +40,10 @@ namespace CRM_api.Services.Services.Business_Module.LI_GI_Module
             var companyList = await _insuranceClientRepository.GetCompanyListByInsTypeId(id, sortingParams);
             var mapCompanyList = _mapper.Map<ResponseDto<InsuranceCompanyListDto>>(companyList);
 
+            foreach(var company in mapCompanyList.Values)
+            {
+                company.InsuranceCompanyname = company.InsuranceCompanyname.ToLower();
+            }
             return mapCompanyList;
         }
         #endregion

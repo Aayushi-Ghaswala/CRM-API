@@ -126,6 +126,11 @@ namespace CRM_api.Services.Services.User_Module
             var roles = await _roleMasterRepository.GetRoles(search, sortingParams);
             var mapRoles = _mapper.Map<ResponseDto<RoleMasterDto>>(roles);
 
+            foreach(var role in mapRoles.Values)
+            {
+                role.RoleName = role.RoleName.ToLower();
+            }
+
             return mapRoles;
         }
         #endregion
@@ -155,6 +160,11 @@ namespace CRM_api.Services.Services.User_Module
         {
             var modules = await _roleMasterRepository.GetModules(search, sortingParams);
             var mapModules = _mapper.Map<ResponseDto<ModuleMasterDto>>(modules);
+
+            foreach (var module in mapModules.Values)
+            {
+                module.ModuleName = module.ModuleName.ToLower();
+            }
 
             return mapModules;
         }

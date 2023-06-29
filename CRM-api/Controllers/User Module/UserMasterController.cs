@@ -107,11 +107,20 @@ namespace CRM_api.Controllers.User_Module
 
         [HttpPost]
         #region Check Pan Or Aadhar Exist
-        public ActionResult PanOrAadharExist(string? pan, string? aadhar)
+        public ActionResult PanOrAadharExist(int? id, string? pan, string? aadhar)
         {
             try
             {
-                return Ok(_userMasterService.PanOrAadharExistAsync(pan, aadhar));
+                if (pan is not null)
+                {
+                    var exist = _userMasterService.PanOrAadharExistAsync(id, pan, aadhar);
+                    return exist != 0 ? Ok(exist) : BadRequest(new { Message = "Pan card already exist." });
+                }
+                else
+                {
+                    var exist = _userMasterService.PanOrAadharExistAsync(id, pan, aadhar);
+                    return exist != 0 ? Ok(exist) : BadRequest(new { Message = "Aadhar card already exist." });
+                }
             }
             catch (Exception)
             {
@@ -127,7 +136,8 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                var user = await _userMasterService.AddUserAsync(addUser);
-                return user != 0 ? Ok(new { Message = "User added successfully."}) : BadRequest(new { Message = "Unable to add user."});
+               return user != 0 ? Ok(new { Message = "User added successfully." }) : BadRequest(new { Message = "Unable to add user." });
+
             }
             catch (Exception)
             {

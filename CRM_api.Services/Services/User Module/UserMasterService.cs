@@ -7,6 +7,7 @@ using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.User_Module;
+using Microsoft.Extensions.Logging;
 
 namespace CRM_api.Services.Services.User_Module
 {
@@ -34,6 +35,7 @@ namespace CRM_api.Services.Services.User_Module
                     var fasttrackCategory = await _fasttrackRepository.GetUserFasttrackCategory(user.UserId);
                     user.UserFasttrackCategory = fasttrackCategory;
                 }
+                user.UserName = user.UserName.ToLower();
             }
             return mapUsers;
         }
@@ -64,6 +66,11 @@ namespace CRM_api.Services.Services.User_Module
             var catagories = await _userMasterRepository.GetUserCategories(search, sortingParams);
             var mapCatagories = _mapper.Map<ResponseDto<UserCategoryDto>>(catagories);
 
+            foreach(var catagory in catagories.Values)
+            {
+                catagory.CatName = catagory.CatName.ToLower();
+            }
+
             return mapCatagories;
         }
         #endregion
@@ -87,9 +94,9 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Check Pan Or Addhar Exist
-        public int PanOrAadharExistAsync(string? pan, string? aadhar)
+        public int PanOrAadharExistAsync(int? id, string? pan, string? aadhar)
         {
-            return _userMasterRepository.PanOrAadharExist(pan, aadhar);
+            return _userMasterRepository.PanOrAadharExist(id, pan, aadhar);
         }
         #endregion
 
@@ -99,19 +106,27 @@ namespace CRM_api.Services.Services.User_Module
             var user = _mapper.Map<TblUserMaster>(addUser);
 
             var addedUser = await _userMasterRepository.AddUser(user);
-            var uname = addUser.UserName.Split(' ');
-            switch(uname.Length)
+            if (addedUser is not null)
             {
-                case 1:
-                    addedUser.UserUname = string.Concat(uname[0], "_", addedUser.UserId);
-                    break;
-                case 2:
-                    addedUser.UserUname = string.Concat(uname[0], "_", uname[1], "_", addedUser.UserId);
-                    break;
-                default: addedUser.UserUname = string.Concat(uname[0], "_", uname[2], "_", addedUser.UserId);
-                    break;
+                var uname = addUser.UserName.Split(' ');
+                switch (uname.Length)
+                {
+                    case 1:
+                        addedUser.UserUname = string.Concat(uname[0], "_", addedUser.UserId);
+                        break;
+                    case 2:
+                        addedUser.UserUname = string.Concat(uname[0], "_", uname[1], "_", addedUser.UserId);
+                        break;
+                    default:
+                        addedUser.UserUname = string.Concat(uname[0], "_", uname[2], "_", addedUser.UserId);
+                        break;
+                }
+                return await _userMasterRepository.UpdateUser(addedUser);
             }
-            return await _userMasterRepository.UpdateUser(addedUser);
+            else
+            {
+                return 0;
+            }
         }
         #endregion
 

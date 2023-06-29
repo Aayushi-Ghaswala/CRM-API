@@ -19,11 +19,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         }
 
         #region Get stock user's names
-        public async Task<Response<UserNameResponse>> GetStocksUsersName(string? searchingParams, SortingParams sortingParams)
+        public async Task<Response<UserNameResponse>> GetStocksUsersName(string? scriptName, string? searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
-
-            var filterData = _context.TblStockData.Select(x => new UserNameResponse { UserName = x.StClientname }).Distinct().AsQueryable();
+            var userNameResponse = new List<UserNameResponse>();
+            var filterData = userNameResponse.AsQueryable();
+            if (!string.IsNullOrEmpty(scriptName))
+                filterData = _context.TblStockData.Where(c => c.StScripname.ToLower().Equals(scriptName.ToLower())).Select(x => new UserNameResponse { UserName = x.StClientname }).Distinct().AsQueryable();
+            else
+                filterData = _context.TblStockData.Select(x => new UserNameResponse { UserName = x.StClientname }).Distinct().AsQueryable();
 
             if (searchingParams != null)
             {
@@ -52,36 +56,32 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         #endregion
 
         #region Get all/client wise script names
-        public async Task<Response<TblStockData>> GetAllScriptNames(string clientName, string? searchingParams, SortingParams sortingParams)
+        public async Task<Response<ScriptNameResponse>> GetAllScriptNames(string clientName, string? searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
-            List<TblStockData> data = new List<TblStockData>();
-            List<TblStockData> stockDataList = new List<TblStockData>();
-            IQueryable<TblStockData> filterData = data.AsQueryable();
+            IQueryable<ScriptNameResponse?> stockDataList = null;
+            //IQueryable<TblStockData> filterData = data.AsQueryable();
             if (!string.IsNullOrEmpty(clientName))
-                stockDataList = await _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower())).ToListAsync();
+                stockDataList = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower())).Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
             else
-                stockDataList = await _context.TblStockData.ToListAsync();
-
-            filterData = stockDataList.DistinctBy(s => s.StScripname).AsQueryable();
+                stockDataList = _context.TblStockData.Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
 
             if (searchingParams != null)
             {
                 if (!string.IsNullOrEmpty(clientName))
-                    data = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower())).ToList();
+                    stockDataList = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower())).Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
                 else
-                    data = _context.Search<TblStockData>(searchingParams).ToList();
-                filterData = data.DistinctBy(s => s.StScripname).AsQueryable();
+                    stockDataList = _context.Search<TblStockData>(searchingParams).Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
             }
-            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+            pageCount = Math.Ceiling((stockDataList.Count() / sortingParams.PageSize));
 
             // Apply sorting
-            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+            var sortedData = SortingExtensions.ApplySorting(stockDataList, sortingParams.SortBy, sortingParams.IsSortAscending);
 
             // Apply pagination
             var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
-            var stockData = new Response<TblStockData>()
+            var stockData = new Response<ScriptNameResponse>()
             {
                 Values = paginatedData,
                 Pagination = new Pagination()
@@ -102,9 +102,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
             IQueryable<TblStockData> filterData = data.AsQueryable();
 
             decimal? totalPurchase = 0;
-            //decimal? totalPurchaseQty = 0;
             decimal? totalSale = 0;
-            //decimal? totalSaleQty = 0;
             if (!string.IsNullOrEmpty(clientName) && !string.IsNullOrEmpty(scriptName) && !string.IsNullOrEmpty(firmName))
             {
                 if (fromDate != null && toDate != null)
@@ -284,13 +282,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
                     else
                         filterData = _context.Search<TblStockData>(searchingParams).AsQueryable();
                 }
-                //filterData = _context.Search<TblStockData>(searchingParams).Where(s => );
-                //filterData = _context.Search<TblStockData>(searchingParams);
             }
             totalPurchase = filterData.Where(s => s.StType.Equals("B")).Sum(x => x.StNetcostvalue);
-            //totalPurchaseQty = filterData.Where(s => s.StType.Equals("B")).Sum(x => x.StQty);
             totalSale = filterData.Where(s => s.StType.Equals("S")).Sum(x => x.StNetcostvalue);
-            //totalSaleQty = filterData.Where(s => s.StType.Equals("S")).Sum(x => x.StQty);
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -312,9 +306,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
             {
                 response = stockData,
                 TotalPurchase = totalPurchase,
-                //TotalPurchaseQty = totalPurchaseQty,
                 TotalSale = totalSale,
-                //TotalSaleQty = totalSaleQty
             };
             return stockResponse;
         }

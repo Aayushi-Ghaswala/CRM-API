@@ -17,12 +17,12 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
 
         [HttpGet("MFClientWiseTransaction")]
         #region Display Mutual Fund By UserId and SchemeName
-        public async Task<IActionResult> GetUserWiseMFTransaction(int userId, int? schemeId, string? folioNo
+        public async Task<IActionResult> GetUserWiseMFTransaction(int userId, string? schemeName, string? folioNo
                                             , [FromQuery] string? search, [FromQuery] SortingParams? sortingParams, DateTime? startDate, DateTime? endDate)
         {
             try
             {
-                var mfDetails = await _mutualfundService.GetClientwiseMutualFundTransactionAsync(userId, schemeId, folioNo, search, sortingParams, startDate, endDate);
+                var mfDetails = await _mutualfundService.GetClientwiseMutualFundTransactionAsync(userId, schemeName, folioNo, search, sortingParams, startDate, endDate);
                 return Ok(mfDetails);
             }
             catch (Exception)

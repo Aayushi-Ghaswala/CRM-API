@@ -63,7 +63,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblInsuranceCompanylists.Where(x => x.InsuranceCompanyid == id).AsQueryable();
+            var filterData = _context.TblInsuranceCompanylists.Where(x => x.InsuranceCompanytypeid == id).AsQueryable();
             
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 

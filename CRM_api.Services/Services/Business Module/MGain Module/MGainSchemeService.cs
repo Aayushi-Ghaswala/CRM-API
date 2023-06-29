@@ -25,6 +25,11 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
         {
             var mGainScheme = await _mGainSchemeRepository.GetMGainSchemeDetails(IsActive, searchingParams, sortingParams);
             var mapMGainScheme = _mapper.Map<ResponseDto<MGainSchemeDto>>(mGainScheme);
+
+            foreach(var scheme in mapMGainScheme.Values)
+            {
+                scheme.Schemename = scheme.Schemename.ToLower();
+            }
             return mapMGainScheme;
         }
         #endregion

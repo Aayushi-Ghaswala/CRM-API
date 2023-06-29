@@ -18,32 +18,32 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         }
 
         #region Get All MGain Details
-        public async Task<MGainBussinessResponse<TblMgaindetail>> GetMGainDetails(int? currancyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams)
+        public async Task<MGainBussinessResponse<TblMgaindetail>> GetMGainDetails(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
             List<TblMgaindetail> tblMgaindetails = new List<TblMgaindetail>();
             IQueryable<TblMgaindetail> mGainDetails = tblMgaindetails.AsQueryable();
 
-            if (currancyId != null && type != null)
+            if (currencyId != null && type != null)
             {
                 if (fromDate == null && toDate == null)
-                    mGainDetails = _context.TblMgaindetails.Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currancyId) && x.MgainType == type)
+                    mGainDetails = _context.TblMgaindetails.Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId) && x.MgainType == type)
                                             .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
                                             .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
                 else
-                    mGainDetails = _context.TblMgaindetails.Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currancyId)
+                    mGainDetails = _context.TblMgaindetails.Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId)
                                              && x.MgainType == type && x.Date >= fromDate && x.Date <= toDate)
                                             .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
                                             .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
             }
-            else if (currancyId != null)
+            else if (currencyId != null)
             {
                 if (fromDate == null && toDate == null)
-                    mGainDetails = _context.TblMgaindetails.Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currancyId))
+                    mGainDetails = _context.TblMgaindetails.Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId))
                                             .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
                                             .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
                 else
-                    mGainDetails = _context.TblMgaindetails.Where(x => x.TblMgainPaymentMethods.All(x => x.CurrancyId == currancyId)
+                    mGainDetails = _context.TblMgaindetails.Where(x => x.TblMgainPaymentMethods.All(x => x.CurrancyId == currencyId)
                                              && x.Date >= fromDate && x.Date <= toDate).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
                                             .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
             }
@@ -93,26 +93,26 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
 
             if (searchingParams != null)
             {
-                if (currancyId != null && type != null)
+                if (currencyId != null && type != null)
                 {
                     if (fromDate == null && toDate == null)
-                        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currancyId) && x.MgainType == type)
+                        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId) && x.MgainType == type)
                                                 .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
                                                 .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
                     else
-                        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currancyId)
+                        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId)
                                                  && x.MgainType == type && x.Date >= fromDate && x.Date <= toDate)
                                                 .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
                                                 .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
                 }
-                else if (currancyId != null)
+                else if (currencyId != null)
                 {
                     if (fromDate == null && toDate == null)
-                        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currancyId))
+                        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId))
                                                 .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
                                                 .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
                     else
-                        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.TblMgainPaymentMethods.All(x => x.CurrancyId == currancyId)
+                        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.TblMgainPaymentMethods.All(x => x.CurrancyId == currencyId)
                                                  && x.Date >= fromDate && x.Date <= toDate).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
                                                 .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
                 }
@@ -205,8 +205,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             if (schemeId is not null)
                 filterData = _context.TblMgaindetails.Where(x => x.MgainIsclosed != true && x.MgainSchemeid == schemeId
                            && x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            else filterData = _context.TblMgaindetails.Where(x => x.MgainIsclosed != true
-                            && x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date).Include(x => x.TblMgainSchemeMaster).AsQueryable();
+            else 
+                filterData = _context.TblMgaindetails.Where(x => x.MgainIsclosed != true
+                           && x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date).Include(x => x.TblMgainSchemeMaster).AsQueryable();
 
             if (searchingParams is not null)
             {
@@ -460,7 +461,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #region Add MGain Interest Entry
         public async Task<int> AddMGainInterest(List<TblAccountTransaction> tblAccountTransactions, DateTime? date)
         {
-            var accountTransaction = tblAccountTransactions.First();
+             var accountTransaction = tblAccountTransactions.First();
             if (_context.TblAccountTransactions.Any(x => x.DocType.ToLower().Equals(accountTransaction.DocType) && x.DocDate.Value.Month == date.Value.Month
                         && x.DocDate.Value.Year == date.Value.Year))
             {

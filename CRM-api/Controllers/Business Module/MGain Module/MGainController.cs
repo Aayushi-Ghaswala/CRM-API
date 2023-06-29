@@ -2,7 +2,6 @@
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module;
 using CRM_api.Services.Helper.File_Helper;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
-using DocumentFormat.OpenXml.VariantTypes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CRM_api.Controllers.Business_Module.MGain_Module
@@ -20,11 +19,11 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
 
         [HttpGet("GetMGainDetails")]
         #region Get All MGain Details
-        public async Task<IActionResult> GetMGainDetails(int? currancyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetMGainDetails(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var mGainDetails = await _mGainService.GetAllMGainDetailsAsync(currancyId, type, isClosed, fromDate, toDate, search, sortingParams);
+                var mGainDetails = await _mGainService.GetAllMGainDetailsAsync(currencyId, type, isClosed, fromDate, toDate, search, sortingParams);
                 return Ok(mGainDetails);
             }
             catch (Exception)
@@ -57,7 +56,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         public async Task<IActionResult> MGainAggrement(int Id)
         {
             var MGain = await _mGainService.MGainAggrementAsync(Id);
-            return Ok(new {Aggrement = MGain});
+            return Ok(new { Aggrement = MGain });
         }
         #endregion
 
@@ -68,7 +67,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             try
             {
                 var file = await _mGainService.MGainPaymentReceipt(id);
-                return File(file.file, "application/pdf", file.FileName);
+                return file is not null ? Ok(new { Message = File(file.file, "application/pdf", file.FileName) }) : BadRequest(new {Message = "Unable to download payment reciept."});
             }
             catch (Exception)
             {
@@ -85,7 +84,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             {
                 var base64 = GetBase64FileHelper.GetBase64File(path);
                 var ext = Path.GetExtension(path);
-                return Ok(new { Base64 =  base64 , Extension = ext});
+                return Ok(new { Base64 = base64, Extension = ext });
             }
             catch (Exception)
             {
@@ -96,11 +95,11 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
 
         [HttpGet("MGainMonthlyNon-CumulativeInterest")]
         #region MGain Monthly Non-Cumulative Interest Computation & Release
-        public async Task<IActionResult> GetNonCumulativeMonthlyReport(int month, int year, int? schemaId,decimal? tds, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetNonCumulativeMonthlyReport(int month, int year, int? schemaId, decimal? tds, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, bool? isSendSMS, string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var getData = await _mGainService.GetNonCumulativeMonthlyReportAsync(month, year, schemaId, tds, isJournal, jvEntryDate, jvNarration, isPayment, crEntryDate, crNarration, search, sortingParams);
+                var getData = await _mGainService.GetNonCumulativeMonthlyReportAsync(month, year, schemaId, tds, isJournal, jvEntryDate, jvNarration, isPayment, crEntryDate, crNarration, search, sortingParams, isSendSMS);
 
                 return Ok(getData);
             }
@@ -129,9 +128,9 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
 
         [HttpGet("GetMonthWiseInterestPaid")]
         #region MGain Month wise Total Interest Paid
-        public async Task<IActionResult> GetMonthWiseInterestPaid(int month, int year)
+        public async Task<IActionResult> GetMonthWiseInterestPaid(int month, int year,[FromQuery] string? search,[FromQuery] SortingParams sortingParams)
         {
-            var intrestPaid = await _mGainService.GetMonthWiseInterestPaidAsync(month, year);
+            var intrestPaid = await _mGainService.GetMonthWiseInterestPaidAsync(month, year, search, sortingParams);
             return Ok(intrestPaid);
         }
         #endregion
@@ -289,7 +288,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             try
             {
                 var pdf = await _mGainService.GenerateMGainAggrementAsync(id, htmlContent);
-                return Ok(new {file = File(pdf.file, "application/pdf", pdf.FileName)} );
+                return Ok(new { file = File(pdf.file, "application/pdf", pdf.FileName) });
             }
             catch (Exception)
             {
