@@ -2,12 +2,11 @@
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.Loan_Module;
 using CRM_api.Services.IServices.Business_Module.Loan_Module;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace CRM_api.Controllers.Business_Module.Loan_Module
 {
     [ApiController]
-    [Route("[controller]/[action]")]
+    [Route("api/[controller]")]
     public class LoanMasterController : Controller
     {
         private readonly ILoanMasterService _loanMasterService;
@@ -17,8 +16,8 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
             _loanMasterService = loanMasterService;
         }
 
-        [HttpGet]
         #region Get All Loan Details
+        [HttpGet("GetLoanDetails")]
         public async Task<IActionResult> GetLoanDetails([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
@@ -34,15 +33,15 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
         }
         #endregion
 
-        [HttpGet]
         #region Get All Loan Detail By Id
+        [HttpGet("GetLoanDetailById")]
         public async Task<IActionResult> GetLoanDetailById(int id)
         {
             try
             {
                 var loanDetail = await _loanMasterService.GetLoanDetailByIdAsync(id);
                 if (loanDetail == null)
-                    return BadRequest(new { Message = "Loan detail not found."});
+                    return BadRequest(new { Message = "Loan detail not found." });
 
                 return Ok(loanDetail);
             }
@@ -54,8 +53,8 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
         }
         #endregion
 
-        [HttpGet]
         #region Get All Bank Details
+        [HttpGet("GetBankDetails")]
         public async Task<IActionResult> GetBankDetails([FromQuery] SortingParams sortingParams)
         {
             try
@@ -72,14 +71,14 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
         }
         #endregion
 
-        [HttpPost]
         #region Add Loan Detail
+        [HttpPost("AddLoanDetail")]
         public async Task<IActionResult> AddLoanDetail(AddLoanMasterDto loanMasterDto)
         {
             try
             {
                 var loan = await _loanMasterService.AddLoanDetailAsync(loanMasterDto);
-                return loan !=0 ? Ok(new { Message = "Loan added successfully."}) : BadRequest(new { Message = "Unable to add loan."});
+                return loan != 0 ? Ok(new { Message = "Loan added successfully." }) : BadRequest(new { Message = "Unable to add loan." });
             }
             catch (Exception)
             {
@@ -88,14 +87,14 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
         }
         #endregion
 
-        [HttpPut]
         #region Update Loan Detail
+        [HttpPut("UpdateLoanDetail")]
         public async Task<IActionResult> UpdateLoanDetail(UpdateLoanMasterDto loanMasterDto)
         {
             try
             {
                 var loan = await _loanMasterService.UpdateLoanDetailAsync(loanMasterDto);
-                return loan != 0 ? Ok(new { Message = "Loan updated successfully."}) : BadRequest(new { Message = "Unable to update loan."});
+                return loan != 0 ? Ok(new { Message = "Loan updated successfully." }) : BadRequest(new { Message = "Unable to update loan." });
             }
             catch (Exception)
             {
@@ -104,12 +103,12 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
         }
         #endregion
 
-        [HttpDelete]
         #region Deactivate Loan Detail
+        [HttpDelete("DeactivateLoanDetail")]
         public async Task<IActionResult> DeactivateLoanDetail(int id)
         {
             var loan = await _loanMasterService.DeactivateLoanDetailAsync(id);
-            return loan != 0 ? Ok(new { Message = "Loan deactivated successfully."}) : BadRequest(new { Message = "Unable to deactivate loan."});
+            return loan != 0 ? Ok(new { Message = "Loan deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate loan." });
         }
         #endregion
     }

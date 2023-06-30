@@ -574,7 +574,7 @@ SURAT - 395009 <p>
                         var index = months.FindIndex(x => x == month);
                         prevMonth = months[index - 1];
                     }
-                    var details = mgainAccDetails.Where(x => x.DocType == MGainPayment.Payment.ToString() && x.DocDate.Value.ToString("MMMM") == month).ToList();
+                    var details = mgainAccDetails.Where(x => x.DocType == MGainPayment.Payment.ToString() && x.DocDate.Value.ToString("MMMM") == month && x.Debit != 0).ToList();
                     if (details.Count > 0)
                     {
                         foreach (var detail in details)
@@ -950,6 +950,7 @@ SURAT - 395009 <p>
 
                 var mGain = await _mGainRepository.GetMGainDetailsByUserId((int)transaction.Key);
                 mGainTotalInterestPaid.UserName = mGain.Select(x => x.Mgain1stholder).FirstOrDefault();
+                mGainTotalInterestPaid.DocDate = transaction.Select(x => x.DocDate).FirstOrDefault();   
                 mGainTotalInterestPaid.totalInterestPaid = transaction.Where(x => x.DocType.ToLower() == MGainAccountPaymentConstant.MGainPayment.Payment.ToString().ToLower()).Sum(x => x.Credit);
 
                 userwiseinterstPaid.Add(mGainTotalInterestPaid);

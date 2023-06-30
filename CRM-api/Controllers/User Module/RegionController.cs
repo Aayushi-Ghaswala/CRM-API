@@ -1,14 +1,12 @@
 ﻿using CRM_api.DataAccess.Helper;
-using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.AddDataDto.User_Module;
 using CRM_api.Services.IServices.User_Module;
-using CRM_api.Services.Services.User_Module;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CRM_api.Controllers.User_Module
 {
     [ApiController]
-    [Route("[controller]/[action]")]
+    [Route("api/[controller]")]
     public class RegionController : ControllerBase
     {
         private readonly IRegionService _regionService;
@@ -18,14 +16,14 @@ namespace CRM_api.Controllers.User_Module
             _regionService = regionService;
         }
 
-        [HttpGet]
         #region Get All Countries
+        [HttpGet("GetCountries")]
         public async Task<IActionResult> GetCountries([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
                 var countries = await _regionService.GetCountriesAsync(search, sortingParams);
-                
+
                 return Ok(countries);
             }
             catch (Exception)
@@ -35,14 +33,14 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpGet]
         #region Get All States By Country
+        [HttpGet("GetStatesByCountry")]
         public async Task<IActionResult> GetStatesByCountry(int countryId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
                 var states = await _regionService.GetstateByCountryAsync(countryId, search, sortingParams);
-                
+
                 return Ok(states);
             }
             catch (Exception)
@@ -52,14 +50,14 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpGet]
         #region Get All Cities By State
+        [HttpGet("GetcitiesByState")]
         public async Task<IActionResult> GetcitiesByState(int stateId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
                 var cities = await _regionService.GetCityByStateAsync(stateId, search, sortingParams);
-                
+
                 return Ok(cities);
             }
             catch (Exception)
@@ -69,8 +67,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPost]
         #region Add Country
+        [HttpPost("AddCountry")]
         public async Task<IActionResult> AddCountry(AddCountryDto countryDto)
         {
             try
@@ -86,8 +84,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPost]
         #region Add State
+        [HttpPost("AddState")]
         public async Task<IActionResult> AddState(AddStateDto stateDto)
         {
             try
@@ -103,8 +101,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPost]
         #region Add City
+        [HttpPost("AddCity")]
         public async Task<IActionResult> AddCity(AddCityDto cityDto)
         {
             try
@@ -120,8 +118,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPut]
         #region Update Country
+        [HttpPut("UpdateCountry")]
         public async Task<IActionResult> UpdateCountry(UpdateCountryDto countryDto)
         {
             try
@@ -136,8 +134,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPut]
         #region Update State
+        [HttpPut("UpdateState")]
         public async Task<IActionResult> UpdateState(UpdateStateDto stateDto)
         {
             try
@@ -152,8 +150,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPut]
         #region Update City
+        [HttpPut("UpdateCity")]
         public async Task<IActionResult> UpdateCity(UpdateCityDto cityDto)
         {
             try
@@ -168,8 +166,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpDelete]
         #region Deactivate Country
+        [HttpDelete("DeactivateCountry")]
         public async Task<IActionResult> DeactivateCountry(int countryId)
         {
             try
@@ -184,8 +182,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpDelete]
         #region Deactivate State
+        [HttpDelete("DeactivateState")]
         public async Task<IActionResult> DeactivateState(int stateId)
         {
             try
@@ -200,8 +198,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpDelete]
         #region Deactivate City
+        [HttpDelete("DeactivateCity")]
         public async Task<IActionResult> DeactivateCity(int cityId)
         {
             try

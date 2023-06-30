@@ -1,14 +1,12 @@
 ﻿using CRM_api.DataAccess.Helper;
-using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.IServices.User_Module;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace CRM_api.Controllers.User_Module
 {
     [ApiController]
-    [Route("[controller]/[action]")]
+    [Route("api/[controller]")]
     public class UserMasterController : ControllerBase
     {
         private readonly IUserMasterService _userMasterService;
@@ -17,25 +15,25 @@ namespace CRM_api.Controllers.User_Module
             _userMasterService = userMasterService;
         }
 
-        [HttpGet]
         #region Get All Users
+        [HttpGet("GetUsers")]
         public async Task<IActionResult> GetUsers(string? filterString, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             var users = await _userMasterService.GetUsersAsync(filterString, search, sortingParams);
-            
+
             return Ok(users);
         }
         #endregion
 
-        [HttpGet]
         #region Get User By Id
+        [HttpGet("GetUserById")]
         public async Task<IActionResult> GetUserById(int id)
         {
             try
             {
                 var user = await _userMasterService.GetUserMasterByIdAsync(id);
                 if (user == null)
-                    return BadRequest(new { Message = "User not found."});
+                    return BadRequest(new { Message = "User not found." });
 
                 return Ok(user);
             }
@@ -44,26 +42,26 @@ namespace CRM_api.Controllers.User_Module
                 throw;
             }
         }
-        #endregion
+        #endregion 
 
-        [HttpGet]
         #region Get User Count
+        [HttpGet("GetUserCount")]
         public async Task<IActionResult> GetUserCount()
         {
             var users = await _userMasterService.GetUserCountAsync();
             return Ok(users);
         }
-        #endregion
+        #endregion 
 
-        [HttpGet]
         #region Get All User Category
+        [HttpGet("GetUserCatagories")]
         public async Task<IActionResult> GetUserCatagories([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
                 var categories = await _userMasterService.GetUserCategoriesAsync(search, sortingParams);
                 if (categories.Values.Count == 0)
-                    return BadRequest(new { Message = "Category not found."});
+                    return BadRequest(new { Message = "Category not found." });
 
                 return Ok(categories);
             }
@@ -74,20 +72,20 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpGet]
         #region Get All Users By Category Id
+        [HttpGet("GetUsersByCategoryId")]
         public async Task<IActionResult> GetUsersByCategoryId(int categoryId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             var users = await _userMasterService.GetUsersByCategoryIdAsync(categoryId, search, sortingParams);
             if (users.Values.Count == 0)
-                return BadRequest(new { Message = "User not found"});
+                return BadRequest(new { Message = "User not found" });
 
             return Ok(users);
         }
         #endregion
 
-        [HttpGet]
         #region Get Category By Name
+        [HttpGet("GetCategoryByName")]
         public async Task<IActionResult> GetCategoryByName(string name)
         {
             try
@@ -105,8 +103,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPost]
         #region Check Pan Or Aadhar Exist
+        [HttpPost("PanOrAadharExist")]
         public ActionResult PanOrAadharExist(int? id, string? pan, string? aadhar)
         {
             try
@@ -129,14 +127,14 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPost]
         #region Add User
+        [HttpPost("AddUser")]
         public async Task<ActionResult> AddUser(AddUserMasterDto addUser)
         {
             try
             {
-               var user = await _userMasterService.AddUserAsync(addUser);
-               return user != 0 ? Ok(new { Message = "User added successfully." }) : BadRequest(new { Message = "Unable to add user." });
+                var user = await _userMasterService.AddUserAsync(addUser);
+                return user != 0 ? Ok(new { Message = "User added successfully." }) : BadRequest(new { Message = "Unable to add user." });
 
             }
             catch (Exception)
@@ -146,14 +144,14 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPut]
         #region Update User
+        [HttpPut("UpdateUser")]
         public async Task<ActionResult> UpdateUser(UpdateUserMasterDto updateUser)
         {
             try
             {
                 var user = await _userMasterService.UpdateUserAsync(updateUser);
-                return user != 0 ? Ok(new { Message = "User updated successfully."}) : BadRequest(new { Message = "Unable to update user."});
+                return user != 0 ? Ok(new { Message = "User updated successfully." }) : BadRequest(new { Message = "Unable to update user." });
             }
             catch (Exception)
             {
@@ -162,8 +160,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpDelete]
         #region Deactivate User
+        [HttpDelete("DeactivateUser")]
         public async Task<IActionResult> DeactivateUser(int id)
         {
             var user = await _userMasterService.DeactivateUserAsync(id);

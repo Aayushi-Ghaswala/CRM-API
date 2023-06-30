@@ -257,8 +257,17 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region AddUser
         public async Task<TblUserMaster> AddUser(TblUserMaster userMaster)
         {
-            if (_context.TblUserMasters.Any(x => x.UserPan == userMaster.UserPan || x.UserAadhar == userMaster.UserAadhar))
-                return null;
+            if (userMaster.UserPan is not null)
+            {
+                if (_context.TblUserMasters.Any(x => x.UserPan == userMaster.UserPan))
+                    return null;
+            }
+            if (userMaster.UserAadhar is not null)
+            {
+                if (_context.TblUserMasters.Any(x => x.UserAadhar == userMaster.UserAadhar))
+                    return null;
+            }
+            
 
             _context.TblUserMasters.Add(userMaster);
             await _context.SaveChangesAsync();
@@ -272,6 +281,17 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             var user = await _context.TblUserMasters.AsNoTracking().Where(x => x.UserId == userMaster.UserId).FirstAsync();
 
             if (user == null) return 0;
+            if (userMaster.UserPan is not null)
+            {
+                if (_context.TblUserMasters.Any(x => x.UserPan == userMaster.UserPan && x.UserId != user.UserId))
+                    return 0;
+            }
+            if (userMaster.UserAadhar is not null)
+            {
+                if (_context.TblUserMasters.Any(x => x.UserAadhar == userMaster.UserAadhar && x.UserId != user.UserId))
+                    return 0;
+            }
+
             if (user.UserFasttrack == false)
             {
                 if (userMaster.UserFasttrack == true)

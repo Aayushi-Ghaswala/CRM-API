@@ -16,7 +16,7 @@ namespace CRM_api.Services.Helper.Reminder_Helper
             
             try
             {
-
+                 
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                 Stream s = (Stream)response.GetResponseStream();
                 StreamReader readStream = new StreamReader(s);
@@ -26,7 +26,7 @@ namespace CRM_api.Services.Helper.Reminder_Helper
                 readStream.Close();
             }
             catch (Exception)
-            {
+            {   
                 throw;
             }
         }

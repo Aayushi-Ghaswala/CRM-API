@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CRM_api.Controllers.User_Module
 {
     [ApiController]
-    [Route("[controller]/[action]")]
+    [Route("api/[controller]")]
     public class RoleMasterController : Controller
     {
         private readonly IRoleMasterService _roleMasterService;
@@ -17,8 +17,8 @@ namespace CRM_api.Controllers.User_Module
             _roleMasterService = roleMasterService;
         }
 
-        [HttpGet]
         #region Get All Roles
+        [HttpGet("GetRoles")]
         public async Task<IActionResult> GetRoles([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
@@ -34,8 +34,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpGet]
         #region Get All Role Permissions
+        [HttpGet("GetRolePermissions")]
         public async Task<IActionResult> GetRolePermissions([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
@@ -52,8 +52,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpGet]
         #region Get All User Assign Role
+        [HttpGet("GetUserAssignRoles")]
         public async Task<IActionResult> GetUserAssignRoles([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
@@ -70,8 +70,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpGet]
         #region Get All Modules
+        [HttpGet("GetModules")]
         public async Task<IActionResult> GetModules([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
@@ -87,8 +87,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPost]
         #region Add Role
+        [HttpPost("AddRole")]
         public async Task<IActionResult> AddRole(AddRoleMasterDto roleMasterDto)
         {
             try
@@ -104,8 +104,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPost]
         #region Add RolePermission
+        [HttpPost("AddRolePermission")]
         public async Task<IActionResult> AddRolePermission([FromForm] AddRolePermissionDto rolePermissionDto)
         {
             try
@@ -121,8 +121,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPost]
         #region Add User Role Assignment
+        [HttpPost("AddUserRoleAssignment")]
         public async Task<IActionResult> AddUserRoleAssignment(AddUserRoleAssignmentDto userRoleAssignmentDto)
         {
             try
@@ -138,8 +138,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPost]
         #region Add Module
+        [HttpPost("AddModule")]
         public async Task<IActionResult> AddModule(AddModuleMasterDto moduleMasterDto)
         {
             try
@@ -155,8 +155,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPut]
         #region Update Role
+        [HttpPut("UpdateRole")]
         public async Task<IActionResult> UpdateRole(UpdateRoleMasterDto roleMasterDto)
         {
             try
@@ -171,8 +171,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPut]
         #region Update Role Permission
+        [HttpPut("UpdateRolePermission")]
         public async Task<IActionResult> UpdateRolePermission(UpdateRolePermissionDto rolePermissionDto)
         {
             try
@@ -187,8 +187,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPut]
         #region Update User Assign Role
+        [HttpPut("UpdateRoleAssign")]
         public async Task<IActionResult> UpdateRoleAssign(UpdateRoleAssignmentDto roleAssignmentDto)
         {
             try
@@ -204,8 +204,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpPut]
         #region Update Module
+        [HttpPut("UpdateModule")]
         public async Task<IActionResult> UpdateModule(UpdateModuleMasterDto moduleMasterDto)
         {
             try
@@ -220,8 +220,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpDelete]
-        #region DeactivateRole
+        #region Deactivate Role
+        [HttpDelete("DeactivateRole")]
         public async Task<IActionResult> DeactivateRole(int id)
         {
             try
@@ -236,8 +236,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpDelete]
         #region Deactivate Role Permission
+        [HttpDelete("DeactivateRolePermission")]
         public async Task<IActionResult> DeactivateRolePermission(int id)
         {
             try
@@ -252,8 +252,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpDelete]
         #region Deactivate Role Assignment
+        [HttpDelete("DeactivateRoleAssignment")]
         public async Task<IActionResult> DeactivateRoleAssignment(int id)
         {
             try
@@ -268,8 +268,8 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
-        [HttpDelete]
-        #region Deactivate
+        #region Deactivate Module
+        [HttpDelete("DeactivateModule")]
         public async Task<IActionResult> DeactivateModule(int id)
         {
             try

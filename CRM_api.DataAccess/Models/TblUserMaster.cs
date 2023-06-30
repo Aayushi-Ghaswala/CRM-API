@@ -72,5 +72,6 @@ namespace CRM_api.DataAccess.Models
         public virtual ICollection<TblMgainInvesment> TblMgainInvesments { get; set; }
         public virtual ICollection<TblRealEastateReview> TblRealEastateReviews { get; set; }
         public virtual ICollection<TblReferralMaster> TblReferralMasters { get; set; }
+        public virtual ICollection<TblRoleAssignment> TblRoleAssignments { get; set; }
     }
 }
