@@ -4,5 +4,6 @@
     {
         public string? UserName { get; set; }
         public decimal? totalInterestPaid { get; set; }
+        public DateTime? DocDate { get; set; }
     }
 }

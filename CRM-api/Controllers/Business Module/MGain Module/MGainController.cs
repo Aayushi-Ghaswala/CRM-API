@@ -17,8 +17,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             _mGainService = mGainService;
         }
 
-        [HttpGet("GetMGainDetails")]
         #region Get All MGain Details
+        [HttpGet("GetMGainDetails")]
         public async Task<IActionResult> GetMGainDetails(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             try
@@ -34,8 +34,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpGet("GetPaymentsByMGainId")]
         #region Get Payment Details By MGain Id
+        [HttpGet("GetPaymentsByMGainId")]
         public async Task<IActionResult> GetPaymentByMGainId(int mGainId)
         {
             try
@@ -51,8 +51,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpGet("MGainAggrementHTML")]
         #region MGain Aggrement
+        [HttpGet("MGainAggrementHTML")]
         public async Task<IActionResult> MGainAggrement(int Id)
         {
             var MGain = await _mGainService.MGainAggrementAsync(Id);
@@ -60,8 +60,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpGet("MGainPaymentReciept")]
         #region MGain Payment Reciept
+        [HttpGet("MGainPaymentReciept")]
         public async Task<IActionResult> MGainPaymentReciept(int id)
         {
             try
@@ -76,8 +76,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion 
 
-        [HttpGet("GetBase64File")]
         #region Get Base 64 File From Location
+        [HttpGet("GetBase64File")]
         public async Task<IActionResult> GetBase64File(string? path)
         {
             try
@@ -93,8 +93,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpGet("MGainMonthlyNon-CumulativeInterest")]
         #region MGain Monthly Non-Cumulative Interest Computation & Release
+        [HttpGet("MGainMonthlyNon-CumulativeInterest")]
         public async Task<IActionResult> GetNonCumulativeMonthlyReport(int month, int year, int? schemaId, decimal? tds, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, bool? isSendSMS, string? search, [FromQuery] SortingParams sortingParams)
         {
             try
@@ -110,8 +110,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpGet("GetValuationReportByUserId")]
         #region Get Valuation Report By UserId
+        [HttpGet("GetValuationReportByUserId")]
         public async Task<IActionResult> GetValuationReportByUserId(int UserId)
         {
             try
@@ -126,8 +126,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpGet("GetMonthWiseInterestPaid")]
         #region MGain Month wise Total Interest Paid
+        [HttpGet("GetMonthWiseInterestPaid")]
         public async Task<IActionResult> GetMonthWiseInterestPaid(int month, int year,[FromQuery] string? search,[FromQuery] SortingParams sortingParams)
         {
             var intrestPaid = await _mGainService.GetMonthWiseInterestPaidAsync(month, year, search, sortingParams);
@@ -135,8 +135,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpGet("GetMgGainCumulativeInterestReport")]
         #region Get MGain Cumulative Interest Computation
+        [HttpGet("GetMgGainCumulativeInterestReport")]
         public async Task<IActionResult> GetMgGainCumulativeInterestReport(int fromYear, int toYear, int? schemeId, string? search, [FromQuery] SortingParams sortingParams)
         {
             try
@@ -151,8 +151,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpGet("GetMGain10YearsInterestDetails")]
         #region Get MGain 10 Years Interest Details
+        [HttpGet("GetMGain10YearsInterestDetails")]
         public async Task<IActionResult> GetMGain10YearsInterestDetails(string userName, int schemeId, DateTime invDate, decimal mGainAmount, string mGainType)
         {
             try
@@ -166,8 +166,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpGet("GetMGainInterestCertificate")]
         #region Get MGain Interest Certificate
+        [HttpGet("GetMGainInterestCertificate")]
         public async Task<ActionResult> GetMGainInterestCertificate(int userId, int year)
         {
             try
@@ -182,8 +182,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpGet("GetMGainInterestLedger")]
         #region Get MGain Interest Ledger
+        [HttpGet("GetMGainInterestLedger")]
         public async Task<ActionResult> GetMGainInterestLedger(int userId, int year)
         {
             try
@@ -198,8 +198,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpGet("GetAllProjects")]
         #region Get All Projects
+        [HttpGet("GetAllProjects")]
         public async Task<IActionResult> GetAllProjects([FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             try
@@ -214,8 +214,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpGet("GetPlotsByProjectId")]
         #region Get Plots By ProjectId
+        [HttpGet("GetPlotsByProjectId")]
         public async Task<IActionResult> GetPlotsByProjectId(int projectId, decimal invAmount, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             try
@@ -230,8 +230,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpGet("GetAllCurrencies")]
         #region Get All Currencies
+        [HttpGet("GetAllCurrencies")]
         public async Task<IActionResult> GetAllCurrencies()
         {
             try
@@ -247,8 +247,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpPost("AddMGainDetails")]
         #region Add MGain Details
+        [HttpPost("AddMGainDetails")]
         public async Task<IActionResult> AddMGainDetails([FromForm] AddMGainDetailsDto MGainDetailsDto)
         {
             try
@@ -264,8 +264,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpPost("AddMGainPayment")]
         #region Add MGain Payment Details
+        [HttpPost("AddMGainPayment")]
         public async Task<IActionResult> AddMGainDetails(List<AddMGainPaymentDto> paymentDtos)
         {
             try
@@ -281,8 +281,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpPost("MGainAggrementPDF")]
         #region MGain Aggrement PDF
+        [HttpPost("MGainAggrementPDF")]
         public async Task<IActionResult> MGainAggrementPDF(int id, [FromForm] string htmlContent)
         {
             try
@@ -297,8 +297,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpPut("UpdateMGainDetails")]
         #region Update MGain Details
+        [HttpPut("UpdateMGainDetails")]
         public async Task<IActionResult> UpdateMGainDetails([FromForm] UpdateMGainDetailsDto updateMGainDetails)
         {
             try
@@ -314,8 +314,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpPut("UpdateMGainPayment")]
         #region Update MGain Payment Details
+        [HttpPut("UpdateMGainPayment")]
         public async Task<IActionResult> UpdateMGainPayment(List<UpdateMGainPaymentDto> updateMGainPayment)
         {
             try
@@ -330,8 +330,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpDelete("DeleteMGainPayment")]
         #region Delete MGain Payment Details
+        [HttpDelete("DeleteMGainPayment")]
         public async Task<IActionResult> DeleteMGainPayment(int id)
         {
             try

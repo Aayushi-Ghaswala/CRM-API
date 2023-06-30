@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CRM_api.Controllers.Business_Module.LI_GI_Module
 {
     [ApiController]
-    [Route("[controller]/[action]")]
+    [Route("api/[controller]")]
     public class InsuranceClientController : Controller
     {
         private readonly IInsuranceClientService _insuranceClientService;
@@ -16,8 +16,8 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
             _insuranceClientService = insuranceClientService;
         }
 
-        [HttpGet]
         #region Get All Insurance Client Details
+        [HttpGet("GetInsuranceClients")]
         public async Task<IActionResult> GetInsuranceClients([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
@@ -32,8 +32,8 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
         }
         #endregion
 
-        [HttpGet]
         #region Get All Insurance Company List By InsType Id
+        [HttpGet("GetCompanyListByInsTypeId")]
         public async Task<IActionResult> GetCompanyListByInsTypeId(int id, [FromQuery] SortingParams sortingParams)
         {
             try
@@ -48,8 +48,8 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
         }
         #endregion
 
-        [HttpGet]
         #region Get Insurance Client By Id
+        [HttpGet("GetInsuranceClientById")]
         public async Task<IActionResult> GetInsuranceClientById(int id)
         {
             try
@@ -64,8 +64,8 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
         }
         #endregion
 
-        [HttpPost]
         #region Add Insurance Client Detail
+        [HttpPost("AddInsuranceClientDetail")]
         public async Task<ActionResult> AddInsuranceClientDetail(AddInsuranceClientDto insuranceClientDto)
         {
             try
@@ -81,8 +81,8 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
         }
         #endregion
 
-        [HttpPut]
         #region Update Insurance Client Detail
+        [HttpPut("UpdateInsuranceClientDetail")]
         public async Task<ActionResult> UpdateInsuranceClientDetail(UpdateInsuranceClientDto insuranceClientDto)
         {
             try
@@ -98,8 +98,8 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
         }
         #endregion
 
-        [HttpDelete]
         #region Deactivate Insurance Client Detail
+        [HttpDelete("DeactivateInsClient")]
         public async Task<ActionResult> DeactivateInsClient(int id)
         {
             try

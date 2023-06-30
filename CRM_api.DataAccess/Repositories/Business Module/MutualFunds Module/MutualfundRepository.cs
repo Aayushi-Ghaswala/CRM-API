@@ -297,7 +297,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
                 mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId).ToList();
                 schemeName = mftransactions.DistinctBy(x => x.Schemename).AsQueryable();
             }
-                
+
             pageCount = Math.Ceiling(schemeName.Count() / sortingParams.PageSize);
 
             //Apply Sorting
@@ -337,7 +337,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
                 mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId).ToList();
                 folioNo = mftransactions.DistinctBy(x => x.Foliono).AsQueryable();
             }
-                
+
             if (searchingParams != null)
             {
                 if (schemeId != 0)

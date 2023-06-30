@@ -43,5 +43,6 @@ namespace CRM_api.Services.Dtos.ResponseDto
         public string? UserNjname { get; set; }
         public DateTime? FastTrackActivationDate { get; set; }
         public string UserFasttrackCategory { get; set; }
+        public List<UserRoleAssignmentDto> TblRoleAssignments { get; set; }
     }
 }

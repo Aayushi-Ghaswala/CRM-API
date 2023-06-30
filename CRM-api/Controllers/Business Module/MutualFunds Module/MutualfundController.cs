@@ -15,8 +15,8 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
             _mutualfundService = mutualfundService;
         }
 
-        [HttpGet("MFClientWiseTransaction")]
         #region Display Mutual Fund By UserId and SchemeName
+        [HttpGet("MFClientWiseTransaction")]
         public async Task<IActionResult> GetUserWiseMFTransaction(int userId, string? schemeName, string? folioNo
                                             , [FromQuery] string? search, [FromQuery] SortingParams? sortingParams, DateTime? startDate, DateTime? endDate)
         {
@@ -32,8 +32,8 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         }
         #endregion
 
-        [HttpGet("MFClientSchemeWiseSummary")]
         #region Get client wise MF Fund wise Summary
+        [HttpGet("MFClientSchemeWiseSummary")]
         public async Task<IActionResult> GetUserSchemeWiseMFSummary(int userId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
@@ -48,8 +48,8 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         }
         #endregion
 
-        [HttpGet("MFSummaryCategoryWise")]
         #region Get MF Client Wise Category Wise Summary
+        [HttpGet("MFSummaryCategoryWise")]
         public async Task<IActionResult> GetUserCategoryWiseMFSummary(int userId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
@@ -64,8 +64,8 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         }
         #endregion
 
-        [HttpGet("AllClientMFSummary")]
         #region Get All Client MF Summary
+        [HttpGet("AllClientMFSummary")]
         public async Task<IActionResult> GetAllClientMFSummary(DateTime fromDate, DateTime toDate, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
@@ -80,8 +80,8 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         }
         #endregion
 
-        [HttpGet("GetMFUserName")]
         #region Get Mf UserName
+        [HttpGet("GetMFUserName")]
         public async Task<IActionResult> GetMfUserName([FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             var mfUser = await _mutualfundService.GetMFUserNameAsync(search, sortingParams);
@@ -89,8 +89,8 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         }
         #endregion
 
-        [HttpGet("SchemaName")]
         #region Display Scheme Name by UserId
+        [HttpGet("SchemaName")]
         public async Task<IActionResult> GetSchemeName(int userId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
@@ -105,8 +105,8 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         }
         #endregion
 
-        [HttpGet("FolioNo")]
         #region Display Folio Number by UserId
+        [HttpGet("FolioNo")]
         public async Task<IActionResult> GetFolioNo(int userId, int? schemeId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
@@ -121,8 +121,8 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         }
         #endregion
 
-        [HttpPost("ImportNJCLientFile")]  
         #region Import NJ Client File
+        [HttpPost("ImportNJCLientFile")]  
         public async Task<IActionResult> ImportNJClientExcel(IFormFile file, bool updateIfExist)
         {
             try

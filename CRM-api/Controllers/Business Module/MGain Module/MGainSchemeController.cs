@@ -16,8 +16,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             _mGainSchemeService = mGainSchemeService;
         }
 
-        [HttpGet("GetMGainSchemeDetails")]
         #region Get All MGain Scheme Details
+        [HttpGet("GetMGainSchemeDetails")]
         public async Task<IActionResult> GetMGainScheme(bool? IsActive, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             try
@@ -32,8 +32,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpPost("AddMGainScheme")]
         #region Add MGain Scheme
+        [HttpPost("AddMGainScheme")]
         public async Task<IActionResult> AddMGainscheme(AddMGainSchemeDto MGainSchemeDto)
         {
             try
@@ -48,8 +48,8 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        [HttpPut("UpdateMGainScheme")]
         #region Update MGain Scheme
+        [HttpPut("UpdateMGainScheme")]
         public async Task<IActionResult> UpdateMGainScheme(UpdateMGainSchemeDto updateMGainScheme)
         {
             try
