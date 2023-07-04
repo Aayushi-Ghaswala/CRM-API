@@ -32,25 +32,25 @@ namespace CRM_api.Services.Services.HR_Module
         #region Get Department By Id
         public async Task<DepartmentDto> GetDepartmentByIdAsync(int id)
         {
-            var dept = await _departmentRepository.GetDepartmentById(id);
-            var mappedDept = _mapper.Map<DepartmentDto>(dept);
-            return mappedDept;
+            var department = await _departmentRepository.GetDepartmentById(id);
+            var mappedDepartment = _mapper.Map<DepartmentDto>(department);
+            return mappedDepartment;
         }
         #endregion
 
         #region Add department
         public async Task<int> AddDepartmentAsync(AddDepartmentDto departmentDto)
         {
-            var dept = _mapper.Map<TblDepartmentMaster>(departmentDto);
-            return await _departmentRepository.AddDepartment(dept);
+            var department = _mapper.Map<TblDepartmentMaster>(departmentDto);
+            return await _departmentRepository.AddDepartment(department);
         }
         #endregion
 
         #region Update department
         public async Task<int> UpdateDepartmentAsync(UpdateDepartmentDto departmentDto)
         {
-            var dept = _mapper.Map<TblDepartmentMaster>(departmentDto);
-            return await _departmentRepository.UpdateDepartment(dept);
+            var department = _mapper.Map<TblDepartmentMaster>(departmentDto);
+            return await _departmentRepository.UpdateDepartment(department);
         }
         #endregion
 

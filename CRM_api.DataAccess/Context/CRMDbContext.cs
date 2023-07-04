@@ -20,6 +20,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblAccountMaster> TblAccountMasters { get; set; } = null!;
         public virtual DbSet<TblAccountTransaction> TblAccountTransactions { get; set; } = null!;
         public virtual DbSet<TblBankMaster> TblBankMasters { get; set; } = null!;
+        public virtual DbSet<TblCampaignMaster> TblCampaignMasters { get; set; } = null!;
         public virtual DbSet<TblCityMaster> TblCityMasters { get; set; } = null!;
         public virtual DbSet<TblContactMaster> TblContactMasters { get; set; } = null!;
         public virtual DbSet<TblCountryMaster> TblCountryMasters { get; set; } = null!;
@@ -46,7 +47,12 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblInsuranceclient> TblInsuranceclients { get; set; } = null!;
         public virtual DbSet<TblInsurancetype> TblInsurancetypes { get; set; } = null!;
         public virtual DbSet<TblInvesmentType> TblInvesmentTypes { get; set; } = null!;
+        public virtual DbSet<TblLeadMaster> TblLeadMasters { get; set; } = null!;
         public virtual DbSet<TblLeaveType> TblLeaveTypes { get; set; } = null!;
+        public virtual DbSet<TblLetterHead> TblLetterHeads { get; set; } = null!;
+        public virtual DbSet<TblMeetingMaster> TblMeetingMasters { get; set; } = null!;
+        public virtual DbSet<TblMeetingParticipant> TblMeetingParticipants { get; set; } = null!;
+        public virtual DbSet<TblMeetingAttachment> TblMeetingAttachments { get; set; } = null!;
         public virtual DbSet<TblMfSchemeMaster> TblMfSchemeMasters { get; set; } = null!;
         public virtual DbSet<TblMftransaction> TblMftransactions { get; set; } = null!;
         public virtual DbSet<TblMgainCurrancyMaster> TblMgainCurrancyMasters { get; set; } = null!;
@@ -65,6 +71,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblOrder> TblOrders { get; set; } = null!;
         public virtual DbSet<TblOrderDetail> TblOrderDetails { get; set; } = null!;
         public virtual DbSet<TblPlotMaster> TblPlotMasters { get; set; } = null!;
+        public virtual DbSet<TblPayCheck> TblPayChecks { get; set; } = null!;
         public virtual DbSet<TblPortfolioReviewRequest> TblPortfolioReviewRequests { get; set; } = null!;
         public virtual DbSet<TblProductBanner> TblProductBanners { get; set; } = null!;
         public virtual DbSet<TblProductImg> TblProductImgs { get; set; } = null!;
@@ -83,6 +90,9 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblSegmentMaster> TblSegmentMasters { get; set; } = null!;
         public virtual DbSet<TblSipCalculator> TblSipCalculators { get; set; } = null!;
         public virtual DbSet<TblStateMaster> TblStateMasters { get; set; } = null!;
+        public virtual DbSet<TblStatusMaster> TblStatusMasters { get; set; } = null!;
+        public virtual DbSet<TblSourceTypeMaster> TblSourceTypeMasters { get; set; } = null!;
+        public virtual DbSet<TblSourceMaster> TblSourceMasters { get; set; } = null!;
         public virtual DbSet<TblStockData> TblStockData { get; set; } = null!;
         public virtual DbSet<TblSubInvesmentType> TblSubInvesmentTypes { get; set; } = null!;
         public virtual DbSet<TblSubsubInvType> TblSubsubInvTypes { get; set; } = null!;
@@ -90,6 +100,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblTermsCondition> TblTermsConditions { get; set; } = null!;
         public virtual DbSet<TblUserCategoryMaster> TblUserCategoryMasters { get; set; } = null!;
         public virtual DbSet<TblUserDepartment> TblUserDepartments { get; set; } = null!;
+        public virtual DbSet<TblUserLeave> TblUserLeaves { get; set; } = null!;
         public virtual DbSet<TblUserMaster> TblUserMasters { get; set; } = null!;
         public virtual DbSet<TblVendorMaster> TblVendorMasters { get; set; } = null!;
         public virtual DbSet<TblWbcMallCategory> TblWbcMallCategories { get; set; } = null!;
@@ -427,6 +438,39 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.Bankname)
                     .HasMaxLength(255)
                     .HasColumnName("bankname");
+            });
+
+            modelBuilder.Entity<TblCampaignMaster>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("Tbl_Campaign_Master");
+
+                entity.Property(e => e.Id);
+
+                entity.Property(e => e.UserId);
+                
+                entity.Property(e => e.SourceTypeId);
+
+                entity.Property(e => e.SourceId);
+
+                entity.Property(e => e.StatusId);
+
+                entity.Property(e => e.Name).HasMaxLength(20);
+
+                entity.Property(e => e.StartDate).HasColumnType("date");
+
+                entity.Property(e => e.EndDate).HasColumnType("date");
+
+                entity.Property(e => e.Budget);
+
+                entity.Property(e => e.RevenueExpected);
+
+                entity.Property(e => e.Description);
+
+                entity.Property(e => e.IsActive).HasDefaultValue(0);
+
+                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
             });
 
             modelBuilder.Entity<TblCityMaster>(entity =>
@@ -1238,6 +1282,123 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("name");
+            });
+
+            modelBuilder.Entity<TblLeadMaster>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("Tbl_Lead_Master");
+
+                entity.Property(e => e.AssignedBy);
+
+                entity.Property(e => e.ReferredBy);
+
+                entity.Property(e => e.CampaignId);
+
+                entity.Property(e => e.StatusId);
+                
+                entity.Property(e => e.CityId);
+
+                entity.Property(e => e.StateId);
+
+                entity.Property(e => e.CountryId);
+
+                entity.Property(e => e.Name).HasMaxLength(50);
+
+                entity.Property(e => e.Email).HasMaxLength(50);
+
+                entity.Property(e => e.MobileNo).HasMaxLength(13).HasColumnName("MobileNumber");
+
+                entity.Property(e => e.Address).HasMaxLength(200);
+
+                entity.Property(e => e.DateOfBirth).HasColumnName("DOB").HasColumnType("date");
+
+                entity.Property(e => e.Gender).HasMaxLength(15);
+
+                entity.Property(e => e.InterestedIn);
+
+                entity.Property(e => e.Description);
+
+                entity.Property(e => e.CreatedAt).HasColumnType("date");
+
+                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
+            });
+
+            modelBuilder.Entity<TblLetterHead>(entity =>
+            {
+                entity.HasKey(e => e.LetterHeadId);
+
+                entity.ToTable("tbl_letterhead");
+
+                entity.Property(e => e.LetterHeadId).HasColumnName("letterhead_id");
+
+                entity.Property(e => e.Template).HasColumnName("template");
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("description");
+
+                entity.Property(e => e.Isdeleted).HasColumnName("isdeleted");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("name");
+            });
+
+            modelBuilder.Entity<TblMeetingMaster>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("Tbl_Meeting_Master");
+
+                entity.Property(e => e.MeetingBy);
+
+                entity.Property(e => e.Purpose);
+
+                entity.Property(e => e.DateOfMeeting);
+
+                entity.Property(e => e.Duration);
+
+                entity.Property(e => e.Mode).HasMaxLength(20);
+
+                entity.Property(e => e.Location);
+
+                entity.Property(e => e.Remarks);
+
+                entity.Property(e => e.Link).HasMaxLength(50);
+
+                entity.Property(e => e.IsCompleted).HasDefaultValue(0);
+
+                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
+            });
+
+            modelBuilder.Entity<TblMeetingParticipant>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("Tbl_Meeting_Participant");
+
+                entity.Property(e => e.MeetingId);
+
+                entity.Property(e => e.ParticipantId);
+
+                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
+            });
+
+            modelBuilder.Entity<TblMeetingAttachment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("Tbl_Meeting_Attachment");
+
+                entity.Property(e => e.MeetingId);
+
+                entity.Property(e => e.Attachment).HasMaxLength(150);
+
+                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
             });
 
             modelBuilder.Entity<TblMfSchemeMaster>(entity =>
@@ -2228,6 +2389,54 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.Yard).HasColumnType("decimal(18, 2)");
             });
 
+            modelBuilder.Entity<TblPayCheck>(entity =>
+            {
+                entity.ToTable("tbl_paycheck");
+
+                entity.Property(e => e.PayCheckId).HasColumnName("paycheck_id");
+
+                entity.HasKey(e => e.PayCheckId)
+                    .HasName("PK_tbl_paycheck");
+
+                entity.Property(e => e.DesignationId)
+                    .HasColumnName("designation_id");
+
+                entity.Property(e => e.Basic)
+                    .HasColumnName("basic");
+
+                entity.Property(e => e.DA)
+                    .HasColumnName("DA");
+
+                entity.Property(e => e.HRA)
+                    .HasColumnName("HRA");
+
+                entity.Property(e => e.Medical)
+                    .HasColumnName("medical");
+
+                entity.Property(e => e.PF)
+                    .HasColumnName("PF");
+
+                entity.Property(e => e.ESIC)
+                    .HasColumnName("ESIC");
+
+                entity.Property(e => e.Prof_Tax)
+                    .HasColumnName("Prof_Tax");
+
+                entity.Property(e => e.Bonus)
+                    .HasColumnName("Bonus");
+
+                entity.Property(e => e.Tds)
+                    .HasColumnName("tds");
+
+                entity.Property(e => e.Special_Allowance)
+                    .HasColumnName("special_allowance");
+
+                entity.Property(e => e.Net_Salary)
+                    .HasColumnName("net_salary");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("isdeleted");
+            });
+
             modelBuilder.Entity<TblPortfolioReviewRequest>(entity =>
             {
                 entity.HasKey(e => e.RequestId)
@@ -2707,6 +2916,47 @@ namespace CRM_api.DataAccess.Context
                     .HasConstraintName("FK_tbl_StateMaster_tbl_Country_Master");
             });
 
+            modelBuilder.Entity<TblStatusMaster>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("Tbl_Status_Master");
+
+                entity.Property(e => e.Id);
+
+                entity.Property(e => e.Name).HasMaxLength(50);
+
+                entity.Property(e => e.Description);
+
+                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
+            });
+
+            modelBuilder.Entity<TblSourceMaster>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("Tbl_Source_Master");
+
+                entity.Property(e => e.Name).HasMaxLength(20);
+
+                entity.Property(e => e.Description);
+
+                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
+            });
+
+            modelBuilder.Entity<TblSourceTypeMaster>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("Tbl_Source_Type_Master");
+
+                entity.Property(e => e.Name).HasMaxLength(20);
+
+                entity.Property(e => e.Description);
+
+                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
+            });
+
             modelBuilder.Entity<TblStockData>(entity =>
             {
                 entity.ToTable("tbl_stock_data");
@@ -2881,6 +3131,35 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.Isdeleted).HasColumnName("isdeleted");
 
                 entity.Property(e => e.UserId).HasColumnName("user_id");
+            });
+
+            modelBuilder.Entity<TblUserLeave>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("tbl_user_leave");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.LeaveTypeId).HasColumnName("leave_type_id");
+
+                entity.Property(e => e.RequestedBy).HasColumnName("RequestedBy");
+
+                entity.Property(e => e.PermittedBy).HasColumnName("PermittedBy");
+
+                entity.Property(e => e.FromDate).HasColumnName("fromdate");
+
+                entity.Property(e => e.ToDate).HasColumnName("todate");
+
+                entity.Property(e => e.RequestedDate).HasColumnName("requestdate");
+
+                entity.Property(e => e.Reason).HasColumnName("reason");
+
+                entity.Property(e => e.IsPermitted).HasColumnName("ispermitted").HasDefaultValue(0);
+
+                entity.Property(e => e.RejectedReason).HasColumnName("rejectreason");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("isdeleted").HasDefaultValue(0);
             });
 
             modelBuilder.Entity<TblUserMaster>(entity =>

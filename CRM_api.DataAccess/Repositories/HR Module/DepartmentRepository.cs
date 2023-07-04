@@ -52,8 +52,8 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #region Get Department by Id
         public async Task<TblDepartmentMaster> GetDepartmentById(int id)
         {
-            var dept = await _context.TblDepartmentMasters.FirstAsync(x => x.DepartmentId == id && x.Isdeleted != true);
-            return dept;
+            var department = await _context.TblDepartmentMasters.FirstAsync(x => x.DepartmentId == id && x.Isdeleted != true);
+            return department;
         }
         #endregion
 

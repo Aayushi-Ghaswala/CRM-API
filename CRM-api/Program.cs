@@ -23,7 +23,7 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials()
-              .WithExposedHeaders("WW-Authenticate");
+              .WithExposedHeaders("WWW-Authenticate");
     });
 });
 
