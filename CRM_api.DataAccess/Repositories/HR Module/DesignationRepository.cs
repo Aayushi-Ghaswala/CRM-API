@@ -58,8 +58,8 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
 
         public async Task<TblDesignationMaster> GetDesignationById(int id)
         {
-            var dept = await _context.TblDesignationMasters.Include(d => d.DepartmentMaster).FirstAsync(x => x.DesignationId == id);
-            return dept;
+            var department = await _context.TblDesignationMasters.Include(d => d.DepartmentMaster).FirstAsync(x => x.DesignationId == id);
+            return department;
         }
         #endregion
 
