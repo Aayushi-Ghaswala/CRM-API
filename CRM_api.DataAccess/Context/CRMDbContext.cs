@@ -47,12 +47,12 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblInsuranceclient> TblInsuranceclients { get; set; } = null!;
         public virtual DbSet<TblInsurancetype> TblInsurancetypes { get; set; } = null!;
         public virtual DbSet<TblInvesmentType> TblInvesmentTypes { get; set; } = null!;
-        public virtual DbSet<TblLeadMaster> TblLeadMasters { get; set; } = null!;
+        public virtual DbSet<TblLeadMaster> TblLeadMasters { get; set; } = null!;   
         public virtual DbSet<TblLeaveType> TblLeaveTypes { get; set; } = null!;
-        public virtual DbSet<TblLetterHead> TblLetterHeads { get; set; } = null!;
+        public virtual DbSet<TblLoanMaster> TblLoanMasters { get; set; } = null!;
+        public virtual DbSet<TblLoanTypeMaster> TblLoanTypeMasters { get; set; } = null!;
         public virtual DbSet<TblMeetingMaster> TblMeetingMasters { get; set; } = null!;
         public virtual DbSet<TblMeetingParticipant> TblMeetingParticipants { get; set; } = null!;
-        public virtual DbSet<TblMeetingAttachment> TblMeetingAttachments { get; set; } = null!;
         public virtual DbSet<TblMfSchemeMaster> TblMfSchemeMasters { get; set; } = null!;
         public virtual DbSet<TblMftransaction> TblMftransactions { get; set; } = null!;
         public virtual DbSet<TblMgainCurrancyMaster> TblMgainCurrancyMasters { get; set; } = null!;
@@ -89,9 +89,6 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblScripMaster> TblScripMasters { get; set; } = null!;
         public virtual DbSet<TblSegmentMaster> TblSegmentMasters { get; set; } = null!;
         public virtual DbSet<TblSipCalculator> TblSipCalculators { get; set; } = null!;
-        public virtual DbSet<TblStateMaster> TblStateMasters { get; set; } = null!;
-        public virtual DbSet<TblStatusMaster> TblStatusMasters { get; set; } = null!;
-        public virtual DbSet<TblSourceTypeMaster> TblSourceTypeMasters { get; set; } = null!;
         public virtual DbSet<TblSourceMaster> TblSourceMasters { get; set; } = null!;
         public virtual DbSet<TblStockData> TblStockData { get; set; } = null!;
         public virtual DbSet<TblSubInvesmentType> TblSubInvesmentTypes { get; set; } = null!;
@@ -108,9 +105,6 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblWbcSchemeMaster> TblWbcSchemeMasters { get; set; } = null!;
         public virtual DbSet<TblWbcTypeMaster> TblWbcTypeMasters { get; set; } = null!;
         public virtual DbSet<Usercleantable> Usercleantables { get; set; } = null!;
-        public virtual DbSet<TblLoanMaster> TblLoanMasters { get; set; } = null!;
-        public virtual DbSet<TblLoanTypeMaster> TblLoanTypeMasters { get; set; } = null!;
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -438,39 +432,6 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.Bankname)
                     .HasMaxLength(255)
                     .HasColumnName("bankname");
-            });
-
-            modelBuilder.Entity<TblCampaignMaster>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.ToTable("Tbl_Campaign_Master");
-
-                entity.Property(e => e.Id);
-
-                entity.Property(e => e.UserId);
-                
-                entity.Property(e => e.SourceTypeId);
-
-                entity.Property(e => e.SourceId);
-
-                entity.Property(e => e.StatusId);
-
-                entity.Property(e => e.Name).HasMaxLength(20);
-
-                entity.Property(e => e.StartDate).HasColumnType("date");
-
-                entity.Property(e => e.EndDate).HasColumnType("date");
-
-                entity.Property(e => e.Budget);
-
-                entity.Property(e => e.RevenueExpected);
-
-                entity.Property(e => e.Description);
-
-                entity.Property(e => e.IsActive).HasDefaultValue(0);
-
-                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
             });
 
             modelBuilder.Entity<TblCityMaster>(entity =>
@@ -1308,11 +1269,7 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.Email).HasMaxLength(50);
 
-                entity.Property(e => e.MobileNo).HasMaxLength(13).HasColumnName("MobileNumber");
-
                 entity.Property(e => e.Address).HasMaxLength(200);
-
-                entity.Property(e => e.DateOfBirth).HasColumnName("DOB").HasColumnType("date");
 
                 entity.Property(e => e.Gender).HasMaxLength(15);
 
@@ -1321,82 +1278,6 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.Description);
 
                 entity.Property(e => e.CreatedAt).HasColumnType("date");
-
-                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
-            });
-
-            modelBuilder.Entity<TblLetterHead>(entity =>
-            {
-                entity.HasKey(e => e.LetterHeadId);
-
-                entity.ToTable("tbl_letterhead");
-
-                entity.Property(e => e.LetterHeadId).HasColumnName("letterhead_id");
-
-                entity.Property(e => e.Template).HasColumnName("template");
-
-                entity.Property(e => e.Description)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("description");
-
-                entity.Property(e => e.Isdeleted).HasColumnName("isdeleted");
-
-                entity.Property(e => e.Name)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasColumnName("name");
-            });
-
-            modelBuilder.Entity<TblMeetingMaster>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.ToTable("Tbl_Meeting_Master");
-
-                entity.Property(e => e.MeetingBy);
-
-                entity.Property(e => e.Purpose);
-
-                entity.Property(e => e.DateOfMeeting);
-
-                entity.Property(e => e.Duration);
-
-                entity.Property(e => e.Mode).HasMaxLength(20);
-
-                entity.Property(e => e.Location);
-
-                entity.Property(e => e.Remarks);
-
-                entity.Property(e => e.Link).HasMaxLength(50);
-
-                entity.Property(e => e.IsCompleted).HasDefaultValue(0);
-
-                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
-            });
-
-            modelBuilder.Entity<TblMeetingParticipant>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.ToTable("Tbl_Meeting_Participant");
-
-                entity.Property(e => e.MeetingId);
-
-                entity.Property(e => e.ParticipantId);
-
-                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
-            });
-
-            modelBuilder.Entity<TblMeetingAttachment>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.ToTable("Tbl_Meeting_Attachment");
-
-                entity.Property(e => e.MeetingId);
-
-                entity.Property(e => e.Attachment).HasMaxLength(150);
 
                 entity.Property(e => e.IsDeleted).HasDefaultValue(0);
             });
@@ -2914,21 +2795,6 @@ namespace CRM_api.DataAccess.Context
                     .WithMany(p => p.TblStateMasters)
                     .HasForeignKey(d => d.CountryId)
                     .HasConstraintName("FK_tbl_StateMaster_tbl_Country_Master");
-            });
-
-            modelBuilder.Entity<TblStatusMaster>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.ToTable("Tbl_Status_Master");
-
-                entity.Property(e => e.Id);
-
-                entity.Property(e => e.Name).HasMaxLength(50);
-
-                entity.Property(e => e.Description);
-
-                entity.Property(e => e.IsDeleted).HasDefaultValue(0);
             });
 
             modelBuilder.Entity<TblSourceMaster>(entity =>

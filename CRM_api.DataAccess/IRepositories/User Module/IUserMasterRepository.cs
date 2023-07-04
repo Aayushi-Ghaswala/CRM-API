@@ -18,5 +18,7 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<int> UpdateUser(TblUserMaster userMaster);
         Task<int> DeactivateUser(int id);
         int GetUserIdByUserPan(string UserPan);
+        Task<TblUserMaster> GetUserByEmail(string email);
+        Task<List<TblUserMaster>> GetUserByParentId(int? userId, DateTime date);
     }
 }

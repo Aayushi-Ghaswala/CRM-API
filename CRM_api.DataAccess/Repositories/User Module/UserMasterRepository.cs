@@ -37,6 +37,9 @@ namespace CRM_api.DataAccess.Repositories.User_Module
                     case "fasttrack":
                         filterData = filterData.Where(x => x.UserFasttrack == true && x.UserIsactive == true).AsQueryable();
                         break;
+                    case "employee":
+                        filterData = filterData.Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "employee" && x.UserIsactive == true).AsQueryable();
+                        break;
                     default:
                         break;
                 }
@@ -59,6 +62,15 @@ namespace CRM_api.DataAccess.Repositories.User_Module
                             break;
                         case "fasttrack":
                             filterData = _context.Search<TblUserMaster>(search).Where(x => x.UserFasttrack == true && x.UserIsactive == true)
+                                                    .Include(x => x.TblUserCategoryMaster)
+                                                    .Include(x => x.TblCountryMaster)
+                                                    .Include(x => x.TblStateMaster)
+                                                    .Include(x => x.TblCityMaster)
+                                                    .Include(x => x.ParentName)
+                                                    .Include(x => x.SponserName).AsQueryable();
+                            break;
+                        case "employee":
+                            filterData = _context.Search<TblUserMaster>(search).Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "employee" && x.UserIsactive == true)
                                                     .Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .Include(x => x.TblStateMaster)
@@ -329,6 +341,39 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             var user = _context.TblUserMasters.Where(x => x.UserPan == UserPan).FirstOrDefault();
             return user;
+        }
+        #endregion
+
+        #region Get User By Email
+        public async Task<TblUserMaster> GetUserByEmail(string email)
+        {
+            var user = await _context.TblUserMasters.Where(x => x.UserEmail.ToLower().Equals(email.ToLower()) && x.UserIsactive == true)
+                                                    .Include(x => x.TblRoleAssignments.Where(x => x.IsDeleted == false))
+                                                        .ThenInclude(x => x.TblRoleMaster)
+                                                            .ThenInclude(x => x.TblRolePermissions.Where(x => x.IsDeleted == false)).ThenInclude(x => x.TblModuleMaster)
+                                                    .Include(x => x.TblUserCategoryMaster).FirstOrDefaultAsync();
+
+            return user;
+        }
+        #endregion
+
+        #region Get User By Parent Id
+        public async Task<List<TblUserMaster>> GetUserByParentId(int? userId, DateTime date)
+        {
+            var users = new List<TblUserMaster>();
+
+            if (userId is not null)
+            {
+                users = await _context.TblUserMasters.Where(x => x.UserParentid == userId && x.UserDoj.Value.Month >= date.Month && x.UserDoj.Value.Year >= date.Year
+                                                     && x.UserDoj.Value.Month <= DateTime.Now.Month && x.UserDoj.Value.Year <= DateTime.Now.Year && x.UserIsactive == true).ToListAsync();
+            }
+            else
+            {
+                users = await _context.TblUserMasters.Where(x => x.UserDoj.Value.Month >= date.Month && x.UserDoj.Value.Year >= date.Year
+                                                     && x.UserDoj.Value.Month <= DateTime.Now.Month && x.UserDoj.Value.Year <= DateTime.Now.Year && x.UserIsactive == true).ToListAsync();
+            }
+
+            return users;
         }
         #endregion
     }
