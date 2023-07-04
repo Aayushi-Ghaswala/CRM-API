@@ -24,6 +24,7 @@ namespace CRM_api.Services.Services.User_Module
             _mapper = mapper;
         }
 
+        #region Generate OTP
         public async Task<int> GenerateOTPAsync(string email)
         {
             var user = await _userMasterRepository.GetUserByEmail(email);
@@ -57,7 +58,9 @@ namespace CRM_api.Services.Services.User_Module
                 return 1;
             }
         }
+        #endregion
 
+        #region Verify OTP
         public async Task<(int, UserMasterDto)> VerifyOTPAsync(string email, string otp)
         {
             var value = _cache.Get(email);
@@ -72,5 +75,6 @@ namespace CRM_api.Services.Services.User_Module
                 return (2, mapUser);
             }
         }
+        #endregion
     }
 }
