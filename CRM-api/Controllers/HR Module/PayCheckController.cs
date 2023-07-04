@@ -68,7 +68,7 @@ namespace CRM_api.Controllers.HR_Module
         #endregion
 
         #region Add PayCheck
-        [HttpPost]
+        [HttpPost("AddPayCheck")]
         public async Task<ActionResult> AddPayCheck(AddPayCheckDto addPayCheckDto)
         {
             try
@@ -84,7 +84,7 @@ namespace CRM_api.Controllers.HR_Module
         #endregion
 
         #region Update PayCheck
-        [HttpPut]
+        [HttpPut("UpdatePayCheck")]
         public async Task<ActionResult> UpdatePayCheck(UpdatePayCheckDto updatePayCheckDto)
         {
             try
@@ -100,7 +100,7 @@ namespace CRM_api.Controllers.HR_Module
         #endregion
 
         #region Deactivate payCheck
-        [HttpDelete]
+        [HttpDelete("DeactivatePayCheck")]
         public async Task<IActionResult> DeactivatePayCheck(int id)
         {
             var payCheck = _payCheckService.DeactivatePayCheckAsync(id);
