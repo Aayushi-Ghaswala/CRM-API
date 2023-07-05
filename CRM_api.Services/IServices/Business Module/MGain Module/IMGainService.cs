@@ -21,7 +21,7 @@ namespace CRM_api.Services.IServices.Business_Module.MGain_Module
         Task<InterestCertificateDto> GetMGainIntertestCertificateAsync(int userId, int year);
         Task<MGainLedgerDto> GetMGainInterestLedgerAsync(int userId, int year);
         Task<ResponseDto<ProjectMasterDto>> GetAllProjectAsync(string? searchingParams, SortingParams sortingParams);
-        Task<ResponseDto<PlotMasterDto>> GetPlotsByProjectIdAsync(int projectId, decimal invAmount, string? searchingParams, SortingParams sortingParams);
+        Task<ResponseDto<PlotMasterDto>> GetPlotsByProjectIdAsync(int projectId, int? plotId, string? searchingParams, SortingParams sortingParams);
         Task<List<MGainCurrancyDto>> GetAllCurrenciesAsync();
         Task<TblMgaindetail> AddMGainDetailAsync(AddMGainDetailsDto addMGainDetails);
         Task<int> AddPaymentDetailsAsync(List<AddMGainPaymentDto> paymentDtos);
