@@ -7,7 +7,6 @@ using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.User_Module;
-using Microsoft.Extensions.Logging;
 
 namespace CRM_api.Services.Services.User_Module
 {
@@ -35,7 +34,8 @@ namespace CRM_api.Services.Services.User_Module
                     var fasttrackCategory = await _fasttrackRepository.GetUserFasttrackCategory(user.UserId);
                     user.UserFasttrackCategory = fasttrackCategory;
                 }
-                user.UserName = user.UserName.ToLower();
+                if (user.UserName is not null)
+                    user.UserName = user.UserName.ToLower();
             }
             return mapUsers;
         }
@@ -66,7 +66,7 @@ namespace CRM_api.Services.Services.User_Module
             var catagories = await _userMasterRepository.GetUserCategories(search, sortingParams);
             var mapCatagories = _mapper.Map<ResponseDto<UserCategoryDto>>(catagories);
 
-            foreach(var catagory in catagories.Values)
+            foreach (var catagory in catagories.Values)
             {
                 catagory.CatName = catagory.CatName.ToLower();
             }
@@ -137,8 +137,8 @@ namespace CRM_api.Services.Services.User_Module
 
             return await _userMasterRepository.UpdateUser(user);
         }
-        #endregion        
-        
+        #endregion
+
         #region Deactivate User
         public async Task<int> DeactivateUserAsync(int id)
         {

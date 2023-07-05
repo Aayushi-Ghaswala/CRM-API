@@ -18,11 +18,11 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
 
         #region Get All Insurance Client Details
         [HttpGet("GetInsuranceClients")]
-        public async Task<IActionResult> GetInsuranceClients([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetInsuranceClients(string? filterString, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var insClients = await _insuranceClientService.GetInsuranceClientsAsync(search, sortingParams);
+                var insClients = await _insuranceClientService.GetInsuranceClientsAsync(filterString, search, sortingParams);
                 return Ok(insClients);
             }
             catch (Exception)

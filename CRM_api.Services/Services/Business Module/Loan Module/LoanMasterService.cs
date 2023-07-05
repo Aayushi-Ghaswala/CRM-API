@@ -20,9 +20,9 @@ namespace CRM_api.Services.Services.Business_Module.Loan_Module
         }
 
         #region Get All Loan Details
-        public async Task<ResponseDto<LoanMasterDto>> GetLoanDetailsAsync(string search, SortingParams sortingParams)
+        public async Task<ResponseDto<LoanMasterDto>> GetLoanDetailsAsync(string? filterString, string search, SortingParams sortingParams)
         {
-            var loanDetails = await _loanMasterRepository.GetLoanDetails(search, sortingParams);
+            var loanDetails = await _loanMasterRepository.GetLoanDetails(filterString, search, sortingParams);
             var mapLoanDetails = _mapper.Map<ResponseDto<LoanMasterDto>>(loanDetails);
 
             return mapLoanDetails;

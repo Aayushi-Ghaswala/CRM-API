@@ -18,11 +18,11 @@ namespace CRM_api.Controllers.Business_Module.Loan_Module
 
         #region Get All Loan Details
         [HttpGet("GetLoanDetails")]
-        public async Task<IActionResult> GetLoanDetails([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetLoanDetails(string? filterString, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var loanDetails = await _loanMasterService.GetLoanDetailsAsync(search, sortingParams);
+                var loanDetails = await _loanMasterService.GetLoanDetailsAsync(filterString, search, sortingParams);
                 return Ok(loanDetails);
             }
             catch (Exception)

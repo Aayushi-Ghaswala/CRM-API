@@ -25,9 +25,9 @@ namespace CRM_api.Services.Services.Business_Module.LI_GI_Module
         }
 
         #region Get All Insurance Client Details
-        public async Task<ResponseDto<InsuranceClientDto>> GetInsuranceClientsAsync(string search, SortingParams sortingParams)
+        public async Task<ResponseDto<InsuranceClientDto>> GetInsuranceClientsAsync(string? filterString, string search, SortingParams sortingParams)
         {
-            var insClients = await _insuranceClientRepository.GetInsuranceClients(search, sortingParams);
+            var insClients = await _insuranceClientRepository.GetInsuranceClients(filterString, search, sortingParams);
             var mapInsClients = _mapper.Map<ResponseDto<InsuranceClientDto>>(insClients);
 
             return mapInsClients;
