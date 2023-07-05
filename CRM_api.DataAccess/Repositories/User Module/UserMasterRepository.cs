@@ -141,6 +141,10 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             var fastTrackCount = _context.TblUserMasters.Where(x => x.UserFasttrack == true && x.UserIsactive == true).AsQueryable().Count();
             counts.Add("FastTrackCount", fastTrackCount);
 
+            var employeeCount = _context.TblUserMasters.Include(x => x.TblUserCategoryMaster)
+                                                    .Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "employee" && x.UserIsactive == true).AsQueryable().Count();
+            counts.Add("EmployeeCount", employeeCount);
+
             return counts;
         }
         #endregion

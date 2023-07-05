@@ -18,19 +18,39 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         }
 
         #region Get All Loan Details
-        public async Task<Response<TblLoanMaster>> GetLoanDetails(string search, SortingParams sortingParams)
+        public async Task<Response<TblLoanMaster>> GetLoanDetails(string? filterString, string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
-            var filterData = _context.TblLoanMasters.Where(x => x.IsDeleted != true).Include(b => b.TblBankMaster)
-                                                           .Include(l => l.TblLoanTypeMaster).Include(u => u.TblUserMaster)
-                                                           .ThenInclude(c => c.TblUserCategoryMaster).AsQueryable();
+            var filterData = new List<TblLoanMaster>().AsQueryable();
+
+            if (filterString != null)
+            {
+                filterData = _context.TblLoanMasters.Where(x => x.IsDeleted != true && x.TblLoanTypeMaster.LoanType.ToLower() == filterString.ToLower()).Include(b => b.TblBankMaster)
+                                                               .Include(l => l.TblLoanTypeMaster).Include(u => u.TblUserMaster)
+                                                               .ThenInclude(c => c.TblUserCategoryMaster).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblLoanMasters.Where(x => x.IsDeleted != true).Include(b => b.TblBankMaster)
+                                                               .Include(l => l.TblLoanTypeMaster).Include(u => u.TblUserMaster)
+                                                               .ThenInclude(c => c.TblUserCategoryMaster).AsQueryable();
+            }
 
             if (search != null)
             {
-                filterData = _context.Search<TblLoanMaster>(search).Where(x => x.IsDeleted != true).Include(b => b.TblBankMaster)
+                if (filterString != null)
+                {
+                    filterData = _context.Search<TblLoanMaster>(search).Where(x => x.IsDeleted != true && x.TblLoanTypeMaster.LoanType.ToLower() == filterString.ToLower()).Include(b => b.TblBankMaster)
                                                            .Include(l => l.TblLoanTypeMaster).Include(u => u.TblUserMaster)
                                                            .ThenInclude(c => c.TblUserCategoryMaster).AsQueryable();
+                }
+                else
+                {
+                    filterData = _context.Search<TblLoanMaster>(search).Where(x => x.IsDeleted != true).Include(b => b.TblBankMaster)
+                                                               .Include(l => l.TblLoanTypeMaster).Include(u => u.TblUserMaster)
+                                                               .ThenInclude(c => c.TblUserCategoryMaster).AsQueryable();
+                }
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 

@@ -6,7 +6,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.Loan_Module
 {
     public interface ILoanMasterRepository
     {
-        Task<Response<TblLoanMaster>> GetLoanDetails(string search, SortingParams sortingParams);
+        Task<Response<TblLoanMaster>> GetLoanDetails(string? filterString, string search, SortingParams sortingParams);
         Task<Response<TblBankMaster>> GetBankDetails(SortingParams sortingParams);
         Task<TblLoanMaster> GetLoanDetailById(int id);
         Task<int> AddLoanDetail(TblLoanMaster tblLoan);

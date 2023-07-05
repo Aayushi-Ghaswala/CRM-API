@@ -17,24 +17,50 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
         }
 
         #region Get All InsuranceClient Details
-        public async Task<Response<TblInsuranceclient>> GetInsuranceClients(string search, SortingParams sortingParams)
+        public async Task<Response<TblInsuranceclient>> GetInsuranceClients(string? filterString, string search, SortingParams sortingParams)
         {
             double pageCount = 0;
 
-            var filterData = _context.TblInsuranceclients.Where(x => x.IsDeleted != true).Include(x => x.TblInsuranceCompanylist)
+            var filterData = new List<TblInsuranceclient>().AsQueryable();
+
+            if (filterString is not null)
+            {
+                filterData = _context.TblInsuranceclients.Where(x => x.IsDeleted != true && x.TblSubInvesmentType.InvestmentType.ToLower() == filterString.ToLower())
+                                                          .Include(x => x.TblInsuranceCompanylist)
+                                                          .Include(x => x.TblInsuranceTypeMaster)
+                                                          .Include(x => x.TblInvesmentType)
+                                                          .Include(x => x.TblSubInvesmentType)
+                                                          .Include(x => x.TblUserMaster).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblInsuranceclients.Where(x => x.IsDeleted != true).Include(x => x.TblInsuranceCompanylist)
                                                          .Include(x => x.TblInsuranceTypeMaster)
                                                          .Include(x => x.TblInvesmentType)
                                                          .Include(x => x.TblSubInvesmentType)
                                                          .Include(x => x.TblUserMaster).AsQueryable();
+            }
 
             if (search != null)
             {
-                filterData = _context.Search<TblInsuranceclient>(search).Where(x => x.IsDeleted != true)
+                if (filterString is not null)
+                {
+                    filterData = _context.Search<TblInsuranceclient>(search).Where(x => x.IsDeleted != true && x.TblSubInvesmentType.InvestmentType.ToLower() == filterString.ToLower())
                                                          .Include(x => x.TblInsuranceCompanylist)
                                                          .Include(x => x.TblInsuranceTypeMaster)
                                                          .Include(x => x.TblInvesmentType)
                                                          .Include(x => x.TblSubInvesmentType)
                                                          .Include(x => x.TblUserMaster).AsQueryable();
+                }
+                else
+                {
+                    filterData = _context.Search<TblInsuranceclient>(search).Where(x => x.IsDeleted != true)
+                                                         .Include(x => x.TblInsuranceCompanylist)
+                                                         .Include(x => x.TblInsuranceTypeMaster)
+                                                         .Include(x => x.TblInvesmentType)
+                                                         .Include(x => x.TblSubInvesmentType)
+                                                         .Include(x => x.TblUserMaster).AsQueryable();
+                }
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 

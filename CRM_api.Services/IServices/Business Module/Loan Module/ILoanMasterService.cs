@@ -8,7 +8,7 @@ namespace CRM_api.Services.IServices.Business_Module.Loan_Module
 {
     public interface ILoanMasterService
     {
-        Task<ResponseDto<LoanMasterDto>> GetLoanDetailsAsync(string search, SortingParams sortingParams);
+        Task<ResponseDto<LoanMasterDto>> GetLoanDetailsAsync(string? filterString, string search, SortingParams sortingParams);
         Task<LoanMasterDto> GetLoanDetailByIdAsync(int id);
         Task<ResponseDto<BankMasterDto>> GetBankDetailsAsync(SortingParams sortingParams);
         Task<int> AddLoanDetailAsync(AddLoanMasterDto loanMasterDto);

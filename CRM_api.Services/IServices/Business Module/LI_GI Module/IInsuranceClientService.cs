@@ -7,7 +7,7 @@ namespace CRM_api.Services.IServices.Business_Module.LI_GI_Module
 {
     public interface IInsuranceClientService
     {
-        Task<ResponseDto<InsuranceClientDto>> GetInsuranceClientsAsync(string search, SortingParams sortingParams);
+        Task<ResponseDto<InsuranceClientDto>> GetInsuranceClientsAsync(string? filterString, string search, SortingParams sortingParams);
         Task<ResponseDto<InsuranceCompanyListDto>> GetCompanyListByInsTypeIdAsync(int id, SortingParams sortingParams);
         Task<InsuranceClientDto> GetInsuranceClientByIdAsync(int id);
         Task<int> AddInsuranceClientAsync(AddInsuranceClientDto insuranceClientDto);
