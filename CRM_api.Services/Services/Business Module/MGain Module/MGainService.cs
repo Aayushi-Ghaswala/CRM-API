@@ -52,6 +52,19 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
                     mGain.PlotMaster = mapPlot;
                 }
 
+                if (mGain.Mgain2ndprojectname is not null && mGain.Mgain2ndplotno is not null)
+                {
+                    //Find project
+                    var project = await _mGainRepository.GetProjectByProjectName(mGain.Mgain2ndprojectname);
+                    var mapProject = _mapper.Map<ProjectMasterDto>(project);
+                    mGain.SecondProjectMaster = mapProject;
+
+                    //Find plot
+                    var plot = await _mGainRepository.GetPlotByProjectAndPlotNo(mGain.Mgain2ndprojectname, mGain.Mgain2ndplotno);
+                    var mapPlot = _mapper.Map<PlotMasterDto>(plot);
+                    mGain.SecondPlotMaster = mapPlot;
+                }
+
                 mGain.Tenure = 10;
             }
 
@@ -1008,9 +1021,9 @@ SURAT - 395009 <p>
         #endregion
 
         #region Get Plots By ProjectId
-        public async Task<ResponseDto<PlotMasterDto>> GetPlotsByProjectIdAsync(int projectId, decimal invAmount, string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<PlotMasterDto>> GetPlotsByProjectIdAsync(int projectId, int? plotId,  string? searchingParams, SortingParams sortingParams)
         {
-            var plots = await _mGainRepository.GetPlotsByProjectId(projectId, invAmount, searchingParams, sortingParams);
+            var plots = await _mGainRepository.GetPlotsByProjectId(projectId, plotId, searchingParams, sortingParams);
             var mapPlots = _mapper.Map<ResponseDto<PlotMasterDto>>(plots);
             return mapPlots;
         }
@@ -1227,10 +1240,8 @@ SURAT - 395009 <p>
         {
             var updateMGain = _mapper.Map<TblMgaindetail>(updateMGainDetails);
             var mgain = await _mGainRepository.GetMGainDetailById(updateMGain.Id);
-            var plot = await _mGainRepository.GetPlotById(updateMGainDetails.PlotId);
-            var mGainPlot = new TblPlotMaster();
 
-            var directoryPath = Directory.GetCurrentDirectory() + "\\MGain-Documents\\";
+            var directoryPath = Directory.GetCurrentDirectory() + "\\MGain-Documents\\";    
 
             if (!Directory.Exists(directoryPath))
             {
@@ -1348,115 +1359,214 @@ SURAT - 395009 <p>
             }
             else updateMGain.MgainCancelledCheque = updateMGainDetails.MgainCancelledCheque;
 
-            if (mgain.MgainProjectname is not null && mgain.MgainPlotno is not null)
-            {
-                mGainPlot = await _mGainRepository.GetPlotByProjectAndPlotNo(mgain.MgainProjectname, mgain.MgainPlotno);
-            }
+            mgain.MgainPlotno = mgain.MgainPlotno.Trim();
+            mgain.Mgain2ndplotno = mgain.Mgain2ndplotno.Trim();
+            var mGain1stPlot = new TblPlotMaster();
+            var mGain2ndPlot = new TblPlotMaster();
+            var firstPlot = new TblPlotMaster();
+            var secondPlot = new TblPlotMaster();
 
-            if (updateMGainDetails.PlotId != 0)
+            if (mgain.MgainProjectname is not null && mgain.MgainPlotno is not null)
+                mGain1stPlot = await _mGainRepository.GetPlotByProjectAndPlotNo(mgain.MgainProjectname, mgain.MgainPlotno);
+
+            if (mgain.Mgain2ndprojectname is not null && mgain.Mgain2ndplotno is not null)
+                mGain2ndPlot = await _mGainRepository.GetPlotByProjectAndPlotNo(mgain.Mgain2ndprojectname, mgain.Mgain2ndplotno);
+
+            if(updateMGainDetails.MGain1stPlotId != 0)
+                firstPlot = await _mGainRepository.GetPlotById(updateMGainDetails.MGain1stPlotId);
+
+            if (updateMGainDetails.MGain2ndPlotId != 0)
+                secondPlot = await _mGainRepository.GetPlotById(updateMGainDetails.MGain2ndPlotId);
+
+            if (updateMGainDetails.MGain1stPlotId != 0 && updateMGainDetails.MGain2ndPlotId != 0)
             {
-                if (updateMGainDetails.MgainProjectname == mgain.MgainProjectname && plot.PlotNo == mgain.MgainPlotno)
+                if ((updateMGainDetails.MgainProjectname == mgain.MgainProjectname && firstPlot.PlotNo == mgain.MgainPlotno) &&
+                            (updateMGainDetails.Mgain2ndprojectname == mgain.Mgain2ndprojectname && secondPlot.PlotNo == mgain.Mgain2ndplotno))
                 {
                     if (updateMGain.MgainInvamt != mgain.MgainInvamt)
                     {
-                        plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
-                        plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
-
-                        updateMGain.MgainPlotno = plot.PlotNo;
-                        updateMGain.MgainAllocatedsqft = Math.Round((decimal)((updateMGain.MgainInvamt * plot.SqFt) / (plot.SqFt * plot.Rate)), 4);
-                        updateMGain.MgainAllocatedsqftamt = Math.Round((decimal)(updateMGain.MgainAllocatedsqft * plot.Rate), 4);
-                        updateMGain.MgainTotalsqft = Math.Round((decimal)plot.SqFt, 4);
-                        updateMGain.MgainTotalplotamt = Math.Round((decimal)(plot.SqFt * plot.Rate), 3);
-
-                        plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt - updateMGain.MgainAllocatedsqft), 4);
-                        plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue - updateMGain.MgainAllocatedsqftamt), 4);
-                    }
-                    else if (updateMGain.MgainRedemamt > 0)
-                    {
-                        if (updateMGain.MgainRedemamt < updateMGain.MgainInvamt)
+                        if (updateMGain.MgainInvamt > mgain.MgainAllocatedsqftamt)
                         {
-                            plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
-                            plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
+                            var amount = updateMGain.MgainInvamt - mgain.MgainAllocatedsqftamt;
+                            var assignPlot = AssignPlot(updateMGain, mgain, amount, null, secondPlot, null, null, false, true, false, false, false, false, true, false, true, false, false, false);
 
-                            var availableAmount = updateMGain.MgainInvamt - updateMGain.MgainRedemamt;
-
-                            updateMGain.MgainPlotno = plot.PlotNo;
-                            updateMGain.MgainAllocatedsqft = Math.Round((decimal)((availableAmount * plot.SqFt) / (plot.SqFt * plot.Rate)), 4);
-                            updateMGain.MgainAllocatedsqftamt = Math.Round((decimal)(updateMGain.MgainAllocatedsqft * plot.Rate), 4);
-                            updateMGain.MgainTotalsqft = Math.Round((decimal)plot.SqFt, 4);
-                            updateMGain.MgainTotalplotamt = Math.Round((decimal)(plot.SqFt * plot.Rate), 3);
-
-                            plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt - updateMGain.MgainAllocatedsqft), 4);
-                            plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue - updateMGain.MgainAllocatedsqftamt), 4);
-
-                            updateMGain.MgainInvamt = availableAmount;
+                            await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                            updateMGain = assignPlot.Item1;
                         }
                     }
                     else
                     {
-                        updateMGain.MgainPlotno = mgain.MgainPlotno;
-                        updateMGain.MgainAllocatedsqft = mgain.MgainAllocatedsqft;
-                        updateMGain.MgainAllocatedsqftamt = mgain.MgainAllocatedsqftamt;
-                        updateMGain.MgainTotalsqft = mgain.MgainTotalsqft;
-                        updateMGain.MgainTotalplotamt = mgain.MgainTotalplotamt;
+                        updateMGain = AssignPlot(updateMGain, mgain, 0, null, null, null, null, false, false, false, false, false, false, false, false, true, true, false, false).Item1;
+                    }
+
+                    if (updateMGainDetails.MgainRedemamt > 0)
+                    {
+                        if (updateMGain.MgainRedemamt < updateMGain.MgainInvamt)
+                        {
+                            if (updateMGainDetails.MgainRedemamt > mgain.Mgain2ndallocatedsqftamt)
+                            {
+                                var availableAmount = updateMGain.MgainInvamt - updateMGainDetails.MgainRedemamt;
+                                var assignPlot = AssignPlot(updateMGain, mgain, availableAmount, firstPlot, null, null, mGain2ndPlot, true, false, false, true, false, true, false, false, false, false, false, true);
+
+                                await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                                updateMGain = assignPlot.Item1;
+                            }
+                            else
+                            {
+                                var availableAmount = updateMGain.MgainInvamt - mgain.MgainAllocatedsqftamt - updateMGainDetails.MgainRedemamt;
+                                var assignPlot = AssignPlot(updateMGain, mgain, availableAmount, null, secondPlot, null, null, false, true, false, false, false, false, true, false, true, false, false, false);
+
+                                await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                                updateMGain = assignPlot.Item1;
+                            }
+                        }
+                    }
+                }
+                else if ((updateMGainDetails.MgainProjectname == mgain.MgainProjectname && firstPlot.PlotNo == mgain.MgainPlotno) &&
+                            (updateMGainDetails.Mgain2ndprojectname != mgain.Mgain2ndprojectname || secondPlot.PlotNo != mgain.Mgain2ndplotno))
+                {
+                    if (mgain.Mgain2ndplotno is not null)
+                    {
+                        var amount = updateMGain.MgainInvamt - mgain.MgainAllocatedsqftamt;
+                        var assignPlot = AssignPlot(updateMGain, mgain, amount, null, secondPlot, null, mGain2ndPlot, false, false, false, true, false, false, true, false, true, false, false, false);
+
+                        await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                        updateMGain = assignPlot.Item1;
+                    }
+                    else
+                    {
+                        var amount = updateMGain.MgainInvamt - (firstPlot.Available_PlotValue + mgain.MgainAllocatedsqftamt);
+                        var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, null, false, false, true, false, true, false, true, false, false, false, false, false);
+
+                        await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                        updateMGain = assignPlot.Item1;
+                    }
+                }
+                else if ((updateMGainDetails.MgainProjectname != mgain.MgainProjectname || firstPlot.PlotNo != mgain.MgainPlotno) &&
+                            (updateMGainDetails.Mgain2ndprojectname == mgain.Mgain2ndprojectname && secondPlot.PlotNo == mgain.Mgain2ndplotno))
+                {
+                    var amount = updateMGain.MgainInvamt - firstPlot.Available_PlotValue;
+                    var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, false, true, true, true, false, true, false, false, false, false, false);
+
+                    await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                    updateMGain = assignPlot.Item1;
+                }
+                else
+                {
+                    if (mgain.MgainPlotno is not null && mgain.MgainProjectname is not null && mgain.Mgain2ndplotno is not null && mgain.Mgain2ndprojectname is not null)
+                    {
+                        var amount = updateMGain.MgainInvamt - firstPlot.Available_PlotValue;
+                        var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, false, true, true, true, false, true, false, false, false, false, false);
+
+                        await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                        updateMGain = assignPlot.Item1;
+                    }
+                    else if (mgain.MgainPlotno is not null && mgain.MgainProjectname is not null && mgain.Mgain2ndplotno is null && mgain.Mgain2ndprojectname is null)
+                    {
+                        var amount = updateMGain.MgainInvamt - firstPlot.Available_PlotValue;
+                        var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, null, false, false, true, false, true, false, true, false, false, false, false, false);
+
+                        await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                        updateMGain = assignPlot.Item1;
+                    }
+                    else
+                    {
+                        var amount = updateMGain.MgainInvamt - firstPlot.Available_PlotValue;
+                        var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, null, null, false, false, false, false, true, false, true, false, true, false, false, false);
+
+                        await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                        updateMGain = assignPlot.Item1;
+                    }
+                }
+
+                if (updateMGain.MgainIsclosed is true)
+                {
+                    updateMGain.MgainRedemdate = DateTime.Now.Date;
+                    updateMGain.MgainRedemamt = updateMGain.MgainInvamt;
+                    var assignPlot = AssignPlot(updateMGain, mgain, 0, null, null, null, null, false, false, false, false, false, false, false, false, true, true, false, false);
+
+                    await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                    updateMGain = assignPlot.Item1;
+                }
+            }
+            else if (updateMGainDetails.MGain1stPlotId != 0 && updateMGainDetails.MGain2ndPlotId == 0)
+            {
+                if (mgain.MgainProjectname is not null && mgain.MgainPlotno is not null && mgain.Mgain2ndprojectname is not null && mgain.Mgain2ndplotno is not null)
+                {
+                    if (updateMGainDetails.MgainProjectname == mgain.MgainProjectname && firstPlot.PlotNo == mgain.MgainPlotno)
+                    {
+                        if (updateMGain.MgainInvamt != mgain.MgainInvamt)
+                        {
+                            if (updateMGain.MgainInvamt <= mgain.MgainAllocatedsqftamt)
+                            {
+                                var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, mGain1stPlot, mGain2ndPlot, false, false, true, true, false, true, false, true, false, false, false, true);
+
+                                await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                                updateMGain = assignPlot.Item1;
+                            }
+                        }
+                        else
+                        {
+                            updateMGain = AssignPlot(updateMGain, mgain, 0, null, null, null, null, false, false, false, false, false, false, false, false, true, false, false, false).Item1;
+                        }
+                    }
+                    else if (updateMGainDetails.MgainProjectname != mgain.MgainProjectname || firstPlot.PlotNo != mgain.MgainPlotno)
+                    {
+                        if (updateMGain.MgainInvamt != mgain.MgainInvamt)
+                        {
+                            var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, mGain1stPlot, mGain2ndPlot, false, false, true, true, false, true, false, true, false, false, false, true);
+
+                            await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                            updateMGain = assignPlot.Item1;
+                        }
+                    }
+                    else
+                    {
+                        updateMGain = AssignPlot(updateMGain, mgain, 0, null, null, null, null, false, false, false, false, false, false, false, false, true, false, false, false).Item1;
                     }
                 }
                 else
                 {
                     if (mgain.MgainPlotno is not null && mgain.MgainProjectname is not null)
                     {
-                        mGainPlot.Available_SqFt = Math.Round((decimal)(mGainPlot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
-                        mGainPlot.Available_PlotValue = Math.Round((decimal)(mGainPlot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
+                        var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, mGain1stPlot, null, false, false, true, false, false, true, false, false, false, false, false, false);
 
-                        updateMGain.MgainPlotno = plot.PlotNo;
-                        updateMGain.MgainAllocatedsqft = Math.Round((decimal)((updateMGain.MgainInvamt * plot.SqFt) / (plot.SqFt * plot.Rate)), 4);
-                        updateMGain.MgainAllocatedsqftamt = Math.Round((decimal)(updateMGain.MgainAllocatedsqft * plot.Rate), 4);
-                        updateMGain.MgainTotalsqft = Math.Round((decimal)plot.SqFt, 4);
-                        updateMGain.MgainTotalplotamt = Math.Round((decimal)(plot.SqFt * plot.Rate), 3);
-
-                        await _mGainRepository.UpdatePlotDetails(mGainPlot);
+                        await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                        updateMGain = assignPlot.Item1;
                     }
                     else
                     {
-                        updateMGain.MgainPlotno = plot.PlotNo;
-                        updateMGain.MgainAllocatedsqft = Math.Round((decimal)((updateMGain.MgainInvamt * plot.SqFt) / (plot.SqFt * plot.Rate)), 4);
-                        updateMGain.MgainAllocatedsqftamt = Math.Round((decimal)(updateMGain.MgainAllocatedsqft * plot.Rate), 4);
-                        updateMGain.MgainTotalsqft = Math.Round((decimal)plot.SqFt, 4);
-                        updateMGain.MgainTotalplotamt = Math.Round((decimal)(plot.SqFt * plot.Rate), 3);
-                    }
+                        var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, null, null, false, false, false, false, false, true, false, false, false, false, false, false);
 
-                    plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt - updateMGain.MgainAllocatedsqft), 4);
-                    plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue - updateMGain.MgainAllocatedsqftamt), 4);
+                        await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                        updateMGain = assignPlot.Item1;
+                    }
                 }
 
                 if (updateMGain.MgainIsclosed is true)
                 {
-                    updateMGain.MgainPlotno = mgain.MgainPlotno;
-                    updateMGain.MgainAllocatedsqft = mgain.MgainAllocatedsqft;
-                    updateMGain.MgainAllocatedsqftamt = mgain.MgainAllocatedsqftamt;
-                    updateMGain.MgainTotalsqft = mgain.MgainTotalsqft;
-                    updateMGain.MgainTotalplotamt = mgain.MgainTotalplotamt;
                     updateMGain.MgainRedemdate = DateTime.Now.Date;
+                    updateMGain.MgainRedemamt = updateMGain.MgainInvamt;
+                    var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, null, null, false, false, false, false, false, false, false, false, false, false, false, false);
 
-                    plot.Available_SqFt = Math.Round((decimal)(plot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
-                    plot.Available_PlotValue = Math.Round((decimal)(plot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
+                    await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                    updateMGain = assignPlot.Item1;
                 }
-                await _mGainRepository.UpdatePlotDetails(plot);
             }
             else
             {
                 if (mgain.MgainProjectname is not null && mgain.MgainPlotno is not null)
                 {
-                    updateMGain.MgainPlotno = null;
-                    updateMGain.MgainAllocatedsqft = null;
-                    updateMGain.MgainAllocatedsqftamt = null;
-                    updateMGain.MgainTotalsqft = null;
-                    updateMGain.MgainTotalplotamt = null;
+                    var assignPlot = AssignPlot(null, mgain, 0, null, null, mGain1stPlot, null, false, false, false, false, false, false, false, false, false, false, true, false);
 
-                    mGainPlot.Available_SqFt = Math.Round((decimal)(mGainPlot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
-                    mGainPlot.Available_PlotValue = Math.Round((decimal)(mGainPlot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
+                    await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
+                }
 
-                    await _mGainRepository.UpdatePlotDetails(mGainPlot);
+                if (mgain.Mgain2ndprojectname is not null && mgain.Mgain2ndplotno is not null)
+                {
+                    var assignPlot = AssignPlot(null, mgain, 0, null, null, null, mGain2ndPlot, false, false, false, false, false, false, false, false, false, false, false, true);
+
+                    await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                 }
             }
 
@@ -1664,6 +1774,132 @@ SURAT - 395009 <p>
             firstYear.Days = days;
 
             return firstYear;
+        }
+        #endregion
+
+        #region Assign Plots
+        public (TblMgaindetail, List<TblPlotMaster>) AssignPlot(TblMgaindetail updateMGain, TblMgaindetail mgain, decimal? invAmount, TblPlotMaster firstPlot, TblPlotMaster secondPlot, TblPlotMaster mGain1stPlot,
+                      TblPlotMaster mGain2ndPlot, bool? isFirst, bool? isSecond, bool? isMGainFirst, bool? isMGainSecond, bool? isFirstAssignFull, bool? isAssignFirst, bool? isAssignSecond, bool? isTakingSecond
+                            , bool? isClosedFirst, bool? isClosedSecond, bool? isNotFirst, bool? isNotSecond)
+        {
+            List<TblPlotMaster> updatePlots = new List<TblPlotMaster>();
+
+            if (isFirst is true)
+            {
+                firstPlot.Available_SqFt = Math.Round((decimal)(firstPlot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
+                firstPlot.Available_PlotValue = Math.Round((decimal)(firstPlot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
+
+                updatePlots.Add(firstPlot);
+            }
+
+            if (isSecond is true)
+            {
+                secondPlot.Available_SqFt = Math.Round((decimal)(secondPlot.Available_SqFt + mgain.Mgain2ndallocatedsqft), 4);
+                secondPlot.Available_PlotValue = Math.Round((decimal)(secondPlot.Available_PlotValue + mgain.Mgain2ndallocatedsqftamt), 4);
+
+                updatePlots.Add(secondPlot);
+            }
+
+            if (isMGainFirst is true)
+            {
+                mGain1stPlot.Available_SqFt = Math.Round((decimal)(mGain1stPlot.Available_SqFt + mgain.MgainAllocatedsqft), 4);
+                mGain1stPlot.Available_PlotValue = Math.Round((decimal)(mGain1stPlot.Available_PlotValue + mgain.MgainAllocatedsqftamt), 4);
+
+                updatePlots.Add(mGain1stPlot);
+            }
+
+            if (isMGainSecond is true)
+            {
+                mGain2ndPlot.Available_SqFt = Math.Round((decimal)(mGain2ndPlot.Available_SqFt + mgain.Mgain2ndallocatedsqft), 4);
+                mGain2ndPlot.Available_PlotValue = Math.Round((decimal)(mGain2ndPlot.Available_PlotValue + mgain.Mgain2ndallocatedsqftamt), 4);
+
+                updatePlots.Add(mGain2ndPlot);
+            }
+
+            if (isFirstAssignFull is true)
+            {
+                updateMGain.MgainPlotno = firstPlot.PlotNo;
+                updateMGain.MgainAllocatedsqft = firstPlot.Available_SqFt;
+                updateMGain.MgainAllocatedsqftamt = firstPlot.Available_PlotValue;
+                updateMGain.MgainTotalsqft = firstPlot.SqFt;
+                updateMGain.MgainTotalplotamt = firstPlot.PlotValue;
+
+                firstPlot.Available_SqFt = Math.Round((decimal)(firstPlot.Available_SqFt - updateMGain.MgainAllocatedsqft), 4);
+                firstPlot.Available_PlotValue = Math.Round((decimal)(firstPlot.Available_PlotValue - updateMGain.MgainAllocatedsqftamt), 4);
+
+                updatePlots.Add(firstPlot);
+            }
+
+            if (isAssignFirst is true)
+            {
+                updateMGain.MgainPlotno = firstPlot.PlotNo;
+                updateMGain.MgainAllocatedsqft = Math.Round((decimal)((invAmount * firstPlot.SqFt) / (firstPlot.SqFt * firstPlot.Rate)), 4);
+                updateMGain.MgainAllocatedsqftamt = Math.Round((decimal)(updateMGain.MgainAllocatedsqft * firstPlot.Rate), 4);
+                updateMGain.MgainTotalsqft = Math.Round((decimal)firstPlot.SqFt, 4);
+                updateMGain.MgainTotalplotamt = Math.Round((decimal)(firstPlot.SqFt * firstPlot.Rate), 3);
+
+                firstPlot.Available_SqFt = Math.Round((decimal)(firstPlot.Available_SqFt - updateMGain.MgainAllocatedsqft), 4);
+                firstPlot.Available_PlotValue = Math.Round((decimal)(firstPlot.Available_PlotValue - updateMGain.MgainAllocatedsqftamt), 4);
+
+                updatePlots.Add(firstPlot);
+            }
+
+            if (isAssignSecond is true)
+            {
+                updateMGain.Mgain2ndplotno = secondPlot.PlotNo;
+                updateMGain.Mgain2ndallocatedsqft = Math.Round((decimal)((invAmount * secondPlot.SqFt) / (secondPlot.SqFt * secondPlot.Rate)), 4);
+                updateMGain.Mgain2ndallocatedsqftamt = Math.Round((decimal)(updateMGain.Mgain2ndallocatedsqft * secondPlot.Rate), 4);
+                updateMGain.Mgain2ndtotalsqft = Math.Round((decimal)secondPlot.SqFt, 4);
+
+                secondPlot.Available_SqFt = Math.Round((decimal)(secondPlot.Available_SqFt - updateMGain.Mgain2ndallocatedsqft), 4);
+                secondPlot.Available_PlotValue = Math.Round((decimal)(secondPlot.Available_PlotValue - updateMGain.Mgain2ndallocatedsqftamt), 4);
+
+                updatePlots.Add(secondPlot);
+            }
+
+            if (isTakingSecond is true)
+            {
+                updateMGain.Mgain2ndplotno = null;
+                updateMGain.Mgain2ndallocatedsqft = 0;
+                updateMGain.Mgain2ndallocatedsqftamt = 0;
+                updateMGain.Mgain2ndtotalsqft = 0;
+            }
+
+            if (isClosedFirst is true)
+            {
+                updateMGain.MgainPlotno = mgain.MgainPlotno;
+                updateMGain.MgainAllocatedsqft = mgain.MgainAllocatedsqft;
+                updateMGain.MgainAllocatedsqftamt = mgain.MgainAllocatedsqftamt;
+                updateMGain.MgainTotalsqft = mgain.MgainTotalsqft;
+                updateMGain.MgainTotalplotamt = mgain.MgainTotalplotamt;
+            }
+
+            if (isClosedSecond is true)
+            {
+                updateMGain.Mgain2ndplotno = mgain.Mgain2ndplotno;
+                updateMGain.Mgain2ndallocatedsqft = mgain.Mgain2ndallocatedsqft;
+                updateMGain.Mgain2ndallocatedsqftamt = mgain.Mgain2ndallocatedsqftamt;
+                updateMGain.Mgain2ndtotalsqft = mgain.Mgain2ndtotalsqft;
+            }
+
+            if(isNotFirst is true)
+            {
+                updateMGain.MgainPlotno = null;
+                updateMGain.MgainAllocatedsqft = null;
+                updateMGain.MgainAllocatedsqftamt = null;
+                updateMGain.MgainTotalsqft = null;
+                updateMGain.MgainTotalplotamt = null;
+            }
+
+            if(isNotSecond is true)
+            {
+                updateMGain.Mgain2ndplotno = null;
+                updateMGain.Mgain2ndallocatedsqft = null;
+                updateMGain.Mgain2ndallocatedsqftamt = null;
+                updateMGain.Mgain2ndtotalsqft = null;
+            }
+
+            return (updateMGain, updatePlots);
         }
         #endregion
     }

@@ -332,22 +332,32 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #endregion
 
         #region Get All Plot By ProjectId
-        public async Task<Response<TblPlotMaster>> GetPlotsByProjectId(int projectId, decimal invAmount, string? searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblPlotMaster>> GetPlotsByProjectId(int projectId, int? plotId, string? searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
-            var plots = _context.TblPlotMasters.Where(x => x.ProjectId == projectId && x.Available_PlotValue >= invAmount).Include(x => x.TblProjectMaster).AsQueryable();
+            var plots = _context.TblPlotMasters.Where(x => x.ProjectId == projectId).Include(x => x.TblProjectMaster).ToList();
+
+            if(plotId != 0)
+            {
+                var updatePlot = plots.Where(x => x.Id == plotId).FirstOrDefault();
+
+                if (updatePlot != null)
+                {
+                    plots.Remove(updatePlot);
+                    plots.Insert(0, updatePlot);
+                }
+            }
+
+            IQueryable<TblPlotMaster> orderedPlots = plots.AsQueryable();
 
             if (searchingParams != null)
             {
-                plots = _context.Search<TblPlotMaster>(searchingParams);
+                orderedPlots = _context.Search<TblPlotMaster>(searchingParams);
             }
             pageCount = Math.Ceiling(plots.Count() / sortingParams.PageSize);
 
-            //Apply Sorting
-            var sortedPlots = SortingExtensions.ApplySorting(plots, sortingParams.SortBy, sortingParams.IsSortAscending);
-
             //Apply pagination
-            var paginatedData = SortingExtensions.ApplyPagination(sortedPlots, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+            var paginatedData = SortingExtensions.ApplyPagination(orderedPlots, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
             var responsePlots = new Response<TblPlotMaster>()
             {
@@ -376,7 +386,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         public async Task<List<TblAccountTransaction>> GetAccountTransactionByMgainId(int? mGainId, int? month, int? year)
         {
             List<TblAccountTransaction> accountTransactions = new List<TblAccountTransaction>();
-            if(mGainId != 0)
+            if (mGainId != 0)
             {
                 accountTransactions = await _context.TblAccountTransactions.Where(x => x.Mgainid == mGainId).ToListAsync();
             }
@@ -393,9 +403,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         {
             TblAccountMaster account = new TblAccountMaster();
 
-            if(userId != 0)
+            if (userId != 0)
                 account = await _context.TblAccountMasters.FirstOrDefaultAsync(x => x.UserId == userId);
-            else if(accountName is not null)
+            else if (accountName is not null)
                 account = await _context.TblAccountMasters.FirstAsync(x => x.AccountName == accountName);
 
             return account;
@@ -491,9 +501,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #endregion
 
         #region Update Plot Details
-        public async Task<int> UpdatePlotDetails(TblPlotMaster tblPlotMaster)
+        public async Task<int> UpdatePlotDetails(List<TblPlotMaster> tblPlotMaster)
         {
-            _context.TblPlotMasters.Update(tblPlotMaster);
+            _context.TblPlotMasters.UpdateRange(tblPlotMaster);
             return await _context.SaveChangesAsync();
         }
         #endregion
