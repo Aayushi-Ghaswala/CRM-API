@@ -21,7 +21,8 @@ namespace CRM_api.Services.MapperProfile
             CreateMap<Response<TblProjectMaster>, ResponseDto<ProjectMasterDto>>();
             CreateMap<TblPlotMaster, PlotMasterDto>();
             CreateMap<Response<TblPlotMaster>, ResponseDto<PlotMasterDto>>();
-            CreateMap<UpdateMGainPaymentDto, TblMgainPaymentMethod>();
+            CreateMap<UpdateMGainPaymentDto, TblMgainPaymentMethod>()
+                .ForMember(x => x.CurrancyId, opt => opt.MapFrom(src => src.CurrencyId));
             CreateMap<TblMgaindetail, MGainPaymentRecieptDto>();
             CreateMap<AddMGainDetailsDto, TblMgaindetail>()
                 .AfterMap((dto, entity) =>
@@ -35,7 +36,8 @@ namespace CRM_api.Services.MapperProfile
                     entity.MgainIsactive = true;
                 });
 
-            CreateMap<AddMGainPaymentDto, TblMgainPaymentMethod>();
+            CreateMap<AddMGainPaymentDto, TblMgainPaymentMethod>()
+                .ForMember(x => x.CurrancyId, opt => opt.MapFrom(src => src.CurrencyId));
             CreateMap<UpdateMGainDetailsDto, TblMgaindetail>()
                 .AfterMap((dto, entity) =>
                 {

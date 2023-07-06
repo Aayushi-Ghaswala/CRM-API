@@ -406,7 +406,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             if (userId != 0)
                 account = await _context.TblAccountMasters.FirstOrDefaultAsync(x => x.UserId == userId);
             else if (accountName is not null)
-                account = await _context.TblAccountMasters.FirstAsync(x => x.AccountName == accountName);
+                account = await _context.TblAccountMasters.FirstOrDefaultAsync(x => x.AccountName == accountName);
 
             return account;
         }
@@ -458,7 +458,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #region Add User Account
         public async Task<int> AddUserAccount(TblAccountMaster tblAccountMaster)
         {
-            if(_context.TblAccountMasters.Any(x => x.UserId == tblAccountMaster.UserId))
+            if(_context.TblAccountMasters.Any(x => x.UserId == tblAccountMaster.UserId && x.AccountName == tblAccountMaster.AccountName))
                 return 0;
             else
             {
