@@ -69,8 +69,8 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                 }
 
                 mfSummaryDto.TotalPurchaseUnit = Math.Round((decimal)totalPurchaseUnits, 3);
-                mfSummaryDto.TotalRedemptionUnit = Math.Round((decimal)(mfSummaryDto.TotalPurchaseUnit - redemptionUnit), 3);
-                mfSummaryDto.BalanceUnit = Math.Round((decimal)mfSummaryDto.TotalRedemptionUnit, 3);
+                mfSummaryDto.TotalRedemptionUnit = Math.Round((decimal)redemptionUnit, 3);
+                mfSummaryDto.BalanceUnit = Math.Round((decimal)(mfSummaryDto.TotalPurchaseUnit - mfSummaryDto.TotalRedemptionUnit), 3);
                 mfSummaryDto.CurrentValue = Math.Round((decimal)(mfSummaryDto.BalanceUnit * (decimal)mfSummaryDto.NAV), 3);
 
                 mutualFundSummaries.Add(mfSummaryDto);
@@ -146,8 +146,8 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                 }
 
                 mfCategoryWise.TotalPurchaseUnit = Math.Round((decimal)totalPurchaseUnits, 3);
-                mfCategoryWise.TotalRedemptionUnit = Math.Round((decimal)(mfCategoryWise.TotalPurchaseUnit - redemptionUnit), 3);
-                mfCategoryWise.BalanceUnit = Math.Round((decimal)mfCategoryWise.TotalRedemptionUnit, 3);
+                mfCategoryWise.TotalRedemptionUnit = Math.Round((decimal)redemptionUnit, 3);
+                mfCategoryWise.BalanceUnit = Math.Round((decimal)(mfCategoryWise.TotalPurchaseUnit - mfCategoryWise.TotalRedemptionUnit), 3);
                 mfCategoryWise.CurrentValue = Math.Round((decimal)(mfCategoryWise.BalanceUnit * (decimal)mfCategoryWise.NAV), 3);
 
                 mutualFundSummaries.Add(mfCategoryWise);
@@ -224,8 +224,8 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                 }
 
                 allClientMFSummary.TotalPurchaseUnit = Math.Round((decimal)totalPurchaseUnits, 3);
-                allClientMFSummary.TotalRedemptionUnit = Math.Round((decimal)(allClientMFSummary.TotalPurchaseUnit - redemptionUnit), 3);
-                allClientMFSummary.BalanceUnit = Math.Round((decimal)allClientMFSummary.TotalRedemptionUnit, 3);
+                allClientMFSummary.TotalRedemptionUnit = Math.Round((decimal)redemptionUnit, 3);
+                allClientMFSummary.BalanceUnit = Math.Round((decimal)(allClientMFSummary.TotalPurchaseUnit - allClientMFSummary.TotalRedemptionUnit), 3);
                 allClientMFSummary.CurrentValue = Math.Round((decimal)(allClientMFSummary.BalanceUnit * (decimal)allClientMFSummary.NAV), 3);
 
                 mutualFundSummaries.Add(allClientMFSummary);
