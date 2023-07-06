@@ -27,9 +27,9 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         }
 
         #region Get stock user's client names
-        public async Task<ResponseDto<UserNameDto>> GetStocksUsersNameAsync(string? scriptName, string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<UserNameDto>> GetStocksUsersNameAsync(string? scriptName, string? firmName, string? searchingParams, SortingParams sortingParams)
         {
-            var usernames = await _stocksRepository.GetStocksUsersName(scriptName, searchingParams, sortingParams);
+            var usernames = await _stocksRepository.GetStocksUsersName(scriptName, firmName, searchingParams, sortingParams);
             var mappedUsernames = _mapper.Map<ResponseDto<UserNameDto>>(usernames);
 
             foreach (var user in mappedUsernames.Values)
@@ -42,9 +42,9 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #endregion
 
         #region Get all/client wise script names
-        public async Task<ResponseDto<ScriptNamesDto>> GetAllScriptNamesAsync(string clientName, string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<ScriptNamesDto>> GetAllScriptNamesAsync(string clientName, string? firmName, string? searchingParams, SortingParams sortingParams)
         {
-            var scriptData = await _stocksRepository.GetAllScriptNames(clientName, searchingParams, sortingParams);
+            var scriptData = await _stocksRepository.GetAllScriptNames(clientName, firmName, searchingParams, sortingParams);
             var mappedScriptData = _mapper.Map<ResponseDto<ScriptNamesDto>>(scriptData);
 
             foreach (var script in mappedScriptData.Values)

@@ -17,11 +17,11 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region Get stock user's names
         [HttpGet("GetStocksUsersName")]
-        public async Task<IActionResult> GetStocksUsersName(string? scriptName, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetStocksUsersName(string? scriptName, string? firmName, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var result = await _stockService.GetStocksUsersNameAsync(scriptName, search, sortingParams);
+                var result = await _stockService.GetStocksUsersNameAsync(scriptName, firmName, search, sortingParams);
                 return Ok(result);
             }
             catch (Exception)
@@ -33,11 +33,11 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region Get script names
         [HttpGet("GetAllScriptNames")]
-        public async Task<IActionResult> GetAllScriptNames([FromQuery] string? search, [FromQuery] SortingParams? sortingParams, string? clientName = null)
+        public async Task<IActionResult> GetAllScriptNames(string? firmName, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams, string? clientName = null)
         {
             try
             {
-                var scriptNames = await _stockService.GetAllScriptNamesAsync(clientName, search, sortingParams);
+                var scriptNames = await _stockService.GetAllScriptNamesAsync(clientName, firmName, search, sortingParams);
                 return Ok(scriptNames);
             }
             catch (Exception)

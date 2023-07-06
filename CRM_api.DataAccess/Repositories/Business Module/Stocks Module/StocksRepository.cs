@@ -19,19 +19,34 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         }
 
         #region Get stock user's names
-        public async Task<Response<UserNameResponse>> GetStocksUsersName(string? scriptName, string? searchingParams, SortingParams sortingParams)
+        public async Task<Response<UserNameResponse>> GetStocksUsersName(string? scriptName, string? firmName, string? searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
             var userNameResponse = new List<UserNameResponse>();
             var filterData = userNameResponse.AsQueryable();
-            if (!string.IsNullOrEmpty(scriptName))
+            if (!string.IsNullOrEmpty(scriptName) && !string.IsNullOrEmpty(firmName))
+                filterData = _context.TblStockData.Where(c => c.StScripname.ToLower().Equals(scriptName.ToLower()) && c.FirmName.ToLower().Equals(firmName.ToLower()))
+                                            .Select(x => new UserNameResponse { UserName = x.StClientname }).Distinct().AsQueryable();
+            else if (!string.IsNullOrEmpty(scriptName))
                 filterData = _context.TblStockData.Where(c => c.StScripname.ToLower().Equals(scriptName.ToLower())).Select(x => new UserNameResponse { UserName = x.StClientname }).Distinct().AsQueryable();
+            else if (!string.IsNullOrEmpty(firmName))
+                filterData = _context.TblStockData.Where(c => c.FirmName.ToLower().Equals(firmName.ToLower())).Select(x => new UserNameResponse { UserName = x.StClientname }).Distinct().AsQueryable();
             else
                 filterData = _context.TblStockData.Select(x => new UserNameResponse { UserName = x.StClientname }).Distinct().AsQueryable();
 
             if (searchingParams != null)
             {
-                filterData = filterData.Where(x => x.UserName.ToLower().Contains(searchingParams.ToLower()));
+                if (!string.IsNullOrEmpty(scriptName) && !string.IsNullOrEmpty(firmName))
+                    filterData = _context.Search<TblStockData>(searchingParams).Where(c => c.StScripname.ToLower().Equals(scriptName.ToLower()) && c.FirmName.ToLower().Equals(firmName.ToLower()))
+                                            .Select(x => new UserNameResponse { UserName = x.StClientname }).Distinct().AsQueryable();
+                else if (!string.IsNullOrEmpty(scriptName))
+                    filterData = _context.Search<TblStockData>(searchingParams).Where(c => c.StScripname.ToLower().Equals(scriptName.ToLower()))
+                                            .Select(x => new UserNameResponse { UserName = x.StClientname }).Distinct().AsQueryable();
+                else if (!string.IsNullOrEmpty(firmName))
+                    filterData = _context.Search<TblStockData>(searchingParams).Where(c => c.FirmName.ToLower().Equals(firmName.ToLower()))
+                                            .Select(x => new UserNameResponse { UserName = x.StClientname }).Distinct().AsQueryable();
+                else
+                    filterData = _context.Search<TblStockData>(searchingParams).Select(x => new UserNameResponse { UserName = x.StClientname }).Distinct().AsQueryable();
             }
 
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
@@ -56,20 +71,32 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         #endregion
 
         #region Get all/client wise script names
-        public async Task<Response<ScriptNameResponse>> GetAllScriptNames(string clientName, string? searchingParams, SortingParams sortingParams)
+        public async Task<Response<ScriptNameResponse>> GetAllScriptNames(string clientName, string? firmName, string? searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
             IQueryable<ScriptNameResponse?> stockDataList = null;
             //IQueryable<TblStockData> filterData = data.AsQueryable();
-            if (!string.IsNullOrEmpty(clientName))
+            if (!string.IsNullOrEmpty(clientName) && !string.IsNullOrEmpty(firmName))
+                stockDataList = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()))
+                                            .Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
+            else if (!string.IsNullOrEmpty(clientName))
                 stockDataList = _context.TblStockData.Where(s => s.StClientname.ToLower().Equals(clientName.ToLower())).Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
+            else if (!string.IsNullOrEmpty(firmName))
+                stockDataList = _context.TblStockData.Where(s => s.FirmName.ToLower().Equals(firmName.ToLower())).Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
             else
                 stockDataList = _context.TblStockData.Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
 
             if (searchingParams != null)
             {
-                if (!string.IsNullOrEmpty(clientName))
-                    stockDataList = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower())).Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
+                if (!string.IsNullOrEmpty(clientName) && !string.IsNullOrEmpty(firmName))
+                    stockDataList = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower()))
+                                                .Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
+                else if (!string.IsNullOrEmpty(clientName))
+                    stockDataList = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(clientName.ToLower()))
+                                                .Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
+                else if (!string.IsNullOrEmpty(firmName))
+                    stockDataList = _context.Search<TblStockData>(searchingParams).Where(s => s.StClientname.ToLower().Equals(firmName.ToLower()))
+                                                .Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
                 else
                     stockDataList = _context.Search<TblStockData>(searchingParams).Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
             }
@@ -192,6 +219,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
                     filterData = _context.TblStockData.AsQueryable();
             }
 
+            totalPurchase = filterData.Where(s => s.StType.Equals("B")).Sum(x => x.StNetcostvalue);
+            totalSale = filterData.Where(s => s.StType.Equals("S")).Sum(x => x.StNetcostvalue);
+
             if (searchingParams != null)
             {
                 if (!string.IsNullOrEmpty(clientName) && !string.IsNullOrEmpty(scriptName) && !string.IsNullOrEmpty(firmName))
@@ -283,8 +313,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
                         filterData = _context.Search<TblStockData>(searchingParams).AsQueryable();
                 }
             }
-            totalPurchase = filterData.Where(s => s.StType.Equals("B")).Sum(x => x.StNetcostvalue);
-            totalSale = filterData.Where(s => s.StType.Equals("S")).Sum(x => x.StNetcostvalue);
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting

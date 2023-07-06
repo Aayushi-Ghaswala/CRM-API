@@ -130,7 +130,7 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
                 var mapMGainPaymentReciept = _mapper.Map<MGainPaymentRecieptDto>(mGain);
                 mapMGainPaymentReciept.ReleaseDate = mapMGainPaymentReciept.Date.Value.AddYears(10).AddDays(-1);
 
-                var directoryPath = Directory.GetCurrentDirectory() + "\\MGain-Documents\\";
+                var directoryPath = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\MGain-Documents\\";
 
                 if (!Directory.Exists(directoryPath))
                 {
@@ -748,6 +748,30 @@ SURAT - 395009 <p>
             List<MGainNonCumulativeMonthlyReportDto> MGainNonCumulativeMonthlyReports = new List<MGainNonCumulativeMonthlyReportDto>();
             List<TblAccountTransaction> allAccountTransactions = new List<TblAccountTransaction>();
 
+            string? tdsYear = null;
+
+            var currYear = date.Year;
+
+            if (date.Month >= 4)
+            {
+                tdsYear = "TDS " + currYear + "-" + (currYear + 1).ToString().Substring((currYear + 1).ToString().Length - 2);
+            }
+            else
+            {
+                tdsYear = "TDS " + (currYear - 1).ToString() + "-" + currYear.ToString().Substring(currYear.ToString().Length - 2);
+            }
+
+            var account = await _mGainRepository.GetAccountByUserId(0, tdsYear);
+
+            if(account is null)
+            {
+                TblAccountMaster addAccount = new TblAccountMaster();
+                addAccount.UserId = 0;
+                addAccount.AccountName = tdsYear;
+                addAccount.OpeningBalance = 0;
+                await _mGainRepository.AddUserAccount(addAccount);  
+            }
+
             foreach (var MGainDetail in mGainDetails)
             {
                 if (MGainDetail.Date.Value.AddYears(10) > currentDate)
@@ -811,9 +835,9 @@ SURAT - 395009 <p>
                             MGainNonCumulativeMonthlyReports.Add(MGainNonCumulativeMonthlyReport);
 
                             if (isJournal is true)
-                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null);
+                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null, tdsYear);
                             else if (isPayment is true)
-                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration);
+                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration, tdsYear);
 
                             if (isSendSMS is true)
                             {
@@ -838,9 +862,9 @@ SURAT - 395009 <p>
                             MGainNonCumulativeMonthlyReports.Add(MGainNonCumulativeMonthlyReport);
 
                             if (isJournal is true)
-                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null);
+                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null, tdsYear);
                             else if (isPayment is true)
-                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration);
+                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration, tdsYear);
 
                             if (isSendSMS is true)
                             {
@@ -866,9 +890,9 @@ SURAT - 395009 <p>
                         MGainNonCumulativeMonthlyReports.Add(MGainNonCumulativeMonthlyReport);
 
                         if (isJournal is true)
-                            accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null);
+                            accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null, tdsYear);
                         else if (isPayment is true)
-                            accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration);
+                            accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, currentDate, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration, tdsYear);
 
                         if (isSendSMS is true)
                         {
@@ -895,7 +919,10 @@ SURAT - 395009 <p>
             };
 
             if (allAccountTransactions.Count > 0)
+            {
+                allAccountTransactions.Reverse();
                 await _mGainRepository.AddMGainInterest(allAccountTransactions, currentDate);
+            }
 
             return mGainNCMonthlytotal;
         }
@@ -1043,7 +1070,7 @@ SURAT - 395009 <p>
         {
             var mGainDetails = _mapper.Map<TblMgaindetail>(addMGainDetails);
             mGainDetails.MgainSchemename = _mGainSchemeRepository.GetMGainSchemeById((int)addMGainDetails.MgainSchemeid).Result.Schemename;
-            var directoryPath = Directory.GetCurrentDirectory() + "\\MGain-Documents\\";
+            var directoryPath = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\MGain-Documents\\";
 
             if (!Directory.Exists(directoryPath))
             {
@@ -1174,7 +1201,7 @@ SURAT - 395009 <p>
         {
             var MGain = await _mGainRepository.GetMGainDetailById(id);
 
-            var directoryPath = Directory.GetCurrentDirectory() + "\\MGain-Documents\\";
+            var directoryPath = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\MGain-Documents\\";
 
             if (!Directory.Exists(directoryPath))
             {
@@ -1241,7 +1268,7 @@ SURAT - 395009 <p>
             var updateMGain = _mapper.Map<TblMgaindetail>(updateMGainDetails);
             var mgain = await _mGainRepository.GetMGainDetailById(updateMGain.Id);
 
-            var directoryPath = Directory.GetCurrentDirectory() + "\\MGain-Documents\\";    
+            var directoryPath = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\MGain-Documents\\";    
 
             if (!Directory.Exists(directoryPath))
             {
@@ -1388,16 +1415,14 @@ SURAT - 395009 <p>
                         if (updateMGain.MgainInvamt > mgain.MgainAllocatedsqftamt)
                         {
                             var amount = updateMGain.MgainInvamt - mgain.MgainAllocatedsqftamt;
-                            var assignPlot = AssignPlot(updateMGain, mgain, amount, null, secondPlot, null, null, false, true, false, false, false, false, true, false, true, false, false, false);
+                            var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, true, false, false, false, false, true, true, false, false, false);
 
                             await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                             updateMGain = assignPlot.Item1;
                         }
                     }
                     else
-                    {
-                        updateMGain = AssignPlot(updateMGain, mgain, 0, null, null, null, null, false, false, false, false, false, false, false, false, true, true, false, false).Item1;
-                    }
+                        updateMGain = AssignPlot(updateMGain, mgain, 0, null, null, null, null, false, false, false, false, false, false, false, true, true, false, false).Item1;
 
                     if (updateMGainDetails.MgainRedemamt > 0)
                     {
@@ -1405,16 +1430,16 @@ SURAT - 395009 <p>
                         {
                             if (updateMGainDetails.MgainRedemamt > mgain.Mgain2ndallocatedsqftamt)
                             {
-                                var availableAmount = updateMGain.MgainInvamt - updateMGainDetails.MgainRedemamt;
-                                var assignPlot = AssignPlot(updateMGain, mgain, availableAmount, firstPlot, null, null, mGain2ndPlot, true, false, false, true, false, true, false, false, false, false, false, true);
+                                var amount = updateMGain.MgainInvamt - updateMGainDetails.MgainRedemamt;
+                                var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, false, true, true, false, true, false, false, false, false, true);
 
                                 await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                                 updateMGain = assignPlot.Item1;
                             }
                             else
                             {
-                                var availableAmount = updateMGain.MgainInvamt - mgain.MgainAllocatedsqftamt - updateMGainDetails.MgainRedemamt;
-                                var assignPlot = AssignPlot(updateMGain, mgain, availableAmount, null, secondPlot, null, null, false, true, false, false, false, false, true, false, true, false, false, false);
+                                var amount = updateMGain.MgainInvamt - mgain.MgainAllocatedsqftamt - updateMGainDetails.MgainRedemamt;
+                                var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, true, false, false, false, false, true, true, false, false, false);
 
                                 await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                                 updateMGain = assignPlot.Item1;
@@ -1428,7 +1453,7 @@ SURAT - 395009 <p>
                     if (mgain.Mgain2ndplotno is not null)
                     {
                         var amount = updateMGain.MgainInvamt - mgain.MgainAllocatedsqftamt;
-                        var assignPlot = AssignPlot(updateMGain, mgain, amount, null, secondPlot, null, mGain2ndPlot, false, false, false, true, false, false, true, false, true, false, false, false);
+                        var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, false, false, true, false, false, true, true, false, false, false);
 
                         await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                         updateMGain = assignPlot.Item1;
@@ -1436,7 +1461,7 @@ SURAT - 395009 <p>
                     else
                     {
                         var amount = updateMGain.MgainInvamt - (firstPlot.Available_PlotValue + mgain.MgainAllocatedsqftamt);
-                        var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, null, false, false, true, false, true, false, true, false, false, false, false, false);
+                        var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, false, true, false, true, false, true, false, false, false, false);
 
                         await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                         updateMGain = assignPlot.Item1;
@@ -1446,7 +1471,7 @@ SURAT - 395009 <p>
                             (updateMGainDetails.Mgain2ndprojectname == mgain.Mgain2ndprojectname && secondPlot.PlotNo == mgain.Mgain2ndplotno))
                 {
                     var amount = updateMGain.MgainInvamt - firstPlot.Available_PlotValue;
-                    var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, false, true, true, true, false, true, false, false, false, false, false);
+                    var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, false, true, true, true, false, true, false, false, false, false);
 
                     await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                     updateMGain = assignPlot.Item1;
@@ -1456,7 +1481,7 @@ SURAT - 395009 <p>
                     if (mgain.MgainPlotno is not null && mgain.MgainProjectname is not null && mgain.Mgain2ndplotno is not null && mgain.Mgain2ndprojectname is not null)
                     {
                         var amount = updateMGain.MgainInvamt - firstPlot.Available_PlotValue;
-                        var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, false, true, true, true, false, true, false, false, false, false, false);
+                        var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, false, true, true, true, false, true, false, false, false, false);
 
                         await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                         updateMGain = assignPlot.Item1;
@@ -1464,7 +1489,7 @@ SURAT - 395009 <p>
                     else if (mgain.MgainPlotno is not null && mgain.MgainProjectname is not null && mgain.Mgain2ndplotno is null && mgain.Mgain2ndprojectname is null)
                     {
                         var amount = updateMGain.MgainInvamt - firstPlot.Available_PlotValue;
-                        var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, null, false, false, true, false, true, false, true, false, false, false, false, false);
+                        var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, false, true, false, true, false, true, false, false, false, false);
 
                         await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                         updateMGain = assignPlot.Item1;
@@ -1472,7 +1497,7 @@ SURAT - 395009 <p>
                     else
                     {
                         var amount = updateMGain.MgainInvamt - firstPlot.Available_PlotValue;
-                        var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, null, null, false, false, false, false, true, false, true, false, true, false, false, false);
+                        var assignPlot = AssignPlot(updateMGain, mgain, amount, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, false, false, false, true, false, true, true, false, false, false);
 
                         await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                         updateMGain = assignPlot.Item1;
@@ -1483,7 +1508,7 @@ SURAT - 395009 <p>
                 {
                     updateMGain.MgainRedemdate = DateTime.Now.Date;
                     updateMGain.MgainRedemamt = updateMGain.MgainInvamt;
-                    var assignPlot = AssignPlot(updateMGain, mgain, 0, null, null, null, null, false, false, false, false, false, false, false, false, true, true, false, false);
+                    var assignPlot = AssignPlot(updateMGain, mgain, 0, firstPlot, secondPlot, mGain1stPlot, mGain2ndPlot, false, false, true, true, false, false, false, true, true, false, false);
 
                     await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                     updateMGain = assignPlot.Item1;
@@ -1499,44 +1524,40 @@ SURAT - 395009 <p>
                         {
                             if (updateMGain.MgainInvamt <= mgain.MgainAllocatedsqftamt)
                             {
-                                var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, mGain1stPlot, mGain2ndPlot, false, false, true, true, false, true, false, true, false, false, false, true);
+                                var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, mGain1stPlot, mGain2ndPlot, false, false, true, true, false, true, false, false, false, false, true);//
 
                                 await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                                 updateMGain = assignPlot.Item1;
                             }
                         }
                         else
-                        {
-                            updateMGain = AssignPlot(updateMGain, mgain, 0, null, null, null, null, false, false, false, false, false, false, false, false, true, false, false, false).Item1;
-                        }
+                            updateMGain = AssignPlot(updateMGain, mgain, 0, null, null, null, null, false, false, false, false, false, false, false, true, false, false, false).Item1;
                     }
                     else if (updateMGainDetails.MgainProjectname != mgain.MgainProjectname || firstPlot.PlotNo != mgain.MgainPlotno)
                     {
                         if (updateMGain.MgainInvamt != mgain.MgainInvamt)
                         {
-                            var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, mGain1stPlot, mGain2ndPlot, false, false, true, true, false, true, false, true, false, false, false, true);
+                            var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, mGain1stPlot, mGain2ndPlot, false, false, true, true, false, true, false, false, false, false, true);//
 
                             await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                             updateMGain = assignPlot.Item1;
                         }
                     }
                     else
-                    {
-                        updateMGain = AssignPlot(updateMGain, mgain, 0, null, null, null, null, false, false, false, false, false, false, false, false, true, false, false, false).Item1;
-                    }
+                        updateMGain = AssignPlot(updateMGain, mgain, 0, null, null, null, null, false, false, false, false, false, false, false, true, false, false, false).Item1;
                 }
                 else
                 {
                     if (mgain.MgainPlotno is not null && mgain.MgainProjectname is not null)
                     {
-                        var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, mGain1stPlot, null, false, false, true, false, false, true, false, false, false, false, false, false);
+                        var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, mGain1stPlot, null, false, false, true, false, false, true, false, false, false, false, false);
 
                         await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                         updateMGain = assignPlot.Item1;
                     }
                     else
                     {
-                        var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, null, null, false, false, false, false, false, true, false, false, false, false, false, false);
+                        var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, null, null, false, false, false, false, false, true, false, false, false, false, false);
 
                         await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                         updateMGain = assignPlot.Item1;
@@ -1547,7 +1568,7 @@ SURAT - 395009 <p>
                 {
                     updateMGain.MgainRedemdate = DateTime.Now.Date;
                     updateMGain.MgainRedemamt = updateMGain.MgainInvamt;
-                    var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, null, null, false, false, false, false, false, false, false, false, false, false, false, false);
+                    var assignPlot = AssignPlot(updateMGain, mgain, updateMGain.MgainInvamt, firstPlot, null, mGain1stPlot, null, false, false, true, false, false, false, false, false, false, false, false);
 
                     await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                     updateMGain = assignPlot.Item1;
@@ -1557,15 +1578,13 @@ SURAT - 395009 <p>
             {
                 if (mgain.MgainProjectname is not null && mgain.MgainPlotno is not null)
                 {
-                    var assignPlot = AssignPlot(null, mgain, 0, null, null, mGain1stPlot, null, false, false, false, false, false, false, false, false, false, false, true, false);
-
+                    var assignPlot = AssignPlot(updateMGain, mgain, 0, null, null, mGain1stPlot, null, false, false, false, false, false, false, false, false, false, true, false);
                     await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                 }
 
                 if (mgain.Mgain2ndprojectname is not null && mgain.Mgain2ndplotno is not null)
                 {
-                    var assignPlot = AssignPlot(null, mgain, 0, null, null, null, mGain2ndPlot, false, false, false, false, false, false, false, false, false, false, false, true);
-
+                    var assignPlot = AssignPlot(updateMGain, mgain, 0, null, null, null, mGain2ndPlot, false, false, false, false, false, false, false, false, false, false, true);
                     await _mGainRepository.UpdatePlotDetails(assignPlot.Item2);
                 }
             }
@@ -1595,7 +1614,7 @@ SURAT - 395009 <p>
         #endregion
 
         #region Method For Account Entry
-        public List<TblAccountTransaction> AccountEntry(MGainNonCumulativeMonthlyReportDto MGainNonCumulativeMonthlyReport, int? mGainId, int? mGainUserId, DateTime? date, bool? isTdsDeduction, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration)
+        public List<TblAccountTransaction> AccountEntry(MGainNonCumulativeMonthlyReportDto MGainNonCumulativeMonthlyReport, int? mGainId, int? mGainUserId, DateTime? date, bool? isTdsDeduction, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? tdsYear)
         {
             List<TblAccountTransaction> accountTransactions = new List<TblAccountTransaction>();
             if (isJournal is true)
@@ -1632,22 +1651,10 @@ SURAT - 395009 <p>
                 {
                     TblAccountTransaction creditTDCAccountTransaction = new TblAccountTransaction();
                     TblAccountTransaction debitTDCAccountTransaction = new TblAccountTransaction();
-                    string? tdsYear = null;
-
-                    var currYear = date.Value.Year;
-
-                    if (date.Value.Month >= 4)
-                    {
-                        tdsYear = "TDS " + currYear + "-" + (currYear + 1).ToString().Substring((currYear + 1).ToString().Length - 2);
-                    }
-                    else
-                    {
-                        tdsYear = "TDS " + (currYear - 1).ToString() + "-" + currYear.ToString().Substring(currYear.ToString().Length - 2);
-                    }
 
                     //Journal TDS Credit Entry
                     creditTDCAccountTransaction.DocDate = jvEntryDate;
-                    creditTDCAccountTransaction.DocParticulars = "TDS " + DateTime.Now.Date.ToString("dd-MM-yyyy");
+                    creditTDCAccountTransaction.DocParticulars = tdsYear;
                     creditTDCAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Journal.ToString();
                     creditTDCAccountTransaction.DocNo = "JV" + mGainId;
                     creditTDCAccountTransaction.Debit = 0;
@@ -1658,7 +1665,7 @@ SURAT - 395009 <p>
 
                     //Journal TDs Debit Entry
                     debitTDCAccountTransaction.DocDate = jvEntryDate;
-                    debitTDCAccountTransaction.DocParticulars = "TDS " + DateTime.Now.Date.ToString("dd-MM-yyyy");
+                    debitTDCAccountTransaction.DocParticulars = tdsYear;
                     debitTDCAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Journal.ToString();
                     debitTDCAccountTransaction.DocNo = "JV" + mGainId;
                     debitTDCAccountTransaction.Debit = MGainNonCumulativeMonthlyReport.TDS;
@@ -1779,8 +1786,8 @@ SURAT - 395009 <p>
 
         #region Assign Plots
         public (TblMgaindetail, List<TblPlotMaster>) AssignPlot(TblMgaindetail updateMGain, TblMgaindetail mgain, decimal? invAmount, TblPlotMaster firstPlot, TblPlotMaster secondPlot, TblPlotMaster mGain1stPlot,
-                      TblPlotMaster mGain2ndPlot, bool? isFirst, bool? isSecond, bool? isMGainFirst, bool? isMGainSecond, bool? isFirstAssignFull, bool? isAssignFirst, bool? isAssignSecond, bool? isTakingSecond
-                            , bool? isClosedFirst, bool? isClosedSecond, bool? isNotFirst, bool? isNotSecond)
+                      TblPlotMaster mGain2ndPlot, bool? isFirst, bool? isSecond, bool? isMGainFirst, bool? isMGainSecond, bool? isFirstAssignFull, bool? isAssignFirst, bool? isAssignSecond, bool? isAssignSameFirst
+                                , bool? isAssignSameSecond, bool? isNotFirst, bool? isNotSecond)
         {
             List<TblPlotMaster> updatePlots = new List<TblPlotMaster>();
 
@@ -1857,15 +1864,7 @@ SURAT - 395009 <p>
                 updatePlots.Add(secondPlot);
             }
 
-            if (isTakingSecond is true)
-            {
-                updateMGain.Mgain2ndplotno = null;
-                updateMGain.Mgain2ndallocatedsqft = 0;
-                updateMGain.Mgain2ndallocatedsqftamt = 0;
-                updateMGain.Mgain2ndtotalsqft = 0;
-            }
-
-            if (isClosedFirst is true)
+            if (isAssignSameFirst is true)
             {
                 updateMGain.MgainPlotno = mgain.MgainPlotno;
                 updateMGain.MgainAllocatedsqft = mgain.MgainAllocatedsqft;
@@ -1874,7 +1873,7 @@ SURAT - 395009 <p>
                 updateMGain.MgainTotalplotamt = mgain.MgainTotalplotamt;
             }
 
-            if (isClosedSecond is true)
+            if (isAssignSameSecond is true)
             {
                 updateMGain.Mgain2ndplotno = mgain.Mgain2ndplotno;
                 updateMGain.Mgain2ndallocatedsqft = mgain.Mgain2ndallocatedsqft;

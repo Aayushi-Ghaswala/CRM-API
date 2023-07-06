@@ -323,7 +323,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                 await file.CopyToAsync(stream);
             }
 
-            var directoryPath = Directory.GetCurrentDirectory() + "\\CRM-Document\\NJCLientFile";
+            var directoryPath = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\NJCLientFile";
 
             if (!(Directory.Exists(directoryPath)))
             {

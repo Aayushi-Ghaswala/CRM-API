@@ -6,7 +6,7 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module
     {
         public int Id { get; set; }
         public int? Mgainid { get; set; }
-        public int? CurrancyId { get; set; }
+        public int? CurrencyId { get; set; }
         public string? PaymentMode { get; set; }
         public string? ChequeNo { get; set; }
         public DateTime? ChequeDate { get; set; }

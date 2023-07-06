@@ -7,8 +7,8 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module
 {
     public interface IStocksRepository
     {
-        Task<Response<UserNameResponse>> GetStocksUsersName(string? scriptName, string? searchingParams, SortingParams sortingParams);
-        Task<Response<ScriptNameResponse>> GetAllScriptNames(string clientName, string? searchingParams, SortingParams sortingParams);
+        Task<Response<UserNameResponse>> GetStocksUsersName(string? scriptName, string? firmName, string? searchingParams, SortingParams sortingParams);
+        Task<Response<ScriptNameResponse>> GetAllScriptNames(string clientName, string? firmName, string? searchingParams, SortingParams sortingParams);
         Task<StocksResponse<TblStockData>> GetStocksTransactions(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string firmName, string? searchingParams, SortingParams sortingParams);
         Task<List<TblStockData>> GetStockDataForSpecificDateRange(DateTime? startDate, DateTime? endDate, string firmName);
         Task<int> AddData(List<TblStockData> tblStockData);

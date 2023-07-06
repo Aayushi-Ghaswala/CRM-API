@@ -3,7 +3,7 @@
     public class AddMGainPaymentDto
     {
         public int? Mgainid { get; set; }
-        public int? CurrancyId { get; set; }
+        public int? CurrencyId { get; set; }
         public string? PaymentMode { get; set; }
         public string? ChequeNo { get; set; }
         public DateTime? ChequeDate { get; set; }
