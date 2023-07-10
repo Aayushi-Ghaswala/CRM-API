@@ -67,7 +67,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             services.AddScoped<IUserLeaveRepository, UserLeaveRepository>();
 
             //Sales Module
-            //services.AddScoped<IStatusRepository, StatusRepository>();
+            services.AddScoped<IStatusRepository, StatusRepository>();
             services.AddScoped<ISourceTypeRepository, SourceTypeRepository>();
             services.AddScoped<ISourceRepository, SourceRepository>();
             services.AddScoped<ICampaignRepository, CampaignRepository>();
