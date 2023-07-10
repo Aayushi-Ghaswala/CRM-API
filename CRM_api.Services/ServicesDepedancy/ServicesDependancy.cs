@@ -71,8 +71,8 @@ namespace CRM_api.Services.ServicesDepedancy
 
             //Sales Module
             //services.AddScoped<IStatusService, StatusService>();
-            //services.AddScoped<ISourceTypeService, SourceTypeService>();
-            //services.AddScoped<ISourceService, SourceService>();
+            services.AddScoped<ISourceTypeService, SourceTypeService>();
+            services.AddScoped<ISourceService, SourceService>();
             //services.AddScoped<ICampaignService, CampaignService>();
             //services.AddScoped<IMeetingService, MeetingService>();
             //services.AddScoped<IMeetingParticipantService, MeetingParticipantService>();
