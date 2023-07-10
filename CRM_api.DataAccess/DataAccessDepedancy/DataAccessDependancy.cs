@@ -7,6 +7,7 @@ using CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.WBC_Module;
 using CRM_api.DataAccess.IRepositories.HR_Module;
+using CRM_api.DataAccess.IRepositories.Sales_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.Fasttrack_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module;
@@ -16,6 +17,7 @@ using CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.WBC_Module;
 using CRM_api.DataAccess.Repositories.HR_Module;
+using CRM_api.DataAccess.Repositories.Sales_Module;
 using CRM_api.DataAccess.Repositories.User_Module;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +37,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
                     {
                         sql.CommandTimeout(60);
                         sql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                        sql.EnableRetryOnFailure();
                     });
             });
 
@@ -62,6 +65,16 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             services.AddScoped<ILeaveTypeRepository, LeaveTypeRepository>();
             services.AddScoped<IPayCheckRepository, PayCheckRepository>();
             services.AddScoped<IUserLeaveRepository, UserLeaveRepository>();
+
+            //Sales Module
+            //services.AddScoped<IStatusRepository, StatusRepository>();
+            //services.AddScoped<ISourceTypeRepository, SourceTypeRepository>();
+            //services.AddScoped<ISourceRepository, SourceRepository>();
+            //services.AddScoped<ICampaignRepository, CampaignRepository>();
+            //services.AddScoped<IMeetingRepository, MeetingRepository>();
+            //services.AddScoped<IMeetingAttachmentRepository, MeetingAttachmentRepository>();
+            //services.AddScoped<IMeetingParticipantRepository, MeetingParticipantRepository>();
+            services.AddScoped<ILeadRepository, LeadRepository>();
         }
     }
 }
