@@ -67,13 +67,13 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             services.AddScoped<IUserLeaveRepository, UserLeaveRepository>();
 
             //Sales Module
-            services.AddScoped<IStatusRepository, StatusRepository>();
-            services.AddScoped<ISourceTypeRepository, SourceTypeRepository>();
-            services.AddScoped<ISourceRepository, SourceRepository>();
-            services.AddScoped<ICampaignRepository, CampaignRepository>();
-            services.AddScoped<IMeetingRepository, MeetingRepository>();
-            services.AddScoped<IMeetingAttachmentRepository, MeetingAttachmentRepository>();
-            services.AddScoped<IMeetingParticipantRepository, MeetingParticipantRepository>();
+            //services.AddScoped<IStatusRepository, StatusRepository>();
+            //services.AddScoped<ISourceTypeRepository, SourceTypeRepository>();
+            //services.AddScoped<ISourceRepository, SourceRepository>();
+            //services.AddScoped<ICampaignRepository, CampaignRepository>();
+            //services.AddScoped<IMeetingRepository, MeetingRepository>();
+            //services.AddScoped<IMeetingAttachmentRepository, MeetingAttachmentRepository>();
+            //services.AddScoped<IMeetingParticipantRepository, MeetingParticipantRepository>();
             services.AddScoped<ILeadRepository, LeadRepository>();
         }
     }
