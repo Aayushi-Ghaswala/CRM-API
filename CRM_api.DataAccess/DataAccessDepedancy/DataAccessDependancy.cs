@@ -70,7 +70,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             //services.AddScoped<IStatusRepository, StatusRepository>();
             services.AddScoped<ISourceTypeRepository, SourceTypeRepository>();
             services.AddScoped<ISourceRepository, SourceRepository>();
-            //services.AddScoped<ICampaignRepository, CampaignRepository>();
+            services.AddScoped<ICampaignRepository, CampaignRepository>();
             //services.AddScoped<IMeetingRepository, MeetingRepository>();
             //services.AddScoped<IMeetingAttachmentRepository, MeetingAttachmentRepository>();
             //services.AddScoped<IMeetingParticipantRepository, MeetingParticipantRepository>();
