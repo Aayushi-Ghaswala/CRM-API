@@ -3,6 +3,7 @@ using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Sales_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Sales_Module;
+using CRM_api.Services.Dtos.ResponseDto.Business_Module.LI_GI_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Dtos.ResponseDto.Sales_Module;
 using CRM_api.Services.Helper.Reminder_Helper;
@@ -35,10 +36,10 @@ namespace CRM_api.Services.Services.Sales_Module
         #endregion
 
         #region Get Investment Types
-        public async Task<ResponseDto<InvestmentTypeDto>> GetInvestmentTypesAsync(string search, SortingParams sortingParams)
+        public async Task<ResponseDto<InvesmentTypeDto>> GetInvestmentTypesAsync(string search, SortingParams sortingParams)
         {
             var investmentType = await _leadRepository.GetInvestmentTypes(search, sortingParams);
-            var mapInvestmentType = _mapper.Map<ResponseDto<InvestmentTypeDto>>(investmentType);
+            var mapInvestmentType = _mapper.Map<ResponseDto<InvesmentTypeDto>>(investmentType);
             return mapInvestmentType;
         }
         #endregion
