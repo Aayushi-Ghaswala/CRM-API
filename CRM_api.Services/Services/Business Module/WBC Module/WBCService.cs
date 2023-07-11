@@ -20,6 +20,22 @@ namespace CRM_api.Services.Services.Business_Module.WBC_Module
             _mapper = mapper;
         }
 
+        #region Get wbc GP of month
+        public async Task<ResponseDto<WbcGPResponseDto>> GetGPAsync(string? search, DateTime date, SortingParams sortingParams)
+        {
+            var res = await _wbcRepository.GetGP(search, date, sortingParams);
+            var mappedResponse = _mapper.Map<ResponseDto<WbcGPResponseDto>>(res);
+            return mappedResponse;
+        }
+        #endregion
+
+        #region Release Gold point
+        public async Task<int> ReleaseGPAsync(DateTime date)
+        {
+            return await _wbcRepository.ReleaseGP(date);
+        }
+        #endregion
+
         #region Get all Wbc scheme types
         public async Task<ResponseDto<WbcTypeDto>> GetAllWbcSchemeTypesAsync(string? searchingParams, SortingParams sortingParams)
         {

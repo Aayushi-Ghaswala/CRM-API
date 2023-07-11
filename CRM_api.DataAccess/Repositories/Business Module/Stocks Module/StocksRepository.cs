@@ -18,6 +18,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
             _context = context;
         }
 
+        #region Get Stock data by user name 
+        public async Task<int> GetStockMonthlyByUserName(string userName, DateTime date)
+        {
+            var stockCount = await _context.TblStockData.Where(x => x.StClientname == userName && x.StDate.Value.Month == date.Month && x.StDate.Value.Year == date.Year).CountAsync();
+
+            return stockCount;
+        }
+        #endregion
+
         #region Get stock user's names
         public async Task<Response<UserNameResponse>> GetStocksUsersName(string? scriptName, string? firmName, string? searchingParams, SortingParams sortingParams)
         {

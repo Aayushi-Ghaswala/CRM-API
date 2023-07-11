@@ -1,4 +1,6 @@
 ﻿using CRM_api.DataAccess.Models;
+using CRM_api.DataAccess.ResponseModel.Bussiness_Module.WBC_Module;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Context
@@ -102,6 +104,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblUserDepartment> TblUserDepartments { get; set; } = null!;
         public virtual DbSet<TblUserLeave> TblUserLeaves { get; set; } = null!;
         public virtual DbSet<TblUserMaster> TblUserMasters { get; set; } = null!;
+        public virtual DbSet<TblUserOnTheSpotGP> TblUserOnTheSpotGP { get; set; } = null!;
         public virtual DbSet<TblVendorMaster> TblVendorMasters { get; set; } = null!;
         public virtual DbSet<TblWbcMallCategory> TblWbcMallCategories { get; set; } = null!;
         public virtual DbSet<TblWbcMallProduct> TblWbcMallProducts { get; set; } = null!;
@@ -3289,6 +3292,25 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.UserWbcActive).HasColumnName("user_wbcActive");
             });
 
+            modelBuilder.Entity<TblUserOnTheSpotGP>(entity =>
+            {
+                entity.ToTable("tbl_User_OnTheSpotGP");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.WbcSchemeId).HasColumnName("Wbc_Scheme_Id");
+
+                entity.Property(e => e.WbcTypeName).HasColumnName("WbcTypeName");
+
+                entity.Property(e => e.Credit).HasColumnName("Credit");
+
+                entity.Property(e => e.Debit).HasColumnName("Debit");
+
+                entity.Property(e => e.UserId).HasColumnName("User_Id");
+
+                entity.Property(e => e.Date).HasColumnName("Date");
+            });
+
             modelBuilder.Entity<TblVendorMaster>(entity =>
             {
                 entity.HasNoKey();
@@ -3382,6 +3404,8 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.NoOfContactsAllowed).HasColumnName("No_of_Contacts_Allowed");
 
                 entity.Property(e => e.ParticularsId).HasColumnName("Particulars_Id");
+
+                entity.Property(e => e.On_the_spot_GP).HasColumnName("On_the_spot_point");
 
                 entity.Property(e => e.ParticularsSubTypeId)
                     .HasColumnName("Particulars_SubType_Id");

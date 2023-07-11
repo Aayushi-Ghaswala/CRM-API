@@ -15,12 +15,13 @@ namespace CRM_api.DataAccess.Models
         public int? GoldPoint { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+        public int? On_the_spot_GP { get; set; }
 
         [ForeignKey(nameof(WbcTypeId))]
-        public virtual TblWbcTypeMaster TblWbcTypeMaster { get; set; }
+        public virtual TblWbcTypeMaster? TblWbcTypeMaster { get; set; }
         [ForeignKey(nameof(ParticularsId))]
-        public virtual TblSubInvesmentType TblSubInvesmentType { get; set; }
+        public virtual TblSubInvesmentType? TblSubInvesmentType { get; set; }
         [ForeignKey(nameof(ParticularsSubTypeId))]
-        public virtual TblSubsubInvType TblSubsubInvType { get; set; }
+        public virtual TblSubsubInvType? TblSubsubInvType { get; set; }
     }
 }

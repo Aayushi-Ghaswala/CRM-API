@@ -16,6 +16,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
             _context = context;
         }
 
+        #region Get Insurance Client Detail By UserId
+        public async Task<int> GetInsClientByUserId(int userId, DateTime date)
+        {
+            var insClientCount = await _context.TblInsuranceclients.Where(x => x.InsUserid == userId && x.IsDeleted == false && x.InsStartdate.Value.Month == date.Month && x.InsStartdate.Value.Year == date.Year).CountAsync();
+
+            return insClientCount;
+        }
+        #endregion
+
         #region Get All InsuranceClient Details
         public async Task<Response<TblInsuranceclient>> GetInsuranceClients(string? filterString, string search, SortingParams sortingParams)
         {
