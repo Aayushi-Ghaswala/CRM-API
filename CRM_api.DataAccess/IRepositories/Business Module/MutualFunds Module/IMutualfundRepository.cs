@@ -14,8 +14,8 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module
             , string? searchingParams, SortingParams sortingParams, DateTime? startDate, DateTime? endDate);
         Task<List<IGrouping<string?, TblMftransaction>>> GetMFTransactionSummary(int userId);
         Task<Response<UserNameResponse>> GetMFUserName(string? searchingParams, SortingParams sortingParams);
-        Task<Response<TblMftransaction>> GetSchemeName(int userId, string? searchingParams, SortingParams sortingParams);
-        Task<Response<TblMftransaction>> GetFolioNo(int userId, int? schemeId, string? searchingParams, SortingParams sortingParams);
+        Task<Response<TblMftransaction>> GetSchemeName(int userId, string? folioNo, string? searchingParams, SortingParams sortingParams);
+        Task<Response<TblMftransaction>> GetFolioNo(int userId, string? schemeName, string? searchingParams, SortingParams sortingParams);
         Task<List<IGrouping<string?, TblMftransaction>>> GetMFTransactionSummaryByCategory(int userId);
         Task<List<IGrouping<string?, TblMftransaction>>> GetAllCLientMFSummary(DateTime fromDate, DateTime toDate);
         Task<int> AddMFDataForExistUser(List<TblMftransaction> tblMftransaction);

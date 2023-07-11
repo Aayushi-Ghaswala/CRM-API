@@ -14,8 +14,8 @@ namespace CRM_api.Services.IServices.Business_Module.MutualFunds_Module
         Task<MFTransactionDto<MFCategoryWiseDto>> GetMFCategoryWiseAsync(int userId, string? searchingParams, SortingParams sortingParams);
         Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummaryAsync(DateTime fromDate, DateTime toDate, string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<UserNameDto>> GetMFUserNameAsync(string? searchingParams, SortingParams sortingParams);
-        Task<ResponseDto<SchemaNameDto>> DisplayschemeNameAsync(int userId, string? searchingParams, SortingParams sortingParams);
-        Task<ResponseDto<SchemaNameDto>> DisplayFolioNoAsync(int userId, int? schemeId, string? searchingParams, SortingParams sortingParams);
+        Task<ResponseDto<SchemaNameDto>> DisplayschemeNameAsync(int userId, string? folioNo, string? searchingParams, SortingParams sortingParams);
+        Task<ResponseDto<SchemaNameDto>> DisplayFolioNoAsync(int userId, string? schemeName, string? searchingParams, SortingParams sortingParams);
         Task<int> ImportNJClientFileAsync(IFormFile file, bool updateIfExist);
     }
 }
