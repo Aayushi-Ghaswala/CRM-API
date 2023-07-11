@@ -220,7 +220,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     var nextDate = Convert.ToDateTime(user.UserDoj).AddMonths(i);
                     var totalMonthContact = userReferalUserWise.Where(x => Convert.ToDateTime(x.RefDate).Month == nextDate.Month && Convert.ToDateTime(x.RefDate).Year == nextDate.Year).Count();
                     if (totalMonthContact == 0)
-                        totalRemainingContacts += (bool)user.UserFasttrack ? 30 : 10;
+                        totalRemainingContacts += user.UserFasttrack != null ? (bool)user.UserFasttrack ? 30 : 10 : 10;
                     else
                         totalRemainingContacts = 0;
                 }
@@ -332,7 +332,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     }
 
                     var userWbcOwnBenefit = wbcSchemesInv.Where(x => x.TblSubsubInvType != null && x.Business != null).FirstOrDefault(w => w.ParticularsId == client.InvSubtype && w.WbcTypeId == 3 && w.TblSubsubInvType.SubInvType.ToLower().Contains(client.InsPlantype.ToLower()));
-                    if (userWbcOwnBenefit.Business != null)
+                    if (userWbcOwnBenefit != null && userWbcOwnBenefit.Business != null)
                     {
                         if (client.InsAmount >= Convert.ToInt32(userWbcOwnBenefit.Business))
                         {
