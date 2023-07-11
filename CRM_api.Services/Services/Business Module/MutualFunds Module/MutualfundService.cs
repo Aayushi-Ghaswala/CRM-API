@@ -287,9 +287,9 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion 
 
         #region Display SchemeName
-        public async Task<ResponseDto<SchemaNameDto>> DisplayschemeNameAsync(int userId, string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<SchemaNameDto>> DisplayschemeNameAsync(int userId, string? folioNo, string? searchingParams, SortingParams sortingParams)
         {
-            var mutualfunds = await _mutualfundRepository.GetSchemeName(userId, searchingParams, sortingParams);
+            var mutualfunds = await _mutualfundRepository.GetSchemeName(userId, folioNo, searchingParams, sortingParams);
             var schemeName = _mapper.Map<ResponseDto<SchemaNameDto>>(mutualfunds);
 
             foreach(var scheme in schemeName.Values)
@@ -302,9 +302,9 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Display Folio Number List
-        public async Task<ResponseDto<SchemaNameDto>> DisplayFolioNoAsync(int userId, int? schemeId, string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<SchemaNameDto>> DisplayFolioNoAsync(int userId, string? schemeName, string? searchingParams, SortingParams sortingParams)
         {
-            var mutualfunds = await _mutualfundRepository.GetFolioNo(userId, schemeId, searchingParams, sortingParams);
+            var mutualfunds = await _mutualfundRepository.GetFolioNo(userId, schemeName, searchingParams, sortingParams);
             var folioNo = _mapper.Map<ResponseDto<SchemaNameDto>>(mutualfunds);
 
             return folioNo;

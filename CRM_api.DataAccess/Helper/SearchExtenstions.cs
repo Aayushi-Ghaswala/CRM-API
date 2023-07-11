@@ -1,5 +1,4 @@
 ﻿using CRM_api.DataAccess.Context;
-using CRM_api.DataAccess.ResponseModel.Bussiness_Module.Fasttrack_Module;
 using CRM_api.DataAccess.ResponseModel.Bussiness_Module.WBC_Module;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
@@ -29,7 +28,7 @@ namespace CRM_api.DataAccess.Helper
                     var searchValue = Expression.Constant(stringValue, typeof(string));
                     comparisonExpression = Expression.Call(property, methodInfo, searchValue);
                 }
-                else if(propertyType.GenericTypeArguments[0].Name.ToLower() == "datetime")
+                else if (propertyType.GenericTypeArguments[0].Name.ToLower() == "datetime")
                 {
                     DateTime? nullableDateTime;
 
@@ -82,16 +81,7 @@ namespace CRM_api.DataAccess.Helper
             var lambda = Expression.Lambda<Func<T, bool>>(expression, parameter);
             return list.Where(lambda);
         }
-
-        public static IQueryable<FasttrackResponseModel> SearchFasttrack<T>(this CRMDbContext dbContext, string value, IQueryable<FasttrackResponseModel> list) where T : class
-        {
-            var parameter = Expression.Parameter(typeof(T), "x");
-            Expression expression = BuildExpression(parameter, null, value);
-
-            var lambda = Expression.Lambda<Func<T, bool>>(expression, parameter);
-            return list.Where(lambda);
-        }
-
+      
         private static Expression BuildExpression(Expression parameter, Expression expression, string value)
         {
             var fieldValues = parameter.Type.GetProperties().Where(x => x.PropertyType != typeof(bool) && x.PropertyType != typeof(bool?) && x.PropertyType != parameter.Type);
