@@ -81,7 +81,7 @@ namespace CRM_api.DataAccess.Helper
             var lambda = Expression.Lambda<Func<T, bool>>(expression, parameter);
             return list.Where(lambda);
         }
-
+      
         private static Expression BuildExpression(Expression parameter, Expression expression, string value)
         {
             var fieldValues = parameter.Type.GetProperties().Where(x => x.PropertyType != typeof(bool) && x.PropertyType != typeof(bool?) && x.PropertyType != parameter.Type);
