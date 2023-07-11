@@ -18,6 +18,22 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         }
 
         #region Get Mutual Funds Record in Specific Date
+        public async Task<List<TblMftransaction>> GetMFInSpecificDateForExistUser(DateTime? startDate, DateTime? endDate, int userId = 0)
+        {
+            if (endDate is not null)
+            {
+                var getData = await _context.TblMftransactions.Where(x => x.Date >= startDate && x.Date <= endDate).ToListAsync();
+                return getData;
+            }
+            else
+            {
+                var getData = await _context.TblMftransactions.Where(x => x.Userid == userId && x.Date.Value.Month == startDate.Value.Month && x.Date.Value.Year == startDate.Value.Year).ToListAsync();
+                return getData;
+            }
+        }
+        #endregion 
+
+        #region Get Mutual Funds Record in Specific Date
         public async Task<List<TblMftransaction>> GetMFInSpecificDateForExistUser(DateTime? startDate, DateTime? endDate)
         {
             var getData = await _context.TblMftransactions.Where(x => x.Date >= startDate && x.Date <= endDate).ToListAsync();

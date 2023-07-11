@@ -16,6 +16,38 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
             _wbcService = wBCService;
         }
 
+        #region Get wbc GP of month
+        [HttpGet("GetGP")]
+        public async Task<IActionResult> GetGoldPoint(string? search, DateTime date, [FromQuery] SortingParams? sortingParams)
+        {
+            try
+            {
+                var wbc = await _wbcService.GetGPAsync(search, date, sortingParams);
+                return Ok(wbc);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Release Gold point
+        [HttpGet("ReleaseGP")]
+        public async Task<IActionResult> ReleaseGP(DateTime date)
+        {
+            try
+            {
+                var gp = await _wbcService.ReleaseGPAsync(date);
+                return gp != 0 ? Ok(new { Message = "Gold point released successfully." }) : BadRequest(new { Message = "Unable to release gold point"});
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region Get all Wbc scheme types
         [HttpGet("GetAllWbcSchemeTypes")]
         public async Task<IActionResult> GetAllWbcSchemeTypes([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)

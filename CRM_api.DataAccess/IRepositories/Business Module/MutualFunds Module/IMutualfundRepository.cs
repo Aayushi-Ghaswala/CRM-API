@@ -7,6 +7,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module
 {
     public interface IMutualfundRepository
     {
+        Task<List<TblMftransaction>> GetMFInSpecificDateForExistUser(DateTime? startDate, DateTime? endDate, int userId = 0);
         Task<List<TblMftransaction>> GetMFInSpecificDateForExistUser(DateTime? startDate, DateTime? endDate);
         Task<List<TblNotexistuserMftransaction>> GetMFInSpecificDateForNotExistUser(DateTime? startDate, DateTime? endDate);
         int GetSchemeIdBySchemeName(string schemeName);

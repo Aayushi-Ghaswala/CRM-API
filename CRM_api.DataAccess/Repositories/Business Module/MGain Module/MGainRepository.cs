@@ -17,6 +17,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             _context = context;
         }
 
+        #region Get Monthly Mgain Detail by UserId 
+        public async Task<int> GetMonthlyMGainDetailByUserId(int userId, DateTime date)
+        {
+            var mgainCount = await _context.TblMgaindetails.Where(x => x.MgainUserid == userId && x.Date.Value.Month == date.Month && x.Date.Value.Year == date.Year).CountAsync();
+
+            return mgainCount;
+        }
+        #endregion
+
         #region Get All MGain Details
         public async Task<MGainBussinessResponse<TblMgaindetail>> GetMGainDetails(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams)
         {
