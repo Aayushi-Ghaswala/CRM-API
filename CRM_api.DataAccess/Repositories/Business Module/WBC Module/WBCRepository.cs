@@ -785,7 +785,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                                 goldPoint.Credit = data.ReferralGP;
                                 goldPoint.Userid = user.UserId;
                                 goldPoint.Type = data.WbcTypeName;
-                                goldPoint.PointCategory = data.IsRedeemable ? 1 : 0;
+                                goldPoint.PointCategory = data.IsRedeemable ? 1 : 2;
                                 goldPointModelList.Add(goldPoint);
 
                                 onTheSpot.WbcSchemeId = data.WbcSchemeId;
@@ -803,7 +803,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                             goldPoint.Credit = data.ReferralGP;
                             goldPoint.Userid = user.UserId;
                             goldPoint.Type = data.WbcTypeName;
-                            goldPoint.PointCategory = data.IsRedeemable ? 1 : 0;
+                            goldPoint.PointCategory = data.IsRedeemable ? 1 : 2;
                             goldPointModelList.Add(goldPoint);
                         }
                     }
@@ -815,7 +815,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                             goldPoint.Credit = data.GoldPoint + data.ReferralGP;
                             goldPoint.Userid = user.UserId;
                             goldPoint.Type = data.WbcTypeName;
-                            goldPoint.PointCategory = data.IsRedeemable ? 1 : 0;
+                            goldPoint.PointCategory = data.IsRedeemable ? 1 : 2;
                             goldPointModelList.Add(goldPoint);
                         }
                         if (data.OnTheSpotGP > 0)
@@ -837,7 +837,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                             goldPoint.Credit = data.GoldPoint;
                             goldPoint.Userid = user.UserId;
                             goldPoint.Type = data.WbcTypeName;
-                            goldPoint.PointCategory = data.IsRedeemable ? 1 : 0;
+                            goldPoint.PointCategory = data.IsRedeemable ? 1 : 2;
                             goldPointModelList.Add(goldPoint);
                         }
                         if (data.OnTheSpotGP > 0)
