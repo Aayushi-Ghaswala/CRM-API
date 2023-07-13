@@ -17,11 +17,18 @@ namespace CRM_api.Controllers.User_Module
 
         #region Get All Users
         [HttpGet("GetUsers")]
-        public async Task<IActionResult> GetUsers(string? filterString, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetUsers(string? filterString, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams, bool export = false)
         {
-            var users = await _userMasterService.GetUsersAsync(filterString, search, sortingParams);
-
-            return Ok(users);
+            if (export)
+            {
+                var users = await _userMasterService.GetUsersForCSVAsync(filterString, search, sortingParams);
+                return File(users, "text/csv", "Users.csv");
+            }
+            else
+            {
+                var users = await _userMasterService.GetUsersAsync(filterString, search, sortingParams);
+                return Ok(users);
+            }
         }
         #endregion
 
