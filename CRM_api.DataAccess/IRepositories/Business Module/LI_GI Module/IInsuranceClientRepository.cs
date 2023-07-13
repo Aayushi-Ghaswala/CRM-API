@@ -19,6 +19,6 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module
         Task<int> DeactivateInsuranceClientDetail(int id);
         Task<int?> GetInsDetailsByUserId(int userId, int subTypeId);
         Task<int> GetSubInsTypeIdByName(string name);
-        Task<decimal?> GetInsPremiumAmountByUserId(int userId, int subTypeId);
+        Task<decimal?> GetInsPremiumAmountByUserId(int? month, int? year, int userId, int subTypeId);
     }
 }

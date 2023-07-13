@@ -83,7 +83,7 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
         #endregion
 
         #region Client Monthly Transaction Snapshot
-        public async Task<ResponseDto<ClientReportDto<ClientMonthlyTransSnapshotDto>>> GetClientMonthlyTransSnapshotAsync(string search, SortingParams sortingParams)
+        public async Task<ResponseDto<ClientReportDto<ClientMonthlyTransSnapshotDto>>> GetClientMonthlyTransSnapshotAsync(int? month, int? year, string search, SortingParams sortingParams)
         {
             var category = await _userMasterRepository.GetCategoryByName(CategoryConstant.customer);
             var clients = await _userMasterRepository.GetUsersByCategoryId(category.CatId, search, sortingParams);
@@ -98,20 +98,25 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
                 var clientMonthlyTransSnapshot = new ClientMonthlyTransSnapshotDto();
 
                 var lifeInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.Life.ToString());
-                clientMonthlyTransSnapshot.LIPremium = await _insuranceClientRepository.GetInsPremiumAmountByUserId(client.UserId, lifeInsId);
+                clientMonthlyTransSnapshot.LIPremium = await _insuranceClientRepository.GetInsPremiumAmountByUserId(month, year, client.UserId, lifeInsId);
 
                 var generalInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.General.ToString());
-                clientMonthlyTransSnapshot.GIPremium = await _insuranceClientRepository.GetInsPremiumAmountByUserId(client.UserId, generalInsId);
+                clientMonthlyTransSnapshot.GIPremium = await _insuranceClientRepository.GetInsPremiumAmountByUserId(month, year, client.UserId, generalInsId);
 
-                var stockData = await _stocksRepository.GetCurrentStockDataByUserName(client.UserName);
+                var stockData = await _stocksRepository.GetCurrentStockDataByUserName(month, year, client.UserName);
                 if (stockData.Count > 0)
                 {
-                    clientMonthlyTransSnapshot.AvgTrading = Math.Round((decimal)stockData.Where(x => x.StType.Equals("B")).Average(x => x.StNetcostvalue), 2);
+                    clientMonthlyTransSnapshot.Trading = Math.Round((decimal)stockData.Where(x => x.StType.Equals("B")).Sum(x => x.StNetcostvalue), 2);
 
-                    clientMonthlyTransSnapshot.AvgDelivery = Math.Round((decimal)stockData.Where(x => x.StType.Equals("S")).Average(x => x.StNetcostvalue), 2);
+                    clientMonthlyTransSnapshot.Delivery = Math.Round((decimal)stockData.Where(x => x.StType.Equals("S")).Sum(x => x.StNetcostvalue), 2);
                 }
 
-                clientMonthlyTransSnapshot.MFSip = await _mutualfundRepository.GetMFTransactionSIPByUserId(client.UserId);
+                var mfTransactions = await _mutualfundRepository.GetMFTransactionSIPLumpsumByUserId(month, year, client.UserId);
+                if (mfTransactions.Count > 0)
+                {
+                    clientMonthlyTransSnapshot.MFSip = mfTransactions.Where(x => x.Transactiontype == "PIP").Sum(x => x.Invamount);
+                    clientMonthlyTransSnapshot.MFLumpsum = mfTransactions.Where(x => x.Transactiontype == "PIP (SIP)").Sum(x => x.Invamount);
+                }
 
                 clientReport.ClientInvSnapshot = clientMonthlyTransSnapshot;
 
@@ -204,9 +209,9 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
             var subject = "Your Monthly Transaction Snapshots";
             var message = "Dear " + clientReportDto.UserName + ",\n\n" +
             "I hope this email finds you well. I wanted to provide you with an update on your monthly transaction portfolio and share the latest snapshots for your reference.\n\n" +
-            $"- Average Trading: {clientReportDto.ClientInvSnapshot.AvgTrading}\n" +
+            $"- Average Trading: {clientReportDto.ClientInvSnapshot.Trading}\n" +
             $"- Mutual Fund SIP: {clientReportDto.ClientInvSnapshot.MFSip}\n" +
-            $"- Average Delivery: {clientReportDto.ClientInvSnapshot.AvgDelivery}\n" +
+            $"- Average Delivery: {clientReportDto.ClientInvSnapshot.Delivery}\n" +
             $"- Life Insurance Premium: {clientReportDto.ClientInvSnapshot.LIPremium}\n" +
             $"- General Insurance Premium: {clientReportDto.ClientInvSnapshot.GIPremium}\n\n" +
             "Please take some time to review the information and let me know if you have any questions or concerns. I am here to assist you and provide any additional clarification you may need.\n\n" +
@@ -231,9 +236,9 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
 
             var message = "Dear " + clientReportDto.UserName + ",\n" +
                "Your Monthly Transaction snapshots:\n" +
-               $"- Average Trading: {clientReportDto.ClientInvSnapshot.AvgTrading}\n" +
+               $"- Average Trading: {clientReportDto.ClientInvSnapshot.Trading}\n" +
                $"- Mutual Fund SIP: {clientReportDto.ClientInvSnapshot.MFSip}\n" +
-               $"- Average Delivery: {clientReportDto.ClientInvSnapshot.AvgDelivery}\n" +
+               $"- Average Delivery: {clientReportDto.ClientInvSnapshot.Delivery}\n" +
                $"- Life Insurance Premium: {clientReportDto.ClientInvSnapshot.LIPremium}\n" +
                $"- General Insurance Premium: {clientReportDto.ClientInvSnapshot.GIPremium}\n\n" +
                "Best regards,\n" +
