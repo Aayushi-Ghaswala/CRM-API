@@ -17,6 +17,16 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
             _context = context;
         }
 
+        #region Get Loan Detail By UserId
+        public async Task<int> GetLoanDetailByUserId(int userId, DateTime date)
+        {
+            var loanDetail = await _context.TblLoanMasters.Where(x => x.UserId == userId && x.IsDeleted != true && x.StartDate.Value.Month == date.Month && x.StartDate.Value.Year == date.Year)
+                                                          .Include(u => u.TblUserMaster).Include(c => c.TblLoanTypeMaster).Include(x => x.TblBankMaster).CountAsync();
+
+            return loanDetail;
+        }
+        #endregion
+
         #region Get All Loan Details
         public async Task<Response<TblLoanMaster>> GetLoanDetails(string? filterString, string search, SortingParams sortingParams)
         {

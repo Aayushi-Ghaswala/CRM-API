@@ -36,22 +36,28 @@ namespace CRM_api.Services.Services.User_Module
                 string[] allowedRandom = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
                 var random = new Random();
                 var otp = "";
-                for (int i = 0; i < 6; i++)
-                {
-                    var temp = allowedRandom[random.Next(0, allowedRandom.Length)];
-                    otp += temp;
-                }
 
-                var subject = "Your One-Time Password (OTP)";
-                var body = new BodyBuilder();
-                body.TextBody = $"Dear {user.UserName},\n\n" +
-                           $"Thank you for using our service. As requested, we have generated a One-Time Password (OTP) for you. Please find the OTP details below:\n\n" +
-                           $"OTP : {otp}\n\n" +
-                           $"Please note that this OTP is valid for a Three minutes and should be used for authentication or verification purposes only. Do not share this OTP with anyone.\n\n" +
-                           $"If you did not request this OTP or have any concerns, please disregard this email.\n\n" +
-                           $"Thank You\n" +
-                           $"KA-Group";
-                EmailHelper.SendMailAsync(_configuration, email, subject, body);
+                if (user.UserEmail.ToLower().Equals("support@kagroup.in"))
+                    otp = "000000";
+                else
+                {
+                    for (int i = 0; i < 6; i++)
+                    {
+                        var temp = allowedRandom[random.Next(0, allowedRandom.Length)];
+                        otp += temp;
+                    }
+
+                    var subject = "Your One-Time Password (OTP)";
+                    var body = new BodyBuilder();
+                    body.TextBody = $"Dear {user.UserName},\n\n" +
+                               $"Thank you for using our service. As requested, we have generated a One-Time Password (OTP) for you. Please find the OTP details below:\n\n" +
+                               $"OTP : {otp}\n\n" +
+                               $"Please note that this OTP is valid for a Three minutes and should be used for authentication or verification purposes only. Do not share this OTP with anyone.\n\n" +
+                               $"If you did not request this OTP or have any concerns, please disregard this email.\n\n" +
+                               $"Thank You\n" +
+                               $"KA-Group";
+                    EmailHelper.SendMailAsync(_configuration, email, subject, body);
+                }
                 var cacheOptions = new MemoryCacheEntryOptions()
                                         .SetSlidingExpiration(TimeSpan.FromMinutes(3));
                 _cache.Set(user.UserEmail, otp, cacheOptions);

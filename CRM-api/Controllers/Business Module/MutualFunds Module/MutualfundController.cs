@@ -91,11 +91,11 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
 
         #region Display Scheme Name by UserId
         [HttpGet("SchemaName")]
-        public async Task<IActionResult> GetSchemeName(int userId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetSchemeName(int userId, string? folioNo, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var schemeName = await _mutualfundService.DisplayschemeNameAsync(userId, search, sortingParams);
+                var schemeName = await _mutualfundService.DisplayschemeNameAsync(userId, folioNo, search, sortingParams);
                 return Ok(schemeName);
             }
             catch (Exception)
@@ -107,11 +107,11 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
 
         #region Display Folio Number by UserId
         [HttpGet("FolioNo")]
-        public async Task<IActionResult> GetFolioNo(int userId, int? schemeId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetFolioNo(int userId, string? schemeName, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var folioNo = await _mutualfundService.DisplayFolioNoAsync(userId, schemeId, search, sortingParams);
+                var folioNo = await _mutualfundService.DisplayFolioNoAsync(userId, schemeName, search, sortingParams);
                 return Ok(folioNo);
             }
             catch (Exception)

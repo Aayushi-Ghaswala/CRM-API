@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CRM_api.DataAccess.Models
 {
@@ -25,5 +26,8 @@ namespace CRM_api.DataAccess.Models
         public decimal? StNetcostvalue { get; set; }
         public int? Userid { get; set; }
         public string? FirmName { get; set; }
+
+        [ForeignKey(nameof(Userid))]
+        public virtual TblUserMaster TblUserMaster { get; set; }
     }
 }

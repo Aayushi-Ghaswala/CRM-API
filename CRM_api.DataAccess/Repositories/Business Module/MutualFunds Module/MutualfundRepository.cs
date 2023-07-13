@@ -18,6 +18,22 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         }
 
         #region Get Mutual Funds Record in Specific Date
+        public async Task<List<TblMftransaction>> GetMFInSpecificDateForExistUser(DateTime? startDate, DateTime? endDate, int userId = 0)
+        {
+            if (endDate is not null)
+            {
+                var getData = await _context.TblMftransactions.Where(x => x.Date >= startDate && x.Date <= endDate).ToListAsync();
+                return getData;
+            }
+            else
+            {
+                var getData = await _context.TblMftransactions.Where(x => x.Userid == userId && x.Date.Value.Month == startDate.Value.Month && x.Date.Value.Year == startDate.Value.Year).ToListAsync();
+                return getData;
+            }
+        }
+        #endregion 
+
+        #region Get Mutual Funds Record in Specific Date
         public async Task<List<TblMftransaction>> GetMFInSpecificDateForExistUser(DateTime? startDate, DateTime? endDate)
         {
             var getData = await _context.TblMftransactions.Where(x => x.Date >= startDate && x.Date <= endDate).ToListAsync();
@@ -286,15 +302,25 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         #endregion
 
         #region Display Scheme List
-        public async Task<Response<TblMftransaction>> GetSchemeName(int userId, string? searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblMftransaction>> GetSchemeName(int userId, string? folioNo, string? searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
-            var mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId).ToList();
+            var mftransactions = new List<TblMftransaction>();
+
+            if (folioNo is not null)
+                mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Foliono == folioNo).ToList();
+            else
+                mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId).ToList();
+
             var schemeName = mftransactions.DistinctBy(x => x.Schemename).AsQueryable();
 
             if (searchingParams != null)
             {
-                mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId).ToList();
+                if (folioNo is not null)
+                    mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Foliono == folioNo).ToList();
+                else
+                    mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId).ToList();
+
                 schemeName = mftransactions.DistinctBy(x => x.Schemename).AsQueryable();
             }
 
@@ -321,15 +347,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         #endregion
 
         #region Display Folio Number List
-        public async Task<Response<TblMftransaction>> GetFolioNo(int userId, int? schemeId, string? searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblMftransaction>> GetFolioNo(int userId, string? schemeName, string? searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
-            List<TblMftransaction> mftransactions = new List<TblMftransaction>();
+            var mftransactions = new List<TblMftransaction>();
             IQueryable<TblMftransaction> folioNo = mftransactions.AsQueryable();
 
-            if (schemeId is not null)
+            if (schemeName is not null)
             {
-                mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.SchemeId == schemeId).ToList();
+                mftransactions = _context.TblMftransactions.Where(x => x.Userid == userId && x.Schemename.ToLower() == schemeName.ToLower()).ToList();
                 folioNo = mftransactions.DistinctBy(x => x.Foliono).AsQueryable();
             }
             else
@@ -340,9 +366,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
 
             if (searchingParams != null)
             {
-                if (schemeId != 0)
+                if (schemeName is not null)
                 {
-                    mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.SchemeId == schemeId).ToList();
+                    mftransactions = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Userid == userId && x.Schemename == schemeName).ToList()    ;
                     folioNo = mftransactions.DistinctBy(x => x.Foliono).AsQueryable();
                 }
                 else
