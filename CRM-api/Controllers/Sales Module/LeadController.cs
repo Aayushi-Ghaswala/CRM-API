@@ -20,12 +20,20 @@ namespace CRM_api.Controllers.Sales_Module
 
         #region Get all Leads
         [HttpGet("GetLeads")]
-        public async Task<IActionResult> GetLeads([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetLeads([FromQuery] string? search, [FromQuery] SortingParams? sortingParams, bool export = false)
         {
             try
             {
-                var lead = await _leadService.GetLeadsAsync(search, sortingParams);
-                return Ok(lead);
+                if (export)
+                {
+                    var leadCSV = await _leadService.GetLeadsForCSVAsync(search, sortingParams);
+                    return File(leadCSV, "text/csv", "Leads.csv");
+                }
+                else
+                {
+                    var lead = await _leadService.GetLeadsAsync(search, sortingParams);
+                    return Ok(lead);
+                }
             }
             catch (Exception)
             {
@@ -74,6 +82,54 @@ namespace CRM_api.Controllers.Sales_Module
             {
                 var lead = await _leadService.GetLeadByNameAsync(Name);
                 return lead.Id != 0 ? Ok(lead) : NoContent();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get all Leads by assign
+        [HttpGet("GetLeadByAssignee")]
+        public async Task<IActionResult> GetLeadByAssignee([FromQuery] int assignTo, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        {
+            try
+            {
+                var lead = await _leadService.GetLeadByAssigneeAsync(assignTo, search, sortingParams);
+                return Ok(lead);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get all Leads by no assign
+        [HttpGet("GetLeadByNoAssignee")]
+        public async Task<IActionResult> GetLeadByNoAssignee([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        {
+            try
+            {
+                var lead = await _leadService.GetLeadByNoAssigneeAsync(search, sortingParams);
+                return Ok(lead);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Check MobileNo Exist in Lead
+        [HttpGet("CheckMobileExist")]
+        public ActionResult CheckMobileExist(int? id, string mobileNo)
+        {
+            try
+            {
+                    var exist = _leadService.CheckMobileExistAsync(id, mobileNo);
+                    return exist != 0 ? Ok(exist) : BadRequest(new { Message = "Mobile number already exist." });
             }
             catch (Exception)
             {
@@ -132,11 +188,11 @@ namespace CRM_api.Controllers.Sales_Module
 
         #region Send Email Leads
         [HttpPost("SendLeadEmail")]
-        public IActionResult SendLeadEmail(LeadDto leadDto, string userName)
+        public IActionResult SendLeadEmail(LeadDto leadDto)
         {
             try
             {
-                var flag = _leadService.SendLeadEmailAsync(leadDto, userName);
+                var flag = _leadService.SendLeadEmailAsync(leadDto);
 
                 return flag == 1 ? Ok(new { Message = "Email send successfully." }) : BadRequest(new { Message = "Unable to send email." });
             }
@@ -150,11 +206,11 @@ namespace CRM_api.Controllers.Sales_Module
 
         #region Send SMS Leads
         [HttpPost("SendLeadSMS")]
-        public IActionResult SendLeadSMS(LeadDto leadDto, string userName)
+        public IActionResult SendLeadSMS(LeadDto leadDto)
         {
             try
             {
-                var flag = _leadService.SendLeadSMSAsync(leadDto, userName);
+                var flag = _leadService.SendLeadSMSAsync(leadDto);
 
                 return flag == 1 ? Ok(new { Message = "SMS send successfully." }) : BadRequest(new { Message = "Unable to send SMS." });
             }

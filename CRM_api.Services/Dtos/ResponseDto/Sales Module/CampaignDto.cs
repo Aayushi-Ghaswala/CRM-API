@@ -6,10 +6,10 @@ namespace CRM_api.Services.Dtos.ResponseDto.Sales_Module
     public class CampaignDto
     {
         public int Id { get; set; }
-        public TblUserMaster TblUserMaster { get; set; }
-        public TblSourceTypeMaster TblSourceTypeMaster { get; set; }
-        public TblSourceMaster TblSourceMaster { get; set; }
-        public TblStatusMaster TblStatusMaster { get; set; }
+        public TblUserMaster? TblUserMaster { get; set; }
+        public TblSourceTypeMaster? TblSourceTypeMaster { get; set; }
+        public TblSourceMaster? TblSourceMaster { get; set; }
+        public TblStatusMaster? TblStatusMaster { get; set; }
         public string Name { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

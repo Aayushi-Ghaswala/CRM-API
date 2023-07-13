@@ -1290,7 +1290,7 @@ namespace CRM_api.DataAccess.Context
 
                 entity.ToTable("Tbl_Lead_Master");
 
-                entity.Property(e => e.AssignedBy);
+                entity.Property(e => e.AssignedTo);
 
                 entity.Property(e => e.ReferredBy);
 
@@ -1356,6 +1356,8 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.MeetingBy);
 
+                //entity.Property(e => e.LeadId);
+
                 entity.Property(e => e.Purpose);
 
                 entity.Property(e => e.DateOfMeeting);
@@ -1384,6 +1386,8 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.MeetingId);
 
                 entity.Property(e => e.ParticipantId);
+
+                //entity.Property(e => e.LeadId);
 
                 entity.Property(e => e.IsDeleted).HasDefaultValue(0);
             });

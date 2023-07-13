@@ -6,6 +6,8 @@ using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
+using CRM_api.Services.Dtos.ResponseDto.User_Module;
+using CRM_api.Services.Helper.File_Helper;
 using CRM_api.Services.IServices.User_Module;
 
 namespace CRM_api.Services.Services.User_Module
@@ -97,6 +99,25 @@ namespace CRM_api.Services.Services.User_Module
         public int PanOrAadharExistAsync(int? id, string? pan, string? aadhar)
         {
             return _userMasterRepository.PanOrAadharExist(id, pan, aadhar);
+        }
+        #endregion
+
+        #region Get All Users For CSV
+        public async Task<byte[]> GetUsersForCSVAsync(string filterString, string search, SortingParams sortingParams)
+        {
+            var users = await _userMasterRepository.GetUsersForCSV(filterString, search, sortingParams);
+            var mapUsers = _mapper.Map<List<UserMasterCSVDto>>(users);
+            foreach (var user in mapUsers)
+            {
+                if (user.UserFasttrack == true)
+                {
+                    var fasttrackCategory = await _fasttrackRepository.GetUserFasttrackCategory(user.UserId);
+                    user.UserFasttrackCategory = fasttrackCategory;
+                }
+            }
+
+            var userCSV = new GetCSVHelper<UserMasterCSVDto>();
+            return userCSV.WriteCSVFile(mapUsers);
         }
         #endregion
 
