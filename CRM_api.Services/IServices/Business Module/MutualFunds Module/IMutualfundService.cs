@@ -10,9 +10,9 @@ namespace CRM_api.Services.IServices.Business_Module.MutualFunds_Module
     {
         Task<MFTransactionDto<MutualFundDto>> GetClientwiseMutualFundTransactionAsync(int userId, string? schemeName, string? folioNo
             , string? searchingParams, SortingParams sortingParams, DateTime? startDate, DateTime? endDate);
-        Task<MFTransactionDto<MFSummaryDto>> GetMFSummaryAsync(int userId, string? searchingParams, SortingParams sortingParams);
-        Task<MFTransactionDto<MFCategoryWiseDto>> GetMFCategoryWiseAsync(int userId, string? searchingParams, SortingParams sortingParams);
-        Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummaryAsync(DateTime fromDate, DateTime toDate, string? searchingParams, SortingParams sortingParams);
+        Task<MFTransactionDto<MFSummaryDto>> GetMFSummaryAsync(int userId, bool? isBalanceUnitZero, string? searchingParams, SortingParams sortingParams);
+        Task<MFTransactionDto<MFCategoryWiseDto>> GetMFCategoryWiseAsync(int userId, bool? isBalanceUnitZero, string? searchingParams, SortingParams sortingParams);
+        Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummaryAsync(bool? isBalanceUnitZero, DateTime fromDate, DateTime toDate, string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<UserNameDto>> GetMFUserNameAsync(string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<SchemaNameDto>> DisplayschemeNameAsync(int userId, string? folioNo, string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<SchemaNameDto>> DisplayFolioNoAsync(int userId, string? schemeName, string? searchingParams, SortingParams sortingParams);

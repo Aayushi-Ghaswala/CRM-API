@@ -180,9 +180,17 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
         #endregion
 
         #region Get Insurance CLient Premium Amount By UserId
-        public async Task<decimal?> GetInsPremiumAmountByUserId(int userId, int subTypeId)
+        public async Task<decimal?> GetInsPremiumAmountByUserId(int? month, int? year, int userId, int subTypeId)
         {
-            var insDetail = await _context.TblInsuranceclients.Where(x => x.InsUserid == userId && x.IsDeleted != true && x.InvSubtype == subTypeId).FirstOrDefaultAsync();
+            DateTime date;
+
+            if (month is not null && year is not null)
+                date = Convert.ToDateTime("01-" + month + "-" + year);
+            else
+                date = Convert.ToDateTime("01-" + DateTime.Now.Month + "-" + DateTime.Now.Year);
+
+            var insDetail = await _context.TblInsuranceclients.Where(x => x.InsUserid == userId && x.IsDeleted != true && x.InvSubtype == subTypeId && x.InsStartdate.Value.Date <= date.Date && x.InsDuedate.Value.Date >= date.Date).FirstOrDefaultAsync();
+
             decimal? premiumAmount = 0;
             if (insDetail is not null)
                 premiumAmount = insDetail.PremiumAmount;

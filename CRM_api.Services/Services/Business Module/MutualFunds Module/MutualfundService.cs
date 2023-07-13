@@ -38,7 +38,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get Client wise MF Summary
-        public async Task<MFTransactionDto<MFSummaryDto>> GetMFSummaryAsync(int userId, string? searchingParams, SortingParams sortingParams)
+        public async Task<MFTransactionDto<MFSummaryDto>> GetMFSummaryAsync(int userId, bool? isBalanceUnitZero, string? searchingParams, SortingParams sortingParams)
         {
             List<MFSummaryDto> mutualFundSummaries = new List<MFSummaryDto>();
 
@@ -75,6 +75,16 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
                 mutualFundSummaries.Add(mfSummaryDto);
             }
+            
+            if(isBalanceUnitZero is true)
+            {
+                mutualFundSummaries = mutualFundSummaries.Where(x => x.BalanceUnit == 0).ToList();
+            }
+            else
+            {
+                mutualFundSummaries =  mutualFundSummaries.Where(x => x.BalanceUnit != 0).ToList();
+            }
+
             IQueryable<MFSummaryDto> mutualFundSummaryDto = mutualFundSummaries.AsQueryable();
 
             var totalBalanceUnit = mutualFundSummaries.Sum(x => x.BalanceUnit);
@@ -117,7 +127,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get Client wise MF Summary Category Wise
-        public async Task<MFTransactionDto<MFCategoryWiseDto>> GetMFCategoryWiseAsync(int userId, string? searchingParams, SortingParams sortingParams)
+        public async Task<MFTransactionDto<MFCategoryWiseDto>> GetMFCategoryWiseAsync(int userId, bool? isBalanceUnitZero, string? searchingParams, SortingParams sortingParams)
         {
             List<MFCategoryWiseDto> mutualFundSummaries = new List<MFCategoryWiseDto>();
 
@@ -152,6 +162,16 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
                 mutualFundSummaries.Add(mfCategoryWise);
             }
+
+            if (isBalanceUnitZero is true)
+            {
+                mutualFundSummaries = mutualFundSummaries.Where(x => x.BalanceUnit == 0).ToList();
+            }
+            else
+            {
+                mutualFundSummaries = mutualFundSummaries.Where(x => x.BalanceUnit != 0).ToList();
+            }
+
             IQueryable<MFCategoryWiseDto> mutualFundSummaryDto = mutualFundSummaries.AsQueryable();
 
             var totalBalanceUnit = mutualFundSummaries.Sum(x => x.BalanceUnit);
@@ -194,7 +214,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get All Client MF Summary 
-        public async Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummaryAsync(DateTime fromDate, DateTime toDate, string? searchingParams, SortingParams sortingParams)
+        public async Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummaryAsync(bool? isBalanceUnitZero, DateTime fromDate, DateTime toDate, string? searchingParams, SortingParams sortingParams)
         {
             List<AllClientMFSummaryDto> mutualFundSummaries = new List<AllClientMFSummaryDto>();
 
@@ -230,6 +250,16 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
                 mutualFundSummaries.Add(allClientMFSummary);
             }
+
+            if (isBalanceUnitZero is true)
+            {
+                mutualFundSummaries = mutualFundSummaries.Where(x => x.BalanceUnit == 0).ToList();
+            }
+            else
+            {
+                mutualFundSummaries = mutualFundSummaries.Where(x => x.BalanceUnit != 0).ToList();
+            }
+
             IQueryable<AllClientMFSummaryDto> mutualFundSummaryDto = mutualFundSummaries.AsQueryable();
 
             var totalBalanceUnit = mutualFundSummaries.Sum(x => x.BalanceUnit);
@@ -356,43 +386,48 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                                     {
                                         rowReader.Read();
                                     }
-
                                 },
                             }
                         });
 
-                        var datatable = dataset.Tables[0];
+                        var records = new List<AddMutualfundsDto>();
 
-                        var records = datatable.AsEnumerable().SkipLast(5).ToList().ConvertAll<AddMutualfundsDto>(row =>
+                        foreach (DataTable datatable in dataset.Tables)
                         {
-                            var obj = new AddMutualfundsDto();
+                            var sheetRecords = datatable.AsEnumerable().SkipLast(5).ToList().ConvertAll<AddMutualfundsDto>(row =>
+                            {
+                                var obj = new AddMutualfundsDto();
 
-                            obj.Username = row["Investor"] == DBNull.Value ? null : row["Investor"].ToString();
-                            obj.Transactiontype = row["Type"] == DBNull.Value ? null : row["Type"].ToString();
-                            obj.Schemename = row["Scheme"] == DBNull.Value ? null : row["Scheme"].ToString();
-                            obj.Foliono = row["Folio No/Demat A/C"] == DBNull.Value ? null : row["Folio No/Demat A/C"].ToString();
-                            obj.Tradeno = row["Tr. No."] == DBNull.Value ? null : row["Tr. No."].ToString();
-                            obj.Date = Convert.ToDateTime(row["Purchase Date"] == DBNull.Value ? null : row["Purchase Date"]);
-                            obj.Nav = Convert.ToDouble(row["NAV(₹)"] == DBNull.Value ? null : row["NAV(₹)"]);
-                            obj.Noofunit = Convert.ToDecimal(row["Purchase units"] == DBNull.Value ? null : row["Purchase units"]);
-                            obj.Invamount = Convert.ToDecimal(row["Inv. Amount(₹)"] == DBNull.Value ? null : row["Inv. Amount(₹)"]);
-                            obj.Userpan = row["PAN"] == DBNull.Value ? null : row["PAN"].ToString();
+                                obj.Username = row["Investor"] == DBNull.Value ? null : row["Investor"].ToString();
+                                obj.Transactiontype = row["Type"] == DBNull.Value ? null : row["Type"].ToString();
+                                obj.Schemename = row["Scheme"] == DBNull.Value ? null : row["Scheme"].ToString();
+                                obj.Foliono = row["Folio No/Demat A/C"] == DBNull.Value ? null : row["Folio No/Demat A/C"].ToString().Trim('*').Replace("/", "");
+                                obj.Tradeno = row["Tr. No."] == DBNull.Value ? null : row["Tr. No."].ToString();
+                                obj.Date = datatable.TableName.Contains("Purchase Report") ? Convert.ToDateTime(row["Purchase Date"] == DBNull.Value ? null : row["Purchase Date"]) : Convert.ToDateTime(row["Redemption Date"] == DBNull.Value ? null : row["Redemption Date"]);
+                                obj.Nav = Convert.ToDouble(row["NAV(₹)"] == DBNull.Value ? null : row["NAV(₹)"]);
+                                obj.Noofunit = datatable.TableName.Contains("Purchase Report") ? Convert.ToDecimal(row["Purchase units"] == DBNull.Value ? null : row["Purchase units"]) : Convert.ToDecimal(row["No. of Units"] == DBNull.Value ? null : row["No. of Units"]);
+                                obj.Invamount = datatable.TableName.Contains("Purchase Report") ? Convert.ToDecimal(row["Gross Inv. Amount(₹)"] == DBNull.Value ? null : row["Gross Inv. Amount(₹)"]) : Convert.ToDecimal(row["Amount(₹)"] == DBNull.Value ? null : row["Amount(₹)"]);
+                                obj.Userpan = row["PAN"] == DBNull.Value ? null : row["PAN"].ToString();
 
-                            var userId = _userMasterRepository.GetUserIdByUserPan(obj.Userpan);
-                            var schemeId = _mutualfundRepository.GetSchemeIdBySchemeName(obj.Schemename);
 
-                            if (userId == 0)
-                                obj.Userid = null;
-                            else
-                                obj.Userid = userId;
+                                var userId = _userMasterRepository.GetUserIdByUserPan(obj.Userpan);
+                                var schemeId = _mutualfundRepository.GetSchemeIdBySchemeName(obj.Schemename);
 
-                            if (schemeId == 0)
-                                obj.SchemeId = null;
-                            else
-                                obj.SchemeId = schemeId;
+                                if (userId == 0)
+                                    obj.Userid = null;
+                                else
+                                    obj.Userid = userId;
 
-                            return obj;
-                        });
+                                if (schemeId == 0)
+                                    obj.SchemeId = null;
+                                else
+                                    obj.SchemeId = schemeId;
+
+                                return obj;
+                            });
+
+                            records.AddRange(sheetRecords);
+                        }
 
                         var notExistUser = records.Where(x => x.Userid == null).ToList();
                         notExistUserTransaction.AddRange(notExistUser);
@@ -445,7 +480,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                 {
                     return 0;
                 }
-                
+
             }
         }
         #endregion

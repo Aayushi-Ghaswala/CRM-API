@@ -7,7 +7,7 @@ namespace CRM_api.Services.IServices.Business_Module.Dashboard
     public interface IBusinessDashboardService
     {
         Task<ResponseDto<ClientReportDto<ClientCurrentInvSnapshotDto>>> GetClientCurrentInvSnapshotAsync(string search, SortingParams sortingParams);
-        Task<ResponseDto<ClientReportDto<ClientMonthlyTransSnapshotDto>>> GetClientMonthlyTransSnapshotAsync(string search, SortingParams sortingParams);
+        Task<ResponseDto<ClientReportDto<ClientMonthlyTransSnapshotDto>>> GetClientMonthlyTransSnapshotAsync(int? month, int? year, string search, SortingParams sortingParams);
         Task<MFMonthlyChartDto> GetMonthlyChartAsync();
         int SendCurrentInvSnapshotEmailAsync(ClientReportDto<ClientCurrentInvSnapshotDto> clientReportDto);
         int SendCurrentInvSnapshotSMSAsync(ClientReportDto<ClientCurrentInvSnapshotDto> clientReportDto);

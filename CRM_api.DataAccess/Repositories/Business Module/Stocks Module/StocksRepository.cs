@@ -370,9 +370,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         #endregion
 
         #region Get monthly stock transaction by user name
-        public async Task<List<TblStockData>> GetCurrentStockDataByUserName(string userName)
+        public async Task<List<TblStockData>> GetCurrentStockDataByUserName(int? month, int? year, string userName)
         {
-            var stockData = await _context.TblStockData.Where(x => x.StClientname.ToLower() == userName.ToLower() && x.StDate.Value.Month == DateTime.Now.Month && x.StDate.Value.Year == DateTime.Now.Year 
+            List<TblStockData> stockData = new List<TblStockData>();
+
+            if (month is not null && year is not null)
+                stockData = await _context.TblStockData.Where(x => x.StClientname.ToLower() == userName.ToLower() && x.StDate.Value.Month == month && x.StDate.Value.Year == year
+                                                        && x.StType.Equals("B") && x.StType.Equals("S")).ToListAsync();
+            else
+                stockData = await _context.TblStockData.Where(x => x.StClientname.ToLower() == userName.ToLower() && x.StDate.Value.Month == DateTime.Now.Month && x.StDate.Value.Year == DateTime.Now.Year
                                                         && x.StType.Equals("B") && x.StType.Equals("S")).ToListAsync();
 
             return stockData;

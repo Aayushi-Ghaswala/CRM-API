@@ -34,11 +34,11 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
 
         #region Get client wise MF Fund wise Summary
         [HttpGet("MFClientSchemeWiseSummary")]
-        public async Task<IActionResult> GetUserSchemeWiseMFSummary(int userId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetUserSchemeWiseMFSummary(int userId, bool? isBalanceUnitZero, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var getData = await _mutualfundService.GetMFSummaryAsync(userId, search, sortingParams);
+                var getData = await _mutualfundService.GetMFSummaryAsync(userId, isBalanceUnitZero, search, sortingParams);
                 return Ok(getData);
             }
             catch (Exception)
@@ -50,11 +50,11 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
 
         #region Get MF Client Wise Category Wise Summary
         [HttpGet("MFSummaryCategoryWise")]
-        public async Task<IActionResult> GetUserCategoryWiseMFSummary(int userId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetUserCategoryWiseMFSummary(int userId, bool? isBalanceUnitZero, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var getData = await _mutualfundService.GetMFCategoryWiseAsync(userId, search, sortingParams);
+                var getData = await _mutualfundService.GetMFCategoryWiseAsync(userId, isBalanceUnitZero, search, sortingParams);
                 return Ok(getData);
             }
             catch (Exception)
@@ -66,11 +66,11 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
 
         #region Get All Client MF Summary
         [HttpGet("AllClientMFSummary")]
-        public async Task<IActionResult> GetAllClientMFSummary(DateTime fromDate, DateTime toDate, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetAllClientMFSummary(bool? isBalanceUnitZero, DateTime fromDate, DateTime toDate, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var getData = await _mutualfundService.GetAllClientMFSummaryAsync(fromDate, toDate, search, sortingParams);
+                var getData = await _mutualfundService.GetAllClientMFSummaryAsync(isBalanceUnitZero, fromDate, toDate, search, sortingParams);
                 return Ok(getData);
             }
             catch (Exception)

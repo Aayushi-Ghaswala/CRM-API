@@ -281,13 +281,18 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get Mutual Funds SIP By userId
-        public async Task<decimal?> GetMFTransactionSIPByUserId(int userId)
+        public async Task<List<TblMftransaction>> GetMFTransactionSIPLumpsumByUserId(int? month, int? year, int userId)
         {
-            var mfTransactions = await _context.TblMftransactions.Where(u => u.Userid == userId && u.Transactiontype == "PIP (SIP)"
-                                                                        && u.Date.Value.Month == DateTime.Now.Month && u.Date.Value.Year == DateTime.Now.Year).ToListAsync();
-            var totalAmount = mfTransactions.Sum(x => x.Invamount);
+            List<TblMftransaction> mfTransactions = new List<TblMftransaction>();
 
-            return totalAmount;
+            if (month is not null && year is not null)
+                mfTransactions = await _context.TblMftransactions.Where(u => u.Userid == userId && (u.Transactiontype == "PIP (SIP)" || u.Transactiontype == "SIP")
+                                                                        && u.Date.Value.Month == month && u.Date.Value.Year == year).ToListAsync();
+            else
+                mfTransactions = await _context.TblMftransactions.Where(u => u.Userid == userId && (u.Transactiontype == "PIP (SIP)" || u.Transactiontype == "SIP")
+                                                                        && u.Date.Value.Month == DateTime.Now.Month && u.Date.Value.Year == DateTime.Now.Year).ToListAsync();
+
+            return mfTransactions;
         }
         #endregion
 

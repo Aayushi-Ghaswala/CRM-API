@@ -78,7 +78,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 {
                     await formFile.CopyToAsync(stream);
                 }
-                var directory = Directory.GetCurrentDirectory() + "\\CRM-Document\\Sharekhan";
+                var directory = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\Sharekhan";
                 if (!Directory.Exists(directory))
                 {
                     Directory.CreateDirectory(directory);
@@ -142,7 +142,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     await stream.DisposeAsync();
                 }
 
-                var directory = Directory.GetCurrentDirectory() + "\\CRM-Document\\Jainam";
+                var directory = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\Jainam";
                 if (!Directory.Exists(directory))
                 {
                     Directory.CreateDirectory(directory);

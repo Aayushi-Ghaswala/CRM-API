@@ -25,6 +25,6 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module
         Task<int> DeleteMFForNotUserExist(TblNotexistuserMftransaction tblMftransaction);
         Task<decimal?> GetMFTransactionByUserId(int userId);
         Task<List<TblMftransaction>> GetMonthlyMFTransactionSIPLumpsum();
-        Task<decimal?> GetMFTransactionSIPByUserId(int userId);
+        Task<List<TblMftransaction>> GetMFTransactionSIPLumpsumByUserId(int? month, int? year, int userId);
     }
 }

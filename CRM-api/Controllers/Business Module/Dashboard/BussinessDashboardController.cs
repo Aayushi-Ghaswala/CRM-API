@@ -35,11 +35,11 @@ namespace CRM_api.Controllers.Business_Module.Dashboard
 
         #region Get Client Monthly Transaction Snapshot
         [HttpGet("GetClientMonthlyTransSnapshot")]
-        public async Task<IActionResult> GetClientMonthlyTransSnapshot(string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetClientMonthlyTransSnapshot(int? month, int? year, string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var getData = await _businessDashboardService.GetClientMonthlyTransSnapshotAsync(search, sortingParams);
+                var getData = await _businessDashboardService.GetClientMonthlyTransSnapshotAsync(month, year, search, sortingParams);
 
                 return Ok(getData);
             }
