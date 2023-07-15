@@ -28,9 +28,9 @@ namespace CRM_api.Services.Services.Sales_Module
         }
 
         #region Get Leads
-        public async Task<ResponseDto<LeadDto>> GetLeadsAsync(string search, SortingParams sortingParams)
+        public async Task<ResponseDto<LeadDto>> GetLeadsAsync(int? assignTo, string search, SortingParams sortingParams)
         {
-            var leads = await _leadRepository.GetLeads(search, sortingParams);
+            var leads = await _leadRepository.GetLeads(assignTo, search, sortingParams);
             var mapLead = _mapper.Map<ResponseDto<LeadDto>>(leads);
             mapLead.Values.ForEach(
                 lead =>
@@ -86,54 +86,11 @@ namespace CRM_api.Services.Services.Sales_Module
         }
         #endregion
 
-        #region Get Lead By Assignee
-        public async Task<ResponseDto<LeadDto>> GetLeadByAssigneeAsync(int assignedTo, string search, SortingParams sortingParams)
-        {
-            var leads = await _leadRepository.GetLeadByAssignee(assignedTo, search, sortingParams);
-            var mapLead = _mapper.Map<ResponseDto<LeadDto>>(leads);
-            mapLead.Values.ForEach(
-                lead =>
-                {
-                    var leadData = leads.Values.First(x => x.Id == lead.Id);
-                    List<InvesmentTypeDto> investmentTypeDtos = new List<InvesmentTypeDto>();
-                    var interestedIn = leadData.InterestedIn.Split(',');
-                    interestedIn.ToList().ForEach(x =>
-                    {
-                        var mapInvestmentType = _mapper.Map<InvesmentTypeDto>(_leadRepository.GetInvestmentById(Convert.ToInt32(x)));
-                        investmentTypeDtos.Add(mapInvestmentType);
-                    });
-                    lead.TblInvesmentTypes = investmentTypeDtos;
-                });
-            return mapLead;
-        }
-        #endregion
-
-        #region Get Lead By No Assignee
-        public async Task<ResponseDto<LeadDto>> GetLeadByNoAssigneeAsync(string search, SortingParams sortingParams)
-        {
-            var leads = await _leadRepository.GetLeadByNoAssignee(search, sortingParams);
-            var mapLead = _mapper.Map<ResponseDto<LeadDto>>(leads);
-            mapLead.Values.ForEach(
-                lead =>
-                {
-                    var leadData = leads.Values.First(x => x.Id == lead.Id);
-                    List<InvesmentTypeDto> investmentTypeDtos = new List<InvesmentTypeDto>();
-                    var interestedIn = leadData.InterestedIn.Split(',');
-                    interestedIn.ToList().ForEach(x =>
-                    {
-                        var mapInvestmentType = _mapper.Map<InvesmentTypeDto>(_leadRepository.GetInvestmentById(Convert.ToInt32(x)));
-                        investmentTypeDtos.Add(mapInvestmentType);
-                    });
-                    lead.TblInvesmentTypes = investmentTypeDtos;
-                });
-            return mapLead;
-        }
-        #endregion
-
+        
         #region Get Leads For CSV
-        public async Task<byte[]> GetLeadsForCSVAsync(string search, SortingParams sortingParams)
+        public async Task<byte[]> GetLeadsForCSVAsync(int? assignTo, string search, SortingParams sortingParams)
         {
-            var leads = await _leadRepository.GetLeadsForCSV(search, sortingParams);
+            var leads = await _leadRepository.GetLeadsForCSV(assignTo, search, sortingParams);
             var mapLead = _mapper.Map<List<LeadCSVDto>>(leads);
             mapLead.ForEach(
                 lead =>

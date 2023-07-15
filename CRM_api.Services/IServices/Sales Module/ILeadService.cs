@@ -8,13 +8,11 @@ namespace CRM_api.Services.IServices.Sales_Module
 {
     public interface ILeadService
     {
-        Task<ResponseDto<LeadDto>> GetLeadsAsync(string search, SortingParams sortingParams);
+        Task<ResponseDto<LeadDto>> GetLeadsAsync(int? assignTo, string search, SortingParams sortingParams);
         Task<ResponseDto<InvesmentTypeDto>> GetInvestmentTypesAsync(string search, SortingParams sortingParams);
         Task<LeadDto> GetLeadByIdAsync(int id);
         Task<LeadDto> GetLeadByNameAsync(string Name);
-        Task<ResponseDto<LeadDto>> GetLeadByAssigneeAsync(int assignedTo, string search, SortingParams sortingParams);
-        Task<ResponseDto<LeadDto>> GetLeadByNoAssigneeAsync(string search, SortingParams sortingParams);
-        Task<byte[]> GetLeadsForCSVAsync(string search, SortingParams sortingParams);
+        Task<byte[]> GetLeadsForCSVAsync(int? assignTo, string search, SortingParams sortingParams);
         int CheckMobileExistAsync(int? id, string mobileNo);
         Task<int> AddLeadAsync(AddLeadDto leadDto);
         Task<int> UpdateLeadAsync(UpdateLeadDto leadDto);
