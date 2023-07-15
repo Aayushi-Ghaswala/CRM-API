@@ -7,10 +7,14 @@ using CRM_api.Services.Dtos.AddDataDto.Business_Module.MutualFunds_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.MutualFunds_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Dtos.ResponseDto.User_Module;
+using CRM_api.Services.Helper.Extensions;
 using CRM_api.Services.IServices.Business_Module.MutualFunds_Module;
 using ExcelDataReader;
 using Microsoft.AspNetCore.Http;
 using System.Data;
+using System.Globalization;
+using System.Text.RegularExpressions;
+using Winnovative.PdfToText;
 
 namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 {
@@ -481,6 +485,193 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                     return 0;
                 }
 
+            }
+        }
+        #endregion
+
+        #region Import CAMS/Karvy Pdf file
+        public async Task<int> ImportCAMSFileAsync(IFormFile file, string password, bool UpdateIfExist)
+        {
+            try
+            {
+                if (file == null || file.Length <= 0)
+                {
+                    throw new Exception("Invalid File.");
+                }
+
+                List<AddMutualfundsDto> mutualfundDto = new List<AddMutualfundsDto>();
+                List<AddMutualfundsDto> existUserTransaction = new List<AddMutualfundsDto>();
+                List<AddMutualfundsDto> notExistUserTransaction = new List<AddMutualfundsDto>();
+                List<TblMftransaction> mapRecordForExistUser = new List<TblMftransaction>();
+                List<TblNotexistuserMftransaction> mapRecordforNotExistUser = new List<TblNotexistuserMftransaction>();
+
+                PdfToTextConverter pdfToTextConverter = new PdfToTextConverter();
+                pdfToTextConverter.UserPassword = password;
+                //pdfToTextConverter.LicenseKey = "C4WVhJaXhJSElZKKlISWl4qUkIqWlJaXhJQ=";
+
+                pdfToTextConverter.Layout = TextLayout.TableModeLayout;
+                pdfToTextConverter.MarkPageBreaks = false;
+
+                // extract text from PDF
+                string extractedText = pdfToTextConverter.ConvertToText(file.OpenReadStream());
+
+                string[] lines = extractedText.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+
+                var folioNo = string.Empty;
+                var panNo = string.Empty;
+                var schemeName = string.Empty;
+                var userName = string.Empty;
+
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    string line = lines[i];
+
+                    if (line.Contains("***"))
+                        continue;
+
+                    // Get UserName
+                    if (line.Contains("Email Id:"))
+                    {
+                        int index = i;
+                        var splitStringUserName = lines[index + 2].Split("balances", StringSplitOptions.RemoveEmptyEntries).ToArray();
+                        userName = splitStringUserName[0].Trim();
+                    }
+
+                    if (line.Contains("Folio No:") || line.Contains("Folio No :"))
+                    {
+                        // Get Pan No
+                        if (line.Contains("PAN: OK") || line.Contains("PAN : OK"))
+                        {
+                            string[] splitStringPan = line.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                            int index = Array.IndexOf(splitStringPan, "PAN:");
+                            panNo = splitStringPan[index + 1];
+                        }
+                        else
+                        {
+                            panNo = "";
+                        }
+
+                        // Get Folio No
+                        string[] splitStringFolio = line.Split(" ");
+                        if (line.Contains("Folio No :"))
+                        {
+                            splitStringFolio = line.Replace("Folio No :", "Folio No:").Split(" ");
+                            int index = Array.IndexOf(splitStringFolio, "PAN:");
+                            splitStringFolio = splitStringFolio.Take(index).ToArray();
+                        }
+
+                        folioNo = string.Join(" ", splitStringFolio, 2, Math.Min(splitStringFolio.Length - 2, 3));
+                    }
+
+                    // Get Scheme Name
+                    if (line.Contains("Registrar"))
+                    {
+                        string[] splitSchemeString;
+                        string replaceSchemeString;
+                        if (line.Contains('('))
+                        {
+                            replaceSchemeString = Regex.Replace(line, @"\([^()]*\)", string.Empty).Replace("-", " ").Replace(@"\s+", "");
+                            splitSchemeString = replaceSchemeString.Split(" ").Skip(1).TakeWhile(x => String.Compare("Registrar", x, true) != 0).Where(x => x != "").ToArray();
+                            schemeName = string.Join(" ", splitSchemeString);
+
+                            if (schemeName.Contains("Advisor:"))
+                            {
+                                splitSchemeString = schemeName.Split("(Advisor:", StringSplitOptions.RemoveEmptyEntries).ToArray();
+                                schemeName = string.Join(" ", splitSchemeString);
+                            }
+                        }
+                        else
+                        {
+                            replaceSchemeString = Regex.Replace(line.Replace("-", " "), @"\s+", " ");
+                            splitSchemeString = replaceSchemeString.Split(" ").Skip(1).TakeWhile(x => String.Compare("Registrar", x, true) != 0).ToArray();
+                            schemeName = string.Join(" ", splitSchemeString);
+                        }
+                    }
+
+                    // Get Transaction
+                    if (line.Contains("CAMSCASWS"))
+                        line = line.Split("CAMSCASWS")[0].TrimEnd();
+
+                    string[] parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                    decimal decimalNum;
+                    if ((DateTime.TryParseExact(parts[0], "dd-MMM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime invDate)) && Decimal.TryParse(parts[^1], out decimalNum))
+                    {
+                        if (parts.Length > 0)
+                        {
+                            string date = parts[0];
+                            string purchaseSIP = string.Join(" ", parts, 1, Math.Min(parts.Length - 1, parts.Length - 5));
+                            string amount = parts[^4].StartsWith('(') ? parts[^4].TrimStart('(').TrimEnd(')') : parts[^4];
+                            string units = parts[^3].StartsWith('(') ? parts[^3].TrimStart('(').TrimEnd(')') : parts[^3];
+                            string price = parts[^2].StartsWith('(') ? parts[^2].TrimStart('(').TrimEnd(')') : parts[^2];
+                            string unitBalance = parts[^1];
+
+                            AddMutualfundsDto addMutualfunds = new AddMutualfundsDto();
+                            addMutualfunds.Username = userName;
+                            addMutualfunds.Foliono = folioNo;
+                            addMutualfunds.Userpan = panNo;
+                            addMutualfunds.Schemename = schemeName;
+                            addMutualfunds.Date = Convert.ToDateTime(parts[0]);
+                            addMutualfunds.Transactiontype = purchaseSIP.GetMFTransactionType();
+                            addMutualfunds.Invamount = Convert.ToDecimal(amount);
+                            addMutualfunds.Noofunit = Convert.ToDecimal(units);
+                            addMutualfunds.Nav = Convert.ToDouble(price);
+                            addMutualfunds.Unitbalance = Convert.ToDecimal(unitBalance);
+
+                            mutualfundDto.Add(addMutualfunds);
+                        }
+                    }
+                }
+
+                var existUser = mutualfundDto.Where(x => x.Userid != null);
+                existUserTransaction.AddRange(existUser);
+
+                var notExistUser = mutualfundDto.Where(x => x.Userid == null);
+                notExistUserTransaction.AddRange(notExistUser);
+
+                mapRecordForExistUser = _mapper.Map<List<TblMftransaction>>(existUserTransaction);
+                mapRecordforNotExistUser = _mapper.Map<List<TblNotexistuserMftransaction>>(notExistUserTransaction);
+
+                if (UpdateIfExist)
+                {
+                    if (mapRecordForExistUser.Count > 0)
+                    {
+                        var getExistUserRecord = await _mutualfundRepository.GetMFInSpecificDateForExistUser(mapRecordForExistUser.First().Date, mapRecordForExistUser.Last().Date);
+
+                        if (getExistUserRecord.Count > 0)
+                        {
+                            foreach (var record in getExistUserRecord)
+                            {
+                                await _mutualfundRepository.DeleteMFForUserExist(record);
+                            }
+                        }
+                    }
+
+                    if (mapRecordforNotExistUser.Count > 0)
+                    {
+                        var getRecordNotExistUserRecord = await _mutualfundRepository.GetMFInSpecificDateForNotExistUser(mapRecordforNotExistUser.First().Date, mapRecordforNotExistUser.Last().Date);
+
+                        if (getRecordNotExistUserRecord.Count > 0)
+                        {
+                            foreach (var record in getRecordNotExistUserRecord)
+                            {
+                                await _mutualfundRepository.DeleteMFForNotUserExist(record);
+                            }
+                        }
+                    }
+                }
+
+                if (mapRecordForExistUser.Count > 0)
+                {
+                    await _mutualfundRepository.AddMFDataForExistUser(mapRecordForExistUser);
+                }
+                await _mutualfundRepository.AddMFDataForNotExistUser(mapRecordforNotExistUser);
+
+                return 0;
+            }
+            catch (Exception)
+            {
+                return -1;
             }
         }
         #endregion

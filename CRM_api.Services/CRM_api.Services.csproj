@@ -28,6 +28,7 @@
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
     <PackageReference Include="Select.HtmlToPdf.NetCore" Version="22.2.0" />
+    <PackageReference Include="Winnovative.PdfToText.NetCore" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
