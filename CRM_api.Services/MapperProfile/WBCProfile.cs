@@ -5,6 +5,7 @@ using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.WBC_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.WBC_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
+using CRM_api.Services.Dtos.ResponseDto.User_Module;
 
 namespace CRM_api.Services.MapperProfile
 {
@@ -26,6 +27,18 @@ namespace CRM_api.Services.MapperProfile
             CreateMap<Response<TblWbcTypeMaster>, ResponseDto<WbcTypeDto>>();
             CreateMap<Response<TblSubInvesmentType>, ResponseDto<SubInvestmentTypeDto>>();
             CreateMap<Response<TblSubsubInvType>, ResponseDto<SubSubInvestmentTypeDto>>();
+
+            CreateMap<TblGoldPointCategory, GoldPointCategoryDto>();
+            CreateMap<UserNameResponse, UserNameDto>();
+            CreateMap<Response<UserNameResponse>, ResponseDto<UserNameDto>>();
+            CreateMap<WBCTypeResponse, WbcTypeDto>()
+                .ForMember(dest => dest.WbcType, opt => opt.MapFrom(src => src.TypeName));
+            CreateMap<Response<WBCTypeResponse>, ResponseDto<WbcTypeDto>>();
+            CreateMap<TblGoldPoint, GoldPointDto>()
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.TblUserMaster.UserName))
+                .ForMember(dest => dest.PointCategory, opt => opt.MapFrom(src => src.TblGoldPointCategory.PointCategory));
+            CreateMap<Response<TblGoldPoint>, ResponseDto<GoldPointDto>>();
+            CreateMap<GoldPointResponse<TblGoldPoint>, GoldPointResponseDto<GoldPointDto>>();
         }
     }
 }

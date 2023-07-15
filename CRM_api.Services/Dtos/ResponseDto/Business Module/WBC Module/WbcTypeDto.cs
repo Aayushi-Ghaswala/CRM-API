@@ -2,7 +2,7 @@
 {
     public class WbcTypeDto
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public string? WbcType { get; set; }
     }
 }

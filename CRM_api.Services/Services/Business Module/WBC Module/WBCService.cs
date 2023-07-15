@@ -5,6 +5,7 @@ using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.WBC_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.WBC_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
+using CRM_api.Services.Dtos.ResponseDto.User_Module;
 using CRM_api.Services.IServices.Business_Module.WBC_Module;
 
 namespace CRM_api.Services.Services.Business_Module.WBC_Module
@@ -19,6 +20,41 @@ namespace CRM_api.Services.Services.Business_Module.WBC_Module
             _wbcRepository = wbcRepository;
             _mapper = mapper;
         }
+
+        #region Get gold point category
+        public async Task<List<GoldPointCategoryDto>> GetPointCategoryAsync()
+        {
+            var result = await _wbcRepository.GetPointCategory();
+            return _mapper.Map<List<GoldPointCategoryDto>>(result);
+        }
+        #endregion
+
+        #region Get goldpoint user name
+        public async Task<ResponseDto<UserNameDto>> GetGPUsernameAsync(string? type, string? searchingParams, SortingParams sortingParams)
+        {
+            var result = await _wbcRepository.GetGPUsername(type, searchingParams, sortingParams);
+            var mappedResult = _mapper.Map<ResponseDto<UserNameDto>>(result);
+            return mappedResult;
+        }
+        #endregion
+
+        #region Get goldpoint type
+        public async Task<ResponseDto<WbcTypeDto>> GetGPTypesAsync(int? userId, string? searchingParams, SortingParams sortingParams)
+        {
+            var result = await _wbcRepository.GetGPTypes(userId, searchingParams, sortingParams);
+            var mappedResult = _mapper.Map<ResponseDto<WbcTypeDto>>(result);
+            return mappedResult;
+        }
+        #endregion
+
+        #region Get gold point ledger report
+        public async Task<GoldPointResponseDto<GoldPointDto>> GetGPLedgerReportAsync(DateTime? date, int? userId, string? type, int? categoryId, string? searchingParams, SortingParams sortingParams)
+        {
+            var result = await _wbcRepository.GetGPLedgerReport(date, userId, type, categoryId, searchingParams, sortingParams);
+            var mappedResult = _mapper.Map<GoldPointResponseDto<GoldPointDto>>(result);
+            return mappedResult;
+        }
+        #endregion
 
         #region Get wbc GP of month
         public async Task<ResponseDto<WbcGPResponseDto>> GetGPAsync(string? search, DateTime date, SortingParams sortingParams)
