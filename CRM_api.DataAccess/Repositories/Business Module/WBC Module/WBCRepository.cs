@@ -44,6 +44,269 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
             _configuration = configuration;
         }
 
+        #region Get gold point category
+        public async Task<List<TblGoldPointCategory>> GetPointCategory()
+        {
+            return await _context.TblGoldPointCategories.ToListAsync();
+        }
+        #endregion
+
+        #region Get goldpoint user name
+        public async Task<Response<UserNameResponse>> GetGPUsername(string? type, string? searchingParams, SortingParams sortingParams)
+        {
+            try
+            {
+                double pageCount = 0;
+                IQueryable<UserNameResponse> filterData = null;
+
+                if (!string.IsNullOrEmpty(type))
+                    filterData = _context.TblGoldPoints.Include(u => u.TblUserMaster).Where(u => u.Type.ToLower().Equals(type.ToLower()) && u.TblUserMaster.UserName != null).Select(x => new UserNameResponse { UserName = x.TblUserMaster.UserName, UserId = x.Userid }).Distinct().AsQueryable();
+                else
+                    filterData = _context.TblGoldPoints.Include(u => u.TblUserMaster).Where(u => u.TblUserMaster.UserName != null).Select(x => new UserNameResponse { UserName = x.TblUserMaster.UserName, UserId = x.Userid }).Distinct().AsQueryable();
+
+                if (searchingParams != null)
+                {
+                    if (!string.IsNullOrEmpty(type))
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(u => u.TblUserMaster).Where(u => u.Type.ToLower().Equals(type.ToLower()) && u.TblUserMaster.UserName != null).Select(x => new UserNameResponse { UserName = x.TblUserMaster.UserName, UserId = x.Userid }).Distinct().AsQueryable();
+                    else
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Where(u => u.TblUserMaster.UserName != null).Include(u => u.TblUserMaster).Select(x => new UserNameResponse { UserName = x.TblUserMaster.UserName, UserId = x.Userid }).Distinct().AsQueryable();
+                }
+
+                pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+                // Apply sorting
+                var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+                // Apply pagination
+                var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+                var userData = new Response<UserNameResponse>()
+                {
+                    Values = paginatedData,
+                    Pagination = new Pagination()
+                    {
+                        CurrentPage = sortingParams.PageNumber,
+                        Count = (int)pageCount
+                    }
+                };
+                return userData;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get goldpoint type
+        public async Task<Response<WBCTypeResponse>> GetGPTypes(int? userId, string? searchingParams, SortingParams sortingParams)
+        {
+            try
+            {
+                double pageCount = 0;
+                IQueryable<WBCTypeResponse> filterData = null;
+
+                if (userId is not null)
+                    filterData = _context.TblGoldPoints.Include(u => u.TblUserMaster).Where(u => u.Userid == userId).Select(x => new WBCTypeResponse { TypeName = x.Type}).Distinct().AsQueryable();
+                else
+                    filterData = _context.TblGoldPoints.Include(u => u.TblUserMaster).Select(x => new WBCTypeResponse { TypeName = x.Type }).Distinct().AsQueryable();
+
+                if (searchingParams != null)
+                {
+                    if (userId is not null)
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(u => u.TblUserMaster).Where(u => u.Userid == userId).Select(x => new WBCTypeResponse { TypeName = x.Type }).Distinct().AsQueryable();
+                    else
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(u => u.TblUserMaster).Select(x => new WBCTypeResponse { TypeName = x.Type }).Distinct().AsQueryable();
+                }
+
+                pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+                // Apply sorting
+                var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+                // Apply pagination
+                var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+                var typeData = new Response<WBCTypeResponse>()
+                {
+                    Values = paginatedData,
+                    Pagination = new Pagination()
+                    {
+                        CurrentPage = sortingParams.PageNumber,
+                        Count = (int)pageCount
+                    }
+                };
+                return typeData;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get gold point ledger report
+        public async Task<GoldPointResponse<TblGoldPoint>> GetGPLedgerReport(DateTime? date, int? userId, string? type, int? categoryId, string? searchingParams, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+            List<TblGoldPoint> data = new List<TblGoldPoint>();
+            IQueryable<TblGoldPoint> filterData = data.AsQueryable();
+
+            decimal? totalCredit = 0;
+            decimal? totalDebit = 0;
+
+            if (date != null || userId != null || !string.IsNullOrEmpty(type) || categoryId != null)
+            {
+                if (date != null && userId != null && !string.IsNullOrEmpty(type) && categoryId != null)
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId && g.Type.ToLower().Equals(type.ToLower()) && g.PointCategory == categoryId).AsQueryable();
+                }
+                else if (userId != null && !string.IsNullOrEmpty(type) && categoryId != null)
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId && g.Type.ToLower().Equals(type.ToLower()) && g.PointCategory == categoryId).AsQueryable();
+                }
+                else if (date != null && userId != null && categoryId != null)
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId && g.PointCategory == categoryId).AsQueryable();
+                }
+                else if (date != null && userId != null && !string.IsNullOrEmpty(type))
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId && g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
+                }
+                else if (date != null && !string.IsNullOrEmpty(type) && categoryId != null)
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Type.ToLower().Equals(type.ToLower()) && g.PointCategory == categoryId).AsQueryable();
+                }
+                else if (date != null && categoryId != null)
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.PointCategory == categoryId).AsQueryable();
+                }
+                else if (userId != null && categoryId != null)
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId && g.PointCategory == categoryId).AsQueryable();
+                }
+                else if (!string.IsNullOrEmpty(type) && categoryId != null)
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Type.ToLower().Equals(type.ToLower()) && g.PointCategory == categoryId).AsQueryable();
+                }
+                else if (date != null && userId != null)
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId).AsQueryable();
+                }
+                else if (date != null && !string.IsNullOrEmpty(type))
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
+                }
+                else if (userId != null && !string.IsNullOrEmpty(type))
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId && g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
+                }
+                else if (date != null)
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date).AsQueryable();
+                }
+                else if (userId != null)
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId).AsQueryable();
+                }
+                else if (!string.IsNullOrEmpty(type))
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
+                }
+                else if (categoryId != null)
+                {
+                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.PointCategory == categoryId).AsQueryable();
+                }
+            }
+            else
+                filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).AsQueryable();
+
+            totalCredit = filterData.Where(g => g.Credit != 0).Sum(g => g.Credit);
+            totalDebit = filterData.Where(g => g.Debit != 0).Sum(g => g.Debit);
+
+            if (searchingParams != null)
+            {
+                if (date != null || userId != null || !string.IsNullOrEmpty(type) || categoryId != null)
+                {
+                    if (date != null && userId != null && !string.IsNullOrEmpty(type) && categoryId != null)
+                    {
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId && g.Type.ToLower().Equals(type.ToLower()) && g.PointCategory == categoryId).AsQueryable();
+                    }
+                    else if (date != null && userId != null && categoryId != null)
+                    {
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId && g.PointCategory == categoryId).AsQueryable();
+                    }
+                    else if (date != null && categoryId != null)
+                    {
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.PointCategory == categoryId).AsQueryable();
+                    }
+                    else if (userId != null && categoryId != null)
+                    {
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId && g.PointCategory == categoryId).AsQueryable();
+                    }
+                    else if (!string.IsNullOrEmpty(type) && categoryId != null)
+                    {
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Type.ToLower().Equals(type.ToLower()) && g.PointCategory == categoryId).AsQueryable();
+                    }
+                    else if (date != null && userId != null)
+                    {
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId).AsQueryable();
+                    }
+                    else if (date != null && !string.IsNullOrEmpty(type))
+                    {
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
+                    }
+                    else if (userId != null && !string.IsNullOrEmpty(type))
+                    {
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId && g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
+                    }
+                    else if (date != null)
+                    {
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date).AsQueryable();
+                    }
+                    else if (userId != null)
+                    {
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId).AsQueryable();
+                    }
+                    else if (!string.IsNullOrEmpty(type))
+                    {
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
+                    }
+                    else if (categoryId != null)
+                    {
+                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.PointCategory == categoryId).AsQueryable();
+                    }
+                }
+                else
+                    filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).AsQueryable();
+            }
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var goldPointData = new Response<TblGoldPoint>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+            var goldPointResponse = new GoldPointResponse<TblGoldPoint>()
+            {
+                response = goldPointData,
+                TotalCredit = totalCredit,
+                TotalDebit = totalDebit,
+            };
+            return goldPointResponse;
+        }
+        #endregion
+
         #region Create temp table
         public async Task<int> CreateTempTable()
         {
@@ -159,6 +422,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         }
         #endregion
 
+        #region Create data table for sp
         private DataTable CreateDataTable(List<WbcGPResponseModel> models)
         {
             DataTable dataTable = new DataTable();
@@ -179,6 +443,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
 
             return dataTable;
         }
+        #endregion
 
         #region Get WBC Shceme By WbcTypeId
         public async Task<TblWbcSchemeMaster> GetWBCSchemeByWBCTypeId(int id, DateTime date)
@@ -275,6 +540,22 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                         wbcGPResponseModels.Add(new WbcGPResponseModel(userId, user.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, subInvType, subSubInvType, wbcGPNonRedemable, 0, 0, false));
                     }
                 }
+            }
+        }
+        #endregion
+
+        #region Check if gold point for particular user already exists or not
+        public async Task<int> CheckGPEntry(DateTime date, List<WbcGPResponseModel> models)
+        {
+            try
+            {
+                var goldPointTableDetails = await _context.TblGoldPoints.ToListAsync();
+                var existsEntries = goldPointTableDetails.Where(g => models.Any(data => data.UserId == g.Userid && data.WbcTypeName.ToLower().Contains(g.Type.ToLower()) && g.Credit != 0 && g.PointCategory == (data.IsRedeemable ? 1 : 2)) && g.Timestamp == date).ToList();
+                return existsEntries.Count;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
         #endregion
@@ -759,10 +1040,16 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                 return 0;
 
             await GetTempTableData();
+            
             var goldPointModelList = new List<TblGoldPoint>();
             var onTheSpotList = new List<TblUserOnTheSpotGP>();
             if (tempTableDataList.Count > 0)
             {
+                var existsOrNot = await CheckGPEntry(date, tempTableDataList);
+                if (existsOrNot > 0)
+                {
+                    return 0;
+                }
                 foreach (var data in tempTableDataList)
                 {
                     var goldPoint = new TblGoldPoint();

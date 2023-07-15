@@ -1,4 +1,6 @@
-﻿namespace CRM_api.DataAccess.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CRM_api.DataAccess.Models
 {
     public partial class TblGoldPoint
     {
@@ -11,6 +13,9 @@
         public int? PointCategory { get; set; }
         public int? Vendorid { get; set; }
 
-        public virtual TblGoldPointCategory? PointCategoryNavigation { get; set; }
+        [ForeignKey(nameof(Userid))]
+        public virtual TblUserMaster TblUserMaster { get; set; }
+        [ForeignKey(nameof(PointCategory))]
+        public virtual TblGoldPointCategory? TblGoldPointCategory { get; set; }
     }
 }

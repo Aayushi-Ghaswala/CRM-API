@@ -1005,7 +1005,7 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.Vendorid).HasColumnName("vendorid");
 
-                entity.HasOne(d => d.PointCategoryNavigation)
+                entity.HasOne(d => d.TblGoldPointCategory)
                     .WithMany(p => p.TblGoldPoints)
                     .HasForeignKey(d => d.PointCategory)
                     .HasConstraintName("FK_tbl_gold_points_tbl_GoldPoint_Category");
@@ -3404,8 +3404,6 @@ namespace CRM_api.DataAccess.Context
                     .HasColumnName("From_Date");
 
                 entity.Property(e => e.GoldPoint).HasColumnName("Gold_Point");
-
-                entity.Property(e => e.NoOfContactsAllowed).HasColumnName("No_of_Contacts_Allowed");
 
                 entity.Property(e => e.ParticularsId).HasColumnName("Particulars_Id");
 

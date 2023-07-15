@@ -16,6 +16,70 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
             _wbcService = wBCService;
         }
 
+        #region Get gold point category
+        [HttpGet("GetPointCategory")]
+        public async Task<IActionResult> GetPointCategory()
+        {
+            try
+            {
+                var result = await _wbcService.GetPointCategoryAsync();
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get goldpoint user name
+        [HttpGet("GetGPUsername")]
+        public async Task<IActionResult> GetGPUsername(string? type, string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var result = await _wbcService.GetGPUsernameAsync(type, search, sortingParams);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get goldpoint type
+        [HttpGet("GetGPTypes")]
+        public async Task<IActionResult> GetGPTypes(int? userId, string? searchingParams, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var result = await _wbcService.GetGPTypesAsync(userId, searchingParams, sortingParams);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get gold point ledger report
+        [HttpGet("GetGPLedgerReport")]
+        public async Task<IActionResult> GetGPLedgerReport(DateTime? date, int? userId, string? type, int? categoryId, string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var result = await _wbcService.GetGPLedgerReportAsync(date, userId, type, categoryId, search, sortingParams);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region Get wbc GP of month
         [HttpGet("GetGP")]
         public async Task<IActionResult> GetGoldPoint(string? search, DateTime date, [FromQuery] SortingParams? sortingParams)
@@ -39,7 +103,7 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
             try
             {
                 var gp = await _wbcService.ReleaseGPAsync(date);
-                return gp != 0 ? Ok(new { Message = "Gold point released successfully." }) : BadRequest(new { Message = "Unable to release gold point"});
+                return gp != 0 ? Ok(new { Message = "Gold point released successfully." }) : BadRequest(new { Message = "Unable to release gold point. Gold point may already released."});
             }
             catch (Exception)
             {

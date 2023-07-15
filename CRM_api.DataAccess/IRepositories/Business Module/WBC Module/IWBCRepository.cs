@@ -7,6 +7,10 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.WBC_Module
 {
     public interface IWBCRepository
     {
+        Task<List<TblGoldPointCategory>> GetPointCategory();
+        Task<Response<UserNameResponse>> GetGPUsername(string? type, string? searchingParams, SortingParams sortingParams);
+        Task<Response<WBCTypeResponse>> GetGPTypes(int? userId, string? searchingParams, SortingParams sortingParams);
+        Task<GoldPointResponse<TblGoldPoint>> GetGPLedgerReport(DateTime? date, int? userId, string? type, int? categoryId, string? searchingParams, SortingParams sortingParams);
         Task<Response<WbcGPResponseModel>> GetGP(string? search, DateTime date, SortingParams sortingParams);
         Task<int> ReleaseGP(DateTime date);
         Task<TblWbcSchemeMaster> GetWBCSchemeByWBCTypeId(int id, DateTime date);
