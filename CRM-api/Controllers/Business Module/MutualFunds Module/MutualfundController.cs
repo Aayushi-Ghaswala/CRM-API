@@ -136,5 +136,21 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
             }
         }
         #endregion
+
+        #region Import CAMS Client File
+        [HttpPost("ImportCAMSClientPdf")]
+        public async Task<IActionResult> ImportCAMSClientPdf(IFormFile file, [FromForm] string? password, bool UpdateIfExist)
+        {
+            try
+            {
+                var flag = await _mutualfundService.ImportCAMSFileAsync(file, password, UpdateIfExist);
+                return (flag == 0) ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to open file." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
     }
 }
