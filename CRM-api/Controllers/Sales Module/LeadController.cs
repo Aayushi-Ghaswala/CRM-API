@@ -20,18 +20,18 @@ namespace CRM_api.Controllers.Sales_Module
 
         #region Get all Leads
         [HttpGet("GetLeads")]
-        public async Task<IActionResult> GetLeads([FromQuery] string? search, [FromQuery] SortingParams? sortingParams, bool export = false)
+        public async Task<IActionResult> GetLeads([FromQuery] string? search, [FromQuery] SortingParams? sortingParams, int? assignTo, bool export = false)
         {
             try
             {
                 if (export)
                 {
-                    var leadCSV = await _leadService.GetLeadsForCSVAsync(search, sortingParams);
+                    var leadCSV = await _leadService.GetLeadsForCSVAsync(assignTo, search, sortingParams);
                     return File(leadCSV, "text/csv", "Leads.csv");
                 }
                 else
                 {
-                    var lead = await _leadService.GetLeadsAsync(search, sortingParams);
+                    var lead = await _leadService.GetLeadsAsync(assignTo, search, sortingParams);
                     return Ok(lead);
                 }
             }
@@ -89,39 +89,7 @@ namespace CRM_api.Controllers.Sales_Module
             }
         }
         #endregion
-
-        #region Get all Leads by assign
-        [HttpGet("GetLeadByAssignee")]
-        public async Task<IActionResult> GetLeadByAssignee([FromQuery] int assignTo, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
-        {
-            try
-            {
-                var lead = await _leadService.GetLeadByAssigneeAsync(assignTo, search, sortingParams);
-                return Ok(lead);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        #endregion
-
-        #region Get all Leads by no assign
-        [HttpGet("GetLeadByNoAssignee")]
-        public async Task<IActionResult> GetLeadByNoAssignee([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
-        {
-            try
-            {
-                var lead = await _leadService.GetLeadByNoAssigneeAsync(search, sortingParams);
-                return Ok(lead);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        #endregion
-
+        
         #region Check MobileNo Exist in Lead
         [HttpGet("CheckMobileExist")]
         public ActionResult CheckMobileExist(int? id, string mobileNo)

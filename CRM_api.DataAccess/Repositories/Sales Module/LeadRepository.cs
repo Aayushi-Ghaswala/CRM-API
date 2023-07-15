@@ -18,11 +18,14 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         }
 
         #region Get Leads
-        public async Task<Response<TblLeadMaster>> GetLeads(string search, SortingParams sortingParams)
+        public async Task<Response<TblLeadMaster>> GetLeads(int? assignTo, string search, SortingParams sortingParams)
         {
             double pageCount = 0;
-
-            var filterData = _context.TblLeadMasters.Where(x => x.IsDeleted != true)
+            var filterData = new List<TblLeadMaster>().AsQueryable();
+            switch (assignTo)
+            {
+                case null:
+                    filterData = _context.TblLeadMasters.Where(x => x.IsDeleted != true)
                                                     .Include(x => x.AssignUser)
                                                     .Include(x => x.ReferredUser)
                                                     .Include(x => x.CampaignMaster)
@@ -30,17 +33,64 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
                                                     .Include(x => x.CityMaster)
                                                     .Include(x => x.StateMaster)
                                                     .Include(x => x.CountryMaster).AsQueryable();
+                    break;
+                case 0:
+                   filterData = _context.TblLeadMasters.Where(x => (x.AssignedTo == null || x.AssignedTo == 0) && x.IsDeleted != true)
+                                                    .Include(x => x.AssignUser)
+                                                    .Include(x => x.ReferredUser)
+                                                    .Include(x => x.CampaignMaster)
+                                                    .Include(x => x.StatusMaster)
+                                                    .Include(x => x.CityMaster)
+                                                    .Include(x => x.StateMaster)
+                                                    .Include(x => x.CountryMaster).AsQueryable();
+                    break;
+                default:
+                    filterData = _context.TblLeadMasters.Where(x => x.AssignedTo == assignTo && x.IsDeleted != true)
+                                                    .Include(x => x.AssignUser)
+                                                    .Include(x => x.ReferredUser)
+                                                    .Include(x => x.CampaignMaster)
+                                                    .Include(x => x.StatusMaster)
+                                                    .Include(x => x.CityMaster)
+                                                    .Include(x => x.StateMaster)
+                                                    .Include(x => x.CountryMaster).AsQueryable();
+                    break;
+            }
 
             if (search != null)
             {
-                filterData = _context.Search<TblLeadMaster>(search).Where(x => x.IsDeleted != true)
-                                                    .Include(x => x.AssignUser)
-                                                    .Include(x => x.ReferredUser)
-                                                    .Include(x => x.CampaignMaster)
-                                                    .Include(x => x.StatusMaster)
-                                                    .Include(x => x.CityMaster)
-                                                    .Include(x => x.StateMaster)
-                                                    .Include(x => x.CountryMaster).AsQueryable();
+                switch (assignTo)
+                {
+                    case null:
+                        filterData = _context.Search<TblLeadMaster>(search).Where(x => x.IsDeleted != true)
+                                                        .Include(x => x.AssignUser)
+                                                        .Include(x => x.ReferredUser)
+                                                        .Include(x => x.CampaignMaster)
+                                                        .Include(x => x.StatusMaster)
+                                                        .Include(x => x.CityMaster)
+                                                        .Include(x => x.StateMaster)
+                                                        .Include(x => x.CountryMaster).AsQueryable();
+                        break;
+                    case 0:
+                        filterData = _context.Search<TblLeadMaster>(search).Where(x => (x.AssignedTo == null || x.AssignedTo == 0) && x.IsDeleted != true)
+                                                        .Include(x => x.AssignUser)
+                                                        .Include(x => x.ReferredUser)
+                                                        .Include(x => x.CampaignMaster)
+                                                        .Include(x => x.StatusMaster)
+                                                        .Include(x => x.CityMaster)
+                                                        .Include(x => x.StateMaster)
+                                                        .Include(x => x.CountryMaster).AsQueryable();
+                        break;
+                    default:
+                        filterData = _context.Search<TblLeadMaster>(search).Where(x => x.AssignedTo == assignTo && x.IsDeleted != true)
+                                                        .Include(x => x.AssignUser)
+                                                        .Include(x => x.ReferredUser)
+                                                        .Include(x => x.CampaignMaster)
+                                                        .Include(x => x.StatusMaster)
+                                                        .Include(x => x.CityMaster)
+                                                        .Include(x => x.StateMaster)
+                                                        .Include(x => x.CountryMaster).AsQueryable();
+                        break;
+                }
             }
 
             // Apply sorting
@@ -132,104 +182,15 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         }
         #endregion
 
-        #region Get Leads By Assignee
-        public async Task<Response<TblLeadMaster>> GetLeadByAssignee(int assignedTo, string search, SortingParams sortingParams)
-        {
-            double pageCount = 0;
-
-            var filterData = _context.TblLeadMasters.Where(x => x.AssignedTo == assignedTo && x.IsDeleted != true)
-                                                    .Include(x => x.AssignUser)
-                                                    .Include(x => x.ReferredUser)
-                                                    .Include(x => x.CampaignMaster)
-                                                    .Include(x => x.StatusMaster)
-                                                    .Include(x => x.CityMaster)
-                                                    .Include(x => x.StateMaster)
-                                                    .Include(x => x.CountryMaster).AsQueryable();
-
-            if (search != null)
-            {
-                filterData = _context.Search<TblLeadMaster>(search).Where(x => x.AssignedTo == assignedTo && x.IsDeleted != true)
-                                                    .Include(x => x.AssignUser)
-                                                    .Include(x => x.ReferredUser)
-                                                    .Include(x => x.CampaignMaster)
-                                                    .Include(x => x.StatusMaster)
-                                                    .Include(x => x.CityMaster)
-                                                    .Include(x => x.StateMaster)
-                                                    .Include(x => x.CountryMaster).AsQueryable();
-            }
-            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
-
-            // Apply sorting
-            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
-
-            // Apply pagination
-            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
-
-            var leadResponse = new Response<TblLeadMaster>()
-            {
-                Values = paginatedData,
-                Pagination = new Pagination()
-                {
-                    CurrentPage = sortingParams.PageNumber,
-                    Count = (int)pageCount
-                }
-            };
-
-            return leadResponse;
-        }
-        #endregion
-
-        #region Get Leads By No Assignee
-        public async Task<Response<TblLeadMaster>> GetLeadByNoAssignee(string search, SortingParams sortingParams)
-        {
-            double pageCount = 0;
-
-            var filterData = _context.TblLeadMasters.Where(x => (x.AssignedTo == null || x.AssignedTo == 0) && x.IsDeleted != true)
-                                                    .Include(x => x.AssignUser)
-                                                    .Include(x => x.ReferredUser)
-                                                    .Include(x => x.CampaignMaster)
-                                                    .Include(x => x.StatusMaster)
-                                                    .Include(x => x.CityMaster)
-                                                    .Include(x => x.StateMaster)
-                                                    .Include(x => x.CountryMaster).AsQueryable();
-
-            if (search != null)
-            {
-                filterData = _context.Search<TblLeadMaster>(search).Where(x => (x.AssignedTo == null || x.AssignedTo == 0) && x.IsDeleted != true)
-                                                    .Include(x => x.AssignUser)
-                                                    .Include(x => x.ReferredUser)
-                                                    .Include(x => x.CampaignMaster)
-                                                    .Include(x => x.StatusMaster)
-                                                    .Include(x => x.CityMaster)
-                                                    .Include(x => x.StateMaster)
-                                                    .Include(x => x.CountryMaster).AsQueryable();
-            }
-            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
-
-            // Apply sorting
-            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
-
-            // Apply pagination
-            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
-
-            var leadResponse = new Response<TblLeadMaster>()
-            {
-                Values = paginatedData,
-                Pagination = new Pagination()
-                {
-                    CurrentPage = sortingParams.PageNumber,
-                    Count = (int)pageCount
-                }
-            };
-
-            return leadResponse;
-        }
-        #endregion
-
+        
         #region Get Leads
-        public async Task<List<TblLeadMaster>> GetLeadsForCSV(string search, SortingParams sortingParams)
+        public async Task<List<TblLeadMaster>> GetLeadsForCSV(int? assignTo, string search, SortingParams sortingParams)
         {
-            var filterData = _context.TblLeadMasters.Where(x => x.IsDeleted != true)
+            var filterData = new List<TblLeadMaster>().AsQueryable();
+            switch (assignTo)
+            {
+                case null:
+                    filterData = _context.TblLeadMasters.Where(x => x.IsDeleted != true)
                                                     .Include(x => x.AssignUser)
                                                     .Include(x => x.ReferredUser)
                                                     .Include(x => x.CampaignMaster)
@@ -237,17 +198,64 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
                                                     .Include(x => x.CityMaster)
                                                     .Include(x => x.StateMaster)
                                                     .Include(x => x.CountryMaster).AsQueryable();
+                    break;
+                case 0:
+                    filterData = _context.TblLeadMasters.Where(x => (x.AssignedTo == null || x.AssignedTo == 0) && x.IsDeleted != true)
+                                                     .Include(x => x.AssignUser)
+                                                     .Include(x => x.ReferredUser)
+                                                     .Include(x => x.CampaignMaster)
+                                                     .Include(x => x.StatusMaster)
+                                                     .Include(x => x.CityMaster)
+                                                     .Include(x => x.StateMaster)
+                                                     .Include(x => x.CountryMaster).AsQueryable();
+                    break;
+                default:
+                    filterData = _context.TblLeadMasters.Where(x => x.AssignedTo == assignTo && x.IsDeleted != true)
+                                                    .Include(x => x.AssignUser)
+                                                    .Include(x => x.ReferredUser)
+                                                    .Include(x => x.CampaignMaster)
+                                                    .Include(x => x.StatusMaster)
+                                                    .Include(x => x.CityMaster)
+                                                    .Include(x => x.StateMaster)
+                                                    .Include(x => x.CountryMaster).AsQueryable();
+                    break;
+            }
 
             if (search != null)
             {
-                filterData = _context.Search<TblLeadMaster>(search).Where(x => x.IsDeleted != true)
-                                                    .Include(x => x.AssignUser)
-                                                    .Include(x => x.ReferredUser)
-                                                    .Include(x => x.CampaignMaster)
-                                                    .Include(x => x.StatusMaster)
-                                                    .Include(x => x.CityMaster)
-                                                    .Include(x => x.StateMaster)
-                                                    .Include(x => x.CountryMaster).AsQueryable();
+                switch (assignTo)
+                {
+                    case null:
+                        filterData = _context.Search<TblLeadMaster>(search).Where(x => x.IsDeleted != true)
+                                                        .Include(x => x.AssignUser)
+                                                        .Include(x => x.ReferredUser)
+                                                        .Include(x => x.CampaignMaster)
+                                                        .Include(x => x.StatusMaster)
+                                                        .Include(x => x.CityMaster)
+                                                        .Include(x => x.StateMaster)
+                                                        .Include(x => x.CountryMaster).AsQueryable();
+                        break;
+                    case 0:
+                        filterData = _context.Search<TblLeadMaster>(search).Where(x => (x.AssignedTo == null || x.AssignedTo == 0) && x.IsDeleted != true)
+                                                        .Include(x => x.AssignUser)
+                                                        .Include(x => x.ReferredUser)
+                                                        .Include(x => x.CampaignMaster)
+                                                        .Include(x => x.StatusMaster)
+                                                        .Include(x => x.CityMaster)
+                                                        .Include(x => x.StateMaster)
+                                                        .Include(x => x.CountryMaster).AsQueryable();
+                        break;
+                    default:
+                        filterData = _context.Search<TblLeadMaster>(search).Where(x => x.AssignedTo == assignTo && x.IsDeleted != true)
+                                                        .Include(x => x.AssignUser)
+                                                        .Include(x => x.ReferredUser)
+                                                        .Include(x => x.CampaignMaster)
+                                                        .Include(x => x.StatusMaster)
+                                                        .Include(x => x.CityMaster)
+                                                        .Include(x => x.StateMaster)
+                                                        .Include(x => x.CountryMaster).AsQueryable();
+                        break;
+                }
             }
 
             // Apply sorting
