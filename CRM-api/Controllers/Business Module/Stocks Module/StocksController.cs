@@ -63,6 +63,38 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         }
         #endregion
 
+        #region Get scriptwise client summary
+        [HttpGet("GetClientwiseScriptSummary")]
+        public async Task<IActionResult> GetClientwiseScriptSummary(string? userName, bool? isZero, DateTime? startDate, DateTime? endDate,[FromQuery] string? search,[FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var getData = await _stockService.GetClientwiseScripSummaryAsync(userName, isZero, startDate, endDate, search, sortingParams);
+                return Ok(getData);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get clientwise stock summary
+        [HttpGet("GetClientWiseSummary")]
+        public async Task<IActionResult> GetClientWiseSummary(bool? isZero, DateTime? startDate, DateTime? endDate, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var getData = await _stockService.GetAllClientwiseStockSummaryAsync(isZero, startDate, endDate, search, sortingParams);
+                return Ok(getData);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region Import Sharekhan All Trade File[.csv]
         [HttpPost("ImportSharekhanAllTradeFile")]
         public async Task<IActionResult> ImportSharekhanAllTradeFile(IFormFile formFile, string firmName, bool overrideData = false)

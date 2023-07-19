@@ -64,6 +64,144 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         }
         #endregion
 
+        #region Get clientwise script summary
+        public async Task<StockSummaryDto<ScripwiseSummaryDto>> GetClientwiseScripSummaryAsync(string? userName, bool? isZero, DateTime? startDate, DateTime? endDate, string? searchingParams, SortingParams sortingParams)
+        {
+            var stockData = await _stocksRepository.GetStockDataByUserName(userName, startDate, endDate);
+            var scripwiseStocks = stockData.GroupBy(x => x.StScripname).ToList();
+            double? pageCount = 0;
+
+            List<ScripwiseSummaryDto> scripwiseSummaries = new List<ScripwiseSummaryDto>();
+
+            foreach (var scripwiseStock in scripwiseStocks)
+            {
+                ScripwiseSummaryDto scripwiseSummary = new ScripwiseSummaryDto();
+
+                scripwiseSummary.StScripname = scripwiseStock.Key;
+
+                scripwiseSummary.TotalBuyQuantity = scripwiseStock.Where(x => x.StType.Equals("B")).Sum(x => x.StQty);
+                scripwiseSummary.TotalSellQuantity = scripwiseStock.Where(x => x.StType.Equals("S")).Sum(x => x.StQty);
+                scripwiseSummary.TotalAvailableQuantity = scripwiseSummary.TotalBuyQuantity - scripwiseSummary.TotalSellQuantity;
+
+                scripwiseSummary.NetCostValue = Math.Round((decimal)scripwiseStock.Average(x => x.StNetsharerate), 2);
+                scripwiseSummary.TotalCurrentValue = Math.Round((decimal)(scripwiseSummary.TotalAvailableQuantity * scripwiseSummary.NetCostValue), 2);
+
+                scripwiseSummaries.Add(scripwiseSummary);
+            }
+
+            if(isZero is true)
+                scripwiseSummaries = scripwiseSummaries.Where(x => x.TotalAvailableQuantity == 0).ToList();
+            else
+                scripwiseSummaries = scripwiseSummaries.Where(x => x.TotalAvailableQuantity != 0).ToList();
+
+            IQueryable<ScripwiseSummaryDto> scriptwiseSummaryDto = scripwiseSummaries.AsQueryable();
+
+            var balanceQuantity = scripwiseSummaries.Sum(x => x.TotalAvailableQuantity);
+            var totalAmount = scripwiseSummaries.Sum(x => x.TotalCurrentValue);
+
+            pageCount = Math.Ceiling(scripwiseSummaries.Count() / sortingParams.PageSize);
+
+            if(searchingParams != null)
+            {
+                scriptwiseSummaryDto = scriptwiseSummaryDto.Where(x => x.StScripname.ToLower().Contains(searchingParams.ToLower()) || x.TotalBuyQuantity.ToString().Contains(searchingParams) || x.TotalSellQuantity.ToString().Contains(searchingParams) || x.TotalAvailableQuantity.ToString().Contains(searchingParams) || x.NetCostValue.ToString().Contains(searchingParams) || x.TotalCurrentValue.ToString().Contains(searchingParams));
+            }
+
+            //Apply Sorting 
+            var sortedData = SortingExtensions.ApplySorting(scriptwiseSummaryDto, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            //Apply Pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var stockSummary = new ResponseDto<ScripwiseSummaryDto>()
+            {
+                Values = paginatedData,
+                Pagination = new PaginationDto()
+                {
+                    Count = (int)pageCount,
+                    CurrentPage = sortingParams.PageNumber
+                }
+            };
+
+            var stockSummaryResponse = new StockSummaryDto<ScripwiseSummaryDto>()
+            {
+                response = stockSummary,
+                totalBalanceQuantity = balanceQuantity,
+                totalAmount = totalAmount
+            };
+
+            return stockSummaryResponse;
+        }
+        #endregion
+
+        #region Get All clientwise summary
+        public async Task<StockSummaryDto<ScripwiseSummaryDto>> GetAllClientwiseStockSummaryAsync(bool? isZero, DateTime? startDate, DateTime? endDate, string? searchingParams, SortingParams sortingParams)
+        {
+            var stockData = await _stocksRepository.GetStockDataForSpecificDateRange(startDate, endDate, null);
+            var clientwiseStocks = stockData.GroupBy(x => x.StClientname).ToList();
+            double? pageCount = 0;
+
+            List<ScripwiseSummaryDto> clientwiseSummaries = new List<ScripwiseSummaryDto>();
+
+            foreach (var clientwiseStock in clientwiseStocks)
+            {
+                ScripwiseSummaryDto clientwiseSummary = new ScripwiseSummaryDto();
+
+                clientwiseSummary.StClientname = clientwiseStock.Key;
+
+                clientwiseSummary.TotalBuyQuantity = clientwiseStock.Where(x => x.StType.Equals("B")).Sum(x => x.StQty);
+                clientwiseSummary.TotalSellQuantity = clientwiseStock.Where(x => x.StType.Equals("S")).Sum(x => x.StQty);
+                clientwiseSummary.TotalAvailableQuantity = clientwiseSummary.TotalBuyQuantity - clientwiseSummary.TotalSellQuantity;
+
+                clientwiseSummary.NetCostValue = Math.Round((decimal)clientwiseStock.Average(x => x.StNetsharerate), 2);
+                clientwiseSummary.TotalCurrentValue = Math.Round((decimal)(clientwiseSummary.TotalAvailableQuantity * clientwiseSummary.NetCostValue), 2);
+
+                clientwiseSummaries.Add(clientwiseSummary);
+            }
+
+            if (isZero is true)
+                clientwiseSummaries = clientwiseSummaries.Where(x => x.TotalAvailableQuantity == 0).ToList();
+            else
+                clientwiseSummaries = clientwiseSummaries.Where(x => x.TotalAvailableQuantity != 0).ToList();
+
+            IQueryable<ScripwiseSummaryDto> clientwiseSummaryDto = clientwiseSummaries.AsQueryable();
+
+            var balanceQuantity = clientwiseSummaries.Sum(x => x.TotalAvailableQuantity);
+            var totalAmount = clientwiseSummaries.Sum(x => x.TotalCurrentValue);
+
+            pageCount = Math.Ceiling(clientwiseSummaries.Count() / sortingParams.PageSize);
+
+            if (searchingParams != null)
+            {
+                clientwiseSummaryDto = clientwiseSummaryDto.Where(x => x.StClientname.ToLower().Contains(searchingParams.ToLower()) || x.TotalBuyQuantity.ToString().Contains(searchingParams) || x.TotalSellQuantity.ToString().Contains(searchingParams) || x.TotalAvailableQuantity.ToString().Contains(searchingParams) || x.NetCostValue.ToString().Contains(searchingParams) || x.TotalCurrentValue.ToString().Contains(searchingParams));
+            }
+
+            //Apply Sorting 
+            var sortedData = SortingExtensions.ApplySorting(clientwiseSummaryDto, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            //Apply Pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var stockSummary = new ResponseDto<ScripwiseSummaryDto>()
+            {
+                Values = paginatedData,
+                Pagination = new PaginationDto()
+                {
+                    Count = (int)pageCount,
+                    CurrentPage = sortingParams.PageNumber
+                }
+            };
+
+            var stockSummaryResponse = new StockSummaryDto<ScripwiseSummaryDto>()
+            {
+                response = stockSummary,
+                totalBalanceQuantity = balanceQuantity,
+                totalAmount = totalAmount
+            };
+
+            return stockSummaryResponse;
+        }
+        #endregion
+
         #region Import Sharekhan trade file for all and/or individual client.
         public async Task<int> ImportSharekhanTradeFileAsync(IFormFile formFile, string firmName, int id, bool overrideData)
         {
