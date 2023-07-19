@@ -6,6 +6,7 @@ using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using CRM_api.DataAccess.ResponseModel.Stocks_Module;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
+using System.Security.Cryptography.X509Certificates;
 
 namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
 {
@@ -352,20 +353,30 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         #region Get stocks data for specific date range
         public async Task<List<TblStockData>> GetStockDataForSpecificDateRange(DateTime? startDate, DateTime? endDate, string firmName)
         {
-            return await _context.TblStockData.Where(s => s.StDate >= startDate && s.StDate <= endDate && s.FirmName.ToLower().Equals(firmName.ToLower())).ToListAsync();
+            List<TblStockData> stockDatas = new List<TblStockData>();
+
+            if (startDate != null && endDate != null && firmName != null)
+                stockDatas = await _context.TblStockData.Where(s => s.StDate >= startDate && s.StDate <= endDate && s.FirmName.ToLower().Equals(firmName.ToLower())).ToListAsync();
+            else if (firmName == null && startDate != null && endDate != null)
+                stockDatas = await _context.TblStockData.Where(s => s.StDate >= startDate && s.StDate <= endDate).ToListAsync();
+            else
+                stockDatas = await _context.TblStockData.ToListAsync();
+
+            return stockDatas;
         }
         #endregion
 
         #region Get stocks transaction current stock amount by user name
-        public async Task<decimal?> GetStockDataByUserName(string userName)
+        public async Task<List<TblStockData>> GetStockDataByUserName(string userName, DateTime? startDate, DateTime? endDate)
         {
-            var stockData = await _context.TblStockData.Where(x => x.StClientname.ToLower() == userName.ToLower()).ToListAsync();
+            List<TblStockData> stockData = new List<TblStockData>();
 
-            var totalPurchase = stockData.Where(s => s.StType.Equals("B")).Sum(x => x.StNetcostvalue);
-            var totalSale = stockData.Where(s => s.StType.Equals("S")).Sum(x => x.StNetcostvalue);
-            var currentStockAmount = totalPurchase - totalSale;
+            if (startDate is null && endDate is null)
+                stockData = await _context.TblStockData.Where(x => x.StClientname.ToLower() == userName.ToLower()).ToListAsync();
+            else 
+                stockData = await _context.TblStockData.Where(x => x.StClientname.ToLower() == userName.ToLower() && x.StDate >= startDate && x.StDate <= endDate).ToListAsync();
 
-            return currentStockAmount;
+            return stockData;
         }
         #endregion
 

@@ -447,7 +447,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                             if (mapRecordsForExistUser.Count > 0)
                             {
                                 var GetDataForExistUser = await _mutualfundRepository.GetMFInSpecificDateForExistUser(
-                                                            mapRecordsForExistUser.First().Date, mapRecordsForExistUser.First().Date);
+                                                            mapRecordsForExistUser.First().Date, mapRecordsForExistUser.Last().Date);
 
                                 if (GetDataForExistUser.Count > 0)
                                 {
