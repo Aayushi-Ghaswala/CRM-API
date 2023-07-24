@@ -394,15 +394,19 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.Accountid).HasColumnName("accountid");
+                entity.Property(e => e.Companyid).HasColumnName("companyid");
 
                 entity.Property(e => e.Credit)
                     .HasColumnType("decimal(18, 2)")
                     .HasColumnName("credit");
 
+                entity.Property(e => e.CreditAccountId).HasColumnName("Credit_AccountId");
+
                 entity.Property(e => e.Debit)
                     .HasColumnType("decimal(18, 2)")
                     .HasColumnName("debit");
+
+                entity.Property(e => e.DebitAccountId).HasColumnName("Debit_AccountId");
 
                 entity.Property(e => e.DocDate)
                     .HasColumnType("date")
@@ -410,6 +414,7 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.DocNo)
                     .HasMaxLength(20)
+                    .IsUnicode(false)
                     .HasColumnName("doc_no");
 
                 entity.Property(e => e.DocParticulars)

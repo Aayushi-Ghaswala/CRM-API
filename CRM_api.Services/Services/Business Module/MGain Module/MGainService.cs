@@ -1630,7 +1630,7 @@ SURAT - 395009 <p>
                 creditAccountTransaction.Debit = 0;
                 creditAccountTransaction.Credit = MGainNonCumulativeMonthlyReport.InterestAmount;
                 creditAccountTransaction.DocUserid = mGainUserId;
-                creditAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
+                creditAccountTransaction.CreditAccountId = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
                 creditAccountTransaction.Mgainid = mGainId;
 
                 //Journal Debit Entry
@@ -1641,7 +1641,7 @@ SURAT - 395009 <p>
                 debitAccountTransaction.Debit = MGainNonCumulativeMonthlyReport.InterestAmount;
                 debitAccountTransaction.Credit = 0;
                 debitAccountTransaction.DocUserid = mGainUserId;
-                debitAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(0, jvNarration).Result.AccountId;
+                debitAccountTransaction.DebitAccountId = _mGainRepository.GetAccountByUserId(0, jvNarration).Result.AccountId;
                 debitAccountTransaction.Mgainid = mGainId;
 
                 accountTransactions.Add(debitAccountTransaction);
@@ -1660,7 +1660,7 @@ SURAT - 395009 <p>
                     creditTDCAccountTransaction.Debit = 0;
                     creditTDCAccountTransaction.Credit = MGainNonCumulativeMonthlyReport.TDS;
                     creditTDCAccountTransaction.DocUserid = mGainUserId;
-                    creditTDCAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(0, tdsYear).Result.AccountId;
+                    creditTDCAccountTransaction.CreditAccountId = _mGainRepository.GetAccountByUserId(0, tdsYear).Result.AccountId;
                     creditTDCAccountTransaction.Mgainid = mGainId;
 
                     //Journal TDs Debit Entry
@@ -1671,7 +1671,7 @@ SURAT - 395009 <p>
                     debitTDCAccountTransaction.Debit = MGainNonCumulativeMonthlyReport.TDS;
                     debitTDCAccountTransaction.Credit = 0;
                     debitTDCAccountTransaction.DocUserid = mGainUserId;
-                    debitTDCAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
+                    debitTDCAccountTransaction.DebitAccountId = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
                     debitTDCAccountTransaction.Mgainid = mGainId;
 
                     accountTransactions.Add(debitTDCAccountTransaction);
@@ -1692,7 +1692,7 @@ SURAT - 395009 <p>
                 creditAccountTransaction.Debit = 0;
                 creditAccountTransaction.Credit = MGainNonCumulativeMonthlyReport.InterestAmount;
                 creditAccountTransaction.DocUserid = mGainUserId;
-                creditAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(0, crNarration).Result.AccountId;
+                creditAccountTransaction.CreditAccountId = _mGainRepository.GetAccountByUserId(0, crNarration).Result.AccountId;
                 creditAccountTransaction.Mgainid = mGainId;
 
                 //Payment Debit Entry
@@ -1703,7 +1703,7 @@ SURAT - 395009 <p>
                 debitAccountTransaction.Debit = MGainNonCumulativeMonthlyReport.InterestAmount;
                 debitAccountTransaction.Credit = 0;
                 debitAccountTransaction.DocUserid = mGainUserId;
-                debitAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
+                debitAccountTransaction.DebitAccountId = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
                 debitAccountTransaction.Mgainid = mGainId;
 
                 accountTransactions.Add(debitAccountTransaction);
