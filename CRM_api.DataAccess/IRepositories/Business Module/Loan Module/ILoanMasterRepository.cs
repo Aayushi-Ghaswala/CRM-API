@@ -10,8 +10,9 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.Loan_Module
         Task<Response<TblLoanMaster>> GetLoanDetails(string? filterString, string search, SortingParams sortingParams);
         Task<Response<TblBankMaster>> GetBankDetails(SortingParams sortingParams);
         Task<TblLoanMaster> GetLoanDetailById(int id);
+        List<TblLoanMaster> GetLoanDetailsForEMIReminder();
         Task<int> AddLoanDetail(TblLoanMaster tblLoan);
-        Task<int> UpdateLoanDetail(TblLoanMaster tblLoan);
+        Task<int> UpdateLoanDetail(TblLoanMaster tblLoan, bool flag = false);
         Task<int> DeactivateLoanDetail(int id);
     }
 }

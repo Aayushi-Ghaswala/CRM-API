@@ -1,12 +1,9 @@
-﻿using AutoMapper;
-using CRM_api.DataAccess.Helper;
-using CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module;
-using CRM_api.DataAccess.IRepositories.Business_Module.MGain_Module;
+﻿using CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
+using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.Dashboard;
-using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Helper.ConstantValue;
 using CRM_api.Services.Helper.Reminder_Helper;
 using CRM_api.Services.IServices.Business_Module.Dashboard;
@@ -22,29 +19,34 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
         private readonly IInsuranceClientRepository _insuranceClientRepository;
         private readonly IStocksRepository _stocksRepository;
         private readonly IMutualfundRepository _mutualfundRepository;
-        private readonly IMGainRepository _mGainRepository;
-        private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
 
-        public BusinessDashboardService(IUserMasterRepository userMasterRepository, IInsuranceClientRepository insuranceClientRepository, IStocksRepository stocksRepository, IMutualfundRepository mutualfundRepository, IMapper mapper, IConfiguration configuration, IMGainRepository mGainRepository)
+        public BusinessDashboardService(IUserMasterRepository userMasterRepository, IInsuranceClientRepository insuranceClientRepository, IStocksRepository stocksRepository, IMutualfundRepository mutualfundRepository, IConfiguration configuration)
         {
             _userMasterRepository = userMasterRepository;
             _insuranceClientRepository = insuranceClientRepository;
             _stocksRepository = stocksRepository;
             _mutualfundRepository = mutualfundRepository;
-            _mapper = mapper;
             _configuration = configuration;
-            _mGainRepository = mGainRepository;
         }
 
         #region Client Current Investment Snapshot
-        public async Task<ResponseDto<ClientReportDto<ClientCurrentInvSnapshotDto>>> GetClientCurrentInvSnapshotAsync(string search, SortingParams sortingParams)
+        public async Task<List<ClientReportDto<ClientCurrentInvSnapshotDto>>> GetClientCurrentInvSnapshotAsync(int? userId, bool? isZero, string search)
         {
             var category = await _userMasterRepository.GetCategoryByName(CategoryConstant.customer);
-            var clients = await _userMasterRepository.GetUsersByCategoryId(category.CatId, search, sortingParams);
+            List<TblUserMaster> clients = new List<TblUserMaster>();
+
+            if (userId is not null)
+                clients = await _userMasterRepository.GetUsersByCategoryId(category.CatId, null, null, search, true);
+            else
+            {
+                var client = await _userMasterRepository.GetUserMasterbyId((int)userId, null, null, true);
+                clients.Add(client);
+            }
+
             List<ClientReportDto<ClientCurrentInvSnapshotDto>> clientCurrentInvSnapshots = new List<ClientReportDto<ClientCurrentInvSnapshotDto>>();
 
-            foreach (var client in clients.Values)
+            foreach (var client in clients)
             {
                 var clientReport = new ClientReportDto<ClientCurrentInvSnapshotDto>();
                 clientReport.UserName = client.UserName;
@@ -52,56 +54,99 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
                 clientReport.UserMobile = client.UserMobile;
                 var clientCurrentSnapshot = new ClientCurrentInvSnapshotDto();
 
-                var lifeInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.Life.ToString());
-                clientCurrentSnapshot.LI = await _insuranceClientRepository.GetInsDetailsByUserId(client.UserId, lifeInsId);
+                if (client.TblInsuranceclients is not null)
+                {
+                    var lifeInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.Life.ToString());
+                    clientCurrentSnapshot.LI = client.TblInsuranceclients.Where(x => x.InsUserid == userId && x.IsDeleted != true && x.InvSubtype == lifeInsId)
+                                                                         .Sum(x => x.InsAmount);
 
-                var generalInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.General.ToString());
-                clientCurrentSnapshot.GI = await _insuranceClientRepository.GetInsDetailsByUserId(client.UserId, generalInsId);
+                    var generalInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.General.ToString());
+                    clientCurrentSnapshot.GI = client.TblInsuranceclients.Where(x => x.InsUserid == userId && x.IsDeleted != true && x.InvSubtype == generalInsId)
+                                                                         .Sum(x => x.InsAmount);
+                }
 
-                clientCurrentSnapshot.Stocks = await _stocksRepository.GetStockDataByUserName(client.UserName);
+                var stocks = await _stocksRepository.GetStockDataByUserName(client.UserName, null, null);
+                if (stocks.Count > 0)
+                {
+                    var totalPurchase = stocks.Where(s => s.StType.Equals("B")).Sum(x => x.StNetcostvalue);
+                    var totalSale = stocks.Where(s => s.StType.Equals("S")).Sum(x => x.StNetcostvalue);
+                    clientCurrentSnapshot.Stocks = totalPurchase - totalSale;
+                }
 
-                var mgainDetails = await _mGainRepository.GetMGainDetailsByUserId(client.UserId);
-                clientCurrentSnapshot.MGain = mgainDetails.Sum(x => x.MgainInvamt);
+                if (client.TblMgaindetails is null)
+                    clientCurrentSnapshot.MGain = client.TblMgaindetails.Sum(x => x.MgainInvamt);
 
-                clientCurrentSnapshot.MutualFunds = await _mutualfundRepository.GetMFTransactionByUserId(client.UserId);
+                if (client.TblMftransactions is not null)
+                {
+                    var redemptionUnit = client.TblMftransactions.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale");
+                    var redemAmount = redemptionUnit.Sum(x => x.Invamount);
+
+                    var TotalpurchaseUnit = client.TblMftransactions.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" && x.Transactiontype != "Sale");
+                    var purchaseAmount = TotalpurchaseUnit.Sum(x => x.Invamount);
+
+                    clientCurrentSnapshot.MutualFunds = purchaseAmount - redemAmount;
+                }
 
                 clientReport.ClientInvSnapshot = clientCurrentSnapshot;
 
-                clientCurrentInvSnapshots.Add(clientReport);
+                if (isZero is true)
+                {
+                    if (clientCurrentSnapshot.MGain == 0 && clientCurrentSnapshot.Assets == 0 && clientCurrentSnapshot.Stocks == 0
+                                && clientCurrentSnapshot.MutualFunds == 0 && clientCurrentSnapshot.GI == 0 && clientCurrentSnapshot.LI == 0)
+                        clientCurrentInvSnapshots.Add(clientReport);
+                }
+                else
+                {
+                    if (clientCurrentSnapshot.MGain != 0 || clientCurrentSnapshot.Assets != 0 || clientCurrentSnapshot.Stocks != 0
+                                || clientCurrentSnapshot.MutualFunds != 0 || clientCurrentSnapshot.GI != 0 || clientCurrentSnapshot.LI != 0)
+                        clientCurrentInvSnapshots.Add(clientReport);
+                }
             }
 
-            var pagination = _mapper.Map<PaginationDto>(clients.Pagination);
-
-            var responseSnapshot = new ResponseDto<ClientReportDto<ClientCurrentInvSnapshotDto>>()
-            {
-                Values = clientCurrentInvSnapshots,
-                Pagination = pagination
-            };
-
-            return responseSnapshot;
+            return clientCurrentInvSnapshots;
         }
         #endregion
 
         #region Client Monthly Transaction Snapshot
-        public async Task<ResponseDto<ClientReportDto<ClientMonthlyTransSnapshotDto>>> GetClientMonthlyTransSnapshotAsync(int? month, int? year, string search, SortingParams sortingParams)
+        public async Task<List<ClientReportDto<ClientMonthlyTransSnapshotDto>>> GetClientMonthlyTransSnapshotAsync(int? userId, int? month, int? year, bool? isZero, string search)
         {
+            var clients = new List<TblUserMaster>();
             var category = await _userMasterRepository.GetCategoryByName(CategoryConstant.customer);
-            var clients = await _userMasterRepository.GetUsersByCategoryId(category.CatId, search, sortingParams);
             List<ClientReportDto<ClientMonthlyTransSnapshotDto>> clientMonthlyTransSnapshots = new List<ClientReportDto<ClientMonthlyTransSnapshotDto>>();
 
-            foreach (var client in clients.Values)
+            if (userId is not null)
+            {
+                var client = await _userMasterRepository.GetUserMasterbyId((int)userId, month, year);
+                clients.Add(client);
+            }
+            else
+                clients = await _userMasterRepository.GetUsersByCategoryId(category.CatId, month, year, search);
+
+            foreach (var client in clients)
             {
                 var clientReport = new ClientReportDto<ClientMonthlyTransSnapshotDto>();
                 clientReport.UserName = client.UserName;
                 clientReport.UserEmail = client.UserEmail;
                 clientReport.UserMobile = client.UserMobile;
                 var clientMonthlyTransSnapshot = new ClientMonthlyTransSnapshotDto();
+                if (client.TblInsuranceclients.Count > 0)
+                {
+                    var lifeInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.Life.ToString());
+                    var generalInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.General.ToString());
 
-                var lifeInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.Life.ToString());
-                clientMonthlyTransSnapshot.LIPremium = await _insuranceClientRepository.GetInsPremiumAmountByUserId(month, year, client.UserId, lifeInsId);
+                    clientMonthlyTransSnapshot.LIPremium = client.TblInsuranceclients.Where(x => x.InvSubtype == lifeInsId)
+                                                            .Sum(x => x.PremiumAmount);
 
-                var generalInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.General.ToString());
-                clientMonthlyTransSnapshot.GIPremium = await _insuranceClientRepository.GetInsPremiumAmountByUserId(month, year, client.UserId, generalInsId);
+                    clientMonthlyTransSnapshot.GIPremium = client.TblInsuranceclients.Where(x => x.InvSubtype == generalInsId)
+                                                            .Sum(x => x.PremiumAmount);
+                }
+
+                if (client.TblMftransactions.Count > 0)
+                {
+                    clientMonthlyTransSnapshot.MFSip = client.TblMftransactions.Where(x => x.Transactiontype == "PIP").Sum(x => x.Invamount);
+                    clientMonthlyTransSnapshot.MFLumpsum = client.TblMftransactions.Where(x => x.Transactiontype == "PIP (SIP)").Sum(x => x.Invamount);
+                }
+
 
                 var stockData = await _stocksRepository.GetCurrentStockDataByUserName(month, year, client.UserName);
                 if (stockData.Count > 0)
@@ -111,27 +156,26 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
                     clientMonthlyTransSnapshot.Delivery = Math.Round((decimal)stockData.Where(x => x.StType.Equals("S")).Sum(x => x.StNetcostvalue), 2);
                 }
 
-                var mfTransactions = await _mutualfundRepository.GetMFTransactionSIPLumpsumByUserId(month, year, client.UserId);
-                if (mfTransactions.Count > 0)
-                {
-                    clientMonthlyTransSnapshot.MFSip = mfTransactions.Where(x => x.Transactiontype == "PIP").Sum(x => x.Invamount);
-                    clientMonthlyTransSnapshot.MFLumpsum = mfTransactions.Where(x => x.Transactiontype == "PIP (SIP)").Sum(x => x.Invamount);
-                }
-
                 clientReport.ClientInvSnapshot = clientMonthlyTransSnapshot;
 
-                clientMonthlyTransSnapshots.Add(clientReport);
+                if (isZero is true)
+                {
+                    if (clientMonthlyTransSnapshot.MFSip == 0 && clientMonthlyTransSnapshot.Trading == 0 && clientMonthlyTransSnapshot.MFLumpsum == 0
+                                && clientMonthlyTransSnapshot.Delivery == 0 && clientMonthlyTransSnapshot.GIPremium == 0
+                                && clientMonthlyTransSnapshot.LIPremium == 0)
+                        clientMonthlyTransSnapshots.Add(clientReport);
+                }
+                else
+                {
+                    if (clientMonthlyTransSnapshot.MFSip != 0 || clientMonthlyTransSnapshot.Trading != 0 || clientMonthlyTransSnapshot.MFLumpsum != 0
+                                || clientMonthlyTransSnapshot.Delivery != 0 || clientMonthlyTransSnapshot.GIPremium != 0
+                                || clientMonthlyTransSnapshot.LIPremium != 0)
+                        clientMonthlyTransSnapshots.Add(clientReport);
+                }
+
             }
 
-            var pagination = _mapper.Map<PaginationDto>(clients.Pagination);
-
-            var responseSnapshot = new ResponseDto<ClientReportDto<ClientMonthlyTransSnapshotDto>>()
-            {
-                Values = clientMonthlyTransSnapshots,
-                Pagination = pagination
-            };
-
-            return responseSnapshot;
+            return clientMonthlyTransSnapshots;
         }
         #endregion
 

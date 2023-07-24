@@ -84,7 +84,7 @@ namespace CRM_api.Controllers.User_Module
         public async Task<IActionResult> GetUsersByCategoryId(int categoryId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             var users = await _userMasterService.GetUsersByCategoryIdAsync(categoryId, search, sortingParams);
-            if (users.Values.Count == 0)
+            if (users.Count == 0)
                 return BadRequest(new { Message = "User not found" });
 
             return Ok(users);

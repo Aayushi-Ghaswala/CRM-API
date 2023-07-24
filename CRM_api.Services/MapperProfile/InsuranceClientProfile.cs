@@ -16,8 +16,8 @@ namespace CRM_api.Services.MapperProfile
 
             CreateMap<TblInsuranceclient, InsuranceClientDto>();
             CreateMap<TblInsuranceCompanylist, InsuranceCompanyListDto>();
-            CreateMap<TblInvesmentType, InvesmentTypeDto>();
-            CreateMap<TblSubInvesmentType, SubInvesmentTypeDto>();
+            CreateMap<TblInvesmentType, InvestmentTypeDto>();
+            CreateMap<TblSubInvesmentType, SubInvestmentTypeDto>();
             CreateMap<TblInsuranceTypeMaster, InsuranceTypeMasterDto>();
 
             CreateMap<Response<TblInsuranceclient>, ResponseDto<InsuranceClientDto>>();

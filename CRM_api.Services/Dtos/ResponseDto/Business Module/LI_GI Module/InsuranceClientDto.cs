@@ -16,8 +16,8 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.LI_GI_Module
         public string? InsPan { get; set; }
         public string? InsMobile { get; set; }
         public virtual UserMasterDto? TblUserMaster { get; set; }
-        public virtual InvesmentTypeDto? TblInvesmentType { get; set; }
-        public virtual SubInvesmentTypeDto? TblSubInvesmentType { get; set; }
+        public virtual InvestmentTypeDto? TblInvesmentType { get; set; }
+        public virtual SubInvestmentTypeDto? TblSubInvesmentType { get; set; }
         public int? InsAmount { get; set; }
         public string? InsNewpolicy { get; set; }
         public virtual InsuranceTypeMasterDto? TblInsuranceTypeMaster { get; set; }

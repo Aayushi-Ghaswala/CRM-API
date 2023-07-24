@@ -6,8 +6,8 @@ namespace CRM_api.Services.IServices.Business_Module.Dashboard
 {
     public interface IBusinessDashboardService
     {
-        Task<ResponseDto<ClientReportDto<ClientCurrentInvSnapshotDto>>> GetClientCurrentInvSnapshotAsync(string search, SortingParams sortingParams);
-        Task<ResponseDto<ClientReportDto<ClientMonthlyTransSnapshotDto>>> GetClientMonthlyTransSnapshotAsync(int? month, int? year, string search, SortingParams sortingParams);
+        Task<List<ClientReportDto<ClientCurrentInvSnapshotDto>>> GetClientCurrentInvSnapshotAsync(int? userId, bool? isZero, string search);
+        Task<List<ClientReportDto<ClientMonthlyTransSnapshotDto>>> GetClientMonthlyTransSnapshotAsync(int? userId, int? month, int? year, bool? isZero, string search);
         Task<MFMonthlyChartDto> GetMonthlyChartAsync();
         int SendCurrentInvSnapshotEmailAsync(ClientReportDto<ClientCurrentInvSnapshotDto> clientReportDto);
         int SendCurrentInvSnapshotSMSAsync(ClientReportDto<ClientCurrentInvSnapshotDto> clientReportDto);
