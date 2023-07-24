@@ -41,8 +41,9 @@ namespace CRM_api.Services.ServicesDepedancy
             services.AddMemoryCache();
 
             ////Background Service
-            //Services.AddHostedService<InsPremiumReminderService>();
-            //Services.AddHostedService<InsDueReminderService>();
+            //services.AddHostedService<InsPremiumReminderService>();
+            //services.AddHostedService<InsDueReminderService>();
+            //services.AddHostedService<LoanEMIReminderService>();
 
             //User Module
             services.AddScoped<IUserMasterService, UserMasterService>();
@@ -78,6 +79,8 @@ namespace CRM_api.Services.ServicesDepedancy
             //services.AddScoped<IMeetingParticipantService, MeetingParticipantService>();
             //services.AddScoped<IMeetingAttachmentService, MeetingAttachmentService>();
             services.AddScoped<ILeadService, LeadService>();
+            services.AddScoped<IConversationHistoryService, ConversationHistoryService>();
+            services.AddScoped<ISalesDashboardService, SalesDashboardService>();
         }
     }
 }

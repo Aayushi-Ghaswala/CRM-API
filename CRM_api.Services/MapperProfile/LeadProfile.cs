@@ -26,12 +26,12 @@ namespace CRM_api.Services.MapperProfile
 
             CreateMap<TblLeadMaster, LeadDto>().ReverseMap();
 
-            CreateMap<TblInvesmentType, InvesmentTypeDto>().ReverseMap();
-            CreateMap<Response<TblInvesmentType>, ResponseDto<InvesmentTypeDto>>();
+            CreateMap<TblInvesmentType, InvestmentTypeDto>().ReverseMap();
+            CreateMap<Response<TblInvesmentType>, ResponseDto<InvestmentTypeDto>>();
             CreateMap<Response<TblLeadMaster>, ResponseDto<LeadDto>>();
 
-            CreateMap<TblInvesmentType, InvesmentTypeDto>().ReverseMap();
-            CreateMap<Response<TblInvesmentType>, ResponseDto<InvesmentTypeDto>>();
+            CreateMap<TblInvesmentType, InvestmentTypeDto>().ReverseMap();
+            CreateMap<Response<TblInvesmentType>, ResponseDto<InvestmentTypeDto>>();
         }
     }
 }

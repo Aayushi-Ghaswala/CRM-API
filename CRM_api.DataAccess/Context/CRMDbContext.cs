@@ -24,6 +24,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblBankMaster> TblBankMasters { get; set; } = null!;
         public virtual DbSet<TblCampaignMaster> TblCampaignMasters { get; set; } = null!;
         public virtual DbSet<TblCityMaster> TblCityMasters { get; set; } = null!;
+        public virtual DbSet<TblConversationHistoryMaster> TblConversationHistoryMasters { get; set; } = null!;
         public virtual DbSet<TblContactMaster> TblContactMasters { get; set; } = null!;
         public virtual DbSet<TblCountryMaster> TblCountryMasters { get; set; } = null!;
         public virtual DbSet<TblDepartmentMaster> TblDepartmentMasters { get; set; } = null!;
@@ -502,6 +503,19 @@ namespace CRM_api.DataAccess.Context
                     .WithMany(p => p.TblCityMasters)
                     .HasForeignKey(d => d.StateId)
                     .HasConstraintName("FK_tbl_City_Master_tbl_StateMaster");
+            });
+
+            modelBuilder.Entity<TblConversationHistoryMaster>(entity =>
+            {
+                entity.ToTable("tbl_conversation_history_master");
+
+                entity.Property(e => e.Conclusion).IsUnicode(false);
+
+                entity.Property(e => e.Date).HasColumnType("datetime");
+
+                entity.Property(e => e.DiscussionSummary).IsUnicode(false);
+
+                entity.Property(e => e.NextDate).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<TblContactMaster>(entity =>
