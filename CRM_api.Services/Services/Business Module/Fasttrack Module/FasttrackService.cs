@@ -16,6 +16,45 @@ namespace CRM_api.Services.Services.Business_Module.Fasttrack_Module
             _fasttrackRepository = fasttrackRepository;
             _mapper = mapper;
         }
+        #region Get Fasttrack Benefits
+        public async Task<List<FasttrackBenefitsResponseDto>> GetFasttrackBenefitsAsync()
+        {
+            var fasttrackBenefits = await _fasttrackRepository.GetFasttrackBenefits();
+            return _mapper.Map<List<FasttrackBenefitsResponseDto>>(fasttrackBenefits);
+        }
+                #endregion
+
+        #region Get Fasttrack Schemes
+        public async Task<List<FasttrackSchemeResponseDto>> GetFasttrackSchemesAsync()
+        {
+            var fasttrackSchemes = await _fasttrackRepository.GetFasttrackSchemes();
+            return _mapper.Map<List<FasttrackSchemeResponseDto>>(fasttrackSchemes);
+        }
+                #endregion
+
+        #region Get Fasttrack Level Commissions
+        public async Task<List<FasttrackLevelCommissionResponseDto>> GetFasttrackLevelCommissionAsync()
+        {
+            var fasttrackLevelCommission = await _fasttrackRepository.GetFasttrackLevelCommission();
+            return _mapper.Map<List<FasttrackLevelCommissionResponseDto>>(fasttrackLevelCommission);
+        }
+                #endregion
+
+        #region Add Fasttrack Benefits
+        public async Task<int> AddFasttrackBenefitsAsync(AddFasttrackBenefitsDto addFasttrackBenefits)
+        {
+            var mapFasttrackBenefits = _mapper.Map<TblFasttrackBenefits>(addFasttrackBenefits);
+            return await _fasttrackRepository.AddFasttrackBenefit(mapFasttrackBenefits);
+        }
+                #endregion
+
+        #region Add Fasttrack Benefits
+        public async Task<int> UpdateFasttrackBenefitsAsync(UpdateFasttrackBenefitsDto updateFasttrackBenefits)
+        {
+            var mapFasttrackBenefits = _mapper.Map<TblFasttrackBenefits>(updateFasttrackBenefits);
+            return await _fasttrackRepository.UpdateFasttrackBenefit(mapFasttrackBenefits);
+        }
+                #endregion
 
         #region Update fasttrack scheme
         public async Task<int> UpdateFasttrackSchemeAsync(UpdateFasttrackSchemeDto updateFasttrackSchemeDto)
