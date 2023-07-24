@@ -79,6 +79,7 @@ namespace CRM_api.DataAccess.Models
         [ForeignKey(nameof(MgainUserid))]
         public virtual TblUserMaster TblUserMaster { get; set; }
         [ForeignKey(nameof(MgainEmployeeid))]
+        [NotMapped]
         public virtual TblUserMaster EmployeeMaster { get; set; }
         [ForeignKey(nameof(MgainSchemeid))]
         public virtual TblMgainSchemeMaster TblMgainSchemeMaster { get; set; }

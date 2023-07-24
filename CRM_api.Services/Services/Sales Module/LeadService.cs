@@ -86,7 +86,6 @@ namespace CRM_api.Services.Services.Sales_Module
         }
         #endregion
 
-        
         #region Get Leads For CSV
         public async Task<byte[]> GetLeadsForCSVAsync(int? assignTo, string search, SortingParams sortingParams)
         {
@@ -165,6 +164,7 @@ namespace CRM_api.Services.Services.Sales_Module
             }
 
             var subject = "CRM - Lead";
+
             var message = $"Dear " + leadDto.AssignUser.UserName + ",\n\n" +
                 "I hope this email finds you well. I would like to share the details of a new lead that we have acquired. Please find the information below:\r\n\r\n" +
                 "Name : " + leadDto.Name + "\r\n" +
