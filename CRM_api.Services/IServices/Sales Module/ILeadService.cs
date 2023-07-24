@@ -9,7 +9,7 @@ namespace CRM_api.Services.IServices.Sales_Module
     public interface ILeadService
     {
         Task<ResponseDto<LeadDto>> GetLeadsAsync(int? assignTo, string search, SortingParams sortingParams);
-        Task<ResponseDto<InvesmentTypeDto>> GetInvestmentTypesAsync(string search, SortingParams sortingParams);
+        Task<ResponseDto<InvestmentTypeDto>> GetInvestmentTypesAsync(string search, SortingParams sortingParams);
         Task<LeadDto> GetLeadByIdAsync(int id);
         Task<LeadDto> GetLeadByNameAsync(string Name);
         Task<byte[]> GetLeadsForCSVAsync(int? assignTo, string search, SortingParams sortingParams);

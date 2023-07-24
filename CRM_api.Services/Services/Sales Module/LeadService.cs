@@ -36,11 +36,11 @@ namespace CRM_api.Services.Services.Sales_Module
                 lead =>
                 {
                     var leadData = leads.Values.First(x => x.Id == lead.Id);
-                    List<InvesmentTypeDto> investmentTypeDtos = new List<InvesmentTypeDto>();
+                    List<InvestmentTypeDto> investmentTypeDtos = new List<InvestmentTypeDto>();
                     var interestedIn = leadData.InterestedIn.Split(',');
                     interestedIn.ToList().ForEach(x =>
                     {
-                        var mapInvestmentType = _mapper.Map<InvesmentTypeDto>(_leadRepository.GetInvestmentById(Convert.ToInt32(x)));
+                        var mapInvestmentType = _mapper.Map<InvestmentTypeDto>(_leadRepository.GetInvestmentById(Convert.ToInt32(x)));
                         investmentTypeDtos.Add(mapInvestmentType);
                     });
                     lead.TblInvesmentTypes = investmentTypeDtos;
@@ -50,10 +50,10 @@ namespace CRM_api.Services.Services.Sales_Module
         #endregion
 
         #region Get Investment Types
-        public async Task<ResponseDto<InvesmentTypeDto>> GetInvestmentTypesAsync(string search, SortingParams sortingParams)
+        public async Task<ResponseDto<InvestmentTypeDto>> GetInvestmentTypesAsync(string search, SortingParams sortingParams)
         {
             var investmentType = await _leadRepository.GetInvestmentTypes(search, sortingParams);
-            var mapInvestmentType = _mapper.Map<ResponseDto<InvesmentTypeDto>>(investmentType);
+            var mapInvestmentType = _mapper.Map<ResponseDto<InvestmentTypeDto>>(investmentType);
             return mapInvestmentType;
         }
         #endregion
@@ -63,11 +63,11 @@ namespace CRM_api.Services.Services.Sales_Module
         {
             var lead = await _leadRepository.GetLeadById(id);
             var mappedLead = _mapper.Map<LeadDto>(lead);
-            List<InvesmentTypeDto> investmentTypeDtos = new List<InvesmentTypeDto>();
+            List<InvestmentTypeDto> investmentTypeDtos = new List<InvestmentTypeDto>();
             var interestedIn = lead.InterestedIn.Split(',');
             interestedIn.ToList().ForEach(x =>
             {
-                var mapInvestmentType = _mapper.Map<InvesmentTypeDto>(_leadRepository.GetInvestmentById(Convert.ToInt32(x)));
+                var mapInvestmentType = _mapper.Map<InvestmentTypeDto>(_leadRepository.GetInvestmentById(Convert.ToInt32(x)));
                 investmentTypeDtos.Add(mapInvestmentType);
             });
             mappedLead.TblInvesmentTypes = investmentTypeDtos;
@@ -100,7 +100,7 @@ namespace CRM_api.Services.Services.Sales_Module
                     var interestedIn = leadData.InterestedIn.Split(',');
                     interestedIn.ToList().ForEach(x =>
                     {
-                        var mapInvestmentType = _mapper.Map<InvesmentTypeDto>(_leadRepository.GetInvestmentById(Convert.ToInt32(x)));
+                        var mapInvestmentType = _mapper.Map<InvestmentTypeDto>(_leadRepository.GetInvestmentById(Convert.ToInt32(x)));
                         if (string.IsNullOrEmpty(investTypes))
                             investTypes = mapInvestmentType.InvestmentName;
                         else

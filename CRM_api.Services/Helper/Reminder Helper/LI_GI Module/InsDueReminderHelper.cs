@@ -8,7 +8,7 @@ namespace CRM_api.Services.Helper.Reminder_Helper.LI_GI_Module
     {
         public static async void InsDueHelper(IConfiguration configuration, IInsuranceClientRepository insuranceClientRepository)
         {
-            var insClients = await insuranceClientRepository.GetInsClientsForInsDueReminder();
+            var insClients = insuranceClientRepository.GetInsClientsForInsDueReminder();
 
             foreach (var insClient in insClients)
             {
