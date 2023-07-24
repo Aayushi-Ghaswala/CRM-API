@@ -1,9 +1,8 @@
-﻿using CRM_api.DataAccess.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CRM_api.Models
+namespace CRM_api.DataAccess.Models
 {
     public partial class TblAccountTransaction
     {
