@@ -1,6 +1,4 @@
 ﻿using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel.Bussiness_Module.WBC_Module;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Context
@@ -33,6 +31,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblExcelimportUsermaster> TblExcelimportUsermasters { get; set; } = null!;
         public virtual DbSet<TblFamilyMember> TblFamilyMembers { get; set; } = null!;
         public virtual DbSet<TblFaq> TblFaqs { get; set; } = null!;
+        public virtual DbSet<TblFasttrackBenefits> TblFasttrackBenefits { get; set; } = null!;
         public virtual DbSet<TblFasttrackLedger> TblFasttrackLedgers { get; set; } = null!;
         public virtual DbSet<TblFasttrackLevelCommission> TblFasttrackLevelCommissions { get; set; } = null!;
         public virtual DbSet<TblFasttrackSchemeMaster> TblFasttrackSchemeMasters { get; set; } = null!;
@@ -97,6 +96,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblSourceTypeMaster> TblSourceTypeMasters { get; set; } = null!;
         public virtual DbSet<TblSourceMaster> TblSourceMasters { get; set; } = null!;
         public virtual DbSet<TblStockData> TblStockData { get; set; } = null!;
+        public virtual DbSet<TblStockSharingBrokerage> TblStockSharingBrokerage { get; set; } = null!;
         public virtual DbSet<TblSubInvesmentType> TblSubInvesmentTypes { get; set; } = null!;
         public virtual DbSet<TblSubsubInvType> TblSubsubInvTypes { get; set; } = null!;
         public virtual DbSet<TblTempUserpan> TblTempUserpans { get; set; } = null!;
@@ -814,6 +814,30 @@ namespace CRM_api.DataAccess.Context
                     .HasColumnName("question");
             });
 
+            modelBuilder.Entity<TblFasttrackBenefits>(entity =>
+            {
+                entity.ToTable("tbl_fasttrack_benefits");
+
+                entity.Property(e => e.Id).HasColumnName("Id");
+
+                entity.Property(e => e.Product).HasColumnName("Product");
+
+                entity.Property(e => e.Basic).HasColumnName("Basic");
+
+                entity.Property(e => e.Silver).HasColumnName("Silver");
+
+                entity.Property(e => e.Gold).HasColumnName("Gold");
+
+                entity.Property(e => e.Platinum).HasColumnName("Platinum");
+
+                entity.Property(e => e.Diamond).HasColumnName("Diamond");
+
+                entity.Property(e => e.InvTypeId).HasColumnName("InvTypeId");
+
+                entity.Property(e => e.IsParentAllocation).HasColumnName("IsParentAllocation");
+
+            });
+
             modelBuilder.Entity<TblFasttrackLedger>(entity =>
             {
                 entity.HasKey(e => e.FtId);
@@ -836,7 +860,7 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.Userid).HasColumnName("userid");
 
-                entity.HasOne(d => d.User)
+                entity.HasOne(d => d.TblUserMaster)
                     .WithMany(p => p.TblFasttrackLedgers)
                     .HasForeignKey(d => d.Userid)
                     .HasConstraintName("FK_tbl_Fasttrack_Ledger_tbl_User_Master");
@@ -3065,6 +3089,17 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("firm_name");
+            });
+
+            modelBuilder.Entity<TblStockSharingBrokerage>(entity =>
+            {
+                entity.ToTable("tbl_stock_sharing_brokerage");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.BrokerageName).HasColumnName("brokerage_name");
+
+                entity.Property(e => e.BrokeragePercentage).HasColumnName("brokerage_percentage");
             });
 
             modelBuilder.Entity<TblSubInvesmentType>(entity =>

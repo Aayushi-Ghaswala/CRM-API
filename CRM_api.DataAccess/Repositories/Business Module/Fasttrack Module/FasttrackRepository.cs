@@ -45,6 +45,45 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Fasttrack_Module
         }
         #endregion
 
+        #region Get Fasttrack Benefits
+        public async Task<List<TblFasttrackBenefits>> GetFasttrackBenefits()
+        {
+            return await _context.TblFasttrackBenefits.ToListAsync();
+        }
+        #endregion
+
+        #region Get Fasttrack Scheme
+        public async Task<List<TblFasttrackSchemeMaster>> GetFasttrackSchemes()
+        {
+            return await _context.TblFasttrackSchemeMasters.ToListAsync();
+        }
+        #endregion
+
+        #region Get Fasttrack Level Commission
+        public async Task<List<TblFasttrackLevelCommission>> GetFasttrackLevelCommission()
+        {
+            return await _context.TblFasttrackLevelCommissions.ToListAsync();
+        }
+        #endregion
+
+        #region Add Fasttrack benefits
+        public async Task<int> AddFasttrackBenefit(TblFasttrackBenefits tblFasttrackBenefits)
+        {
+            if (await _context.TblFasttrackBenefits.AnyAsync(x => x.Product.ToLower() == tblFasttrackBenefits.Product.ToLower()))
+                return 0;
+
+            await _context.TblFasttrackBenefits.AddAsync(tblFasttrackBenefits);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Update Fasttrack benefits
+        public async Task<int> UpdateFasttrackBenefit(TblFasttrackBenefits tblFasttrackBenefits)
+        {
+            _context.TblFasttrackBenefits.Update(tblFasttrackBenefits);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
         #region Update fasttrack levels commission
         public async Task<int> UpdateFasttrackLevelsCommission(TblFasttrackLevelCommission tblFasttrackLevelCommission)
         {
