@@ -2,6 +2,7 @@
 using CRM_api.DataAccess.IRepositories.Business_Module.Fasttrack_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.Fasttrack_Module;
+using CRM_api.Services.Dtos.ResponseDto.Business_Module.Fasttrack_Module;
 using CRM_api.Services.IServices.Business_Module.Fasttrack_Module;
 
 namespace CRM_api.Services.Services.Business_Module.Fasttrack_Module

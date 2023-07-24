@@ -14,6 +14,6 @@ namespace CRM_api.DataAccess.Models
         public int? SubTypeId { get; set; }
         public string? Narration { get; set; }
 
-        public virtual TblUserMaster? User { get; set; }
+        public virtual TblUserMaster? TblUserMaster { get; set; }
     }
 }

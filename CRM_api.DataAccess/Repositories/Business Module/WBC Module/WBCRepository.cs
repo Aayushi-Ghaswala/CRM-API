@@ -576,7 +576,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                 //Insurance
                 var insClientsList = await _context.TblInsuranceclients.Include(i => i.TblUserMaster).Include(i => i.TblSubInvesmentType).Include(i => i.TblInsuranceTypeMaster).Where(i => i.InsStartdate == date).ToListAsync();
 
-                var wbcSchemesInv = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessesConstants.LifeIns) || w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessesConstants.GeneralIns)).ToList();
+                var wbcSchemesInv = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessConstants.LifeIns) || w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessConstants.GeneralIns)).ToList();
 
                 foreach (var client in insClientsList)
                 {
@@ -650,7 +650,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                 #region Mutual Fund
                 //MF
                 var mfClientsList = await _context.TblMftransactions.Include(i => i.TblUserMaster).Where(m => m.Date == date).ToListAsync();
-                var wbcSchemeMF = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessesConstants.MF)).ToList();
+                var wbcSchemeMF = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessConstants.MF)).ToList();
 
                 foreach (var client in mfClientsList)
                 {
@@ -734,7 +734,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                 #region Mgain
                 //Mgain
                 var mgainClientsList = await _context.TblMgaindetails.Include(m => m.TblUserMaster).Where(m => m.Date == date && m.MgainIsactive == true).ToListAsync();
-                var wbcSchemeMgain = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessesConstants.Mgain)).ToList();
+                var wbcSchemeMgain = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessConstants.Mgain)).ToList();
 
                 foreach (var client in mgainClientsList)
                 {
@@ -805,7 +805,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                 #region Loan Inv
                 //Loan
                 var loanClientsList = await _context.TblLoanMasters.Include(l => l.TblUserMaster).Where(l => l.StartDate == date).ToListAsync();
-                var wbcSchemeLoan = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessesConstants.Loan)).ToList();
+                var wbcSchemeLoan = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessConstants.Loan)).ToList();
 
                 foreach (var client in loanClientsList)
                 {
@@ -877,7 +877,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                 //Stocks
                 var stockClientsList = await _context.TblStockData.Include(s => s.TblUserMaster).Where(s => s.StDate == date).ToListAsync();
                 var stockClientsLists = stockClientsList.GroupBy(s => s.StClientname);
-                var wbcSchemeStock = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessesConstants.Stocks)).ToList();
+                var wbcSchemeStock = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessConstants.Stocks)).ToList();
 
                 foreach (var clients in stockClientsLists)
                 {
