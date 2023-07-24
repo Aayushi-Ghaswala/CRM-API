@@ -19,7 +19,7 @@ namespace CRM_api.Services.Dtos.ResponseDto.Sales_Module
         public string? Address { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public string Gender { get; set; }
-        public List<InvesmentTypeDto>? TblInvesmentTypes { get; set; }
+        public List<InvestmentTypeDto>? TblInvesmentTypes { get; set; }
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsDeleted { get; set; }
