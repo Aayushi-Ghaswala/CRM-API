@@ -75,6 +75,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             //services.AddScoped<IMeetingAttachmentRepository, MeetingAttachmentRepository>();
             //services.AddScoped<IMeetingParticipantRepository, MeetingParticipantRepository>();
             services.AddScoped<ILeadRepository, LeadRepository>();
+            services.AddScoped<IConversationHistoryRepository, ConversationHistoryRepository>();
         }
     }
 }

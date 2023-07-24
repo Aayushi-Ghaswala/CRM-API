@@ -11,15 +11,13 @@ namespace CRM_api.Services.Services.Sales_Module
 {
     public class SalesDashboardService : ISalesDashboardService
     {
-        private readonly ISalesRepository _salesRepository;
         private readonly IUserMasterRepository _userMasterRepository;
         private readonly ILeadRepository _leadRepository;
         private readonly IConversationHistoryRepository _conversationHistoryRepository;
         private readonly IMapper _mapper;
 
-        public SalesDashboardService(ISalesRepository salesRepository, IUserMasterRepository userMasterRepository, IMapper mapper, ILeadRepository leadRepository, IConversationHistoryRepository conversationHistoryRepository)
+        public SalesDashboardService(IUserMasterRepository userMasterRepository, IMapper mapper, ILeadRepository leadRepository, IConversationHistoryRepository conversationHistoryRepository)
         {
-            _salesRepository = salesRepository;
             _userMasterRepository = userMasterRepository;
             _mapper = mapper;
             _leadRepository = leadRepository;
