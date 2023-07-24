@@ -18,11 +18,11 @@ namespace CRM_api.Controllers.Business_Module.Dashboard
 
         #region Get Client Current Investment Snapshot
         [HttpGet("GetClientCurrentInvSnapshot")]
-        public async Task<IActionResult> GetClientCurrentInvSnapshot(string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetClientCurrentInvSnapshot(bool? isZero, string? search, int userId = 0)
         {
             try
             {
-                var getData = await _businessDashboardService.GetClientCurrentInvSnapshotAsync(search, sortingParams);
+                var getData = await _businessDashboardService.GetClientCurrentInvSnapshotAsync(userId, isZero, search);
 
                 return Ok(getData);
             }
@@ -35,11 +35,11 @@ namespace CRM_api.Controllers.Business_Module.Dashboard
 
         #region Get Client Monthly Transaction Snapshot
         [HttpGet("GetClientMonthlyTransSnapshot")]
-        public async Task<IActionResult> GetClientMonthlyTransSnapshot(int? month, int? year, string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetClientMonthlyTransSnapshot(int? userId, int? month, int? year, bool? isZero, string? search)
         {
             try
             {
-                var getData = await _businessDashboardService.GetClientMonthlyTransSnapshotAsync(month, year, search, sortingParams);
+                var getData = await _businessDashboardService.GetClientMonthlyTransSnapshotAsync(userId, month, year, isZero, search);
 
                 return Ok(getData);
             }
@@ -50,7 +50,7 @@ namespace CRM_api.Controllers.Business_Module.Dashboard
         }
         #endregion
 
-        #region Get Client Monthly Transaction Snapshot
+        #region Get Client Monthly Chart
         [HttpGet("GetMonthlyChart")]
         public async Task<IActionResult> GetMonthlyChart()
         {

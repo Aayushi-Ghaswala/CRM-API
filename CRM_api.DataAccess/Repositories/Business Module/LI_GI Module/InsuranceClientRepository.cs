@@ -151,51 +151,21 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
         #endregion
 
         #region Get Insurance Client Details For Insurance Premium Reminder
-        public async Task<IEnumerable<TblInsuranceclient>> GetInsClientsForInsPremiumReminder()
+        public IEnumerable<TblInsuranceclient> GetInsClientsForInsPremiumReminder()
         {
-            var insClients = await _context.TblInsuranceclients.Where(x => x.InsPremiumRmdDate.Value.Date == DateTime.Now.Date && x.IsDeleted != true).ToListAsync();
+            var insClients = _context.TblInsuranceclients.Where(x => x.InsPremiumRmdDate.Value.Date == DateTime.Now.Date && x.IsDeleted != true).ToList();
 
             return insClients;
         }
         #endregion
 
         #region Get Insurance Client Details For Insurance Due Reminder Reminder
-        public async Task<IEnumerable<TblInsuranceclient>> GetInsClientsForInsDueReminder()
+        public IEnumerable<TblInsuranceclient> GetInsClientsForInsDueReminder()
         {
-            var insClients = await _context.TblInsuranceclients.Where(x => x.InsDuedate.Value.Date >= DateTime.Now.Date && x.InsDuedate.Value.Date <= DateTime.Now.Date.AddDays(30)).ToListAsync();
+            var insClients = _context.TblInsuranceclients.Where(x => x.InsDuedate.Value.Date >= DateTime.Now.Date && x.InsDuedate.Value.Date <= DateTime.Now.Date.AddDays(30))
+                                                         .Include(x => x.TblUserMaster).ToList();
 
             return insClients;
-        }
-        #endregion
-
-        #region Get Insurance Client Total Amount Details By UserId
-        public async Task<int?> GetInsDetailsByUserId(int userId, int subTypeId)
-        {
-            var insDetails = await _context.TblInsuranceclients.Where(x => x.InsUserid == userId && x.IsDeleted != true && x.InvSubtype == subTypeId).ToListAsync();
-
-            var totalAmount = insDetails.Sum(x => x.InsAmount);
-
-            return totalAmount;
-        }
-        #endregion
-
-        #region Get Insurance CLient Premium Amount By UserId
-        public async Task<decimal?> GetInsPremiumAmountByUserId(int? month, int? year, int userId, int subTypeId)
-        {
-            DateTime date;
-
-            if (month is not null && year is not null)
-                date = Convert.ToDateTime("01-" + month + "-" + year);
-            else
-                date = Convert.ToDateTime("01-" + DateTime.Now.Month + "-" + DateTime.Now.Year);
-
-            var insDetail = await _context.TblInsuranceclients.Where(x => x.InsUserid == userId && x.IsDeleted != true && x.InvSubtype == subTypeId && x.InsStartdate.Value.Date <= date.Date && x.InsDuedate.Value.Date >= date.Date).FirstOrDefaultAsync();
-
-            decimal? premiumAmount = 0;
-            if (insDetail is not null)
-                premiumAmount = insDetail.PremiumAmount;
-
-            return premiumAmount;
         }
         #endregion
 
@@ -221,13 +191,24 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
         #endregion
 
         #region Update InsuranceClient Details
-        public async Task<int> UpdateInsuranceClientDetail(TblInsuranceclient tblInsuranceclient)
+        public async Task<int> UpdateInsuranceClientDetail(TblInsuranceclient tblInsuranceclient, bool flag = false)
         {
-            var insClient = await _context.TblInsuranceclients.AsNoTracking().Where(x => x.Id == tblInsuranceclient.Id).FirstOrDefaultAsync();
-            if (insClient is null) return 0;
+            if (flag)
+            {
+                var insClient = _context.TblInsuranceclients.AsNoTracking().Where(x => x.Id == tblInsuranceclient.Id).FirstOrDefault();
+                if (insClient is null) return 0;
 
-            _context.TblInsuranceclients.Update(tblInsuranceclient);
-            return await _context.SaveChangesAsync();
+                _context.TblInsuranceclients.Update(tblInsuranceclient);
+                return  _context.SaveChanges();
+            }
+            else
+            {
+                var insClient = await _context.TblInsuranceclients.AsNoTracking().Where(x => x.Id == tblInsuranceclient.Id).FirstOrDefaultAsync();
+                if (insClient is null) return 0;
+
+                _context.TblInsuranceclients.Update(tblInsuranceclient);
+                return await _context.SaveChangesAsync();
+            }
         }
         #endregion
 

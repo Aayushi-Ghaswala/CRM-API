@@ -116,11 +116,41 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region GetUser By Id
-        public async Task<TblUserMaster> GetUserMasterbyId(int id)
+        public async Task<TblUserMaster> GetUserMasterbyId(int id, int? month = null, int? year = null, bool isCurrent = false)
         {
-            var user = await _context.TblUserMasters.Include(x => x.TblUserCategoryMaster).Include(x => x.TblUserCategoryMaster)
+            var user = new TblUserMaster();
+
+            if (isCurrent)
+            {
+                user = await _context.TblUserMasters.Include(x => x.TblUserCategoryMaster).Include(x => x.TblUserCategoryMaster)
                                                     .Include(c => c.TblCountryMaster).Include(s => s.TblStateMaster)
-                                                    .Include(ct => ct.TblCityMaster).FirstAsync(x => x.UserId == id && x.UserIsactive != false);
+                                                    .Include(ct => ct.TblCityMaster).Include(m => m.TblMgaindetails)
+                                                    .Include(mf => mf.TblMftransactions).Include(l => l.TblLoanmasters)
+                                                    .Include(ins => ins.TblInsuranceclients).AsNoTracking().FirstAsync(x => x.UserId == id && x.UserIsactive != false);
+            }
+            else if (month is not null && year is not null)
+            {
+                user = await _context.TblUserMasters.Where(x => x.UserId == id && x.UserIsactive != false)
+                                                        .Include(x => x.TblMgaindetails)
+                                                        .Include(x => x.TblMftransactions.Where(y => (y.Transactiontype == "PIP" || y.Transactiontype == "PIP (SIP)")
+                                                                            && y.Date.Value.Month == month && y.Date.Value.Year == year))
+                                                        .Include(x => x.TblLoanmasters)
+                                                        .Include(x => x.TblInsuranceclients.Where(y => y.InsDuedate.Value.Month >= month && y.InsDuedate.Value.Year >= year
+                                                                                                      && y.InsStartdate.Value.Month <= month && y.InsStartdate.Value.Year <= year))
+                                                        .AsNoTracking().FirstAsync();
+            }
+            else
+            {
+                user = await _context.TblUserMasters.Where(x => x.UserId == id && x.UserIsactive != false)
+                                                    .Include(x => x.TblMgaindetails)
+                                                    .Include(x => x.TblMftransactions.Where(y => (y.Transactiontype == "PIP" || y.Transactiontype == "PIP (SIP)")
+                                                                            && y.Date.Value.Month == DateTime.Now.Month && y.Date.Value.Year == DateTime.Now.Year))
+                                                    .Include(x => x.TblLoanmasters)
+                                                    .Include(x => x.TblInsuranceclients.Where(y => y.InsDuedate.Value.Month >= DateTime.Now.Month && y.InsDuedate.Value.Year >= DateTime.Now.Year
+                                                                                                        && y.InsStartdate.Value.Month <= DateTime.Now.Month && y.InsStartdate.Value.Year <= DateTime.Now.Year))
+                                                    .AsNoTracking().FirstAsync();
+            }
+            
             ArgumentNullException.ThrowIfNull(user, "User Not Found");
 
             return user;
@@ -183,47 +213,87 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get Users By Category Id
-        public async Task<Response<TblUserMaster>> GetUsersByCategoryId(int categoryId, string search, SortingParams sortingParams)
+        public async Task<List<TblUserMaster>> GetUsersByCategoryId(int categoryId, int? month, int? year, string search, bool isCurrent = false)
         {
-            double pageCount = 0;
-
-            var filterData = _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false)
-                                                    .Include(x => x.TblUserCategoryMaster)
-                                                    .Include(x => x.TblCountryMaster)
-                                                    .ThenInclude(x => x.TblStateMasters)
-                                                    .ThenInclude(x => x.TblCityMasters)
-                                                    .Include(x => x.ParentName)
-                                                    .Include(x => x.SponserName).AsQueryable();
-
-            if (search != null)
+            var filterData = new List<TblUserMaster>();
+            if (isCurrent)
             {
-                filterData = _context.Search<TblUserMaster>(search).Where(x => x.CatId == categoryId && x.UserIsactive != false)
-                                                    .Include(x => x.TblUserCategoryMaster)
-                                                    .Include(x => x.TblCountryMaster)
-                                                    .ThenInclude(x => x.TblStateMasters)
-                                                    .ThenInclude(x => x.TblCityMasters)
-                                                    .Include(x => x.ParentName)
-                                                    .Include(x => x.SponserName).AsQueryable();
-            }
-            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
-
-            // Apply sorting
-            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
-
-            // Apply pagination
-            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
-
-            var usersResponse = new Response<TblUserMaster>()
-            {
-                Values = paginatedData,
-                Pagination = new Pagination()
+                if (search is not null)
+                    filterData = await _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false
+                                                               && x.UserName.ToLower().Contains(search.ToLower()))
+                                                              .Include(x => x.TblMgaindetails)
+                                                              .Include(x => x.TblMftransactions)
+                                                              .Include(x => x.TblLoanmasters)
+                                                              .Include(x => x.TblInsuranceclients)
+                                                              .ToListAsync();
+                else
                 {
-                    CurrentPage = sortingParams.PageNumber,
-                    Count = (int)pageCount
+                    filterData = await _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false)
+                                                              .Include(x => x.TblMgaindetails)
+                                                              .Include(x => x.TblMftransactions)
+                                                              .Include(x => x.TblLoanmasters)
+                                                              .Include(x => x.TblInsuranceclients)
+                                                              .ToListAsync();
                 }
-            };
+            }
+            else if (search != null)
+            {
+                if (month is not null && year is not null)
+                {
+                    filterData = await _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false
+                                                         && x.UserName.ToLower().Contains(search.ToLower()))
+                                                        .Include(x => x.TblMgaindetails)
+                                                        .Include(x => x.TblMftransactions.Where(y => (y.Transactiontype == "PIP" || y.Transactiontype == "PIP (SIP)")
+                                                                            && y.Date.Value.Month == month && y.Date.Value.Year == year))
+                                                        .Include(x => x.TblLoanmasters)
+                                                        .Include(x => x.TblInsuranceclients.Where(y => y.InsDuedate.Value.Month >= month && y.InsDuedate.Value.Year >= year
+                                                                                                      && y.InsStartdate.Value.Month <= month && y.InsStartdate.Value.Year <= year))
+                                                        .ToListAsync();
+                    filterData = filterData.OrderBy(x => x.UserName).ToList();
+                }
+                else
+                {
+                    filterData = await _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false
+                                                             && x.UserName.ToLower().Contains(search.ToLower()))
+                                                            .Include(x => x.TblMgaindetails)
+                                                            .Include(x => x.TblMftransactions.Where(y => (y.Transactiontype == "PIP" || y.Transactiontype == "PIP (SIP)")
+                                                                                && y.Date.Value.Month == DateTime.Now.Month && y.Date.Value.Year == DateTime.Now.Year))
+                                                            .Include(x => x.TblLoanmasters)
+                                                            .Include(x => x.TblInsuranceclients.Where(y => y.InsDuedate.Value.Month >= DateTime.Now.Month && y.InsDuedate.Value.Year >= DateTime.Now.Year
+                                                                                                        && y.InsStartdate.Value.Month <= DateTime.Now.Month && y.InsStartdate.Value.Year <= DateTime.Now.Year))
+                                                            .ToListAsync();
+                    filterData = filterData.OrderBy(x => x.UserName).ToList();
+                }
+            }
+            else
+            {
+                if (month is not null && year is not null)
+                {
+                    filterData = await _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false)
+                                                        .Include(x => x.TblMgaindetails)
+                                                        .Include(x => x.TblMftransactions.Where(y => (y.Transactiontype == "PIP" || y.Transactiontype == "PIP (SIP)")
+                                                                            && y.Date.Value.Month == month && y.Date.Value.Year == year))
+                                                        .Include(x => x.TblLoanmasters)
+                                                        .Include(x => x.TblInsuranceclients.Where(y => y.InsDuedate.Value.Month >= month && y.InsDuedate.Value.Year >= year
+                                                                                                      && y.InsStartdate.Value.Month <= month && y.InsStartdate.Value.Year <= year))
+                                                        .ToListAsync();
+                    filterData = filterData.OrderBy(x => x.UserName).ToList();
+                }
+                else
+                {
+                    filterData = await _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false)
+                                                        .Include(x => x.TblMgaindetails)
+                                                        .Include(x => x.TblMftransactions.Where(y => (y.Transactiontype == "PIP" || y.Transactiontype == "PIP (SIP)")
+                                                                            && y.Date.Value.Month == DateTime.Now.Month && y.Date.Value.Year == DateTime.Now.Year))
+                                                        .Include(x => x.TblLoanmasters)
+                                                        .Include(x => x.TblInsuranceclients.Where(y => y.InsDuedate.Value.Month >= DateTime.Now.Month && y.InsDuedate.Value.Year >= DateTime.Now.Year
+                                                                                                        && y.InsStartdate.Value.Month <= DateTime.Now.Month && y.InsStartdate.Value.Year <= DateTime.Now.Year))
+                                                        .ToListAsync();
+                    filterData = filterData.OrderBy(x => x.UserName).ToList();
+                }
+            }
 
-            return usersResponse;
+            return filterData;
         }
         #endregion
 

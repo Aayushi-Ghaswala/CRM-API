@@ -123,6 +123,22 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         }
         #endregion
 
+        #region Get Loan Details For EMI Reminder
+        public List<TblLoanMaster> GetLoanDetailsForEMIReminder()
+        {
+            try
+            {
+                var loans = _context.TblLoanMasters.Where(x => x.MaturityDate.Value.Date == DateTime.Now.Date && x.IsDeleted != true).Include(x => x.TblUserMaster).ToList();
+
+                return loans;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region Add Loan Detail
         public async Task<int> AddLoanDetail(TblLoanMaster tblLoan)
         {
@@ -135,14 +151,26 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Loan_Module
         #endregion
 
         #region Update Loan Detail
-        public async Task<int> UpdateLoanDetail(TblLoanMaster tblLoan)
+        public async Task<int> UpdateLoanDetail(TblLoanMaster tblLoan, bool flag = false)
         {
-            var loan = _context.TblLoanMasters.AsNoTracking().Where(x => x.Id == tblLoan.Id);
+            if (flag)
+            {
+                var loan = _context.TblLoanMasters.AsNoTracking().Where(x => x.Id == tblLoan.Id);
 
-            if (loan == null) return 0;
+                if (loan == null) return 0;
 
-            _context.TblLoanMasters.Update(tblLoan);
-            return await _context.SaveChangesAsync();
+                _context.TblLoanMasters.Update(tblLoan);
+                return _context.SaveChanges();
+            }
+            else
+            {
+                var loan = _context.TblLoanMasters.AsNoTracking().Where(x => x.Id == tblLoan.Id);
+
+                if (loan == null) return 0;
+
+                _context.TblLoanMasters.Update(tblLoan);
+                return await _context.SaveChangesAsync();
+            }
         }
         #endregion
 

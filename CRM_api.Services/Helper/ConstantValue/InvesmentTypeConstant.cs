@@ -7,7 +7,11 @@
             Insurance,
             Investments,
             Assets,
-            Loan
+            Loan,
+            MutualFund,
+            RealEstate,
+            MGain,
+            Stocks
         }
     }
 }

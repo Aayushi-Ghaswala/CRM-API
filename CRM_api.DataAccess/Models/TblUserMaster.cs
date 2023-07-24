@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.Contracts;
 
@@ -73,5 +74,9 @@ namespace CRM_api.DataAccess.Models
         public virtual ICollection<TblRealEastateReview> TblRealEastateReviews { get; set; }
         public virtual ICollection<TblReferralMaster> TblReferralMasters { get; set; }
         public virtual ICollection<TblRoleAssignment> TblRoleAssignments { get; set; }
+        public virtual ICollection<TblMgaindetail> TblMgaindetails { get; set; }
+        public virtual ICollection<TblMftransaction> TblMftransactions { get; set; }
+        public virtual ICollection<TblLoanMaster> TblLoanmasters { get; set;}
+        public virtual ICollection<TblInsuranceclient> TblInsuranceclients { get; set; }
     }
 }

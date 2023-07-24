@@ -13,7 +13,7 @@ namespace CRM_api.Services.IServices.User_Module
         Task<UserMasterDto> GetUserMasterByIdAsync(int id);
         Task<Dictionary<string, int>> GetUserCountAsync();
         Task<ResponseDto<UserCategoryDto>> GetUserCategoriesAsync(string search, SortingParams sortingParams);
-        Task<ResponseDto<UserMasterDto>> GetUsersByCategoryIdAsync(int categoryId, string search, SortingParams sortingParams);
+        Task<List<UserNameDto>> GetUsersByCategoryIdAsync(int categoryId, string search, SortingParams sortingParams);
         Task<TblUserCategoryMaster> GetCategoryByNameAsync(string name);
         int PanOrAadharExistAsync(int? id, string? pan, string? aadhar);
         Task<byte[]> GetUsersForCSVAsync(string filterString, string search, SortingParams sortingParams);

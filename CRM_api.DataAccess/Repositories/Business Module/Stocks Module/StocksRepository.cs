@@ -6,7 +6,6 @@ using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using CRM_api.DataAccess.ResponseModel.Stocks_Module;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
-using System.Security.Cryptography.X509Certificates;
 
 namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
 {
@@ -373,7 +372,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
 
             if (startDate is null && endDate is null)
                 stockData = await _context.TblStockData.Where(x => x.StClientname.ToLower() == userName.ToLower()).ToListAsync();
-            else 
+            else
                 stockData = await _context.TblStockData.Where(x => x.StClientname.ToLower() == userName.ToLower() && x.StDate >= startDate && x.StDate <= endDate).ToListAsync();
 
             return stockData;

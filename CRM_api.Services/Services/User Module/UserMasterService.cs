@@ -78,10 +78,10 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Get All User By Category Id
-        public async Task<ResponseDto<UserMasterDto>> GetUsersByCategoryIdAsync(int categoryId, string search, SortingParams sortingParams)
+        public async Task<List<UserNameDto>> GetUsersByCategoryIdAsync(int categoryId, string search, SortingParams sortingParams)
         {
-            var users = await _userMasterRepository.GetUsersByCategoryId(categoryId, search, sortingParams);
-            var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(users);
+            var users = await _userMasterRepository.GetUsersByCategoryId(categoryId, null, null, search, true);
+            var mapUsers = _mapper.Map<List<UserNameDto>>(users);
 
             return mapUsers;
         }

@@ -2,9 +2,9 @@
 {
     public class ClientReportDto<T>
     {
-        public string UserName { get; set; }
-        public string UserEmail { get; set; }
-        public string UserMobile { get; set; }
-        public T ClientInvSnapshot { get; set; }
+        public string? UserName { get; set; }
+        public string? UserEmail { get; set; }
+        public string? UserMobile { get; set; }
+        public T? ClientInvSnapshot { get; set; }
     }
 }
