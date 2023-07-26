@@ -3620,6 +3620,8 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.RateOfInterest).HasColumnType("decimal(18, 0)");
 
                 entity.Property(e => e.StartDate).HasColumnType("date");
+
+                entity.Property(e => e.EndDate).HasColumnType("date");
             });
 
             modelBuilder.Entity<TblLoanTypeMaster>(entity =>
