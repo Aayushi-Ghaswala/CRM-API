@@ -20,7 +20,6 @@ namespace CRM_api.Services.MapperProfile
             CreateMap<TblProjectMaster, ProjectMasterDto>();
             CreateMap<Response<TblProjectMaster>, ResponseDto<ProjectMasterDto>>();
             CreateMap<TblPlotMaster, PlotMasterDto>();
-            CreateMap<Response<TblPlotMaster>, ResponseDto<PlotMasterDto>>();
             CreateMap<UpdateMGainPaymentDto, TblMgainPaymentMethod>()
                 .ForMember(x => x.CurrancyId, opt => opt.MapFrom(src => src.CurrencyId));
             CreateMap<TblMgaindetail, MGainPaymentRecieptDto>();

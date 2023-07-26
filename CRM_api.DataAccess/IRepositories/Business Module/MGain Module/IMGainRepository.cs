@@ -17,7 +17,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.MGain_Module
         Task<IQueryable<TblMgaindetail>> GetMGainCumulativeDetails(int fromYear, int toYear, int? schemeId, string? search, SortingParams sortingParams, string mgainType);
         Task<Response<TblProjectMaster>> GetAllProject(string? searchingParams, SortingParams sortingParams);
         Task<TblProjectMaster> GetProjectByProjectName(string projectName);
-        Task<Response<TblPlotMaster>> GetPlotsByProjectId(int projectId, int? plotId, string? searchingParams, SortingParams sortingParams);
+        Task<List<TblPlotMaster>> GetPlotsByProjectId(int projectId, int? plotId);
         Task<List<TblMgaindetail>> GetMGainDetailsByUserId(int UserId);
         Task<List<TblAccountTransaction>> GetAccountTransactionByMgainId(int? mGainId, int? month, int? year);
         Task<TblAccountMaster> GetAccountByUserId(int? userId, string? accountName);

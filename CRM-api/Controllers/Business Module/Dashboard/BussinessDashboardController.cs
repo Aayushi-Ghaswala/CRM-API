@@ -18,7 +18,7 @@ namespace CRM_api.Controllers.Business_Module.Dashboard
 
         #region Get Client Current Investment Snapshot
         [HttpGet("GetClientCurrentInvSnapshot")]
-        public async Task<IActionResult> GetClientCurrentInvSnapshot(bool? isZero, string? search, int userId = 0)
+        public async Task<IActionResult> GetClientCurrentInvSnapshot(bool? isZero, string? search, int? userId)
         {
             try
             {
