@@ -9,6 +9,7 @@
         public decimal? LoanAmount { get; set; }
         public decimal? Emi { get; set; }
         public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public int? Term { get; set; }
         public string? Frequency { get; set; }
         public DateTime? MaturityDate { get; set; }

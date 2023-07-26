@@ -11,6 +11,7 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.Loan_Module
         public decimal? LoanAmount { get; set; }
         public decimal? Emi { get; set; }
         public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public int? Term { get; set; }
         public DateTime? MaturityDate { get; set; }
         public decimal? RateOfInterest { get; set; }
