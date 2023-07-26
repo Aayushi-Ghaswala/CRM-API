@@ -78,5 +78,6 @@ namespace CRM_api.DataAccess.Models
         public virtual ICollection<TblMftransaction> TblMftransactions { get; set; }
         public virtual ICollection<TblLoanMaster> TblLoanmasters { get; set;}
         public virtual ICollection<TblInsuranceclient> TblInsuranceclients { get; set; }
+        public virtual ICollection<TblAccountMaster> TblAccountMasters { get; set; }
     }
 }
