@@ -34,7 +34,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
         public static void InjectDataAccessDependecy(this IServiceCollection services, IConfiguration config)
         {
             services.AddDbContext<CRMDbContext>(options =>
-            {
+           {
                 options.UseSqlServer(config.GetConnectionString("DefaultConnection"),
                     sql =>
                     {
@@ -82,6 +82,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
 
             //Account Module
             services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<IAccountTransactionRepository, AccountTransactionRepository>();
         }
     }
 }

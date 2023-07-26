@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CRM_api.DataAccess.Models
 {
@@ -21,6 +19,14 @@ namespace CRM_api.DataAccess.Models
         public int? CreditAccountId { get; set; }
 
         [ForeignKey(nameof(Mgainid))]
-        public virtual TblMgaindetail TblMgaindetail { get; set; }
+        public virtual TblMgaindetail? TblMgaindetail { get; set; }
+        [ForeignKey(nameof(DocUserid))]
+        public virtual TblUserMaster? UserMaster { get; set; }
+        [ForeignKey(nameof(DebitAccountId))]
+        public virtual TblAccountMaster? DebitAccount { get; set; }
+        [ForeignKey(nameof(CreditAccountId))]
+        public virtual TblAccountMaster? CreditAccount { get; set; }
+        [ForeignKey(nameof(Companyid))]
+        public virtual TblCompanyMaster? CompanyMaster { get; set; }
     }
 }
