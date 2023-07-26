@@ -18,33 +18,31 @@ namespace CRM_api.Controllers.Account_Module
 
         #region Get User Account
         [HttpGet("GetUserAccount")]
-        public async Task<IActionResult> GetUserAccount(int? companyId,[FromQuery] string? search,[FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetUserAccount(int? companyId, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
                 var getData = await _accountService.GetUserAccountsAsync(companyId, search, sortingParams);
                 return Ok(getData);
             }
-                catch (Exception)
+            catch (Exception)
             {
-
                 throw;
             }
         }
         #endregion
-        
+
         #region Get Account Groups
         [HttpGet("GetAccountGroups")]
-        public async Task<IActionResult> GetAccountGroups([FromQuery] string? search,[FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetAccountGroups([FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
                 var getData = await _accountService.GetAccountGroupsAsync(search, sortingParams);
                 return Ok(getData);
             }
-                catch (Exception)
+            catch (Exception)
             {
-
                 throw;
             }
         }
@@ -52,7 +50,7 @@ namespace CRM_api.Controllers.Account_Module
 
         #region Get Root Account Groups
         [HttpGet("GetRootAccountGroups")]
-        public async Task<IActionResult> GetRootAccountGroups([FromQuery] string? search,[FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetRootAccountGroups([FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
@@ -61,7 +59,6 @@ namespace CRM_api.Controllers.Account_Module
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -78,7 +75,6 @@ namespace CRM_api.Controllers.Account_Module
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -95,7 +91,6 @@ namespace CRM_api.Controllers.Account_Module
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -112,7 +107,6 @@ namespace CRM_api.Controllers.Account_Module
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -129,7 +123,6 @@ namespace CRM_api.Controllers.Account_Module
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -146,7 +139,6 @@ namespace CRM_api.Controllers.Account_Module
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -163,7 +155,6 @@ namespace CRM_api.Controllers.Account_Module
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -212,7 +203,6 @@ namespace CRM_api.Controllers.Account_Module
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -229,7 +219,6 @@ namespace CRM_api.Controllers.Account_Module
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -246,7 +235,6 @@ namespace CRM_api.Controllers.Account_Module
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -288,8 +276,15 @@ namespace CRM_api.Controllers.Account_Module
         [HttpDelete("DeactivateUserAccount")]
         public async Task<IActionResult> DeactivateUserAccount(int id)
         {
-            var userAccount = await _accountService.DeactivateUserAccountAsync(id);
-            return userAccount != 0 ? Ok(new { Message = "User account deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate user account." });
+            try
+            {
+                var userAccount = await _accountService.DeactivateUserAccountAsync(id);
+                return userAccount != 0 ? Ok(new { Message = "User account deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate user account." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         #endregion
 
@@ -297,8 +292,15 @@ namespace CRM_api.Controllers.Account_Module
         [HttpDelete("DeactivateAccountGroup")]
         public async Task<IActionResult> DeactivateAccountGroup(int id)
         {
-            var accountGroup = await _accountService.DeactivateAccountGroupAsync(id);
-            return accountGroup != 0 ? Ok(new { Message = "Account group deactivate successfully." }) : BadRequest(new { Message = "Unable to deactivate account group." });
+            try
+            {
+                var accountGroup = await _accountService.DeactivateAccountGroupAsync(id);
+                return accountGroup != 0 ? Ok(new { Message = "Account group deactivate successfully." }) : BadRequest(new { Message = "Unable to deactivate account group." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         #endregion
 
@@ -306,8 +308,15 @@ namespace CRM_api.Controllers.Account_Module
         [HttpDelete("DeactivateCompany")]
         public async Task<IActionResult> DeactivateCompany(int id)
         {
-            var company = await _accountService.DeactivateCompanyAsync(id);
-            return company != 0 ? Ok(new { Message = "Company deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate company." });
+            try
+            {
+                var company = await _accountService.DeactivateCompanyAsync(id);
+                return company != 0 ? Ok(new { Message = "Company deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate company." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         #endregion
 
@@ -315,8 +324,15 @@ namespace CRM_api.Controllers.Account_Module
         [HttpDelete("DeactivateFinancialYear")]
         public async Task<IActionResult> DeactivateFinancialYear(int id)
         {
-            var financialYear = await _accountService.DeactivateFinancialYearAsync(id);
-            return financialYear != 0 ? Ok(new { Message = "Financial year deactivate successfully." }) : BadRequest(new { Message = "Unable to deactivate financial year." });
+            try
+            {
+                var financialYear = await _accountService.DeactivateFinancialYearAsync(id);
+                return financialYear != 0 ? Ok(new { Message = "Financial year deactivate successfully." }) : BadRequest(new { Message = "Unable to deactivate financial year." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         #endregion
 
@@ -324,8 +340,15 @@ namespace CRM_api.Controllers.Account_Module
         [HttpDelete("DeactivateAccountOpeningBalance")]
         public async Task<IActionResult> DeactivateAccountOpeningBalance(int id)
         {
-            var accountOpeningBalance = await _accountService.DeactivateAccountOpeningBalanceAsync(id);
-            return accountOpeningBalance != 0 ? Ok(new { Message = "Account opening balance deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate account opening balance." });
+            try
+            {
+                var accountOpeningBalance = await _accountService.DeactivateAccountOpeningBalanceAsync(id);
+                return accountOpeningBalance != 0 ? Ok(new { Message = "Account opening balance deactivated successfully." }) : BadRequest(new { Message = "Unable to deactivate account opening balance." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         #endregion
     }
