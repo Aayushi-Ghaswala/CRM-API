@@ -1,4 +1,7 @@
 ﻿using CRM_api.DataAccess.Models;
+using CRM_api.Services.Dtos.ResponseDto.User_Module;
+
+using CRM_api.Services.Dtos.ResponseDto.User_Module;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +13,8 @@ namespace CRM_api.Services.Dtos.ResponseDto.Sales_Module
     public class MeetingDto
     {
         public int Id { get; set; }
-        public TblUserMaster MeetingBy { get; set; }
+        public UserNameDto TblUserMaster { get; set; }
+        public LeadDto TblLeadMaster { get; set; }
         public string Purpose { get; set; }
         public DateTime DateOfMeeting { get; set; }
         public Double Duration { get; set; }
@@ -20,5 +24,8 @@ namespace CRM_api.Services.Dtos.ResponseDto.Sales_Module
         public string Link { get; set; }
         public bool IsCompleted { get; set; }
         public bool IsDeleted { get; set; }
+
+        public ICollection<MeetingParticipantDto> Participants { get; set; }
+        public ICollection<MeetingAttachmentDto> Attachments { get; set; }
     }
 }

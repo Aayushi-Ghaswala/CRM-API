@@ -75,9 +75,9 @@ namespace CRM_api.Services.ServicesDepedancy
             services.AddScoped<ISourceTypeService, SourceTypeService>();
             services.AddScoped<ISourceService, SourceService>();
             services.AddScoped<ICampaignService, CampaignService>();
-            //services.AddScoped<IMeetingService, MeetingService>();
-            //services.AddScoped<IMeetingParticipantService, MeetingParticipantService>();
-            //services.AddScoped<IMeetingAttachmentService, MeetingAttachmentService>();
+            services.AddScoped<IMeetingService, MeetingService>();
+            services.AddScoped<IMeetingParticipantService, MeetingParticipantService>();
+            services.AddScoped<IMeetingAttachmentService, MeetingAttachmentService>();
             services.AddScoped<ILeadService, LeadService>();
             services.AddScoped<IConversationHistoryService, ConversationHistoryService>();
             services.AddScoped<ISalesDashboardService, SalesDashboardService>();

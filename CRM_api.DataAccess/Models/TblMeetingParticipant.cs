@@ -6,11 +6,14 @@ namespace CRM_api.DataAccess.Models
     {
         public int Id { get; set; }
         public int MeetingId { get; set; }
-        public int ParticipantId { get; set; }
+        public int? ParticipantId { get; set; }
+        public int? LeadId { get; set; }
         public bool IsDeleted { get; set; }
         [ForeignKey(nameof(MeetingId))]
         public virtual TblMeetingMaster TblMeetingMaster { get; set; }
         [ForeignKey(nameof(ParticipantId))]
         public virtual TblUserMaster TblUserMaster { get; set; }
+        [ForeignKey(nameof(LeadId))]
+        public virtual TblLeadMaster TblLeadMaster { get; set; }
     }
 }
