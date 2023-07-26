@@ -1,6 +1,5 @@
 ﻿using CRM_api.DataAccess.DataAccessDepedancy;
-using CRM_api.Services.Helper.Background_Service.LI_GI_Module;
-using CRM_api.Services.Helper.Background_Service.Loan_Module;
+using CRM_api.Services.IServices.Account_Module;
 using CRM_api.Services.IServices.Business_Module.Dashboard;
 using CRM_api.Services.IServices.Business_Module.Fasttrack_Module;
 using CRM_api.Services.IServices.Business_Module.LI_GI_Module;
@@ -12,6 +11,7 @@ using CRM_api.Services.IServices.Business_Module.WBC_Module;
 using CRM_api.Services.IServices.HR_Module;
 using CRM_api.Services.IServices.Sales_Module;
 using CRM_api.Services.IServices.User_Module;
+using CRM_api.Services.Services.Account_Module;
 using CRM_api.Services.Services.Business_Module.Dashboard;
 using CRM_api.Services.Services.Business_Module.Fasttrack_Module;
 using CRM_api.Services.Services.Business_Module.LI_GI_Module;
@@ -93,6 +93,9 @@ namespace CRM_api.Services.ServicesDepedancy
             services.AddScoped<ILeadService, LeadService>();
             services.AddScoped<IConversationHistoryService, ConversationHistoryService>();
             services.AddScoped<ISalesDashboardService, SalesDashboardService>();
+
+            //Account Module
+            services.AddScoped<IAccountService, AccountService>();
         }
     }
 }

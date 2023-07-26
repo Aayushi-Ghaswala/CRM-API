@@ -1,4 +1,6 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.IRepositories.Account_Module;
+using CRM_api.DataAccess.IRepositories.Business_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.Fasttrack_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.Loan_Module;
@@ -9,6 +11,7 @@ using CRM_api.DataAccess.IRepositories.Business_Module.WBC_Module;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.IRepositories.Sales_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
+using CRM_api.DataAccess.Repositories.Account_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.Fasttrack_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.Loan_Module;
@@ -76,6 +79,9 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             services.AddScoped<IMeetingParticipantRepository, MeetingParticipantRepository>();
             services.AddScoped<ILeadRepository, LeadRepository>();
             services.AddScoped<IConversationHistoryRepository, ConversationHistoryRepository>();
+
+            //Account Module
+            services.AddScoped<IAccountRepository, AccountRepository>();
         }
     }
 }

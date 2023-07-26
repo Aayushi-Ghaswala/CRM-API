@@ -17,11 +17,14 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<Cleanuser> Cleanusers { get; set; } = null!;
         public virtual DbSet<Sheet2> Sheet2s { get; set; } = null!;
         public virtual DbSet<Tbl5paisaResponse> Tbl5paisaResponses { get; set; } = null!;
+        public virtual DbSet<TblAccountGroupMaster> TblAccountGroupMasters { get; set; } = null!;
         public virtual DbSet<TblAccountMaster> TblAccountMasters { get; set; } = null!;
+        public virtual DbSet<TblAccountOpeningBalance> TblAccountOpeningBalances { get; set; } = null!;
         public virtual DbSet<TblAccountTransaction> TblAccountTransactions { get; set; } = null!;
         public virtual DbSet<TblBankMaster> TblBankMasters { get; set; } = null!;
         public virtual DbSet<TblCampaignMaster> TblCampaignMasters { get; set; } = null!;
         public virtual DbSet<TblCityMaster> TblCityMasters { get; set; } = null!;
+        public virtual DbSet<TblCompanyMaster> TblCompanyMasters { get; set; } = null!;
         public virtual DbSet<TblConversationHistoryMaster> TblConversationHistoryMasters { get; set; } = null!;
         public virtual DbSet<TblContactMaster> TblContactMasters { get; set; } = null!;
         public virtual DbSet<TblCountryMaster> TblCountryMasters { get; set; } = null!;
@@ -36,6 +39,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblFasttrackLevelCommission> TblFasttrackLevelCommissions { get; set; } = null!;
         public virtual DbSet<TblFasttrackSchemeMaster> TblFasttrackSchemeMasters { get; set; } = null!;
         public virtual DbSet<TblFasttrackSubscription> TblFasttrackSubscriptions { get; set; } = null!;
+        public virtual DbSet<TblFinancialYearMaster> TblFinancialYearMasters { get; set; } = null!;
         public virtual DbSet<TblFolioDetail> TblFolioDetails { get; set; } = null!;
         public virtual DbSet<TblFolioMaster> TblFolioMasters { get; set; } = null!;
         public virtual DbSet<TblFolioTypeMaster> TblFolioTypeMasters { get; set; } = null!;
@@ -362,6 +366,24 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<TblAccountGroupMaster>(entity =>
+            {
+                entity.ToTable("tbl_account_group_master");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.AccountGrpName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("account_grp_name");
+
+                entity.Property(e => e.Isdeleted).HasColumnName("isdeleted");
+
+                entity.Property(e => e.ParentGrpid).HasColumnName("parent_grpid");
+
+                entity.Property(e => e.RootGrpid).HasColumnName("root_grpid");
+            });
+
             modelBuilder.Entity<TblAccountMaster>(entity =>
             {
                 entity.HasKey(e => e.AccountId);
@@ -370,15 +392,40 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.AccountId).HasColumnName("account_id");
 
+                entity.Property(e => e.AccountEmail)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("account_email");
+
+                entity.Property(e => e.AccountGrpid).HasColumnName("account_grpid");
+
+                entity.Property(e => e.AccountMobile)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("account_mobile");
+
                 entity.Property(e => e.AccountName)
                     .HasMaxLength(150)
                     .IsUnicode(false)
                     .HasColumnName("account_name");
 
+                entity.Property(e => e.Companyid).HasColumnName("companyid");
+
                 entity.Property(e => e.DebitCredit)
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .HasColumnName("debit_credit");
+
+                entity.Property(e => e.GstNo)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("gst_no");
+
+                entity.Property(e => e.GstRegDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("gst_reg_date");
+
+                entity.Property(e => e.Isdeleted).HasColumnName("isdeleted");
 
                 entity.Property(e => e.OpeningBalance).HasColumnName("opening_balance");
 
@@ -387,6 +434,28 @@ namespace CRM_api.DataAccess.Context
                     .HasColumnName("opening_balance_date");
 
                 entity.Property(e => e.UserId).HasColumnName("user_id");
+            });
+
+            modelBuilder.Entity<TblAccountOpeningBalance>(entity =>
+            {
+                entity.ToTable("tbl_account_opening_balance");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.AccountId).HasColumnName("account_id");
+
+                entity.Property(e => e.Balance)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("balance");
+
+                entity.Property(e => e.BalanceType)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("balance_type");
+
+                entity.Property(e => e.FinancialYearid).HasColumnName("financial_yearid");
+
+                entity.Property(e => e.Isdeleted).HasColumnName("isdeleted");
             });
 
             modelBuilder.Entity<TblAccountTransaction>(entity =>
@@ -434,6 +503,8 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.Mgainid).HasColumnName("mgainid");
             });
+
+            modelBuilder.Entity<TblAccountTransaction>().HasOne(x => x.CreditAccount).WithMany().HasForeignKey(x => x.CreditAccountId);
 
             modelBuilder.Entity<TblBankMaster>(entity =>
             {
@@ -505,17 +576,72 @@ namespace CRM_api.DataAccess.Context
                     .HasConstraintName("FK_tbl_City_Master_tbl_StateMaster");
             });
 
-            modelBuilder.Entity<TblConversationHistoryMaster>(entity =>
+            modelBuilder.Entity<TblCompanyMaster>(entity =>
             {
-                entity.ToTable("tbl_conversation_history_master");
+                entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.Conclusion).IsUnicode(false);
+                entity.ToTable("tbl_company_master");
 
-                entity.Property(e => e.Date).HasColumnType("datetime");
+                entity.Property(e => e.Address)
+                    .IsUnicode(false)
+                    .HasColumnName("address");
 
-                entity.Property(e => e.DiscussionSummary).IsUnicode(false);
+                entity.Property(e => e.Email)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("email");
 
-                entity.Property(e => e.NextDate).HasColumnType("datetime");
+                entity.Property(e => e.FactoryAdd)
+                    .IsUnicode(false)
+                    .HasColumnName("factory_add");
+
+                entity.Property(e => e.FactoryEmail)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("factory_email");
+
+                entity.Property(e => e.FactoryMobileno)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("factory_mobileno");
+
+                entity.Property(e => e.GstNo)
+                    .HasMaxLength(15)
+                    .IsUnicode(false)
+                    .HasColumnName("gst_no");
+
+                entity.Property(e => e.GstRegDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("gst_reg_date");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Isdeleted).HasColumnName("isdeleted");
+
+                entity.Property(e => e.Mobileno)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mobileno");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.OfficeEmail)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("office_email");
+
+                entity.Property(e => e.OfficeMobileno)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("office_mobileno");
+
+                entity.Property(e => e.Type)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("type");
             });
 
             modelBuilder.Entity<TblContactMaster>(entity =>
@@ -916,6 +1042,28 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.MobileNo)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<TblFinancialYearMaster>(entity =>
+            {
+                entity.ToTable("tbl_financial_year_master");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Enddate)
+                    .HasColumnType("date")
+                    .HasColumnName("enddate");
+
+                entity.Property(e => e.Isdeleted).HasColumnName("isdeleted");
+
+                entity.Property(e => e.Startdate)
+                    .HasColumnType("date")
+                    .HasColumnName("startdate");
+
+                entity.Property(e => e.Year)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("year");
             });
 
             modelBuilder.Entity<TblFolioDetail>(entity =>
