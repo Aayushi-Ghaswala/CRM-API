@@ -1,4 +1,5 @@
 using CRM_api.Services.ServicesDepedancy;
+using Microsoft.AspNetCore.Http.Features;
 using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,11 @@ builder.Services.AddCors(options =>
               .AllowCredentials()
               .WithExposedHeaders("WWW-Authenticate");
     });
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = int.MaxValue;
 });
 
 var app = builder.Build();
