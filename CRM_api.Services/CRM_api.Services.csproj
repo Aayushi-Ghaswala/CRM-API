@@ -21,6 +21,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
     <PackageReference Include="CsvHelper" Version="30.0.1" />
+    <PackageReference Include="FirebaseAdmin" Version="2.4.0" />
     <PackageReference Include="IronXL.Excel" Version="2023.5.4" />
     <PackageReference Include="MailKit" Version="3.6.0" />
     <!--<PackageReference Include="Microsoft.Office.Interop.Excel" Version="15.0.4795.1001" />-->

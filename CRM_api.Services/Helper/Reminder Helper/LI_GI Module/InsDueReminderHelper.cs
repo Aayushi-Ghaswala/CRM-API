@@ -1,4 +1,5 @@
 ﻿using CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module;
+using FirebaseAdmin.Messaging;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 
@@ -6,7 +7,7 @@ namespace CRM_api.Services.Helper.Reminder_Helper.LI_GI_Module
 {
     public static class InsDueReminderHelper
     {
-        public static async void InsDueHelper(IConfiguration configuration, IInsuranceClientRepository insuranceClientRepository)
+        public static async void InsDueHelper(IConfiguration configuration, IInsuranceClientRepository insuranceClientRepository, FirebaseMessaging firebaseMessaging)
         {
             var insClients = insuranceClientRepository.GetInsClientsForInsDueReminder();
 
@@ -14,6 +15,7 @@ namespace CRM_api.Services.Helper.Reminder_Helper.LI_GI_Module
             {
                 var templateId = "";
                 var reminderMessage = "";
+                var subject = "Friendly Reminder: Renewal Reminder for Insurance Policy";
 
                 var diff = insClient.InsDuedate.Value.Date.Subtract(DateTime.Now.Date).TotalDays;
 
@@ -33,24 +35,21 @@ namespace CRM_api.Services.Helper.Reminder_Helper.LI_GI_Module
                         break;
                 }
 
-                if (insClient.IsEmailReminder == true)
+                if (!string.IsNullOrEmpty(reminderMessage))
                 {
-                    if (insClient.InsEmail is not null)
+                    if (insClient.IsEmailReminder == true && insClient.InsEmail is not null)
                     {
-                        var subject = "Friendly Reminder: Renewal Reminder for Insurance Policy";
                         var body = new BodyBuilder();
                         body.TextBody = reminderMessage;
 
                         EmailHelper.SendMailAsync(configuration, insClient.InsEmail, subject, body);
                     }
-                }
 
-                if (insClient.IsSmsReminder == true)
-                {
-                    if (insClient.InsMobile is not null)
-                    {
+                    if (insClient.IsSmsReminder == true && insClient.InsMobile is not null)
                         SMSHelper.SendSMS(insClient.InsMobile, reminderMessage, templateId);
-                    }
+
+                    if (insClient.IsNotification is true && insClient.TblUserMaster.UserDeviceid is not null)
+                        await NotificationHelper.SendNotification(firebaseMessaging, reminderMessage, subject, insClient.TblUserMaster.UserDeviceid);
                 }
             }
         }
