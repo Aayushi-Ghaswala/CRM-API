@@ -36,7 +36,7 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
             var category = await _userMasterRepository.GetCategoryByName(CategoryConstant.customer);
             List<TblUserMaster> clients = new List<TblUserMaster>();
 
-            if (userId is not null)
+            if (userId is null)
                 clients = await _userMasterRepository.GetUsersByCategoryId(category.CatId, null, null, search, true);
             else
             {

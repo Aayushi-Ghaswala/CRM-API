@@ -77,13 +77,12 @@ namespace CRM_api.DataAccess.Models
         public int? MgainSchemeid { get; set; }
 
         [ForeignKey(nameof(MgainUserid))]
-        public virtual TblUserMaster TblUserMaster { get; set; }
+        public virtual TblUserMaster? TblUserMaster { get; set; }
         [ForeignKey(nameof(MgainEmployeeid))]
-        [NotMapped]
-        public virtual TblUserMaster EmployeeMaster { get; set; }
+        public virtual TblUserMaster? EmployeeMaster { get; set; }
         [ForeignKey(nameof(MgainSchemeid))]
-        public virtual TblMgainSchemeMaster TblMgainSchemeMaster { get; set; }
+        public virtual TblMgainSchemeMaster? TblMgainSchemeMaster { get; set; }
 
-        public virtual ICollection<TblMgainPaymentMethod> TblMgainPaymentMethods { get; set; }
+        public virtual ICollection<TblMgainPaymentMethod>? TblMgainPaymentMethods { get; set; }
     }
 }

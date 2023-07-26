@@ -15,7 +15,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         public MGainController(IMGainService mGainService)
         {
             _mGainService = mGainService;
-        }
+        }          
 
         #region Get All MGain Details
         [HttpGet("GetMGainDetails")]
@@ -67,7 +67,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             try
             {
                 var file = await _mGainService.MGainPaymentReceipt(id);
-                return file is not null ? Ok(new { Message = File(file.file, "application/pdf", file.FileName) }) : BadRequest(new {Message = "Unable to download payment reciept."});
+                return file is not null ? Ok(new { Message = File(file.file, "application/pdf", file.FileName) }) : BadRequest(new { Message = "Unable to download payment reciept." });
             }
             catch (Exception)
             {
@@ -92,7 +92,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             }
         }
         #endregion
-
+              
         #region MGain Monthly Non-Cumulative Interest Computation & Release
         [HttpGet("MGainMonthlyNon-CumulativeInterest")]
         public async Task<IActionResult> GetNonCumulativeMonthlyReport(int month, int year, int? schemaId, decimal? tds, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, bool? isSendSMS, string? search, [FromQuery] SortingParams sortingParams)
@@ -128,7 +128,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
 
         #region MGain Month wise Total Interest Paid
         [HttpGet("GetMonthWiseInterestPaid")]
-        public async Task<IActionResult> GetMonthWiseInterestPaid(int month, int year,[FromQuery] string? search,[FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetMonthWiseInterestPaid(int month, int year, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             var intrestPaid = await _mGainService.GetMonthWiseInterestPaidAsync(month, year, search, sortingParams);
             return Ok(intrestPaid);
@@ -216,11 +216,11 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
 
         #region Get Plots By ProjectId
         [HttpGet("GetPlotsByProjectId")]
-        public async Task<IActionResult> GetPlotsByProjectId(int projectId, int? plotId, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetPlotsByProjectId(int projectId, int? plotId)
         {
             try
             {
-                var getData = await _mGainService.GetPlotsByProjectIdAsync(projectId, plotId, search, sortingParams);
+                var getData = await _mGainService.GetPlotsByProjectIdAsync(projectId, plotId);
                 return Ok(getData);
             }
             catch (Exception)

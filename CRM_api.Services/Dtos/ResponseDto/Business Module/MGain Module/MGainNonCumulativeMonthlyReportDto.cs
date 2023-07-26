@@ -4,7 +4,7 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
 {
     public class MGainNonCumulativeMonthlyReportDto
     {
-        public long? IntAccNo { get; set; }
+        public string? IntAccNo { get; set; }
         public string? IntBankName { get; set; }
         public string? MgainRedemdate { get; set; }
         public string? Date { get; set; }

@@ -341,7 +341,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #endregion
 
         #region Get All Plot By ProjectId
-        public async Task<Response<TblPlotMaster>> GetPlotsByProjectId(int projectId, int? plotId, string? searchingParams, SortingParams sortingParams)
+        public async Task<List<TblPlotMaster>> GetPlotsByProjectId(int projectId, int? plotId)
         {
             double pageCount = 0;
             var plots = _context.TblPlotMasters.Where(x => x.ProjectId == projectId).Include(x => x.TblProjectMaster).ToList();
@@ -357,28 +357,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
                 }
             }
 
-            IQueryable<TblPlotMaster> orderedPlots = plots.AsQueryable();
-
-            if (searchingParams != null)
-            {
-                orderedPlots = _context.Search<TblPlotMaster>(searchingParams);
-            }
-            pageCount = Math.Ceiling(plots.Count() / sortingParams.PageSize);
-
-            //Apply pagination
-            var paginatedData = SortingExtensions.ApplyPagination(orderedPlots, sortingParams.PageNumber, sortingParams.PageSize).ToList();
-
-            var responsePlots = new Response<TblPlotMaster>()
-            {
-                Values = paginatedData,
-                Pagination = new Pagination()
-                {
-                    Count = (int)pageCount,
-                    CurrentPage = sortingParams.PageNumber
-                }
-            };
-
-            return responsePlots;
+            return plots;
         }
         #endregion
 
