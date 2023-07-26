@@ -1,10 +1,10 @@
 ﻿using CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module;
 using CRM_api.Services.Helper.Reminder_Helper.LI_GI_Module;
+using FirebaseAdmin.Messaging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MimeKit;
 
 namespace CRM_api.Services.Helper.Background_Service.LI_GI_Module
 {
@@ -14,12 +14,14 @@ namespace CRM_api.Services.Helper.Background_Service.LI_GI_Module
         private Timer _timer;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IConfiguration _config;
+        private readonly FirebaseMessaging _firebaseMessaging;
 
-        public InsPremiumReminderService(ILogger<InsPremiumReminderService> logger, IConfiguration config, IServiceScopeFactory serviceScopeFactory)
+        public InsPremiumReminderService(ILogger<InsPremiumReminderService> logger, IConfiguration config, IServiceScopeFactory serviceScopeFactory, FirebaseMessaging firebaseMessaging)
         {
             _logger = logger;
             _config = config;
             _serviceScopeFactory = serviceScopeFactory;
+            _firebaseMessaging = firebaseMessaging;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -34,7 +36,7 @@ namespace CRM_api.Services.Helper.Background_Service.LI_GI_Module
             {
                 var service = scope.ServiceProvider.GetRequiredService<IInsuranceClientRepository>();
 
-                InsPremiumReminderHelper.InsPremimumReminder(_config, service);
+                InsPremiumReminderHelper.InsPremimumReminder(_config, service, _firebaseMessaging);
             }
         }
 

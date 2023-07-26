@@ -1,22 +1,22 @@
-﻿using CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module;
-using CRM_api.Services.Helper.Reminder_Helper.LI_GI_Module;
+﻿using CRM_api.DataAccess.IRepositories.Business_Module.Loan_Module;
+using CRM_api.Services.Helper.Reminder_Helper.Loan_Module;
 using FirebaseAdmin.Messaging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace CRM_api.Services.Helper.Background_Service.LI_GI_Module
+namespace CRM_api.Services.Helper.Background_Service.Loan_Module
 {
-    public class InsDueReminderService : IHostedService, IDisposable
+    public class LoanEMIReminderService : IHostedService, IDisposable
     {
-        private readonly ILogger<InsDueReminderService> _logger;
+        private readonly ILogger<LoanEMIReminderService> _logger;
         private Timer _timer;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IConfiguration _config;
         private readonly FirebaseMessaging _firebaseMessaging;
 
-        public InsDueReminderService(ILogger<InsDueReminderService> logger, IConfiguration config, IServiceScopeFactory serviceScopeFactory, FirebaseMessaging firebaseMessaging)
+        public LoanEMIReminderService(ILogger<LoanEMIReminderService> logger, IConfiguration config, IServiceScopeFactory serviceScopeFactory, FirebaseMessaging firebaseMessaging)
         {
             _logger = logger;
             _config = config;
@@ -26,7 +26,7 @@ namespace CRM_api.Services.Helper.Background_Service.LI_GI_Module
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromDays(1));
+            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(10));
             return Task.CompletedTask;
         }
 
@@ -34,9 +34,9 @@ namespace CRM_api.Services.Helper.Background_Service.LI_GI_Module
         {
             using (var scope = _serviceScopeFactory.CreateAsyncScope())
             {
-                var service = scope.ServiceProvider.GetRequiredService<IInsuranceClientRepository>();
+                var service = scope.ServiceProvider.GetRequiredService<ILoanMasterRepository>();
 
-                InsDueReminderHelper.InsDueHelper(_config, service, _firebaseMessaging);
+                LoanEMIReminderHelper.LoanEMIReminder(_config, service, _firebaseMessaging);
             }
         }
 

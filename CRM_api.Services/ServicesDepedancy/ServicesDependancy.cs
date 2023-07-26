@@ -1,4 +1,6 @@
 ﻿using CRM_api.DataAccess.DataAccessDepedancy;
+using CRM_api.Services.Helper.Background_Service.LI_GI_Module;
+using CRM_api.Services.Helper.Background_Service.Loan_Module;
 using CRM_api.Services.IServices.Business_Module.Dashboard;
 using CRM_api.Services.IServices.Business_Module.Fasttrack_Module;
 using CRM_api.Services.IServices.Business_Module.LI_GI_Module;
@@ -21,6 +23,9 @@ using CRM_api.Services.Services.Business_Module.WBC_Module;
 using CRM_api.Services.Services.HR_Module;
 using CRM_api.Services.Services.Sales_Module;
 using CRM_api.Services.Services.User_Module;
+using FirebaseAdmin;
+using FirebaseAdmin.Messaging;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text;
@@ -34,6 +39,13 @@ namespace CRM_api.Services.ServicesDepedancy
             services.InjectDataAccessDependecy(config);
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            FirebaseApp.Create(new AppOptions
+            {
+                Credential = GoogleCredential.FromFile(Directory.GetCurrentDirectory() + "\\wwwroot\\Firebase Credintial\\FirebaseCredintial.json")
+            });
+
+            services.AddSingleton(FirebaseMessaging.GetMessaging(FirebaseApp.DefaultInstance));
 
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
