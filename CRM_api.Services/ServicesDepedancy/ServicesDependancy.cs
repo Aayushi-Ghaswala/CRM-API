@@ -96,6 +96,7 @@ namespace CRM_api.Services.ServicesDepedancy
 
             //Account Module
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IAccountTransactionservice, AccountTransactionservice>();
         }
     }
 }

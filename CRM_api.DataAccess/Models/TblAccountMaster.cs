@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CRM_api.DataAccess.Models
 {
@@ -29,5 +28,6 @@ namespace CRM_api.DataAccess.Models
         public virtual TblUserMaster UserMaster { get; set; }
 
         public virtual ICollection<TblAccountOpeningBalance> TblAccountOpeningBalances { get; set; }
+        public virtual ICollection<TblAccountTransaction> TblAccountTransactions { get; set; }
     }
 }

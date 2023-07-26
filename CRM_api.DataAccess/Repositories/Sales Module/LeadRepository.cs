@@ -181,7 +181,6 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
             return lead;
         }
         #endregion
-
         
         #region Get Leads
         public async Task<List<TblLeadMaster>> GetLeadsForCSV(int? assignTo, string search, SortingParams sortingParams)
