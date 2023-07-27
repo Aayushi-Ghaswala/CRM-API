@@ -15,6 +15,7 @@ namespace CRM_api.Services.MapperProfile
             CreateMap<UpdateAccountTransactionDto, TblAccountTransaction>();
             CreateMap<TblAccountTransaction, AccountTransactionDto>();
             CreateMap<Response<TblAccountTransaction>, ResponseDto<AccountTransactionDto>>();
+            CreateMap<TblCompanyMaster, CompanyMasterDto>();
         }
     }
 }

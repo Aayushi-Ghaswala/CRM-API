@@ -219,6 +219,43 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
         #endregion
 
+        #region Get KA Group Account By UserId
+        public async Task<Response<TblAccountMaster>> GetKAGroupAccountByUserId(string? search, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+            var filterData = new List<TblAccountMaster>().AsQueryable();
+
+            if (search is not null)
+            {
+                filterData = _context.Search<TblAccountMaster>(search).Where(x => x.UserId == 1014 && x.Isdeleted != true).Include(x => x.TblCompanyMaster).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblAccountMasters.Where(x => x.UserId == 1014 && x.Isdeleted != true).Include(x => x.TblCompanyMaster).AsQueryable();
+            }
+
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var accountResponse = new Response<TblAccountMaster>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+
+            return accountResponse;
+        }
+        #endregion
+
         #region Add User Account
         public async Task<int> AddUserAccount(TblAccountMaster tblAccountMaster)
         {

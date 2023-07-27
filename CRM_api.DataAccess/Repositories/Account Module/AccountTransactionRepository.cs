@@ -65,6 +65,50 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
         #endregion
 
+        #region Get Company And Account wise Account Transaction
+        public async Task<List<TblAccountTransaction>> GetCompanyAndAccountWiseTransaction(int? companyId, int accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams)
+        {
+            var filterData = new List<TblAccountTransaction>().AsQueryable();
+
+            if (search is not null)
+            {
+                if (companyId is not null)
+                {
+                    filterData = _context.Search<TblAccountTransaction>(search).Where(x => x.Companyid == companyId && (x.CreditAccountId == accountId || x.DebitAccountId == accountId)
+                                                                      && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
+                                                            .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
+                                                            .AsQueryable();
+                }
+                else
+                {
+                    filterData = _context.Search<TblAccountTransaction>(search).Where(x => (x.CreditAccountId == accountId || x.DebitAccountId == accountId)
+                                                                      && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
+                                                            .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
+                                                            .AsQueryable();
+                }
+            }
+            else if (companyId is not null)
+            {
+                filterData = _context.TblAccountTransactions.Where(x => x.Companyid == companyId && (x.CreditAccountId == accountId || x.DebitAccountId == accountId)
+                                                                      && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
+                                                            .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
+                                                            .AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblAccountTransactions.Where(x => (x.DebitAccountId == accountId || x.CreditAccountId == accountId)
+                                                                      && (x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date))
+                                                            .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
+                                                            .AsQueryable();
+            }
+
+            // Apply Sortintg
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending).ToList();
+
+            return sortedData;
+        }
+        #endregion
+
         #region Add Account Transaction
         public async Task<int> AddAccountTransaction(TblAccountTransaction tblAccountTransaction)
         {

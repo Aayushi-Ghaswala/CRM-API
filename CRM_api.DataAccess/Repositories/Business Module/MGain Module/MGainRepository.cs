@@ -266,7 +266,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             var startDate = Convert.ToDateTime((year - 1) + "-04-01");
             var endDate = Convert.ToDateTime(year + "-03-31");
 
-            var transactionDetails = await _context.TblAccountTransactions.Where(t => t.DocUserid == userId && t.DocDate >= startDate && t.DocDate <= endDate).OrderBy(x => x.DocDate)
+            var transactionDetails = await _context.TblAccountTransactions.Where(t => t.DocUserid == userId && t.DocDate >= startDate && t.DocDate <= endDate && t.Mgainid != null).OrderBy(x => x.DocDate)
                                                    .Include(x => x.TblMgaindetail).ToListAsync();
 
             return transactionDetails;

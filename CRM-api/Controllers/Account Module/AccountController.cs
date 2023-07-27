@@ -112,6 +112,22 @@ namespace CRM_api.Controllers.Account_Module
         }
         #endregion
 
+        #region Get KA Group Accounts
+        [HttpGet("GetKAGroupAccounts")]
+        public async Task<IActionResult> GetKAGroupAccounts(string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var data = await _accountService.GetKAGroupAccountsAsync(search, sortingParams);
+                return Ok(data);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region Add User Account
         [HttpPost("AddUserAccount")]
         public async Task<IActionResult> AddUserAccount(AddUserAccountDto addUserAccount)

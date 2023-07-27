@@ -644,6 +644,74 @@ namespace CRM_api.DataAccess.Context
                     .HasColumnName("type");
             });
 
+            modelBuilder.Entity<TblCompanyMaster>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("tbl_company_master");
+
+                entity.Property(e => e.Address)
+                    .IsUnicode(false)
+                    .HasColumnName("address");
+
+                entity.Property(e => e.Email)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("email");
+
+                entity.Property(e => e.FactoryAdd)
+                    .IsUnicode(false)
+                    .HasColumnName("factory_add");
+
+                entity.Property(e => e.FactoryEmail)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("factory_email");
+
+                entity.Property(e => e.FactoryMobileno)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("factory_mobileno");
+
+                entity.Property(e => e.GstNo)
+                    .HasMaxLength(15)
+                    .IsUnicode(false)
+                    .HasColumnName("gst_no");
+
+                entity.Property(e => e.GstRegDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("gst_reg_date");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Isdeleted).HasColumnName("isdeleted");
+
+                entity.Property(e => e.Mobileno)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("mobileno");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.OfficeEmail)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("office_email");
+
+                entity.Property(e => e.OfficeMobileno)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("office_mobileno");
+
+                entity.Property(e => e.Type)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("type");
+            });
+
             modelBuilder.Entity<TblContactMaster>(entity =>
             {
                 entity.HasKey(e => e.Contactid);
