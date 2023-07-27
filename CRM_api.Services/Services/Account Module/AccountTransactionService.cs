@@ -97,6 +97,29 @@ namespace CRM_api.Services.Services.Account_Module
         }
         #endregion
 
+        #region Get Company And Account wise Account Transaction
+        public async Task<(List<AccountTransactionDto>, Dictionary<string, decimal?>)> GetCompanyAndAccountWiseTransactionAsync(int? companyId, int accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams)
+        {
+            var transactions = await _accountTransactionRepository.GetCompanyAndAccountWiseTransaction(companyId, accountId, startDate, endDate, search, sortingParams);
+            var mappedTransactions = _mapper.Map<List<AccountTransactionDto>>(transactions);
+
+            var totalDebit = mappedTransactions.Sum(x => x.Debit);
+            var totalCredit = mappedTransactions.Sum(x => x.Credit);
+
+            Dictionary<string, decimal?> total = new Dictionary<string, decimal?>();
+            total.Add("totalDebit", totalDebit);
+            total.Add("totalCredit", totalCredit);
+
+            if (totalDebit >= totalCredit)
+                total.Add("totalClosingDebit", totalDebit - totalCredit);
+            else
+                total.Add("totalClosingCredit", totalCredit - totalDebit);
+
+            return (mappedTransactions, total);
+
+        }
+        #endregion
+
         #region Add Account Transaction
         public async Task<int> AddAccountTransactionAsync(AddAccountTransactionDto addAccountTransaction)
         {

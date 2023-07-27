@@ -13,6 +13,7 @@ namespace CRM_api.Services.IServices.Account_Module
         Task<ResponseDto<CompanyMasterDto>> GetCompnanyAsync(string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<FinancialYearDto>> GetFinancialYearAsync(string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<AccountOpeningBalanceDto>> GetAccountOpeningBalanceAsync(string? searchingParams, SortingParams sortingParams);
+        Task<ResponseDto<AccountMasterDto>> GetKAGroupAccountsAsync(string? search, SortingParams sortingParams);
         Task<int> AddUserAccountAsync(AddUserAccountDto addUserAccount);
         Task<int> AddAccountGroupAsync(AddAccountGroupDto addAccountGroup);
         Task<int> AddCompanyAsync(AddCompanyDto addCompany);

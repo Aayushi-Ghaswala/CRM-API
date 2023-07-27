@@ -10,8 +10,6 @@ using CRM_api.Services.Helper.ConstantValue;
 using CRM_api.Services.Helper.Reminder_Helper;
 using CRM_api.Services.IServices.Account_Module;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
-using DocumentFormat.OpenXml.Bibliography;
-using Microsoft.Extensions.Logging;
 using SelectPdf;
 using static CRM_api.Services.Helper.ConstantValue.GenderConstant;
 using static CRM_api.Services.Helper.ConstantValue.MaritalStatusConstant;
@@ -1696,7 +1694,7 @@ SURAT - 395009 <p>
             if (isJournal is true)
             {
                 TblAccountTransaction creditAccountTransaction = new TblAccountTransaction();
-                
+
 
                 //Journal Credit Entry
                 creditAccountTransaction.DocDate = jvEntryDate;
@@ -1722,7 +1720,7 @@ SURAT - 395009 <p>
                 if (isTdsDeduction is true)
                 {
                     TblAccountTransaction creditTDCAccountTransaction = new TblAccountTransaction();
-                    
+
 
                     //Journal TDS Credit Entry
                     creditTDCAccountTransaction.DocDate = jvEntryDate;
@@ -1736,7 +1734,7 @@ SURAT - 395009 <p>
                     creditTDCAccountTransaction.DebitAccountId = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
                     creditTDCAccountTransaction.Mgainid = mGainId;
 
-                   
+
                     accountTransactions.Add(creditTDCAccountTransaction);
                 }
             }
@@ -1744,7 +1742,7 @@ SURAT - 395009 <p>
             if (isPayment is true)
             {
                 TblAccountTransaction creditAccountTransaction = new TblAccountTransaction();
-                
+
 
                 //Payment Credit Entry
                 creditAccountTransaction.DocDate = crEntryDate;
@@ -1758,7 +1756,7 @@ SURAT - 395009 <p>
                 creditAccountTransaction.DebitAccountId = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
                 creditAccountTransaction.Mgainid = mGainId;
 
-                
+
                 accountTransactions.Add(creditAccountTransaction);
             }
             return accountTransactions;
