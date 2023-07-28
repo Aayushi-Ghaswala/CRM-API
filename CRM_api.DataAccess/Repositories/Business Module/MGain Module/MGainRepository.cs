@@ -38,145 +38,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             else 
                 mGainDetails = _context.TblMgaindetails.Where(x => (currencyId == null || x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId)) && (type == null || x.MgainType == type) && (isClosed == null || x.MgainIsclosed == isClosed) && (fromDate == null || x.Date >= fromDate) && (toDate == null || x.Date <= toDate)).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster).Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
 
-            //if (currencyId != null && type != null)
-            //{
-            //    if (fromDate == null && toDate == null)
-            //        mGainDetails = _context.TblMgaindetails.Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId) && x.MgainType == type)
-            //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-            //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //    else
-            //        mGainDetails = _context.TblMgaindetails.Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId)
-            //                                 && x.MgainType == type && x.Date >= fromDate && x.Date <= toDate)
-            //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-            //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //}
-            //else if (currencyId != null)
-            //{
-            //    if (fromDate == null && toDate == null)
-            //        mGainDetails = _context.TblMgaindetails.Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId))
-            //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-            //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //    else
-            //        mGainDetails = _context.TblMgaindetails.Where(x => x.TblMgainPaymentMethods.All(x => x.CurrancyId == currencyId)
-            //                                 && x.Date >= fromDate && x.Date <= toDate).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-            //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //}
-            //else if (type != null)
-            //{
-            //    if (fromDate == null && toDate == null)
-            //        mGainDetails = _context.TblMgaindetails.Where(x => x.MgainType == type)
-            //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-            //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //    else
-            //        mGainDetails = _context.TblMgaindetails.Where(x => x.MgainType == type && x.Date >= fromDate && x.Date <= toDate)
-            //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-            //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //}
-            //else if (isClosed is true)
-            //{
-            //    if (fromDate == null && toDate == null)
-            //        mGainDetails = _context.TblMgaindetails.Where(x => x.MgainIsclosed == true)
-            //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-            //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //    else
-            //        mGainDetails = _context.TblMgaindetails.Where(x => x.MgainIsclosed == true && x.Date >= fromDate && x.Date <= toDate)
-            //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-            //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //}
-            //else if (isClosed is false)
-            //{
-            //    if (fromDate == null && toDate == null)
-            //        mGainDetails = _context.TblMgaindetails.Where(x => x.MgainIsclosed == false)
-            //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-            //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //    else
-            //        mGainDetails = _context.TblMgaindetails.Where(x => x.MgainIsclosed == false && x.Date >= fromDate && x.Date <= toDate)
-            //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-            //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //}
-            //else
-            //{
-            //    if (fromDate == null && toDate == null)
-            //        mGainDetails = _context.TblMgaindetails.Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-            //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //    else
-            //        mGainDetails = _context.TblMgaindetails.Where(x => x.Date >= fromDate && x.Date <= toDate)
-            //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-            //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //}
-
-            //if (searchingParams != null)
-            //{
-            //    mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => (currencyId == null || x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId)) && (type == null || x.MgainType == type) && (isClosed == null || x.MgainIsclosed == isClosed) && (fromDate == null || x.Date >= fromDate) && (toDate == null || x.Date <= toDate)).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster).Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-
-                //if (currencyId != null && type != null)
-                //{
-                //    if (fromDate == null && toDate == null)
-                //        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId) && x.MgainType == type)
-                //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-                //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //    else
-                //        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId)
-                //                                 && x.MgainType == type && x.Date >= fromDate && x.Date <= toDate)
-                //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-                //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //}
-                //else if (currencyId != null)
-                //{
-                //    if (fromDate == null && toDate == null)
-                //        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId))
-                //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-                //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //    else
-                //        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.TblMgainPaymentMethods.All(x => x.CurrancyId == currencyId)
-                //                                 && x.Date >= fromDate && x.Date <= toDate).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-                //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //}
-                //else if (type != null)
-                //{
-                //    if (fromDate == null && toDate == null)
-                //        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainType == type)
-                //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-                //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //    else
-                //        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainType == type && x.Date >= fromDate && x.Date <= toDate)
-                //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-                //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //}
-                //else if (isClosed is true)
-                //{
-                //    if (fromDate == null && toDate == null)
-                //        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainIsclosed == true)
-                //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-                //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //    else
-                //        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainIsclosed == true && x.Date >= fromDate && x.Date <= toDate)
-                //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-                //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //}
-                //else if (isClosed is false)
-                //{
-                //    if (fromDate == null && toDate == null)
-                //        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainIsclosed == false)
-                //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-                //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //    else
-                //        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainIsclosed == false && x.Date >= fromDate && x.Date <= toDate)
-                //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-                //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //}
-                //else
-                //{
-                //    if (fromDate == null && toDate == null)
-                //        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-                //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //    else
-                //        mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.Date >= fromDate && x.Date <= toDate)
-                //                                .Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster)
-                //                                .Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //}
-            //}
-
             pageCount = Math.Ceiling(mGainDetails.Count() / sortingParams.PageSize);
 
             var totalAmount = mGainDetails.Sum(x => x.MgainInvamt);
@@ -223,23 +84,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             else
                 filterData = _context.TblMgaindetails.Where(x => (schemeId == null || x.MgainSchemeid == schemeId) && (mgainType == null || x.MgainType.ToLower() == mgainType.ToLower()) && (date == null || x.Date < date)).Include(x => x.TblMgainSchemeMaster).AsQueryable();
 
-            //if (schemeId is not null)
-            //    filterData = _context.TblMgaindetails.Where(x => x.MgainIsclosed != true && x.MgainSchemeid == schemeId
-            //               && x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //else 
-            //    filterData = _context.TblMgaindetails.Where(x => x.MgainIsclosed != true
-            //               && x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-
-            //if (searchingParams is not null)
-            //{
-            //    filterData = _context.TblMgaindetails.Where(x => (schemeId == null || x.MgainSchemeid == schemeId) && (mgainType == null || x.MgainType.ToLower() == mgainType.ToLower()) && (date == null || x.Date < date)).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-
-                //if (schemeId is not null)
-                //    filterData = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainIsclosed != true
-                //            && x.MgainSchemeid == schemeId && x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //else filterData = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainIsclosed != true
-                //            && x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //}
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -291,27 +135,11 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         public async Task<IQueryable<TblMgaindetail>> GetMGainCumulativeDetails(int fromYear, int toYear, int? schemeId, string? search, SortingParams sortingParams, string mgainType)
         {
             IQueryable<TblMgaindetail> filterData = new List<TblMgaindetail>().AsQueryable();
-            //IQueryable<TblMgaindetail> filterData = details.AsQueryable();
 
             if (search is not null)
                 filterData = _context.Search<TblMgaindetail>(search).Where(x => x.Date.Value.Year >= fromYear && x.Date.Value.Year <= toYear && (schemeId == null || x.MgainSchemeid == schemeId)).Include(x => x.TblMgainSchemeMaster).AsQueryable();
             else
                 filterData = _context.TblMgaindetails.Where(x => x.Date.Value.Year >= fromYear && x.Date.Value.Year <= toYear && (schemeId == null || x.MgainSchemeid == schemeId)).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-
-            //if (schemeId is not null) filterData = _context.TblMgaindetails.Where(x => x.MgainIsclosed != true && x.MgainSchemeid == schemeId && x.Date.Value.Year >= fromYear && x.Date.Value.Year <= toYear
-            //                                                               && x.MgainType.ToLower() == mgainType.ToLower()).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //else filterData = _context.TblMgaindetails.Where(x => x.MgainIsclosed != true && x.Date.Value.Year >= fromYear && x.Date.Value.Year <= toYear && x.MgainType.ToLower() == mgainType.ToLower())
-            //                             .Include(x => x.TblMgainSchemeMaster).AsQueryable();
-
-            //if (search is not null)
-            //{
-            //    filterData = _context.Search<TblMgaindetail>(search).Where(x => x.Date.Value.Year >= fromYear && x.Date.Value.Year <= toYear && (schemeId == null || x.MgainSchemeid == schemeId)).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-
-                //if (schemeId is not null) filterData = _context.Search<TblMgaindetail>(search).Where(x => x.MgainIsclosed != true && x.MgainSchemeid == schemeId && x.Date.Value.Year >= fromYear
-                //                                                && x.Date.Value.Year <= toYear && x.MgainType.ToLower() == mgainType.ToLower()).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-                //else filterData = _context.Search<TblMgaindetail>(search).Where(x => x.MgainIsclosed != true && x.Date.Value.Year >= fromYear && x.Date.Value.Year <= toYear
-                //                          && x.MgainType.ToLower() == mgainType.ToLower()).Include(x => x.TblMgainSchemeMaster).AsQueryable();
-            //}
 
             // Apply sorting
             var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
@@ -414,11 +242,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             TblAccountMaster account = new TblAccountMaster();
 
             account = await _context.TblAccountMasters.FirstOrDefaultAsync(x => (userId != 0 && x.UserId == userId) || (accountName != null & accountName == accountName));
-
-            //if (userId != 0)
-            //    account = await _context.TblAccountMasters.FirstOrDefaultAsync(x => x.UserId == userId);
-            //else if (accountName is not null)
-            //    account = await _context.TblAccountMasters.FirstOrDefaultAsync(x => x.AccountName == accountName);
 
             return account;
         }
