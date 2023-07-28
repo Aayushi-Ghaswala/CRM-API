@@ -20,7 +20,7 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module
         public string? Mgain1stholderEmail { get; set; }
         public string? Mgain1stholderOccupation { get; set; }
         public string? Mgain1stholderStatus { get; set; }
-        public IFormFile? Mgain1stholderSignature { get; set; }
+        public IFormFile? Mgain1stholderSignatureFile { get; set; }
         public decimal? MgainInvamt { get; set; }
         public bool? MgainIsSecondHolder { get; set; }
         public string? Mgain2ndholdername { get; set; }
@@ -36,12 +36,12 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module
         public string? Mgain2ndholderEmail { get; set; }
         public string? Mgain2ndholderOccupation { get; set; }
         public string? Mgain2ndholderStatus { get; set; }
-        public IFormFile? Mgain2ndholderSignature { get; set; }
+        public IFormFile? Mgain2ndholderSignatureFile { get; set; }
         public string? MgainNomineeName { get; set; }
-        public IFormFile? MgainNomineePan { get; set; }
-        public IFormFile? MgainNomineeAadhar { get; set; }
+        public IFormFile? MgainNomineePanFile { get; set; }
+        public IFormFile? MgainNomineeAadharFile { get; set; }
         public DateTime? MgainNomineeDob { get; set; }
-        public IFormFile? MgainNomineeBirthCertificate { get; set; }
+        public IFormFile? MgainNomineeBirthCertificateFile { get; set; }
         public string? MgainGuardianName { get; set; }
         public string? MgainGuardianAddress { get; set; }
         public string? MgainGuardianMobile { get; set; }
