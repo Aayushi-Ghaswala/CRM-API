@@ -21,11 +21,7 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblCampaignMasters.Where(x => x.IsDeleted != true)
-                                                        .Include(x => x.TblSourceMaster)
-                                                        .Include(x => x.TblSourceTypeMaster)
-                                                        .Include(x => x.TblStatusMaster)
-                                                        .Include(x => x.TblUserMaster).AsQueryable();
+            var filterData = new List<TblCampaignMaster>().AsQueryable();
 
             if (search != null)
             {
@@ -35,6 +31,15 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
                                                         .Include(x => x.TblStatusMaster)
                                                         .Include(x => x.TblUserMaster).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblCampaignMasters.Where(x => x.IsDeleted != true)
+                                                        .Include(x => x.TblSourceMaster)
+                                                        .Include(x => x.TblSourceTypeMaster)
+                                                        .Include(x => x.TblStatusMaster)
+                                                        .Include(x => x.TblUserMaster).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting

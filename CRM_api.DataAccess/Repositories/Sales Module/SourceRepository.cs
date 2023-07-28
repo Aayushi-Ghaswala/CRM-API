@@ -21,12 +21,17 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblSourceMasters.Where(x => x.IsDeleted != true).AsQueryable();
+            var filterData = new List<TblSourceMaster>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblSourceMaster>(search).Where(x => x.IsDeleted != true).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblSourceMasters.Where(x => x.IsDeleted != true).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting

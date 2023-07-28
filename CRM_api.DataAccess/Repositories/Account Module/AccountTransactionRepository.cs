@@ -37,11 +37,12 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         public async Task<Response<TblAccountTransaction>> GetAccountTransaction(string filterString, string? searchingParams, SortingParams sortingParams)
         {
             double? pageCount = 0;
-
-            var accountTransaction = _context.TblAccountTransactions.Where(x => x.DocType == filterString).Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster).AsQueryable();
+            IQueryable<TblAccountTransaction> accountTransaction = new List<TblAccountTransaction>().AsQueryable();
 
             if (searchingParams != null)
                 accountTransaction = _context.Search<TblAccountTransaction>(searchingParams).Where(x => x.DocType == filterString).Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster).AsQueryable();
+            else
+                accountTransaction = _context.TblAccountTransactions.Where(x => x.DocType == filterString).Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster).AsQueryable();
 
             pageCount = Math.Ceiling(accountTransaction.Count() / sortingParams.PageSize);
 
@@ -71,36 +72,37 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
             var filterData = new List<TblAccountTransaction>().AsQueryable();
 
             if (search is not null)
-            {
-                if (companyId is not null)
-                {
-                    filterData = _context.Search<TblAccountTransaction>(search).Where(x => x.Companyid == companyId && (x.CreditAccountId == accountId || x.DebitAccountId == accountId)
-                                                                      && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
-                                                            .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
-                                                            .AsQueryable();
-                }
-                else
-                {
-                    filterData = _context.Search<TblAccountTransaction>(search).Where(x => (x.CreditAccountId == accountId || x.DebitAccountId == accountId)
-                                                                      && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
-                                                            .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
-                                                            .AsQueryable();
-                }
-            }
-            else if (companyId is not null)
-            {
-                filterData = _context.TblAccountTransactions.Where(x => x.Companyid == companyId && (x.CreditAccountId == accountId || x.DebitAccountId == accountId)
-                                                                      && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
-                                                            .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
-                                                            .AsQueryable();
-            }
-            else
-            {
-                filterData = _context.TblAccountTransactions.Where(x => (x.DebitAccountId == accountId || x.CreditAccountId == accountId)
-                                                                      && (x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date))
-                                                            .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
-                                                            .AsQueryable();
-            }
+            //{
+            //    if (companyId is not null)
+            //    {
+                    filterData = _context.Search<TblAccountTransaction>(search).Where(x => (companyId == null || x.Companyid == companyId) && (x.CreditAccountId == accountId || x.DebitAccountId == accountId) && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date).Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster).AsQueryable();
+                //}
+                //else
+                //{
+                //    filterData = _context.Search<TblAccountTransaction>(search).Where(x => (x.CreditAccountId == accountId || x.DebitAccountId == accountId)
+                //                                                      && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
+                //                                            .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
+                //                                            .AsQueryable();
+                //}
+            //}
+            else 
+                filterData = _context.TblAccountTransactions.Where(x => (companyId == null || x.Companyid == companyId) && (x.CreditAccountId == accountId || x.DebitAccountId == accountId) && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date).Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster).AsQueryable();
+
+
+            //else if (companyId is not null)
+            //{
+            //    filterData = _context.TblAccountTransactions.Where(x => x.Companyid == companyId && (x.CreditAccountId == accountId || x.DebitAccountId == accountId)
+            //                                                          && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
+            //                                                .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
+            //                                                .AsQueryable();
+            //}
+            //else
+            //{
+            //    filterData = _context.TblAccountTransactions.Where(x => (x.DebitAccountId == accountId || x.CreditAccountId == accountId)
+            //                                                          && (x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date))
+            //                                                .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
+            //                                                .AsQueryable();
+            //}
 
             // Apply Sortintg
             var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending).ToList();

@@ -17,11 +17,21 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         }
 
         #region Get Lead Wise Conversation History
-        public async Task<Response<TblConversationHistoryMaster>> GetLeadWiseConversionHistory(int leadId, SortingParams sortingParams)
+        public async Task<Response<TblConversationHistoryMaster>> GetLeadWiseConversionHistory(int leadId, string? search, SortingParams sortingParams)
         {
             double pageCount = 0;
-            var filterData = _context.TblConversationHistoryMasters.Where(x => x.TblMeetingMaster.LeadId == leadId && x.IsDeleted == false).Include(x => x.TblMeetingMaster)
-                                                                   .ThenInclude(x => x.TblUserMaster).AsQueryable();
+            var filterData = new List<TblConversationHistoryMaster>().AsQueryable();
+
+            if (search is not null)
+            {
+                filterData = _context.Search<TblConversationHistoryMaster>(search).Where(x => x.TblMeetingMaster.LeadId == leadId && x.IsDeleted == false).Include(x => x.TblMeetingMaster)
+                                                                       .ThenInclude(x => x.TblUserMaster).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblConversationHistoryMasters.Where(x => x.TblMeetingMaster.LeadId == leadId && x.IsDeleted == false).Include(x => x.TblMeetingMaster)
+                                                                       .ThenInclude(x => x.TblUserMaster).AsQueryable();
+            }
 
             // Apply sorting
             var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);

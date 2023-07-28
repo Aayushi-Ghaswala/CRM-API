@@ -106,7 +106,8 @@ namespace CRM_api.Services.Services.Sales_Module
                             investTypes += investTypes + $", {mapInvestmentType.InvestmentName}";
                     });
                     lead.InterestedIn = investTypes;
-                    lead.DateOfBirth = leadData.DateOfBirth.Value.ToShortDateString(); ;
+                    if (lead.DateOfBirth is not null)
+                        lead.DateOfBirth = leadData.DateOfBirth.Value.ToShortDateString();
                     lead.CreatedAt = leadData.CreatedAt.ToShortDateString();
                 });
 

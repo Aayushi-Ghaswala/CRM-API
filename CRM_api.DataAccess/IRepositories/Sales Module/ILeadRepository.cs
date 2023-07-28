@@ -13,6 +13,7 @@ namespace CRM_api.DataAccess.IRepositories.Sales_Module
         Task<TblLeadMaster> GetLeadByName(string Name);
         Task<List<TblLeadMaster>> GetLeadsForCSV(int? assignTo, string search, SortingParams sortingParams);
         int CheckMobileExist(int? id, string mobileNo);
+        Task<List<TblLeadMaster>> GetUserwiseLeads(int? userId, int? campaignId, DateTime date);
         Task<int> AddLead(TblLeadMaster lead);
         Task<int> UpdateLead(TblLeadMaster lead);
         Task<int> DeactivateLead(int id);

@@ -1,6 +1,5 @@
 ﻿using CRM_api.DataAccess.Helper;
 using CRM_api.Services.Dtos.AddDataDto.Sales_Module;
-using CRM_api.Services.Dtos.ResponseDto.Business_Module.Dashboard;
 using CRM_api.Services.Dtos.ResponseDto.Sales_Module;
 using CRM_api.Services.IServices.Sales_Module;
 using Microsoft.AspNetCore.Mvc;
@@ -89,15 +88,15 @@ namespace CRM_api.Controllers.Sales_Module
             }
         }
         #endregion
-        
+
         #region Check MobileNo Exist in Lead
         [HttpGet("CheckMobileExist")]
         public ActionResult CheckMobileExist(int? id, string mobileNo)
         {
             try
             {
-                    var exist = _leadService.CheckMobileExistAsync(id, mobileNo);
-                    return exist != 0 ? Ok(exist) : BadRequest(new { Message = "Mobile number already exist." });
+                var exist = _leadService.CheckMobileExistAsync(id, mobileNo);
+                return exist != 0 ? Ok(exist) : BadRequest(new { Message = "Mobile number already exist." });
             }
             catch (Exception)
             {
@@ -113,7 +112,7 @@ namespace CRM_api.Controllers.Sales_Module
             try
             {
                 int row = await _leadService.AddLeadAsync(addLeadDto);
-                return row > 0 ? Ok(new { Message = "Lead added successfully."}) : BadRequest(new { Message = "Unable to add lead."});
+                return row > 0 ? Ok(new { Message = "Lead added successfully." }) : BadRequest(new { Message = "Unable to add lead." });
             }
             catch (Exception)
             {
@@ -129,7 +128,7 @@ namespace CRM_api.Controllers.Sales_Module
             try
             {
                 int row = await _leadService.UpdateLeadAsync(updateLeadDto);
-                return row > 0 ? Ok(new { Message = "Lead updated successfully."}) : BadRequest(new { Message = "Unable to update lead."});
+                return row > 0 ? Ok(new { Message = "Lead updated successfully." }) : BadRequest(new { Message = "Unable to update lead." });
             }
             catch (Exception)
             {

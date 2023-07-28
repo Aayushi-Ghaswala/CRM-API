@@ -1112,9 +1112,9 @@ SURAT - 395009 <p>
                 Directory.CreateDirectory(folderPath);
             }
 
-            if (addMGainDetails.Mgain1stholderSignature is not null)
+            if (addMGainDetails.Mgain1stholderSignatureFile is not null)
             {
-                var firstHolderSignature = addMGainDetails.Mgain1stholderSignature.FileName;
+                var firstHolderSignature = addMGainDetails.Mgain1stholderSignatureFile.FileName;
                 var firstHolderSignaturePath = Path.Combine(folderPath, firstHolderSignature);
 
                 if (File.Exists(firstHolderSignaturePath))
@@ -1124,16 +1124,16 @@ SURAT - 395009 <p>
 
                 using (var fs = new FileStream(firstHolderSignaturePath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
-                    addMGainDetails.Mgain1stholderSignature.CopyTo(fs);
+                    addMGainDetails.Mgain1stholderSignatureFile.CopyTo(fs);
                 }
                 mGainDetails.Mgain1stholderSignature = firstHolderSignaturePath;
             }
             else mGainDetails.Mgain1stholderSignature = null;
 
 
-            if (addMGainDetails.Mgain2ndholderSignature is not null)
+            if (addMGainDetails.Mgain2ndholderSignatureFile is not null)
             {
-                var secondHolderSignature = addMGainDetails.Mgain2ndholderSignature.FileName;
+                var secondHolderSignature = addMGainDetails.Mgain2ndholderSignatureFile.FileName;
                 var secondHolderSignaturePath = Path.Combine(folderPath, secondHolderSignature);
 
                 if (File.Exists(secondHolderSignaturePath))
@@ -1143,15 +1143,15 @@ SURAT - 395009 <p>
 
                 using (var fs = new FileStream(secondHolderSignaturePath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
-                    addMGainDetails.Mgain2ndholderSignature.CopyTo(fs);
+                    addMGainDetails.Mgain2ndholderSignatureFile.CopyTo(fs);
                 }
                 mGainDetails.Mgain2ndholderSignature = secondHolderSignaturePath;
             }
             else mGainDetails.Mgain2ndholderSignature = null;
 
-            if (addMGainDetails.MgainNomineePan is not null)
+            if (addMGainDetails.MgainNomineePanFile is not null)
             {
-                var nomineePan = addMGainDetails.MgainNomineePan.FileName;
+                var nomineePan = addMGainDetails.MgainNomineePanFile.FileName;
                 var nomineePanPath = Path.Combine(folderPath, nomineePan);
 
                 if (File.Exists(nomineePanPath))
@@ -1161,16 +1161,16 @@ SURAT - 395009 <p>
 
                 using (var fs = new FileStream(nomineePanPath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
-                    addMGainDetails.MgainNomineePan.CopyTo(fs);
+                    addMGainDetails.MgainNomineePanFile.CopyTo(fs);
                 }
 
                 mGainDetails.MgainNomineePan = nomineePanPath;
             }
             else mGainDetails.MgainNomineePan = null;
 
-            if (addMGainDetails.MgainNomineeAadhar is not null)
+            if (addMGainDetails.MgainNomineeAadharFile is not null)
             {
-                var nomineeAadhar = addMGainDetails.MgainNomineeAadhar.FileName;
+                var nomineeAadhar = addMGainDetails.MgainNomineeAadharFile.FileName;
                 var nomineeAadharPath = Path.Combine(folderPath, nomineeAadhar);
 
                 if (File.Exists(nomineeAadharPath))
@@ -1180,15 +1180,15 @@ SURAT - 395009 <p>
 
                 using (var fs = new FileStream(nomineeAadharPath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
-                    addMGainDetails.MgainNomineeAadhar.CopyTo(fs);
+                    addMGainDetails.MgainNomineeAadharFile.CopyTo(fs);
                 }
                 mGainDetails.MgainNomineeAadhar = nomineeAadharPath;
             }
             else mGainDetails.MgainNomineeAadhar = null;
 
-            if (addMGainDetails.MgainNomineeBirthCertificate is not null)
+            if (addMGainDetails.MgainNomineeBirthCertificateFile is not null)
             {
-                var birthCertificate = addMGainDetails.MgainNomineeBirthCertificate.FileName;
+                var birthCertificate = addMGainDetails.MgainNomineeBirthCertificateFile.FileName;
                 var birthCertificatePath = Path.Combine(folderPath, birthCertificate);
 
                 if (File.Exists(birthCertificatePath))
@@ -1198,7 +1198,7 @@ SURAT - 395009 <p>
 
                 using (var fs = new FileStream(birthCertificatePath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
-                    addMGainDetails.MgainNomineeBirthCertificate.CopyTo(fs);
+                    addMGainDetails.MgainNomineeBirthCertificateFile.CopyTo(fs);
                 }
                 mGainDetails.MgainNomineeBirthCertificate = birthCertificatePath;
             }
