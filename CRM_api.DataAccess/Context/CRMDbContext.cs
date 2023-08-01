@@ -76,6 +76,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblOfferMaster> TblOfferMasters { get; set; } = null!;
         public virtual DbSet<TblOrder> TblOrders { get; set; } = null!;
         public virtual DbSet<TblOrderDetail> TblOrderDetails { get; set; } = null!;
+        public virtual DbSet<TblPaymentTypeMaster> TblPaymentTypeMasters { get; set; } = null!;
         public virtual DbSet<TblPlotMaster> TblPlotMasters { get; set; } = null!;
         public virtual DbSet<TblPayCheck> TblPayChecks { get; set; } = null!;
         public virtual DbSet<TblPortfolioReviewRequest> TblPortfolioReviewRequests { get; set; } = null!;
@@ -392,17 +393,8 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.AccountId).HasColumnName("account_id");
 
-                entity.Property(e => e.AccountEmail)
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasColumnName("account_email");
-
                 entity.Property(e => e.AccountGrpid).HasColumnName("account_grpid");
 
-                entity.Property(e => e.AccountMobile)
-                    .HasMaxLength(20)
-                    .IsUnicode(false)
-                    .HasColumnName("account_mobile");
 
                 entity.Property(e => e.AccountName)
                     .HasMaxLength(150)
@@ -464,19 +456,21 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
+                entity.Property(e => e.Accountid).HasColumnName("accountid");
+
                 entity.Property(e => e.Companyid).HasColumnName("companyid");
 
                 entity.Property(e => e.Credit)
                     .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("credit");
+                    .HasColumnName("credit")
+                    .HasDefaultValueSql("((0))");
 
-                entity.Property(e => e.CreditAccountId).HasColumnName("Credit_AccountId");
+                entity.Property(e => e.Currencyid).HasColumnName("currencyid");
 
                 entity.Property(e => e.Debit)
                     .HasColumnType("decimal(18, 2)")
-                    .HasColumnName("debit");
-
-                entity.Property(e => e.DebitAccountId).HasColumnName("Debit_AccountId");
+                    .HasColumnName("debit")
+                    .HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.DocDate)
                     .HasColumnType("date")
@@ -502,9 +496,9 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.DocUserid).HasColumnName("doc_userid");
 
                 entity.Property(e => e.Mgainid).HasColumnName("mgainid");
-            });
 
-            modelBuilder.Entity<TblAccountTransaction>().HasOne(x => x.CreditAccount).WithMany().HasForeignKey(x => x.CreditAccountId);
+                entity.Property(e => e.TransactionType).HasColumnName("transaction_type");
+            });
 
             modelBuilder.Entity<TblBankMaster>(entity =>
             {
@@ -2576,6 +2570,19 @@ namespace CRM_api.DataAccess.Context
                     .HasForeignKey(d => d.ProductId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tbl_OrderDetails_tbl_WBC_Mall_Products");
+            });
+
+            modelBuilder.Entity<TblPaymentTypeMaster>(entity =>
+            {
+                entity.ToTable("tbl_Payment_Type_Master");
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.PaymentName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<TblPlotMaster>(entity =>

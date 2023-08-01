@@ -32,13 +32,28 @@ namespace CRM_api.Controllers.Account_Module
         }
         #endregion
 
-        #region Get Account Transaction
-        [HttpGet("GetAccountTransaction")]
-        public async Task<IActionResult> GetAccountTransaction(string? search, [FromQuery] SortingParams sortingParams, [FromQuery] string filterString = null)
+        #region Get Payment type
+        [HttpGet("GetPaymentTypes")]
+        public async Task<IActionResult> GetPaymentTypes(string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var getData = await _accountTransactionservice.GetAccountTransactionAsync(filterString, search, sortingParams);
+                return Ok(await _accountTransactionservice.GetPaymentTypesAsync(search, sortingParams));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get Account Transaction
+        [HttpGet("GetAccountTransaction")]
+        public async Task<IActionResult> GetAccountTransaction(int? companyId, int? financialYearId, string? search, [FromQuery] SortingParams sortingParams, [FromQuery] string filterString = null)
+        {
+            try
+            {
+                var getData = await _accountTransactionservice.GetAccountTransactionAsync(companyId, financialYearId, filterString, search, sortingParams);
                 return Ok(getData);
             }
             catch (Exception)

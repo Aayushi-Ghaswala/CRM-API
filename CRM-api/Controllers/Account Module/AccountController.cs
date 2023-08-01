@@ -98,11 +98,11 @@ namespace CRM_api.Controllers.Account_Module
 
         #region Get Account Opening Balance
         [HttpGet("GetAccountOpeningBalance")]
-        public async Task<IActionResult> GetAccountOpeningBalance([FromQuery] string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetAccountOpeningBalance([FromQuery] string? search, [FromQuery] SortingParams sortingParams, int? financialYearId = null)
         {
             try
             {
-                var getData = await _accountService.GetAccountOpeningBalanceAsync(search, sortingParams);
+                var getData = await _accountService.GetAccountOpeningBalanceAsync(financialYearId, search, sortingParams);
                 return Ok(getData);
             }
             catch (Exception)

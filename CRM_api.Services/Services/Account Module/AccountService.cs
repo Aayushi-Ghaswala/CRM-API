@@ -6,6 +6,7 @@ using CRM_api.Services.Dtos.AddDataDto.Account_Module;
 using CRM_api.Services.Dtos.ResponseDto.Account_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.Account_Module;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace CRM_api.Services.Services.Account_Module
 {
@@ -61,9 +62,9 @@ namespace CRM_api.Services.Services.Account_Module
         #endregion
 
         #region Get Account Opening Balance
-        public async Task<ResponseDto<AccountOpeningBalanceDto>> GetAccountOpeningBalanceAsync(string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<AccountOpeningBalanceDto>> GetAccountOpeningBalanceAsync(int? financialYearId, string? searchingParams, SortingParams sortingParams)
         {
-            var accountOpeningBalance = await _accountRepository.GetAccountOpeningBalance(searchingParams, sortingParams);
+            var accountOpeningBalance = await _accountRepository.GetAccountOpeningBalance(financialYearId, searchingParams, sortingParams);
             return _mapper.Map<ResponseDto<AccountOpeningBalanceDto>>(accountOpeningBalance);
         }
         #endregion
@@ -82,6 +83,16 @@ namespace CRM_api.Services.Services.Account_Module
         {
             var mapUserAccount = _mapper.Map<TblAccountMaster>(addUserAccount);
             mapUserAccount.Isdeleted = false;
+
+            if (DateTime.Now.Month >= 4)
+            {
+                mapUserAccount.OpeningBalanceDate = Convert.ToDateTime("01-04-" + DateTime.Now.Year);
+            }
+            else
+            {
+                mapUserAccount.OpeningBalanceDate = Convert.ToDateTime("01-04-" + (DateTime.Now.Year - 1));
+            }
+
             return await _accountRepository.AddUserAccount(mapUserAccount);
         }
         #endregion
@@ -118,6 +129,7 @@ namespace CRM_api.Services.Services.Account_Module
         {
             var mapAccountOpeningBalance = _mapper.Map<TblAccountOpeningBalance>(addAccountOpeningBalance);
             mapAccountOpeningBalance.Isdeleted = false;
+
             return await _accountRepository.AddAccountOpeningBalance(mapAccountOpeningBalance);
         }
         #endregion

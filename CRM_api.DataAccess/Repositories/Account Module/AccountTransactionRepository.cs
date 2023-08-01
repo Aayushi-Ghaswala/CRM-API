@@ -33,15 +33,63 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
         #endregion
 
+        #region Get Payment type
+        public async Task<Response<TblPaymentTypeMaster>> GetPaymentType(string? search, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+            var filterData = new List<TblPaymentTypeMaster>().AsQueryable();
+
+            if (search is not null)
+            {
+                filterData = _context.Search<TblPaymentTypeMaster>(search).Where(x => x.IsActive == true).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblPaymentTypeMasters.Where(x => x.IsActive == true).AsQueryable();
+            }
+
+            pageCount = Math.Ceiling(filterData.Count() / sortingParams.PageSize);
+
+            //Apply Sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            //Apply Pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var paymentTypeResponse = new Response<TblPaymentTypeMaster>
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+
+           return paymentTypeResponse;
+        }
+        #endregion
+
+        #region Get Payment Type By Name
+        public async Task<TblPaymentTypeMaster> GetPaymentTypebyName(string? name)
+        {
+            var paymentType = await _context.TblPaymentTypeMasters.Where(x => x.PaymentName.ToLower() == name.ToLower()).FirstOrDefaultAsync();
+            return paymentType;
+        }
+        #endregion
+
         #region Get Account Transaction
-        public async Task<Response<TblAccountTransaction>> GetAccountTransaction(string filterString, string? searchingParams, SortingParams sortingParams)
+        public async Task<Response<TblAccountTransaction>> GetAccountTransaction(int? companyId, int? financialYearId, string filterString, string? searchingParams, SortingParams sortingParams)
         {
             double? pageCount = 0;
+            IQueryable<TblAccountTransaction> accountTransaction = new List<TblAccountTransaction>().AsQueryable();
 
-            var accountTransaction = _context.TblAccountTransactions.Where(x => x.DocType == filterString).Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster).AsQueryable();
+            var financialYear = await _context.TblFinancialYearMasters.FirstOrDefaultAsync(x => x.Id == financialYearId);
 
             if (searchingParams != null)
-                accountTransaction = _context.Search<TblAccountTransaction>(searchingParams).Where(x => x.DocType == filterString).Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster).AsQueryable();
+                accountTransaction = _context.Search<TblAccountTransaction>(searchingParams).Where(x => x.DocType == filterString && x.DocDate >= financialYear.Startdate && x.DocDate <= financialYear.Enddate && (companyId == null || x.Companyid == companyId)).Include(x => x.TblAccountMaster).Include(x => x.UserMaster).Include(x => x.CompanyMaster).Include(x => x.TblMgainCurrancyMaster).AsQueryable();
+            else
+                accountTransaction = _context.TblAccountTransactions.Where(x => x.DocType == filterString && x.DocDate >= financialYear.Startdate && x.DocDate <= financialYear.Enddate && (companyId == null || x.Companyid == companyId)).Include(x => x.TblAccountMaster).Include(x => x.UserMaster).Include(x => x.CompanyMaster).Include(x => x.TblMgainCurrancyMaster).AsQueryable(); 
 
             pageCount = Math.Ceiling(accountTransaction.Count() / sortingParams.PageSize);
 
@@ -72,34 +120,11 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
 
             if (search is not null)
             {
-                if (companyId is not null)
-                {
-                    filterData = _context.Search<TblAccountTransaction>(search).Where(x => x.Companyid == companyId && (x.CreditAccountId == accountId || x.DebitAccountId == accountId)
-                                                                      && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
-                                                            .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
-                                                            .AsQueryable();
-                }
-                else
-                {
-                    filterData = _context.Search<TblAccountTransaction>(search).Where(x => (x.CreditAccountId == accountId || x.DebitAccountId == accountId)
-                                                                      && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
-                                                            .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
-                                                            .AsQueryable();
-                }
-            }
-            else if (companyId is not null)
-            {
-                filterData = _context.TblAccountTransactions.Where(x => x.Companyid == companyId && (x.CreditAccountId == accountId || x.DebitAccountId == accountId)
-                                                                      && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
-                                                            .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
-                                                            .AsQueryable();
+                filterData = _context.Search<TblAccountTransaction>(search).Where(x => (companyId == null || x.Companyid == companyId) && x.Accountid == accountId && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date).Include(x => x.TblAccountMaster).Include(x => x.UserMaster).Include(x => x.CompanyMaster).Include(x => x.TblMgainCurrancyMaster).AsQueryable();
             }
             else
             {
-                filterData = _context.TblAccountTransactions.Where(x => (x.DebitAccountId == accountId || x.CreditAccountId == accountId)
-                                                                      && (x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date))
-                                                            .Include(x => x.DebitAccount).Include(x => x.CreditAccount).Include(x => x.UserMaster).Include(x => x.CompanyMaster)
-                                                            .AsQueryable();
+                filterData = _context.TblAccountTransactions.Where(x => (companyId == null || x.Companyid == companyId) && x.Accountid == accountId && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date).Include(x => x.TblAccountMaster).Include(x => x.UserMaster).Include(x => x.CompanyMaster).Include(x => x.TblMgainCurrancyMaster).AsQueryable();
             }
 
             // Apply Sortintg
@@ -109,18 +134,40 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
         #endregion
 
-        #region Add Account Transaction
-        public async Task<int> AddAccountTransaction(TblAccountTransaction tblAccountTransaction)
+        #region Get Account Transaction By DocNo
+        public async Task<TblAccountTransaction> GetAccountTransactionByDocNo(string docNo, decimal? debit, decimal? credit)
         {
-            await _context.TblAccountTransactions.AddAsync(tblAccountTransaction);
+            var transaction = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo) && x.Debit != debit && x.Credit != credit)
+                                                                   .Include(x => x.TblAccountMaster).AsNoTracking().FirstOrDefaultAsync();
+            if (transaction is null)
+                return null;
+
+            return transaction;
+        }
+        #endregion
+
+        #region Ge Account Transaction By Id
+        public async Task<TblAccountTransaction> GetAccountTransactionById(int id)
+        {
+            var accountTransaction = await _context.TblAccountTransactions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            if (accountTransaction is null) return null;
+
+            return accountTransaction;
+        }
+        #endregion
+
+        #region Add Account Transaction
+        public async Task<int> AddAccountTransaction(List<TblAccountTransaction> tblAccountTransactions)
+        {
+            await _context.TblAccountTransactions.AddRangeAsync(tblAccountTransactions);
             return await _context.SaveChangesAsync();
         }
         #endregion
 
         #region Update Account Transaction
-        public async Task<int> UpdateAccountTransaction(TblAccountTransaction tblAccountTransaction)
+        public async Task<int> UpdateAccountTransaction(List<TblAccountTransaction> tblAccountTransactions)
         {
-            _context.TblAccountTransactions.Update(tblAccountTransaction);
+            _context.TblAccountTransactions.UpdateRange(tblAccountTransactions);
             return await _context.SaveChangesAsync();
         }
         #endregion
