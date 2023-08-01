@@ -666,7 +666,7 @@ SURAT - 395009 <p>
             var interestLedgers = new List<InterestLedgerDto>();
             foreach (var month in months)
             {
-                var details = mgainDetails.Where(x => x.DocType == MGainPayment.Payment.ToString() && x.DocDate.Value.ToString("MMMM") == month && x.Credit != 0).ToList();
+                var details = mgainDetails.Where(x => x.DocType == MGainPayment.Payment.ToString() && x.DocDate.Value.ToString("MMMM") == month && x.Debit != 0).ToList();
 
                 if (details.Count > 0)
                 {
@@ -718,11 +718,14 @@ SURAT - 395009 <p>
                             {
                                 var taxDetail = mgainDetails.Where(x => x.DocType == MGainPayment.Journal.ToString() && x.DocDate.Value.ToString("MMMM") == prevMonth && x.Mgainid == detail.Mgainid
                                                     && x.DocParticulars == "TDS " + (year - 1) + "-" + year.ToString().Substring(year.ToString().Length - 2) && x.Debit != 0).FirstOrDefault();
-                                var taxLedger = new InterestLedgerDto();
-                                taxLedger.Perticular = taxDetail.DocParticulars + "_" + detail.Mgainid;
-                                taxLedger.Debit = detail.Debit;
-                                taxLedger.Credit = detail.Credit;
-                                interestLedgers.Add(taxLedger);
+                                if (taxDetail is not null)
+                                {
+                                    var taxLedger = new InterestLedgerDto();
+                                    taxLedger.Perticular = taxDetail.DocParticulars + "_" + detail.Mgainid;
+                                    taxLedger.Debit = detail.Debit;
+                                    taxLedger.Credit = detail.Credit;
+                                    interestLedgers.Add(taxLedger);
+                                }
                             }
                         }
                     }
@@ -1692,7 +1695,7 @@ SURAT - 395009 <p>
         #endregion
 
         #region Method For Account Entry
-        public List<TblAccountTransaction> AccountEntry(MGainNonCumulativeMonthlyReportDto MGainNonCumulativeMonthlyReport, int? mGainId, int? mGainUserId, DateTime? date, bool? isTdsDeduction, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? tdsYear, string? docNo, int?  currancyId)
+        public List<TblAccountTransaction> AccountEntry(MGainNonCumulativeMonthlyReportDto MGainNonCumulativeMonthlyReport, int? mGainId, int? mGainUserId, DateTime? date, bool? isTdsDeduction, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? tdsYear, string? docNo, int? currancyId)
         {
             List<TblAccountTransaction> accountTransactions = new List<TblAccountTransaction>();
             if (isJournal is true)
@@ -1879,7 +1882,7 @@ SURAT - 395009 <p>
 
             return firstYear;
         }
-        #endregion  q                                                       
+        #endregion                                                   
 
         #region Assign Plots
         public (TblMgaindetail, List<TblPlotMaster>) AssignPlot(TblMgaindetail updateMGain, TblMgaindetail mgain, decimal? invAmount, TblPlotMaster firstPlot, TblPlotMaster secondPlot, TblPlotMaster mGain1stPlot, TblPlotMaster mGain2ndPlot, bool? isFirst, bool? isSecond, bool? isMGainFirst, bool? isMGainSecond, bool? isFirstAssignFull, bool? isAssignFirst, bool? isAssignSecond, bool? isAssignSameFirst, bool? isAssignSameSecond, bool? isNotFirst, bool? isNotSecond)

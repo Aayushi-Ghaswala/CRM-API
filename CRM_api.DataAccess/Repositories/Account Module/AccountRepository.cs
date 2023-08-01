@@ -65,7 +65,7 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
 
             if (searchingParams != null)
                 accountGroup = await _context.Search<TblAccountGroupMaster>(searchingParams).Where(x => x.Isdeleted != true).Include(x => x.ParentGroup).Include(x => x.RootGroup).ToListAsync();
-            else 
+            else
                 accountGroup = await _context.TblAccountGroupMasters.Where(x => x.Isdeleted != true).Include(x => x.ParentGroup).Include(x => x.RootGroup).ToListAsync();
 
             IQueryable<TblAccountGroupMaster> accountGroups = accountGroup.AsQueryable();
@@ -168,7 +168,7 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
 
             if (searchingParams != null)
                 financialYears = _context.Search<TblFinancialYearMaster>(searchingParams).Where(x => x.Isdeleted != true).AsQueryable();
-            else 
+            else
                 financialYears = _context.TblFinancialYearMasters.Where(x => x.Isdeleted != true).AsQueryable();
 
             pageCount = Math.Ceiling(financialYears.Count() / sortingParams.PageSize);
@@ -200,7 +200,7 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
 
             if (searchingParams != null)
                 accountOpeningBalance = _context.Search<TblAccountOpeningBalance>(searchingParams).Where(x => x.Isdeleted != true && (financialYearId == null || x.FinancialYearid == financialYearId)).Include(x => x.TblFinancialYear).Include(x => x.TblAccountMaster).AsQueryable();
-            else 
+            else
                 accountOpeningBalance = _context.TblAccountOpeningBalances.Where(x => x.Isdeleted != true && (financialYearId == null || x.FinancialYearid == financialYearId)).Include(x => x.TblFinancialYear).Include(x => x.TblAccountMaster).AsQueryable();
 
             pageCount = Math.Ceiling(accountOpeningBalance.Count() / sortingParams.PageSize);
@@ -225,19 +225,19 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
         #endregion
 
-        #region Get KA Group Account By UserId
-        public async Task<Response<TblAccountMaster>> GetKAGroupAccountByUserId(string? search, SortingParams sortingParams)
+        #region Get KA Group Accounts
+        public async Task<Response<TblAccountMaster>> GetKAGroupBankAccounts(string? search, SortingParams sortingParams)
         {
             double pageCount = 0;
             var filterData = new List<TblAccountMaster>().AsQueryable();
 
             if (search is not null)
             {
-                filterData = _context.Search<TblAccountMaster>(search).Where(x => x.UserId == 1014 && x.Isdeleted != true).Include(x => x.TblCompanyMaster).AsQueryable();
+                filterData = _context.Search<TblAccountMaster>(search).Where(x => x.TblAccountGroupMaster.AccountGrpName.ToLower().Equals("bank accounts") && x.Isdeleted != true).Include(x => x.TblCompanyMaster).AsQueryable();
             }
             else
             {
-                filterData = _context.TblAccountMasters.Where(x => x.UserId == 1014 && x.Isdeleted != true).Include(x => x.TblCompanyMaster).AsQueryable();
+                filterData = _context.TblAccountMasters.Where(x => x.TblAccountGroupMaster.AccountGrpName.ToLower().Equals("bank accounts") && x.Isdeleted != true).Include(x => x.TblCompanyMaster).AsQueryable();
             }
 
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));

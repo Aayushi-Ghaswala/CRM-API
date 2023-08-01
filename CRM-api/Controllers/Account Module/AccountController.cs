@@ -112,7 +112,7 @@ namespace CRM_api.Controllers.Account_Module
         }
         #endregion
 
-        #region Get KA Group Accounts
+        #region Get KA Group Bank Accounts
         [HttpGet("GetKAGroupAccounts")]
         public async Task<IActionResult> GetKAGroupAccounts(string? search, [FromQuery] SortingParams sortingParams)
         {

@@ -17,7 +17,7 @@ namespace CRM_api.Controllers.Account_Module
 
         #region Get Company And Account wise Account Transaction
         [HttpGet("GetCompanyAndAccountWiseTransaction")]
-        public async Task<IActionResult> GetCompanyAndAccountWiseTransaction(int? companyId, int accountId, DateTime startDate, DateTime endDate, string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetCompanyAndAccountWiseTransaction(int? companyId, int? accountId, DateTime startDate, DateTime endDate, string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {

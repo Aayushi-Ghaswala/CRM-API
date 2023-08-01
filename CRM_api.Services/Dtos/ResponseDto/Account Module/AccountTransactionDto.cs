@@ -17,9 +17,9 @@ namespace CRM_api.Services.Dtos.ResponseDto.Account_Module
         public int? DocSubType { get; set; }
         public UserNameDto? UserMaster { get; set; }
         public AccountMasterDto? DebitAccount { get; set; }
+        public AccountMasterDto? CreditAccount { get; set; }
         public int? Mgainid { get; set; }
         public CompanyMasterDto? CompanyMaster { get; set; }
-        public AccountMasterDto? CreditAccount { get; set; }
         public string? TransactionType { get; set; }
         public PaymentTypeDto? TblPaymentType { get; set; }
         public MGainCurrancyDto? TblMgainCurrancyMaster { get; set; }

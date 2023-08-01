@@ -17,11 +17,11 @@ namespace CRM_api.Controllers.Sales_Module
 
         #region Get Meeting Wise Conversation History 
         [HttpGet("GetLeadWiseConversationHistory")]
-        public async Task<IActionResult> GetLeadWiseConversationHistory(int leadId, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetLeadWiseConversationHistory(int leadId, string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var conversationHistories = await _salesDashboardService.GetLeadWiseConversationHistoryAsync(leadId, sortingParams);
+                var conversationHistories = await _salesDashboardService.GetLeadWiseConversationHistoryAsync(leadId, search, sortingParams);
                 return Ok(conversationHistories);
             }
             catch (Exception)

@@ -132,7 +132,7 @@ namespace CRM_api.Services.Services.Account_Module
         #endregion
 
         #region Get Company And Account wise Account Transaction
-        public async Task<(List<AccountTransactionDto>, Dictionary<string, decimal?>)> GetCompanyAndAccountWiseTransactionAsync(int? companyId, int accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams)
+        public async Task<(List<AccountTransactionDto>, Dictionary<string, decimal?>)> GetCompanyAndAccountWiseTransactionAsync(int? companyId, int? accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams)
         {
             var transactions = await _accountTransactionRepository.GetCompanyAndAccountWiseTransaction(companyId, accountId, startDate, endDate, search, sortingParams);
             var mappedTransactions = _mapper.Map<List<AccountTransactionDto>>(transactions);

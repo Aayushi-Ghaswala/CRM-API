@@ -267,17 +267,19 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         #region Check MobileNo Exist in Lead
         public int CheckMobileExist(int? id, string mobileNo)
         {
-            if (id is not null)
-            {
-                if (_context.TblLeadMasters.Any(x => x.Id != id && x.MobileNo == mobileNo && !x.IsDeleted))
+            if (_context.TblLeadMasters.Any(x => (id == null || x.Id != id) && x.MobileNo == mobileNo && !x.IsDeleted))
                     return 0;
-            }
-            else
-            {
-                if (_context.TblLeadMasters.Any(x => x.MobileNo == mobileNo && !x.IsDeleted))
-                    return 0;
-            }
             return 1;
+            }
+        #endregion
+
+        #region Get User wise Leads
+        public async Task<List<TblLeadMaster>> GetUserwiseLeads(int? userId, int? campaignId, DateTime date)
+            {
+            var leads = await _context.TblLeadMasters.Where(x => (userId == null || x.ReferredBy == userId) && (campaignId == null || x.CampaignId == campaignId) && x.IsDeleted != true && x.CreatedAt.Month >= date.Month && x.CreatedAt.Year >= date.Year
+                                                 && x.CreatedAt.Month <= DateTime.Now.Month && x.CreatedAt.Year <= DateTime.Now.Year).ToListAsync();
+
+            return leads;
         }
         #endregion
 
