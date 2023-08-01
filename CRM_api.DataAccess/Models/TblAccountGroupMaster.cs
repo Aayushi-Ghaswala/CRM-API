@@ -13,10 +13,10 @@ namespace CRM_api.DataAccess.Models
         public bool? Isdeleted { get; set; }
 
         [ForeignKey(nameof(ParentGrpid))]
-        public virtual TblAccountGroupMaster ParentGroup { get; set; }
+        public virtual TblAccountGroupMaster? ParentGroup { get; set; }
 
         [ForeignKey(nameof(RootGrpid))]
-        public virtual TblAccountGroupMaster RootGroup { get; set; }
+        public virtual TblAccountGroupMaster? RootGroup { get; set; }
 
         public virtual ICollection<TblAccountMaster> AccountMasters { get; set; }
 

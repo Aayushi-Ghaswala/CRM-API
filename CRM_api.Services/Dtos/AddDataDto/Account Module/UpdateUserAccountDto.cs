@@ -12,7 +12,5 @@
         public int? Companyid { get; set; }
         public string? GstNo { get; set; }
         public DateTime? GstRegDate { get; set; }
-        public string? AccountMobile { get; set; }
-        public string? AccountEmail { get; set; }
     }
 }

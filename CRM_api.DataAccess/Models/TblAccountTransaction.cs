@@ -13,20 +13,20 @@ namespace CRM_api.DataAccess.Models
         public decimal? Credit { get; set; }
         public int? DocSubType { get; set; }
         public int? DocUserid { get; set; }
-        public int? DebitAccountId { get; set; }
+        public int? Accountid { get; set; }
         public int? Mgainid { get; set; }
         public int? Companyid { get; set; }
-        public int? CreditAccountId { get; set; }
-
+        public string? TransactionType { get; set; }
+        public int? Currencyid { get; set; }
         [ForeignKey(nameof(Mgainid))]
         public virtual TblMgaindetail? TblMgaindetail { get; set; }
         [ForeignKey(nameof(DocUserid))]
         public virtual TblUserMaster? UserMaster { get; set; }
-        [ForeignKey(nameof(DebitAccountId))]
-        public virtual TblAccountMaster? DebitAccount { get; set; }
-        [ForeignKey(nameof(CreditAccountId))]
-        public virtual TblAccountMaster? CreditAccount { get; set; }
+        [ForeignKey(nameof(Accountid))]
+        public virtual TblAccountMaster? TblAccountMaster { get; set; }
         [ForeignKey(nameof(Companyid))]
         public virtual TblCompanyMaster? CompanyMaster { get; set; }
+        [ForeignKey(nameof(Currencyid))]
+        public virtual TblMgainCurrancyMaster TblMgainCurrancyMaster { get; set; }
     }
 }

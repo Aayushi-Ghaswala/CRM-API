@@ -6,13 +6,15 @@
         public string? DocParticulars { get; set; }
         public string? DocType { get; set; }
         public string? DocNo { get; set; }
-        public decimal? Debit { get; set; }
-        public decimal? Credit { get; set; }
+        public decimal? Debit { get; set; } = 0;
+        public decimal? Credit { get; set; } = 0;
         public int? DocSubType { get; set; }
         public int? DocUserid { get; set; }
         public int? DebitAccountId { get; set; }
-        public int? Mgainid { get; set; }
+        public int? Mgainid { get; set; } = 0;
         public int? Companyid { get; set; }
         public int? CreditAccountId { get; set; }
+        public string? TransactionType { get; set; }
+        public int? CurrencyId { get; set; }
     }
 }

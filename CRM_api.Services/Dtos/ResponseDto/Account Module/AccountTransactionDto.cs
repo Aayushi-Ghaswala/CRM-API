@@ -1,4 +1,5 @@
 ﻿using CRM_api.Services.Dtos.ResponseDto.Business_Module.LI_GI_Module;
+using CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module;
 using CRM_api.Services.Dtos.ResponseDto.User_Module;
 
 namespace CRM_api.Services.Dtos.ResponseDto.Account_Module
@@ -19,5 +20,8 @@ namespace CRM_api.Services.Dtos.ResponseDto.Account_Module
         public int? Mgainid { get; set; }
         public CompanyMasterDto? CompanyMaster { get; set; }
         public AccountMasterDto? CreditAccount { get; set; }
+        public string? TransactionType { get; set; }
+        public PaymentTypeDto? TblPaymentType { get; set; }
+        public MGainCurrancyDto? TblMgainCurrancyMaster { get; set; }
     }
 }

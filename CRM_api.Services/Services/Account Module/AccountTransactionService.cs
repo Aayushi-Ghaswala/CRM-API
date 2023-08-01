@@ -78,9 +78,9 @@ namespace CRM_api.Services.Services.Account_Module
         #endregion
 
         #region Get Account Transaction
-        public async Task<ResponseDto<AccountTransactionDto>> GetAccountTransactionAsync(string filterString, string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<AccountTransactionDto>> GetAccountTransactionAsync(int? companyId, int? financialYearId, string filterString, string? searchingParams, SortingParams sortingParams)
         {
-            var accountTransaction = await _accountTransactionRepository.GetAccountTransaction(filterString, searchingParams, sortingParams);
+            var accountTransaction = await _accountTransactionRepository.GetAccountTransaction(companyId, financialYearId, filterString, searchingParams, sortingParams);
             var mapAccountTransaction = _mapper.Map<ResponseDto<AccountTransactionDto>>(accountTransaction);
 
             foreach (var transaction in mapAccountTransaction.Values)
@@ -92,8 +92,42 @@ namespace CRM_api.Services.Services.Account_Module
                     var mapInvestment = _mapper.Map<InvestmentTypeDto>(investment);
                     transaction.investmentType = mapInvestment;
                 }
+
+                if (transaction.TransactionType is not null)
+                {
+                    var payment = await _accountTransactionRepository.GetPaymentTypebyName(transaction.TransactionType);
+
+                    if (payment is not null)
+                    {
+                        var mapPayment = _mapper.Map<PaymentTypeDto>(payment);
+                        transaction.TblPaymentType = mapPayment;
+                    }
+                }
+
+                if (transaction.Debit != null || transaction.Debit != 0)
+                {
+                    var creditTransaction = await _accountTransactionRepository.GetAccountTransactionByDocNo(transaction.DocNo, transaction.Debit, transaction.Credit);
+
+                    if( creditTransaction is not null)
+                        transaction.CreditAccount = _mapper.Map<AccountMasterDto>(creditTransaction.TblAccountMaster);
+                }
+                else
+                {
+                    var debitTransaction = await _accountTransactionRepository.GetAccountTransactionByDocNo(transaction.DocNo, transaction.Debit, transaction.Credit);
+
+                    if (debitTransaction is not null )
+                        transaction.DebitAccount = _mapper.Map<AccountMasterDto>(debitTransaction.TblAccountMaster);
+                }
             }
             return mapAccountTransaction;
+        }
+        #endregion
+
+        #region Get Payment type
+        public async Task<ResponseDto<PaymentTypeDto>> GetPaymentTypesAsync(string? search, SortingParams sortingParams)
+        {
+            var pyamentTypes = await _accountTransactionRepository.GetPaymentType(search, sortingParams);
+            return _mapper.Map<ResponseDto<PaymentTypeDto>>(pyamentTypes);
         }
         #endregion
 
@@ -123,16 +157,76 @@ namespace CRM_api.Services.Services.Account_Module
         #region Add Account Transaction
         public async Task<int> AddAccountTransactionAsync(AddAccountTransactionDto addAccountTransaction)
         {
+            var accountTransactions = new List<TblAccountTransaction>();
             var mapAccountTransaction = _mapper.Map<TblAccountTransaction>(addAccountTransaction);
-            return await _accountTransactionRepository.AddAccountTransaction(mapAccountTransaction);
+            mapAccountTransaction.Accountid = addAccountTransaction.DebitAccountId;
+            accountTransactions.Add(mapAccountTransaction);
+            var creditAccountTransaction = new TblAccountTransaction()
+            {
+                DocDate = mapAccountTransaction.DocDate,
+                DocNo = mapAccountTransaction.DocNo,
+                DocType = mapAccountTransaction.DocType,
+                DocParticulars = mapAccountTransaction.DocParticulars,
+                DocUserid = mapAccountTransaction.DocUserid,
+                Accountid = addAccountTransaction.CreditAccountId,
+                Credit = mapAccountTransaction.Debit,
+                Companyid = mapAccountTransaction.Companyid,
+                TransactionType = mapAccountTransaction.TransactionType,
+                Currencyid = mapAccountTransaction.Currencyid
+            };
+            accountTransactions.Add(creditAccountTransaction);
+
+            return await _accountTransactionRepository.AddAccountTransaction(accountTransactions);
         }
         #endregion
 
         #region Update Account Transaction
         public async Task<int> UpdateAccountTransactionAsync(UpdateAccountTransactionDto updateAccountTransaction)
         {
+            var accTransaction = await _accountTransactionRepository.GetAccountTransactionById(updateAccountTransaction.Id);
+            if (accTransaction is null) return 0;
+
+            var accountTransactions = new List<TblAccountTransaction>();
             var mapAccountTransaction = _mapper.Map<TblAccountTransaction>(updateAccountTransaction);
-            return await _accountTransactionRepository.UpdateAccountTransaction(mapAccountTransaction);
+            if (mapAccountTransaction.Debit is not null && mapAccountTransaction.Debit != 0)
+                mapAccountTransaction.Accountid = updateAccountTransaction.DebitAccountId;
+            else
+                mapAccountTransaction.Accountid = updateAccountTransaction.CreditAccountId;
+
+            accountTransactions.Add(mapAccountTransaction);
+            var transaction = await _accountTransactionRepository.GetAccountTransactionByDocNo(accTransaction.DocNo, accTransaction.Debit, accTransaction.Credit);
+            if (transaction is not null)
+            {
+                if (mapAccountTransaction.Debit is not null && mapAccountTransaction.Debit != 0)
+                {
+                    transaction.DocDate = mapAccountTransaction.DocDate;
+                    transaction.DocNo = mapAccountTransaction.DocNo;
+                    transaction.DocType = mapAccountTransaction.DocType;
+                    transaction.DocParticulars = mapAccountTransaction.DocParticulars;
+                    transaction.DocUserid = mapAccountTransaction.DocUserid;
+                    transaction.Accountid = updateAccountTransaction.CreditAccountId;
+                    transaction.Credit = mapAccountTransaction.Debit;
+                    transaction.Companyid = mapAccountTransaction.Companyid;
+                    transaction.TransactionType = mapAccountTransaction.TransactionType;
+                    transaction.Currencyid = mapAccountTransaction.Currencyid;
+                    accountTransactions.Add(transaction);
+                }
+                else
+                {
+                    transaction.DocDate = mapAccountTransaction.DocDate;
+                    transaction.DocNo = mapAccountTransaction.DocNo;
+                    transaction.DocType = mapAccountTransaction.DocType;
+                    transaction.DocParticulars = mapAccountTransaction.DocParticulars;
+                    transaction.DocUserid = mapAccountTransaction.DocUserid;
+                    transaction.Accountid = updateAccountTransaction.DebitAccountId;
+                    transaction.Debit = mapAccountTransaction.Credit;
+                    transaction.Companyid = mapAccountTransaction.Companyid;
+                    transaction.TransactionType = mapAccountTransaction.TransactionType;
+                    transaction.Currencyid = mapAccountTransaction.Currencyid;
+                    accountTransactions.Add(transaction);
+                }
+            }
+            return await _accountTransactionRepository.UpdateAccountTransaction(accountTransactions);
         }
         #endregion
     }
