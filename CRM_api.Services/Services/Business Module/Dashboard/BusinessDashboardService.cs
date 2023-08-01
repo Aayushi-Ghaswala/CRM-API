@@ -54,7 +54,7 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
                 clientReport.UserMobile = client.UserMobile;
                 var clientCurrentSnapshot = new ClientCurrentInvSnapshotDto();
 
-                if (client.TblInsuranceclients is not null)
+                if (client.TblInsuranceclients.Count() < 0)
                 {
                     var lifeInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.Life.ToString());
                     clientCurrentSnapshot.LI = client.TblInsuranceclients.Where(x => x.InsUserid == userId && x.IsDeleted != true && x.InvSubtype == lifeInsId)
@@ -73,7 +73,7 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
                     clientCurrentSnapshot.Stocks = totalPurchase - totalSale;
                 }
 
-                if (client.TblMgaindetails is null)
+                if (client.TblMgaindetails.Count() < 0)
                     clientCurrentSnapshot.MGain = client.TblMgaindetails.Sum(x => x.MgainInvamt);
 
                 if (client.TblMftransactions is not null)

@@ -114,7 +114,7 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         #endregion
 
         #region Get Company And Account wise Account Transaction
-        public async Task<List<TblAccountTransaction>> GetCompanyAndAccountWiseTransaction(int? companyId, int accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams)
+        public async Task<List<TblAccountTransaction>> GetCompanyAndAccountWiseTransaction(int? companyId, int? accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams)
         {
             var filterData = new List<TblAccountTransaction>().AsQueryable();
 

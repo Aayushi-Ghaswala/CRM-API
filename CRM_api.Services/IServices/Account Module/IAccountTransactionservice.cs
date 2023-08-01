@@ -10,7 +10,7 @@ namespace CRM_api.Services.IServices.Account_Module
         Task<string> GetTransactionDocNoAsync(string? filterString, string? docNo = null);
         Task<ResponseDto<PaymentTypeDto>> GetPaymentTypesAsync(string? search, SortingParams sortingParams);
         Task<ResponseDto<AccountTransactionDto>> GetAccountTransactionAsync(int? companyId, int? financialYearId, string filterString, string? searchingParams, SortingParams sortingParams);
-        Task<(List<AccountTransactionDto>, Dictionary<string, decimal?>)> GetCompanyAndAccountWiseTransactionAsync(int? companyId, int accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams);
+        Task<(List<AccountTransactionDto>, Dictionary<string, decimal?>)> GetCompanyAndAccountWiseTransactionAsync(int? companyId, int? accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams);
         Task<int> AddAccountTransactionAsync(AddAccountTransactionDto addAccountTransaction);
         Task<int> UpdateAccountTransactionAsync(UpdateAccountTransactionDto updateAccountTransaction);
     }

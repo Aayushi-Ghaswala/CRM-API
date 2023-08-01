@@ -69,10 +69,10 @@ namespace CRM_api.Services.Services.Account_Module
         }
         #endregion
 
-        #region Get KA Group Accounts
+        #region Get KA Group Bank Accounts
         public async Task<ResponseDto<AccountMasterDto>> GetKAGroupAccountsAsync(string? search, SortingParams sortingParams)
         {
-            var accounts = await _accountRepository.GetKAGroupAccountByUserId(search, sortingParams);
+            var accounts = await _accountRepository.GetKAGroupBankAccounts(search, sortingParams);
             var mappedAccounts = _mapper.Map<ResponseDto<AccountMasterDto>>(accounts);
             return mappedAccounts;
         }

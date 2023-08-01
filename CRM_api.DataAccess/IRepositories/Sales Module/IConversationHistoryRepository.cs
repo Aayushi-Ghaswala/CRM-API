@@ -6,7 +6,7 @@ namespace CRM_api.DataAccess.IRepositories.Sales_Module
 {
     public interface IConversationHistoryRepository
     {
-        Task<Response<TblConversationHistoryMaster>> GetLeadWiseConversionHistory(int leadId, SortingParams sortingParams);
+        Task<Response<TblConversationHistoryMaster>> GetLeadWiseConversionHistory(int leadId, string? search, SortingParams sortingParams);
         Task<int> AddConversationHistory(TblConversationHistoryMaster tblConversationHistoryMaster);
         Task<int> UpdateConversationHistory(TblConversationHistoryMaster tblConversationHistoryMaster);
         Task<int> DeActivateConversationHistory(int id);
