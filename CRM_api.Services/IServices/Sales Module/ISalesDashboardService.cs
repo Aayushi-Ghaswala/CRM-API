@@ -6,6 +6,6 @@ namespace CRM_api.Services.IServices.Sales_Module
 {
     public interface ISalesDashboardService
     {
-        Task<ResponseDto<ConversationHistoryDto>> GetLeadWiseConversationHistoryAsync(int leadId, SortingParams sortingParams);
+        Task<ResponseDto<ConversationHistoryDto>> GetLeadWiseConversationHistoryAsync(int leadId,string? search, SortingParams sortingParams);
     }
 }
