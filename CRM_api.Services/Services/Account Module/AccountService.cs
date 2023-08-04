@@ -6,7 +6,6 @@ using CRM_api.Services.Dtos.AddDataDto.Account_Module;
 using CRM_api.Services.Dtos.ResponseDto.Account_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.Account_Module;
-using DocumentFormat.OpenXml.Bibliography;
 
 namespace CRM_api.Services.Services.Account_Module
 {

@@ -53,30 +53,30 @@ namespace CRM_api.DataAccess.Models
         public DateTime? FastTrackActivationDate { get; set; }
 
         [ForeignKey(nameof(CatId))]
-        public virtual TblUserCategoryMaster TblUserCategoryMaster { get; set; }
+        public virtual TblUserCategoryMaster? TblUserCategoryMaster { get; set; }
         [ForeignKey(nameof(UserCountryid))]
-        public virtual TblCountryMaster TblCountryMaster { get; set; }
+        public virtual TblCountryMaster? TblCountryMaster { get; set; }
         [ForeignKey(nameof(UserStateid))]
-        public virtual TblStateMaster TblStateMaster { get; set; }
+        public virtual TblStateMaster? TblStateMaster { get; set; }
         [ForeignKey(nameof(UserCityid))]
-        public virtual TblCityMaster TblCityMaster { get; set; }
+        public virtual TblCityMaster? TblCityMaster { get; set; }
         [ForeignKey(nameof(UserParentid))]
-        public virtual TblUserMaster ParentName { get; set; }
+        public virtual TblUserMaster? ParentName { get; set; }
         [ForeignKey(nameof(UserSponid))]
-        public virtual TblUserMaster SponserName { get; set; }
+        public virtual TblUserMaster? SponserName { get; set; }
 
-        public virtual ICollection<TblFasttrackLedger> TblFasttrackLedgers { get; set; }
-        public virtual ICollection<TblFolioMaster> TblFolioMasters { get; set; }
-        public virtual ICollection<TblGoldReferral> TblGoldReferrals { get; set; }
-        public virtual ICollection<TblMgainInvesment> TblMgainInvesments { get; set; }
-        public virtual ICollection<TblRealEastateReview> TblRealEastateReviews { get; set; }
-        public virtual ICollection<TblReferralMaster> TblReferralMasters { get; set; }
-        public virtual ICollection<TblRoleAssignment> TblRoleAssignments { get; set; }
-        public virtual ICollection<TblMgaindetail> TblMgaindetails { get; set; }
-        public virtual ICollection<TblMftransaction> TblMftransactions { get; set; }
-        public virtual ICollection<TblLoanMaster> TblLoanmasters { get; set;}
-        public virtual ICollection<TblInsuranceclient> TblInsuranceclients { get; set; }
-        public virtual ICollection<TblAccountTransaction> TblAccounttransactions { get; set; }
-        public virtual ICollection<TblAccountMaster> TblAccountMasters { get; set; }
+        public virtual ICollection<TblFasttrackLedger>? TblFasttrackLedgers { get; set; }
+        public virtual ICollection<TblFolioMaster>? TblFolioMasters { get; set; }
+        public virtual ICollection<TblGoldReferral>? TblGoldReferrals { get; set; }
+        public virtual ICollection<TblMgainInvesment>? TblMgainInvesments { get; set; }
+        public virtual ICollection<TblRealEastateReview>? TblRealEastateReviews { get; set; }
+        public virtual ICollection<TblReferralMaster>? TblReferralMasters { get; set; }
+        public virtual ICollection<TblRoleAssignment>? TblRoleAssignments { get; set; }
+        public virtual ICollection<TblMgaindetail>? TblMgaindetails { get; set; }
+        public virtual ICollection<TblMftransaction>? TblMftransactions { get; set; }
+        public virtual ICollection<TblLoanMaster>? TblLoanmasters { get; set;}
+        public virtual ICollection<TblInsuranceclient>? TblInsuranceclients { get; set; }
+        public virtual ICollection<TblAccountTransaction>? TblAccounttransactions { get; set; }
+        public virtual ICollection<TblAccountMaster>? TblAccountMasters { get; set; }
     }
 }

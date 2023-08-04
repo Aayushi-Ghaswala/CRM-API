@@ -1,5 +1,4 @@
 ﻿using CRM_api.DataAccess.Models;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CRM_api.Services.Dtos.ResponseDto.Sales_Module
 {
