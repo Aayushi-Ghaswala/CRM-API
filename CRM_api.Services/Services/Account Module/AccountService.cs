@@ -22,10 +22,16 @@ namespace CRM_api.Services.Services.Account_Module
         }
 
         #region Get User Accounts
-        public async Task<ResponseDto<AccountMasterDto>> GetUserAccountsAsync(int? companyId, string? searchingParams, SortingParams sortingParams)
+        public async Task<(ResponseDto<AccountMasterDto>, Dictionary<string, double?>)> GetUserAccountsAsync(int? companyId, string? searchingParams, SortingParams sortingParams)
         {
             var userAccount = await _accountRepository.GetUserAccount(companyId, searchingParams, sortingParams);
-            return _mapper.Map<ResponseDto<AccountMasterDto>>(userAccount);
+            var mapUserAccount = _mapper.Map<ResponseDto<AccountMasterDto>>(userAccount.Item1);
+
+            Dictionary<string, double?> total = new Dictionary<string, double?>();
+            total.Add("debit", userAccount.Item2);
+            total.Add("credit", userAccount.Item3);
+
+            return (mapUserAccount,  total);
         }
         #endregion
 
@@ -69,10 +75,10 @@ namespace CRM_api.Services.Services.Account_Module
         }
         #endregion
 
-        #region Get KA Group Bank Accounts
-        public async Task<ResponseDto<AccountMasterDto>> GetKAGroupAccountsAsync(string? search, SortingParams sortingParams)
+        #region Get KA Group Bank And Payment Accounts
+        public async Task<ResponseDto<AccountMasterDto>> GetKAGroupBankAndPaymentAccountsAsync(string? filterString, string? search, SortingParams sortingParams)
         {
-            var accounts = await _accountRepository.GetKAGroupBankAccounts(search, sortingParams);
+            var accounts = await _accountRepository.GetKAGroupBankAndPaymentAccounts(filterString, search, sortingParams);
             var mappedAccounts = _mapper.Map<ResponseDto<AccountMasterDto>>(accounts);
             return mappedAccounts;
         }
@@ -83,15 +89,6 @@ namespace CRM_api.Services.Services.Account_Module
         {
             var mapUserAccount = _mapper.Map<TblAccountMaster>(addUserAccount);
             mapUserAccount.Isdeleted = false;
-
-            if (DateTime.Now.Month >= 4)
-            {
-                mapUserAccount.OpeningBalanceDate = Convert.ToDateTime("01-04-" + DateTime.Now.Year);
-            }
-            else
-            {
-                mapUserAccount.OpeningBalanceDate = Convert.ToDateTime("01-04-" + (DateTime.Now.Year - 1));
-            }
 
             return await _accountRepository.AddUserAccount(mapUserAccount);
         }

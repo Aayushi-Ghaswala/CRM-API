@@ -54,7 +54,7 @@ namespace CRM_api.Controllers.Account_Module
             try
             {
                 var getData = await _accountTransactionservice.GetAccountTransactionAsync(companyId, financialYearId, filterString, search, sortingParams);
-                return Ok(getData);
+                return Ok(new { Data = getData.Item1, Total = getData.Item2});
             }
             catch (Exception)
             {
@@ -87,6 +87,22 @@ namespace CRM_api.Controllers.Account_Module
             {
                 var accountTransaction = await _accountTransactionservice.UpdateAccountTransactionAsync(updateAccountTransaction);
                 return accountTransaction != 0 ? Ok(new { Message = "Account transaction updated successfully." }) : BadRequest(new { Message = "Unable to update account transaction." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Delete Account Transactions
+        [HttpDelete("DeleteAccountTransaction")]
+        public async Task<IActionResult> DeleteAccountTransaction(string? docNo)
+        {
+            try
+            {
+                var data = await _accountTransactionservice.DeleteAccountTransactionAsync(docNo);
+                return data != 0 ? Ok(new { Message = "Account transaction deleted successfully." }) : BadRequest(new { Message = "Unable to delete account transaction." });
             }
             catch (Exception)
             {

@@ -78,10 +78,10 @@ namespace CRM_api.Services.Services.Account_Module
         #endregion
 
         #region Get Account Transaction
-        public async Task<ResponseDto<AccountTransactionDto>> GetAccountTransactionAsync(int? companyId, int? financialYearId, string filterString, string? searchingParams, SortingParams sortingParams)
+        public async Task<(ResponseDto<AccountTransactionDto>, Dictionary<string, decimal?>)> GetAccountTransactionAsync(int? companyId, int? financialYearId, string filterString, string? searchingParams, SortingParams sortingParams)
         {
             var accountTransaction = await _accountTransactionRepository.GetAccountTransaction(companyId, financialYearId, filterString, searchingParams, sortingParams);
-            var mapAccountTransaction = _mapper.Map<ResponseDto<AccountTransactionDto>>(accountTransaction);
+            var mapAccountTransaction = _mapper.Map<ResponseDto<AccountTransactionDto>>(accountTransaction.Item1);
 
             foreach (var transaction in mapAccountTransaction.Values)
             {
@@ -106,20 +106,24 @@ namespace CRM_api.Services.Services.Account_Module
 
                 if (transaction.Debit != null || transaction.Debit != 0)
                 {
-                    var creditTransaction = await _accountTransactionRepository.GetAccountTransactionByDocNo(transaction.DocNo, transaction.Debit, transaction.Credit);
+                    var creditTransaction = _accountTransactionRepository.GetAccountTransactionByDocNo(transaction.DocNo, transaction.Debit, transaction.Credit).Result.FirstOrDefault();
 
                     if( creditTransaction is not null)
                         transaction.CreditAccount = _mapper.Map<AccountMasterDto>(creditTransaction.TblAccountMaster);
                 }
                 else
                 {
-                    var debitTransaction = await _accountTransactionRepository.GetAccountTransactionByDocNo(transaction.DocNo, transaction.Debit, transaction.Credit);
+                    var debitTransaction = _accountTransactionRepository.GetAccountTransactionByDocNo(transaction.DocNo, transaction.Debit, transaction.Credit).Result.FirstOrDefault();
 
                     if (debitTransaction is not null )
                         transaction.DebitAccount = _mapper.Map<AccountMasterDto>(debitTransaction.TblAccountMaster);
                 }
             }
-            return mapAccountTransaction;
+            Dictionary<string, decimal?> total = new Dictionary<string, decimal?>();
+            total.Add("debit", accountTransaction.Item2);
+            total.Add("credit", accountTransaction.Item3);
+
+            return (mapAccountTransaction, total);
         }
         #endregion
 
@@ -194,7 +198,7 @@ namespace CRM_api.Services.Services.Account_Module
                 mapAccountTransaction.Accountid = updateAccountTransaction.CreditAccountId;
 
             accountTransactions.Add(mapAccountTransaction);
-            var transaction = await _accountTransactionRepository.GetAccountTransactionByDocNo(accTransaction.DocNo, accTransaction.Debit, accTransaction.Credit);
+            var transaction = _accountTransactionRepository.GetAccountTransactionByDocNo(accTransaction.DocNo, accTransaction.Debit, accTransaction.Credit).Result.FirstOrDefault();
             if (transaction is not null)
             {
                 if (mapAccountTransaction.Debit is not null && mapAccountTransaction.Debit != 0)
@@ -227,6 +231,14 @@ namespace CRM_api.Services.Services.Account_Module
                 }
             }
             return await _accountTransactionRepository.UpdateAccountTransaction(accountTransactions);
+        }
+        #endregion
+
+        #region Delete Account Transaction
+        public async Task<int> DeleteAccountTransactionAsync(string? docNo)
+        {
+            List<TblAccountTransaction> accountTransactions = await _accountTransactionRepository.GetAccountTransactionByDocNo(docNo, null, null);
+            return await _accountTransactionRepository.DeleteAccountTransaction(accountTransactions);
         }
         #endregion
     }

@@ -18,7 +18,7 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
 
         #region Get User Account
-        public async Task<Response<TblAccountMaster>> GetUserAccount(int? companyId, string? searchingParams, SortingParams sortingParams)
+        public async Task<(Response<TblAccountMaster>, double?, double?)> GetUserAccount(int? companyId, string? searchingParams, SortingParams sortingParams)
         {
             IQueryable<TblAccountMaster> userAccount = new List<TblAccountMaster>().AsQueryable();
             double? pageCount = 0;
@@ -29,6 +29,9 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
                 userAccount = _context.TblAccountMasters.Where(x => (companyId == null || x.Companyid == companyId)).Include(x => x.TblAccountGroupMaster).Include(x => x.TblCompanyMaster).Include(x => x.UserMaster).AsQueryable();
 
             pageCount = Math.Ceiling(userAccount.Count() / sortingParams.PageSize);
+
+            double? totalDebit = userAccount.Where(x => x.DebitCredit == "0").Sum(x => x.OpeningBalance);
+            double? totalCredit = userAccount.Where(x => x.DebitCredit == "1").Sum(x => x.OpeningBalance);
 
             //Apply Sorting
             var sortedData = SortingExtensions.ApplySorting(userAccount, sortingParams.SortBy, sortingParams.IsSortAscending);
@@ -46,7 +49,7 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
                 }
             };
 
-            return userAccountResponse;
+            return (userAccountResponse, totalDebit, totalCredit);
         }
         #endregion
 
@@ -225,19 +228,19 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
         #endregion
 
-        #region Get KA Group Accounts
-        public async Task<Response<TblAccountMaster>> GetKAGroupBankAccounts(string? search, SortingParams sortingParams)
+        #region Get KA Group Bank And Payment Accounts
+        public async Task<Response<TblAccountMaster>> GetKAGroupBankAndPaymentAccounts(string? filterString, string? search, SortingParams sortingParams)
         {
             double pageCount = 0;
             var filterData = new List<TblAccountMaster>().AsQueryable();
 
             if (search is not null)
             {
-                filterData = _context.Search<TblAccountMaster>(search).Where(x => x.TblAccountGroupMaster.AccountGrpName.ToLower().Equals("bank accounts") && x.Isdeleted != true).Include(x => x.TblCompanyMaster).AsQueryable();
+                filterData = _context.Search<TblAccountMaster>(search).Where(x => x.TblAccountGroupMaster.AccountGrpName.ToLower().Equals(filterString.ToLower()) && x.Isdeleted != true).Include(x => x.TblCompanyMaster).AsQueryable();
             }
             else
             {
-                filterData = _context.TblAccountMasters.Where(x => x.TblAccountGroupMaster.AccountGrpName.ToLower().Equals("bank accounts") && x.Isdeleted != true).Include(x => x.TblCompanyMaster).AsQueryable();
+                filterData = _context.TblAccountMasters.Where(x => x.TblAccountGroupMaster.AccountGrpName.ToLower().Equals(filterString.ToLower()) && x.Isdeleted != true).Include(x => x.TblCompanyMaster).AsQueryable();
             }
 
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
@@ -265,7 +268,7 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         #region Add User Account
         public async Task<int> AddUserAccount(TblAccountMaster tblAccountMaster)
         {
-            if (_context.TblAccountMasters.Any(x => x.UserId == tblAccountMaster.UserId && x.AccountName == tblAccountMaster.AccountName && x.Isdeleted != true))
+            if (_context.TblAccountMasters.Any(x => x.UserId == tblAccountMaster.UserId && x.AccountName == tblAccountMaster.AccountName && x.Companyid == tblAccountMaster.Companyid && x.Isdeleted != true))
                 return 0;
 
             await _context.TblAccountMasters.AddAsync(tblAccountMaster);

@@ -101,7 +101,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             {
                 var getData = await _mGainService.GetNonCumulativeMonthlyReportAsync(month, year, schemaId, tds, isJournal, jvEntryDate, jvNarration, isPayment, crEntryDate, crNarration, search, sortingParams, isSendSMS);
 
-                return Ok(getData);
+                return getData.Item2 == null ? Ok(getData.Item1) : getData.Item1 == null ? BadRequest(new { Message = getData.Item2 }) : getData.Item1 != null && getData.Item2 != null ? Ok(new { Message = getData.Item2 }) : Ok(new { Message = getData.Item2 });
             }
             catch (Exception)
             {
