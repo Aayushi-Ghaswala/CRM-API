@@ -6,14 +6,14 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module
 {
     public interface IAccountRepository
     {
-        Task<Response<TblAccountMaster>> GetUserAccount(int? companyId, string? searchingParams, SortingParams sortingParams);
+        Task<(Response<TblAccountMaster>, double?, double?)> GetUserAccount(int? companyId, string? searchingParams, SortingParams sortingParams);
         Task<TblAccountMaster> GetUserAccountById(int? id);
         Task<Response<TblAccountGroupMaster>> GetAccountGroups(string? searchingParams, SortingParams sortingParams);
         Task<Response<TblAccountGroupMaster>> GetRootAccountGroup(string? searchingParams, SortingParams sortingParams);
         Task<Response<TblCompanyMaster>> GetCompanies(string? searchingParams, SortingParams sortingParams);
         Task<Response<TblFinancialYearMaster>> GetFinancialYears(string? searchingParams, SortingParams sortingParams);
         Task<Response<TblAccountOpeningBalance>> GetAccountOpeningBalance(int? financialYearId, string? searchingParams, SortingParams sortingParams);
-        Task<Response<TblAccountMaster>> GetKAGroupBankAccounts(string? search, SortingParams sortingParams);
+        Task<Response<TblAccountMaster>> GetKAGroupBankAndPaymentAccounts(string? filterString, string? search, SortingParams sortingParams);
         Task<int> AddUserAccount(TblAccountMaster tblAccountMaster);
         Task<int> AddAccountGroup(TblAccountGroupMaster tblAccountGroupMaster);
         Task<int> AddCompany(TblCompanyMaster tblCompanyMaster);

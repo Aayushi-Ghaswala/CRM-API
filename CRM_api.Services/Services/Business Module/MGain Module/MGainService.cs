@@ -67,8 +67,6 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
                     var mapPlot = _mapper.Map<PlotMasterDto>(plot);
                     mGain.SecondPlotMaster = mapPlot;
                 }
-
-                mGain.Tenure = 10;
             }
 
             return mapMGainDetails;
@@ -744,7 +742,7 @@ SURAT - 395009 <p>
         #endregion
 
         #region MGain Monthly Non-Cumulative Interest Computation & Release
-        public async Task<MGainNCmonthlyTotalDto> GetNonCumulativeMonthlyReportAsync(int month, int year, int? schemeId, decimal? tds, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? searchingParams, SortingParams sortingParams, bool? isSendSMS)
+        public async Task<(MGainNCmonthlyTotalDto, string)> GetNonCumulativeMonthlyReportAsync(int month, int year, int? schemeId, decimal? tds, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? searchingParams, SortingParams sortingParams, bool? isSendSMS)
         {
             DateTime date = Convert.ToDateTime("01" + "-" + month + "-" + year);
             DateTime currentDate = date.AddDays(-1);
@@ -956,10 +954,15 @@ SURAT - 395009 <p>
 
             if (allAccountTransactions.Count > 0)
             {
-                await _mGainRepository.AddMGainInterest(allAccountTransactions, currentDate);
+                var entry = await _mGainRepository.AddMGainInterest(allAccountTransactions, currentDate);
+
+                if (entry != 0)
+                    return (mGainNCMonthlytotal, $"{entry} Entry added successfully.");
+                else
+                    return (null, "Account transaction already exists.");
             }
 
-            return mGainNCMonthlytotal;
+            return (mGainNCMonthlytotal, null);
         }
         #endregion
 
@@ -1722,7 +1725,6 @@ SURAT - 395009 <p>
                 creditAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
                 creditAccountTransaction.Mgainid = mGainId;
                 creditAccountTransaction.Currencyid = currancyId;
-                accountTransactions.Add(creditAccountTransaction);
 
                 //Journal Debit Entry
                 debitAccountTransaction.DocDate = jvEntryDate;
@@ -1743,6 +1745,8 @@ SURAT - 395009 <p>
                 debitAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(0, jvNarration).Result.AccountId;
                 debitAccountTransaction.Mgainid = mGainId;
                 debitAccountTransaction.Currencyid = currancyId;
+
+                accountTransactions.Add(creditAccountTransaction);
                 accountTransactions.Add(debitAccountTransaction);
 
                 if (isTdsDeduction is true)
@@ -1760,7 +1764,7 @@ SURAT - 395009 <p>
                     creditTDCAccountTransaction.DocUserid = mGainUserId;
                     creditTDCAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(0, tdsYear).Result.AccountId;
                     creditTDCAccountTransaction.Mgainid = mGainId;
-                    creditAccountTransaction.Currencyid = currancyId;
+                    creditTDCAccountTransaction.Currencyid = currancyId;
 
                     //Journal TDS Credit Entry
                     debitTDCAccountTransaction.DocDate = jvEntryDate;
@@ -1772,8 +1776,9 @@ SURAT - 395009 <p>
                     debitTDCAccountTransaction.DocUserid = mGainUserId;
                     debitTDCAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
                     debitTDCAccountTransaction.Mgainid = mGainId;
-                    debitAccountTransaction.Currencyid = currancyId;
+                    debitTDCAccountTransaction.Currencyid = currancyId;
 
+                    accountTransactions.Add(creditTDCAccountTransaction);
                     accountTransactions.Add(debitTDCAccountTransaction);
                 }
             }
@@ -1804,10 +1809,11 @@ SURAT - 395009 <p>
                 debitAccountTransaction.Credit = 0;
                 debitAccountTransaction.DocUserid = mGainUserId;
                 debitAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(mGainUserId, null).Result.AccountId;
-                creditAccountTransaction.Mgainid = mGainId;
-                creditAccountTransaction.Currencyid = currancyId;
+                debitAccountTransaction.Mgainid = mGainId;
+                debitAccountTransaction.Currencyid = currancyId;
 
                 accountTransactions.Add(debitAccountTransaction);
+                accountTransactions.Add(creditAccountTransaction);
             }
             return accountTransactions;
         }

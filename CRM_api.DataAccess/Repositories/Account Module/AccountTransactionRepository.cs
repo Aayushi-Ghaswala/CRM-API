@@ -79,7 +79,7 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         #endregion
 
         #region Get Account Transaction
-        public async Task<Response<TblAccountTransaction>> GetAccountTransaction(int? companyId, int? financialYearId, string filterString, string? searchingParams, SortingParams sortingParams)
+        public async Task<(Response<TblAccountTransaction>, decimal?, decimal?)> GetAccountTransaction(int? companyId, int? financialYearId, string filterString, string? searchingParams, SortingParams sortingParams)
         {
             double? pageCount = 0;
             IQueryable<TblAccountTransaction> accountTransaction = new List<TblAccountTransaction>().AsQueryable();
@@ -92,6 +92,9 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
                 accountTransaction = _context.TblAccountTransactions.Where(x => x.DocType == filterString && x.DocDate >= financialYear.Startdate && x.DocDate <= financialYear.Enddate && (companyId == null || x.Companyid == companyId)).Include(x => x.TblAccountMaster).Include(x => x.UserMaster).Include(x => x.CompanyMaster).Include(x => x.TblMgainCurrancyMaster).AsQueryable(); 
 
             pageCount = Math.Ceiling(accountTransaction.Count() / sortingParams.PageSize);
+
+            var totalDebit = accountTransaction.Sum(x => x.Debit);
+            var totalCredit = accountTransaction.Sum(x => x.Credit);
 
             //Apply Sorting
             var sortedData = SortingExtensions.ApplySorting(accountTransaction, sortingParams.SortBy, sortingParams.IsSortAscending);
@@ -109,7 +112,7 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
                 }
             };
 
-            return accountTransactionResponse;
+            return (accountTransactionResponse, totalDebit, totalCredit);
         }
         #endregion
 
@@ -135,14 +138,25 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         #endregion
 
         #region Get Account Transaction By DocNo
-        public async Task<TblAccountTransaction> GetAccountTransactionByDocNo(string docNo, decimal? debit, decimal? credit)
+        public async Task<List<TblAccountTransaction>> GetAccountTransactionByDocNo(string docNo, decimal? debit, decimal? credit)
         {
-            var transaction = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo) && x.Debit != debit && x.Credit != credit)
-                                                                   .Include(x => x.TblAccountMaster).AsNoTracking().FirstOrDefaultAsync();
-            if (transaction is null)
+            List<TblAccountTransaction> transactions = new List<TblAccountTransaction>();
+
+            if (debit is not null || credit is not null)
+            {
+                var transaction = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo) && x.Debit != debit && x.Credit != credit)
+                                                                       .Include(x => x.TblAccountMaster).AsNoTracking().FirstOrDefaultAsync();
+                transactions.Add(transaction);
+            }
+            else
+            {
+                transactions = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo)).ToListAsync();
+            }
+
+            if (transactions is null)
                 return null;
 
-            return transaction;
+            return transactions;
         }
         #endregion
 
@@ -168,6 +182,14 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         public async Task<int> UpdateAccountTransaction(List<TblAccountTransaction> tblAccountTransactions)
         {
             _context.TblAccountTransactions.UpdateRange(tblAccountTransactions);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Delete Account Transaction
+        public async Task<int> DeleteAccountTransaction(List<TblAccountTransaction> accountTransactions)
+        {
+            _context.TblAccountTransactions.RemoveRange(accountTransactions);
             return await _context.SaveChangesAsync();
         }
         #endregion

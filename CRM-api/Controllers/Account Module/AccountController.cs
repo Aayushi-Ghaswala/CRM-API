@@ -23,7 +23,7 @@ namespace CRM_api.Controllers.Account_Module
             try
             {
                 var getData = await _accountService.GetUserAccountsAsync(companyId, search, sortingParams);
-                return Ok(getData);
+                return Ok(new { Data = getData.Item1, Total = getData.Item2 });
             }
             catch (Exception)
             {
@@ -112,13 +112,13 @@ namespace CRM_api.Controllers.Account_Module
         }
         #endregion
 
-        #region Get KA Group Bank Accounts
-        [HttpGet("GetKAGroupAccounts")]
-        public async Task<IActionResult> GetKAGroupAccounts(string? search, [FromQuery] SortingParams sortingParams)
+        #region Get KA Group Bank And Payment Accounts
+        [HttpGet("GetKAGroupBankAndPaymentAccounts")]
+        public async Task<IActionResult> GetKAGroupBankAndPaymentAccounts(string? filterString, string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var data = await _accountService.GetKAGroupAccountsAsync(search, sortingParams);
+                var data = await _accountService.GetKAGroupBankAndPaymentAccountsAsync(filterString, search, sortingParams);
                 return Ok(data);
             }
             catch (Exception)
