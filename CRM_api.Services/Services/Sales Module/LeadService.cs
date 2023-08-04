@@ -166,17 +166,18 @@ namespace CRM_api.Services.Services.Sales_Module
 
             var subject = "CRM - Lead";
 
-            var message = $"Dear " + leadDto.AssignUser.UserName + ",\n\n" +
+           var message = $"Dear User,\n\n" +
                 "I hope this email finds you well. I would like to share the details of a new lead that we have acquired. Please find the information below:\r\n\r\n" +
                 "Name : " + leadDto.Name + "\r\n" +
                 "Phone : " + leadDto.MobileNo + "\r\n" +
                 "Address : " + leadDto.Address + "\r\n" +
-                "Campaign : " + leadDto.CampaignMaster.Name + "\r\n" +
-                "Referred By : " + leadDto.ReferredUser.UserName + "\r\n" +
-                "Status : " + leadDto.StatusMaster.Name + "\r\n" +
-                "Description : " + leadDto.Description + "\r\n" +
-                "Interested In : " + interestedIn + "\r\n\r\n" +
-                " If you have any questions or need further clarification, feel free to reach out to me.\r\nThank you for your attention to this matter.\r\n\r\nBest regards,\r\nKAGroup";
+                "Campaign : " + leadDto.CampaignMaster.Name + "\r\n";
+            if (leadDto.ReferredUser.UserName is not null)
+                message += "Referred By : " + leadDto.ReferredUser.UserName + "\r\n";
+            message += "Status : " + leadDto.StatusMaster.Name + "\r\n" +
+                    "Description : " + leadDto.Description + "\r\n" +
+                    "Interested In : " + interestedIn + "\r\n\r\n" +
+                    " If you have any questions or need further clarification, feel free to reach out to me.\r\nThank you for your attention to this matter.\r\n\r\nBest regards,\r\nKAGroup";
 
             var body = new BodyBuilder();
             body.TextBody = message;
@@ -200,17 +201,18 @@ namespace CRM_api.Services.Services.Sales_Module
                     interestedIn += ", " + x.InvestmentName;
             });
 
-            var message = "Dear " + leadDto.AssignUser.UserName + ",\n\n" +
+            var message = $"Dear User,\n\n" +
                 "I hope this email finds you well. I would like to share the details of a new lead that we have acquired. Please find the information below:\r\n\r\n" +
                 "Name : " + leadDto.Name + "\r\n" +
                 "Phone : " + leadDto.MobileNo + "\r\n" +
                 "Address : " + leadDto.Address + "\r\n" +
-                "Campaign : " + leadDto.CampaignMaster.Name + "\r\n" +
-                "Referred By : " + leadDto.ReferredUser.UserName + "\r\n" +
-                "Status : " + leadDto.StatusMaster.Name + "\r\n" +
-                "Description : " + leadDto.Description + "\r\n" +
-                "Interested In : " + interestedIn + "\r\n\r\n" +
-                " If you have any questions or need further clarification, feel free to reach out to me.\r\nThank you for your attention to this matter.\r\n\r\nBest regards,\r\nKAGroup";
+                "Campaign : " + leadDto.CampaignMaster.Name + "\r\n";
+            if (leadDto.ReferredUser.UserName is not null)
+                message += "Referred By : " + leadDto.ReferredUser.UserName + "\r\n";
+            message += "Status : " + leadDto.StatusMaster.Name + "\r\n" +
+                    "Description : " + leadDto.Description + "\r\n" +
+                    "Interested In : " + interestedIn + "\r\n\r\n" +
+                    " If you have any questions or need further clarification, feel free to reach out to me.\r\nThank you for your attention to this matter.\r\n\r\nBest regards,\r\nKAGroup";
 
             var mobile = "9409394771";
 

@@ -168,11 +168,11 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
 
         #region Get MGain Interest Certificate
         [HttpGet("GetMGainInterestCertificate")]
-        public async Task<ActionResult> GetMGainInterestCertificate(int userId, int year)
+        public async Task<ActionResult> GetMGainInterestCertificate(int userId, int financialYearId)
         {
             try
             {
-                var file = await _mGainService.GetMGainIntertestCertificateAsync(userId, year);
+                var file = await _mGainService.GetMGainIntertestCertificateAsync(userId, financialYearId);
                 return file != null ? Ok(file) : BadRequest(new { Message = "Interest details not found." });
             }
             catch (Exception)
@@ -184,11 +184,11 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
 
         #region Get MGain Interest Ledger
         [HttpGet("GetMGainInterestLedger")]
-        public async Task<ActionResult> GetMGainInterestLedger(int userId, int year)
+        public async Task<ActionResult> GetMGainInterestLedger(int userId, int financialYearId)
         {
             try
             {
-                var file = await _mGainService.GetMGainInterestLedgerAsync(userId, year);
+                var file = await _mGainService.GetMGainInterestLedgerAsync(userId, financialYearId);
                 return Ok(file);
             }
             catch (Exception)

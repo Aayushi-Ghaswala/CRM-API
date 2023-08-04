@@ -6,6 +6,7 @@
         public int? UserId { get; set; }
         public int? LoanTypeId { get; set; }
         public int? BankId { get; set; }
+        public string? LoanAgainstProperty { get; set; }
         public decimal? LoanAmount { get; set; }
         public decimal? Emi { get; set; }
         public DateTime? StartDate { get; set; }

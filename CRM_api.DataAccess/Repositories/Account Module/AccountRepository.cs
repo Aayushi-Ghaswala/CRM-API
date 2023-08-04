@@ -195,6 +195,17 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
         #endregion
 
+        #region Get Financial Year By Id
+        public async Task<TblFinancialYearMaster> GetFinancialYearById(int id)
+        {
+            var financialYear = await _context.TblFinancialYearMasters.FirstOrDefaultAsync(x => x.Id == id && x.Isdeleted != true);
+
+            if (financialYear == null) return null;
+
+            return financialYear;
+        }
+        #endregion
+
         #region Get Account Opening Balance
         public async Task<Response<TblAccountOpeningBalance>> GetAccountOpeningBalance(int? financialYearId, string? searchingParams, SortingParams sortingParams)
         {

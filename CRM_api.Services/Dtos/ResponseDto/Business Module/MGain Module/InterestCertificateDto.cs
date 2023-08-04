@@ -4,6 +4,7 @@
     {
         public int UserId { get; set; }
         public string UserName { get; set; }
+        public string Date { get; set; }
         public List<InterestReportDto> InterestReports { get; set; }
     }
 }

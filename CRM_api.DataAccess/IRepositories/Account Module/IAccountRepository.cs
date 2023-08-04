@@ -12,6 +12,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module
         Task<Response<TblAccountGroupMaster>> GetRootAccountGroup(string? searchingParams, SortingParams sortingParams);
         Task<Response<TblCompanyMaster>> GetCompanies(string? searchingParams, SortingParams sortingParams);
         Task<Response<TblFinancialYearMaster>> GetFinancialYears(string? searchingParams, SortingParams sortingParams);
+        Task<TblFinancialYearMaster> GetFinancialYearById(int id);
         Task<Response<TblAccountOpeningBalance>> GetAccountOpeningBalance(int? financialYearId, string? searchingParams, SortingParams sortingParams);
         Task<Response<TblAccountMaster>> GetKAGroupBankAndPaymentAccounts(string? filterString, string? search, SortingParams sortingParams);
         Task<int> AddUserAccount(TblAccountMaster tblAccountMaster);
