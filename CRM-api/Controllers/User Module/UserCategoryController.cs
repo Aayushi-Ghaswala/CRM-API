@@ -1,8 +1,6 @@
 ﻿using CRM_api.DataAccess.Helper;
-using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.User_Module;
 using CRM_api.Services.IServices.User_Module;
-using CRM_api.Services.Services.User_Module;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CRM_api.Controllers.User_Module
@@ -25,10 +23,25 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 var categories = await _userCategoryService.GetUserCategoriesAsync(search, sortingParams);
-                if (categories.Values.Count == 0)
-                    return BadRequest(new { Message = "Category not found." });
 
-                return Ok(categories);
+                return categories.Values.Count == 0 ? BadRequest(new { Message = "Category not found." }) : Ok(categories);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get Category By Name
+        [HttpGet("GetCategoryByName")]
+        public async Task<IActionResult> GetCategoryByName(string name)
+        {
+            try
+            {
+                var userCategory = await _userCategoryService.GetCategoryByNameAsync(name);
+
+                return userCategory == null ? BadRequest(new { Message = "User Category not found." }) : Ok(userCategory);
             }
             catch (Exception)
             {

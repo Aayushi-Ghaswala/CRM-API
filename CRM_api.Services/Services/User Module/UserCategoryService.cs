@@ -2,10 +2,9 @@
 using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.Repositories.User_Module;
 using CRM_api.Services.Dtos.AddDataDto.User_Module;
-using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Dtos.ResponseDto;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.User_Module;
 
 namespace CRM_api.Services.Services.User_Module
@@ -33,6 +32,15 @@ namespace CRM_api.Services.Services.User_Module
             }
 
             return mapCatagories;
+        }
+        #endregion
+
+        #region Get Category By Name
+        public async Task<UserCategoryDto> GetCategoryByNameAsync(string name)
+        {
+            var cat = await _userCategoryRepository.GetCategoryByName(name);
+            var mappedUserCategory = _mapper.Map<UserCategoryDto>(cat);
+            return mappedUserCategory;
         }
         #endregion
 

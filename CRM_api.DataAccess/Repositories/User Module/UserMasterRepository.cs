@@ -216,16 +216,6 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
         #endregion
 
-        #region Get Category By Name
-        public async Task<TblUserCategoryMaster> GetCategoryByName(string name)
-        {
-            var cat = await _context.TblUserCategoryMasters.Where(x => x.CatName == name).FirstOrDefaultAsync();
-            ArgumentNullException.ThrowIfNull(cat);
-
-            return cat;
-        }
-        #endregion
-
         #region Check Pan or Aadhar Exist
         public int PanOrAadharExist(int? id, string? pan, string? aadhar)
         {

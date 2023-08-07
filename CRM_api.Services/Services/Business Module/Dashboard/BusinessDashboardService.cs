@@ -19,21 +19,23 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
         private readonly IInsuranceClientRepository _insuranceClientRepository;
         private readonly IStocksRepository _stocksRepository;
         private readonly IMutualfundRepository _mutualfundRepository;
+        private readonly IUserCategoryRepository _userCategoryRepository;
         private readonly IConfiguration _configuration;
 
-        public BusinessDashboardService(IUserMasterRepository userMasterRepository, IInsuranceClientRepository insuranceClientRepository, IStocksRepository stocksRepository, IMutualfundRepository mutualfundRepository, IConfiguration configuration)
+        public BusinessDashboardService(IUserMasterRepository userMasterRepository, IInsuranceClientRepository insuranceClientRepository, IStocksRepository stocksRepository, IMutualfundRepository mutualfundRepository, IConfiguration configuration, IUserCategoryRepository userCategoryRepository)
         {
             _userMasterRepository = userMasterRepository;
             _insuranceClientRepository = insuranceClientRepository;
             _stocksRepository = stocksRepository;
             _mutualfundRepository = mutualfundRepository;
             _configuration = configuration;
+            _userCategoryRepository = userCategoryRepository;
         }
 
         #region Client Current Investment Snapshot
         public async Task<List<ClientReportDto<ClientCurrentInvSnapshotDto>>> GetClientCurrentInvSnapshotAsync(int? userId, bool? isZero, string search)
         {
-            var category = await _userMasterRepository.GetCategoryByName(CategoryConstant.customer);
+            var category = await _userCategoryRepository.GetCategoryByName(CategoryConstant.customer);
             List<TblUserMaster> clients = new List<TblUserMaster>();
 
             if (userId is null)
@@ -111,7 +113,7 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
         public async Task<List<ClientReportDto<ClientMonthlyTransSnapshotDto>>> GetClientMonthlyTransSnapshotAsync(int? userId, int? month, int? year, bool? isZero, string search)
         {
             var clients = new List<TblUserMaster>();
-            var category = await _userMasterRepository.GetCategoryByName(CategoryConstant.customer);
+            var category = await _userCategoryRepository.GetCategoryByName(CategoryConstant.customer);
             List<ClientReportDto<ClientMonthlyTransSnapshotDto>> clientMonthlyTransSnapshots = new List<ClientReportDto<ClientMonthlyTransSnapshotDto>>();
 
             if (userId is not null)

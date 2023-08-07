@@ -39,10 +39,8 @@ namespace CRM_api.Controllers.User_Module
             try
             {
                 var user = await _userMasterService.GetUserMasterByIdAsync(id);
-                if (user == null)
-                    return BadRequest(new { Message = "User not found." });
 
-                return Ok(user);
+                return user == null ? BadRequest(new { Message = "User not found." }) : Ok(user);
             }
             catch (Exception)
             {
@@ -65,29 +63,8 @@ namespace CRM_api.Controllers.User_Module
         public async Task<IActionResult> GetUsersByCategoryId(int categoryId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             var users = await _userMasterService.GetUsersByCategoryIdAsync(categoryId, search, sortingParams);
-            if (users.Count == 0)
-                return BadRequest(new { Message = "User not found" });
 
-            return Ok(users);
-        }
-        #endregion
-
-        #region Get Category By Name
-        [HttpGet("GetCategoryByName")]
-        public async Task<IActionResult> GetCategoryByName(string name)
-        {
-            try
-            {
-                var userCategory = await _userMasterService.GetCategoryByNameAsync(name);
-                if (userCategory == null)
-                    return BadRequest(new { Message = "User Category not found." });
-
-                return Ok(userCategory);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return users.Count == 0 ? BadRequest(new { Message = "User not found" }) : Ok(users);
         }
         #endregion
 

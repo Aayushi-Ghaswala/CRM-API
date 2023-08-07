@@ -7,6 +7,7 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
     public interface IUserCategoryRepository
     {
         Task<Response<TblUserCategoryMaster>> GetUserCategories(string search, SortingParams sortingParams);
+        Task<TblUserCategoryMaster> GetCategoryByName(string name);
         Task<int> AddUserCategory(TblUserCategoryMaster tblUserCategory);
         Task<int> UpdateUserCategory(TblUserCategoryMaster tblUserCategory);
         Task<int> DeActivateUserCategory(int id);

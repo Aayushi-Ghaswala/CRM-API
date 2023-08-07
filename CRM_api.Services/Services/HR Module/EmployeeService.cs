@@ -14,28 +14,28 @@ namespace CRM_api.Services.Services.HR_Module
     public class EmployeeService : IEmployeeService
     {
         private readonly IEmployeeRepository _employeeRepository;
-        private readonly IUserMasterRepository _userMasterRepository;
+        private readonly IUserCategoryRepository _userCategoryRepository;
         private readonly IMapper _mapper;
 
-        public EmployeeService(IEmployeeRepository employeeRepository, IUserMasterRepository userMasterRepository, IMapper mapper)
+        public EmployeeService(IEmployeeRepository employeeRepository, IMapper mapper, IUserCategoryRepository userCategoryRepository)
         {
             _employeeRepository = employeeRepository;
-            _userMasterRepository = userMasterRepository;
             _mapper = mapper;
+            _userCategoryRepository = userCategoryRepository;
         }
 
         #region Get Employees
         public async Task<ResponseDto<UserMasterDto>> GetEmployeesAsync(string search, SortingParams sortingParams)
         {
-            var category = await _userMasterRepository.GetCategoryByName(CategoryConstant.employee);
+            var category = await _userCategoryRepository.GetCategoryByName(CategoryConstant.employee);
             var employees = await _employeeRepository.GetEmployees(category.CatId, search, sortingParams);
 
             var mapUsers = _mapper.Map<ResponseDto<UserMasterDto>>(employees);
 
-            foreach(var user in mapUsers.Values)
+            foreach (var user in mapUsers.Values)
             {
                 user.UserName = user.UserName.ToLower();
-            } 
+            }
             return mapUsers;
         }
         #endregion

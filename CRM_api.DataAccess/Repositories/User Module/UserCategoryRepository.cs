@@ -54,6 +54,16 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
         #endregion
 
+        #region Get Category By Name
+        public async Task<TblUserCategoryMaster> GetCategoryByName(string name)
+        {
+            var cat = await _context.TblUserCategoryMasters.Where(x => x.CatName == name).FirstOrDefaultAsync();
+            if (cat is null) return null;
+
+            return cat;
+        }
+        #endregion
+
         #region Add User Category
         public async Task<int> AddUserCategory(TblUserCategoryMaster tblUserCategory)
         {
