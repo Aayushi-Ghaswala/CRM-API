@@ -62,21 +62,6 @@ namespace CRM_api.Services.Services.User_Module
         }
         #endregion
 
-        #region Get All User Category
-        public async Task<ResponseDto<UserCategoryDto>> GetUserCategoriesAsync(string search, SortingParams sortingParams)
-        {
-            var catagories = await _userMasterRepository.GetUserCategories(search, sortingParams);
-            var mapCatagories = _mapper.Map<ResponseDto<UserCategoryDto>>(catagories);
-
-            foreach (var catagory in catagories.Values)
-            {
-                catagory.CatName = catagory.CatName.ToLower();
-            }
-
-            return mapCatagories;
-        }
-        #endregion
-
         #region Get All User By Category Id
         public async Task<List<UserNameDto>> GetUsersByCategoryIdAsync(int categoryId, string search, SortingParams sortingParams)
         {
@@ -84,14 +69,6 @@ namespace CRM_api.Services.Services.User_Module
             var mapUsers = _mapper.Map<List<UserNameDto>>(users);
 
             return mapUsers;
-        }
-        #endregion
-
-        #region Get Category By Name
-        public async Task<TblUserCategoryMaster> GetCategoryByNameAsync(string name)
-        {
-            var cat = await _userMasterRepository.GetCategoryByName(name);
-            return cat;
         }
         #endregion
 

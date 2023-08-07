@@ -32,44 +32,21 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
 
             var filterData = new List<TblInsuranceclient>().AsQueryable();
 
-            if (filterString is not null)
-            {
-                filterData = _context.TblInsuranceclients.Where(x => x.IsDeleted != true && x.TblSubInvesmentType.InvestmentType.ToLower() == filterString.ToLower())
-                                                          .Include(x => x.TblInsuranceCompanylist)
-                                                          .Include(x => x.TblInsuranceTypeMaster)
-                                                          .Include(x => x.TblInvesmentType)
-                                                          .Include(x => x.TblSubInvesmentType)
-                                                          .Include(x => x.TblUserMaster).AsQueryable();
-            }
-            else
-            {
-                filterData = _context.TblInsuranceclients.Where(x => x.IsDeleted != true).Include(x => x.TblInsuranceCompanylist)
-                                                         .Include(x => x.TblInsuranceTypeMaster)
-                                                         .Include(x => x.TblInvesmentType)
-                                                         .Include(x => x.TblSubInvesmentType)
-                                                         .Include(x => x.TblUserMaster).AsQueryable();
-            }
+            filterData = _context.TblInsuranceclients.Where(x => x.IsDeleted != true && (filterString == null || x.TblSubInvesmentType.InvestmentType.ToLower() == filterString.ToLower()))
+                                                      .Include(x => x.TblInsuranceCompanylist)
+                                                      .Include(x => x.TblInsuranceTypeMaster)
+                                                      .Include(x => x.TblInvesmentType)
+                                                      .Include(x => x.TblSubInvesmentType)
+                                                      .Include(x => x.TblUserMaster).AsQueryable();
 
             if (search != null)
             {
-                if (filterString is not null)
-                {
-                    filterData = _context.Search<TblInsuranceclient>(search).Where(x => x.IsDeleted != true && x.TblSubInvesmentType.InvestmentType.ToLower() == filterString.ToLower())
+                filterData = _context.Search<TblInsuranceclient>(search).Where(x => x.IsDeleted != true && (filterString == null || x.TblSubInvesmentType.InvestmentType.ToLower() == filterString.ToLower()))
                                                          .Include(x => x.TblInsuranceCompanylist)
                                                          .Include(x => x.TblInsuranceTypeMaster)
                                                          .Include(x => x.TblInvesmentType)
                                                          .Include(x => x.TblSubInvesmentType)
                                                          .Include(x => x.TblUserMaster).AsQueryable();
-                }
-                else
-                {
-                    filterData = _context.Search<TblInsuranceclient>(search).Where(x => x.IsDeleted != true)
-                                                         .Include(x => x.TblInsuranceCompanylist)
-                                                         .Include(x => x.TblInsuranceTypeMaster)
-                                                         .Include(x => x.TblInvesmentType)
-                                                         .Include(x => x.TblSubInvesmentType)
-                                                         .Include(x => x.TblUserMaster).AsQueryable();
-                }
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -99,7 +76,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
             double pageCount = 0;
 
             var filterData = _context.TblInsuranceCompanylists.Where(x => x.InsuranceCompanytypeid == id).AsQueryable();
-            
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -199,7 +176,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
                 if (insClient is null) return 0;
 
                 _context.TblInsuranceclients.Update(tblInsuranceclient);
-                return  _context.SaveChanges();
+                return _context.SaveChanges();
             }
             else
             {
@@ -216,7 +193,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
         public async Task<int> DeactivateInsuranceClientDetail(int id)
         {
             var insClient = await _context.TblInsuranceclients.FindAsync(id);
-            if(insClient is null) return 0;
+            if (insClient is null) return 0;
 
             insClient.IsDeleted = true;
             return await _context.SaveChangesAsync();

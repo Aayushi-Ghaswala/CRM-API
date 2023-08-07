@@ -64,6 +64,7 @@ namespace CRM_api.Services.ServicesDepedancy
             services.AddScoped<IRoleMasterService, RoleMasterService>();
             services.AddScoped<IRegionService, RegionService>();
             services.AddScoped<ILoginService, LoginService>();
+            services.AddScoped<IUserCategoryService, UserCategoryService>();
 
             //Business Module
             services.AddScoped<ILoanMasterService, LoanMasterService>();

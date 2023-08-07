@@ -4,13 +4,6 @@ using CRM_api.DataAccess.IRepositories.Sales_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
-
-using CRM_api.DataAccess.Helper;
-using CRM_api.DataAccess.IRepositories.Sales_Module;
-using CRM_api.DataAccess.Models;
-using CRM_api.DataAccess.ResponseModel.Generic_Response;
-using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.Sales_Module
 {
@@ -28,13 +21,17 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblMeetingParticipants.Where(x => x.IsDeleted != true)
-                                                            .Include(x => x.TblMeetingMaster)
-                                                            .Include(x => x.TblUserMaster).AsQueryable();
+            var filterData = new List<TblMeetingParticipant>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblMeetingParticipant>(search).Where(x => x.IsDeleted != true)
+                                                            .Include(x => x.TblMeetingMaster)
+                                                            .Include(x => x.TblUserMaster).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblMeetingParticipants.Where(x => x.IsDeleted != true)
                                                             .Include(x => x.TblMeetingMaster)
                                                             .Include(x => x.TblUserMaster).AsQueryable();
             }
@@ -61,7 +58,6 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
 
         #endregion
 
-
         #region Get MeetingParticipant by Id
         public async Task<TblMeetingParticipant> GetMeetingParticipantById(int id)
         {
@@ -70,7 +66,6 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         }
 
         #endregion
-
 
         #region Add MeetingParticipant
         public async Task<int> AddMeetingParticipant(TblMeetingParticipant meetingParticipant)
@@ -84,7 +79,6 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
 
         #endregion
 
-
         #region Update MeetingParticipant
         public async Task<int> UpdateMeetingParticipant(TblMeetingParticipant meetingParticipant)
         {
@@ -97,7 +91,6 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         }
 
         #endregion
-
 
         #region Deactivate MeetingParticipant
         public async Task<int> DeactivateMeetingParticipant(int id)

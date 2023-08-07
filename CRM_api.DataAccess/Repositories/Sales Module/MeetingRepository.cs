@@ -21,12 +21,17 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblMeetingMasters.Where(x => x.IsDeleted != true).Include(x => x.TblUserMaster).Include(x => x.TblLeadMaster).Include(x => x.Participants).ThenInclude(x => x.TblUserMaster).Include(x => x.Participants).ThenInclude(x => x.TblLeadMaster).Include(x => x.Attachments).AsQueryable();
+            var filterData = new List<TblMeetingMaster>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblMeetingMaster>(search).Where(x => x.IsDeleted != true).Include(x => x.TblUserMaster).Include(x => x.Participants).Include(x => x.TblLeadMaster).Include(x => x.Attachments).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblMeetingMasters.Where(x => x.IsDeleted != true).Include(x => x.TblUserMaster).Include(x => x.TblLeadMaster).Include(x => x.Participants).ThenInclude(x => x.TblUserMaster).Include(x => x.Participants).ThenInclude(x => x.TblLeadMaster).Include(x => x.Attachments).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -73,12 +78,17 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblMeetingMasters.Where(x => x.LeadId == leadId && x.IsDeleted != true).Include(x => x.TblUserMaster).Include(x => x.Participants).ThenInclude(x => x.TblUserMaster).Include(x => x.TblLeadMaster).Include(x => x.Attachments).AsQueryable();
+            var filterData = new List<TblMeetingMaster>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblMeetingMaster>(search).Where(x => x.LeadId == leadId && x.IsDeleted != true).Include(x => x.TblUserMaster).Include(x => x.Participants).Include(x => x.TblLeadMaster).Include(x => x.Attachments).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblMeetingMasters.Where(x => x.LeadId == leadId && x.IsDeleted != true).Include(x => x.TblUserMaster).Include(x => x.Participants).ThenInclude(x => x.TblUserMaster).Include(x => x.TblLeadMaster).Include(x => x.Attachments).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -130,8 +140,6 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
             var meetings = _context.TblMeetingMasters.AsNoTracking().Where(x => x.Id == meeting.Id);
 
             if (meetings == null) return 0;
-
-            //_context.Entry(meeting).State = EntityState.Modified;
 
             _context.TblMeetingMasters.Update(meeting);
             return await _context.SaveChangesAsync();
