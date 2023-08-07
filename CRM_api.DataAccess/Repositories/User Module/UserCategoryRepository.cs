@@ -1,6 +1,8 @@
 ﻿using CRM_api.DataAccess.Context;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.User_Module
@@ -13,6 +15,44 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             _context = context;
         }
+
+        #region Get All User Category
+        public async Task<Response<TblUserCategoryMaster>> GetUserCategories(string search, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+
+            var filterData = new List<TblUserCategoryMaster>().AsQueryable();
+
+            if (search != null)
+            {
+                filterData = _context.Search<TblUserCategoryMaster>(search).Where(x => x.CatIsactive != false).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblUserCategoryMasters.Where(x => x.CatIsactive != false).AsQueryable();
+            }
+
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var categoriesResponse = new Response<TblUserCategoryMaster>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+
+            return categoriesResponse;
+        }
+        #endregion
 
         #region Add User Category
         public async Task<int> AddUserCategory(TblUserCategoryMaster tblUserCategory)

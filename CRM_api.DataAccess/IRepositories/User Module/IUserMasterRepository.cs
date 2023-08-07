@@ -9,7 +9,6 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<Response<TblUserMaster>> GetUsers(string filterString, string search, SortingParams sortingParams);
         Task<TblUserMaster> GetUserMasterbyId(int id, int? month = null, int? year = null, bool isCurrent = false);
         Task<Dictionary<string,int>> GetUserCount();
-        Task<Response<TblUserCategoryMaster>> GetUserCategories(string search, SortingParams sortingParams);
         Task<List<TblUserMaster>> GetUsersByCategoryId(int categoryId, int? month, int? year, string search, bool isCurrent = false);
         Task<TblUserCategoryMaster> GetCategoryByName(string name);
         TblUserMaster GetUserByUserPan(string UserPan);

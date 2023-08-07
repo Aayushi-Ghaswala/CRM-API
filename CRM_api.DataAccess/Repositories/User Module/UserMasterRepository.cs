@@ -131,44 +131,6 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
         #endregion
 
-        #region Get All User Category
-        public async Task<Response<TblUserCategoryMaster>> GetUserCategories(string search, SortingParams sortingParams)
-        {
-            double pageCount = 0;
-
-            var filterData = new List<TblUserCategoryMaster>().AsQueryable();
-
-            if (search != null)
-            {
-                filterData = _context.Search<TblUserCategoryMaster>(search).Where(x => x.CatIsactive != false).AsQueryable();
-            }
-            else
-            {
-                filterData = _context.TblUserCategoryMasters.Where(x => x.CatIsactive != false).AsQueryable();
-            }
-
-            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
-
-            // Apply sorting
-            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
-
-            // Apply pagination
-            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
-
-            var categoriesResponse = new Response<TblUserCategoryMaster>()
-            {
-                Values = paginatedData,
-                Pagination = new Pagination()
-                {
-                    CurrentPage = sortingParams.PageNumber,
-                    Count = (int)pageCount
-                }
-            };
-
-            return categoriesResponse;
-        }
-        #endregion
-
         #region Get Users By Category Id
         public async Task<List<TblUserMaster>> GetUsersByCategoryId(int categoryId, int? month, int? year, string search, bool isCurrent = false)
         {

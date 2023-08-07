@@ -1,7 +1,11 @@
 ﻿using AutoMapper;
+using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
+using CRM_api.DataAccess.Repositories.User_Module;
 using CRM_api.Services.Dtos.AddDataDto.User_Module;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
+using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.IServices.User_Module;
 
 namespace CRM_api.Services.Services.User_Module
@@ -16,6 +20,21 @@ namespace CRM_api.Services.Services.User_Module
             _userCategoryRepository = userCategoryRepository;
             _mapper = mapper;
         }
+
+        #region Get All User Category
+        public async Task<ResponseDto<UserCategoryDto>> GetUserCategoriesAsync(string search, SortingParams sortingParams)
+        {
+            var catagories = await _userCategoryRepository.GetUserCategories(search, sortingParams);
+            var mapCatagories = _mapper.Map<ResponseDto<UserCategoryDto>>(catagories);
+
+            foreach (var catagory in catagories.Values)
+            {
+                catagory.CatName = catagory.CatName.ToLower();
+            }
+
+            return mapCatagories;
+        }
+        #endregion
 
         #region Add User Category
         public async Task<int> AddUserCategoryAsync(AddUserCategoryDto addUserCategory)

@@ -60,25 +60,6 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion 
 
-        #region Get All User Category
-        [HttpGet("GetUserCatagories")]
-        public async Task<IActionResult> GetUserCatagories([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
-        {
-            try
-            {
-                var categories = await _userMasterService.GetUserCategoriesAsync(search, sortingParams);
-                if (categories.Values.Count == 0)
-                    return BadRequest(new { Message = "Category not found." });
-
-                return Ok(categories);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        #endregion
-
         #region Get All Users By Category Id
         [HttpGet("GetUsersByCategoryId")]
         public async Task<IActionResult> GetUsersByCategoryId(int categoryId, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
