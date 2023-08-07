@@ -8,7 +8,6 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.Loan_Module
         public UserNameDto TblUserMaster { get; set; }
         public LoanTypeMasterDto TblLoanTypeMaster { get; set; }
         public BankMasterDto TblBankMaster { get; set; }
-        public string? LoanAgainstProperty { get; set; }
         public decimal? LoanAmount { get; set; }
         public decimal? Emi { get; set; }
         public DateTime? StartDate { get; set; }

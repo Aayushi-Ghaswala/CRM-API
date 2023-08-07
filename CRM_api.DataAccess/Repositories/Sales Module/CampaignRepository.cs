@@ -21,11 +21,7 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblCampaignMasters.Where(x => x.IsDeleted != true)
-                                                        .Include(x => x.TblSourceMaster)
-                                                        .Include(x => x.TblSourceTypeMaster)
-                                                        .Include(x => x.TblStatusMaster)
-                                                        .Include(x => x.TblUserMaster).AsQueryable();
+            var filterData = new List<TblCampaignMaster>().AsQueryable();
 
             if (search != null)
             {
@@ -35,6 +31,15 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
                                                         .Include(x => x.TblStatusMaster)
                                                         .Include(x => x.TblUserMaster).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblCampaignMasters.Where(x => x.IsDeleted != true)
+                                                        .Include(x => x.TblSourceMaster)
+                                                        .Include(x => x.TblSourceTypeMaster)
+                                                        .Include(x => x.TblStatusMaster)
+                                                        .Include(x => x.TblUserMaster).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -63,7 +68,7 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
             var campaign = await _context.TblCampaignMasters.FirstAsync(x => x.Id == id && x.IsDeleted != true);
             return campaign;
         }
-        #endregion
+        #endregion 
 
         #region Get Campaign by Name
         public async Task<TblCampaignMaster> GetCampaignByName(string Name)
@@ -71,7 +76,7 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
             var campaign = await _context.TblCampaignMasters.FirstAsync(x => x.Name.ToLower().Contains(Name.ToLower()) && x.IsDeleted != true);
             return campaign;
         }
-        #endregion
+        #endregion 
 
         #region Add Campaign
         public async Task<int> AddCampaign(TblCampaignMaster campaign)
@@ -103,7 +108,7 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         {
             var campaign = await _context.TblCampaignMasters.FindAsync(id);
 
-            if(campaign == null) return 0;
+            if (campaign == null) return 0;
 
             campaign.IsDeleted = true;
             return await _context.SaveChangesAsync();

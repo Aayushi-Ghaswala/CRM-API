@@ -21,12 +21,17 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblCountryMasters.Where(x => x.IsDeleted != true).AsQueryable();
+            var filterData = new List<TblCountryMaster>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblCountryMaster>(search).Where(x => x.IsDeleted != true).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblCountryMasters.Where(x => x.IsDeleted != true).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -54,12 +59,17 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblStateMasters.Where(x => x.CountryId == countryId && x.IsDeleted != true).AsQueryable();
+            var filterData = new List<TblStateMaster>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblStateMaster>(search).Where(x => x.CountryId == countryId && x.IsDeleted != true).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblStateMasters.Where(x => x.CountryId == countryId && x.IsDeleted != true).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -87,12 +97,17 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblCityMasters.Where(x => x.StateId == stateId && x.IsDeleted != true).AsQueryable();
+            var filterData = new List<TblCityMaster>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblCityMaster>(search).Where(x => x.StateId == stateId && x.IsDeleted != true).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblCityMasters.Where(x => x.StateId == stateId && x.IsDeleted != true).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting

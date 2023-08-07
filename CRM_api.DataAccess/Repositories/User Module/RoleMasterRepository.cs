@@ -4,6 +4,7 @@ using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
+using static System.Net.WebRequestMethods;
 
 namespace CRM_api.DataAccess.Repositories.User_Module
 {
@@ -187,12 +188,17 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblRoleMasters.Where(x => x.IsDeleted != true).AsQueryable();
+            var filterData = new List<TblRoleMaster>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblRoleMaster>(search).Where(x => x.IsDeleted != true).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblRoleMasters.Where(x => x.IsDeleted != true).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -220,12 +226,17 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblRolePermissions.Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster).Include(x => x.TblModuleMaster).AsQueryable();
+            var filterData = new List<TblRolePermission>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblRolePermission>(search).Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster).Include(x => x.TblModuleMaster).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblRolePermissions.Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster).Include(x => x.TblModuleMaster).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -253,14 +264,19 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblRoleAssignments.Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster)
-                                                                    .Include(u => u.TblUserMaster).AsQueryable();
+            var filterData = new List<TblRoleAssignment>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblRoleAssignment>(search).Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster)
                                                                     .Include(u => u.TblUserMaster).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblRoleAssignments.Where(x => x.IsDeleted != true).Include(r => r.TblRoleMaster)
+                                                                    .Include(u => u.TblUserMaster).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -288,12 +304,17 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblModuleMasters.Where(x => !x.IsDeleted).AsQueryable();
+            var filterData = new List<TblModuleMaster>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblModuleMaster>(search).Where(x => !x.IsDeleted).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblModuleMasters.Where(x => !x.IsDeleted).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting

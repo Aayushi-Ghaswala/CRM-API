@@ -2,6 +2,7 @@
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using CRM_api.Services.Dtos.AddDataDto;
+using CRM_api.Services.Dtos.AddDataDto.User_Module;
 using CRM_api.Services.Dtos.ResponseDto;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Dtos.ResponseDto.User_Module;
@@ -13,6 +14,8 @@ namespace CRM_api.Services.MapperProfile
         public UserMasterProfile()
         {
             CreateMap<TblUserCategoryMaster, UserCategoryDto>();
+            CreateMap<AddUserCategoryDto, TblUserCategoryMaster>();
+            CreateMap<UpdateUserCategoryDto, TblUserCategoryMaster>();
 
             CreateMap<TblUserMaster, UserMasterDto>();
             CreateMap<Pagination, PaginationDto>();
@@ -40,6 +43,6 @@ namespace CRM_api.Services.MapperProfile
                 .ForMember(user => user.UserFcmlastupdaetime, opt => opt.MapFrom(src => src.UserFcmlastupdaetime.Value.ToShortDateString()))
                 .ForMember(user => user.UserDob, opt => opt.MapFrom(src => src.UserDob.Value.ToShortDateString()))
                 .ForMember(user => user.FastTrackActivationDate, opt => opt.MapFrom(src => src.FastTrackActivationDate.Value.ToShortDateString()));
-        }   
+        }
     }
 }

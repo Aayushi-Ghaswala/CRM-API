@@ -4,5 +4,6 @@
     {
         public int CatId { get; set; }
         public string? CatName { get; set; }
+        public bool? CatIsactive { get; set; }
     }
 }

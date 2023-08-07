@@ -19,79 +19,31 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         public async Task<Response<TblUserMaster>> GetUsers(string filterString, string search, SortingParams sortingParams)
         {
             double pageCount = 0;
-
-            var filterData = _context.TblUserMasters.Where(x => x.UserIsactive == true).Include(x => x.TblUserCategoryMaster)
-                                                    .Include(x => x.TblCountryMaster)
-                                                    .Include(x => x.TblStateMaster)
-                                                    .Include(x => x.TblCityMaster)
-                                                    .Include(x => x.ParentName)
-                                                    .Include(x => x.SponserName).AsQueryable();
-
-            if (!string.IsNullOrEmpty(filterString))
-            {
-                switch (filterString.ToLower())
-                {
-                    case "client":
-                        filterData = filterData.Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "customer" && x.UserIsactive == true).AsQueryable();
-                        break;
-                    case "fasttrack":
-                        filterData = filterData.Where(x => x.UserFasttrack == true && x.UserIsactive == true).AsQueryable();
-                        break;
-                    case "employee":
-                        filterData = filterData.Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "employee" && x.UserIsactive == true).AsQueryable();
-                        break;
-                    default:
-                        break;
-                }
-            }
+            var filterData = new List<TblUserMaster>().AsQueryable();
 
             if (search != null)
             {
-                if (!string.IsNullOrEmpty(filterString))
-                {
-                    switch (filterString.ToLower())
-                    {
-                        case "client":
-                            filterData = _context.Search<TblUserMaster>(search).Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "customer" && x.UserIsactive == true)
-                                                    .Include(x => x.TblUserCategoryMaster)
+                filterData = _context.Search<TblUserMaster>(search).Where(x => (filterString == null || (filterString == "client" && x.TblUserCategoryMaster.CatName.ToLower() == "customer")
+                                                     || (filterString == "fasttrack" && x.UserFasttrack == true)
+                                                     || (filterString == "employee" && x.TblUserCategoryMaster.CatName.ToLower() == "employee"))
+                                                     && x.UserIsactive == true).Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .Include(x => x.TblStateMaster)
                                                     .Include(x => x.TblCityMaster)
                                                     .Include(x => x.ParentName)
                                                     .Include(x => x.SponserName).AsQueryable();
-                            break;
-                        case "fasttrack":
-                            filterData = _context.Search<TblUserMaster>(search).Where(x => x.UserFasttrack == true && x.UserIsactive == true)
-                                                    .Include(x => x.TblUserCategoryMaster)
-                                                    .Include(x => x.TblCountryMaster)
-                                                    .Include(x => x.TblStateMaster)
-                                                    .Include(x => x.TblCityMaster)
-                                                    .Include(x => x.ParentName)
-                                                    .Include(x => x.SponserName).AsQueryable();
-                            break;
-                        case "employee":
-                            filterData = _context.Search<TblUserMaster>(search).Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "employee" && x.UserIsactive == true)
-                                                    .Include(x => x.TblUserCategoryMaster)
-                                                    .Include(x => x.TblCountryMaster)
-                                                    .Include(x => x.TblStateMaster)
-                                                    .Include(x => x.TblCityMaster)
-                                                    .Include(x => x.ParentName)
-                                                    .Include(x => x.SponserName).AsQueryable();
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                else
-                {
-                    filterData = _context.Search<TblUserMaster>(search).Where(x => x.UserIsactive == true)
-                                                        .Include(x => x.TblUserCategoryMaster)
-                                                        .Include(x => x.TblCountryMaster)
-                                                        .Include(x => x.TblStateMaster)
-                                                        .Include(x => x.TblCityMaster)
-                                                        .Include(x => x.ParentName)
-                                                        .Include(x => x.SponserName).AsQueryable();
-                }
+            }
+            else
+            {
+                filterData = _context.TblUserMasters.Where(x => (filterString == null || (filterString == "client" && x.TblUserCategoryMaster.CatName.ToLower() == "customer")
+                                                 || (filterString == "fasttrack" && x.UserFasttrack == true)
+                                                 || (filterString == "employee" && x.TblUserCategoryMaster.CatName.ToLower() == "employee"))
+                                                 && x.UserIsactive == true).Include(x => x.TblUserCategoryMaster)
+                                                .Include(x => x.TblCountryMaster)
+                                                .Include(x => x.TblStateMaster)
+                                                .Include(x => x.TblCityMaster)
+                                                .Include(x => x.ParentName)
+                                                .Include(x => x.SponserName).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -150,7 +102,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
                                                                                                         && y.InsStartdate.Value.Month <= DateTime.Now.Month && y.InsStartdate.Value.Year <= DateTime.Now.Year))
                                                     .AsNoTracking().FirstAsync();
             }
-            
+
             ArgumentNullException.ThrowIfNull(user, "User Not Found");
 
             return user;
@@ -184,12 +136,17 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblUserCategoryMasters.Where(x => x.CatIsactive != false).AsQueryable();
+            var filterData = new List<TblUserCategoryMaster>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblUserCategoryMaster>(search).Where(x => x.CatIsactive != false).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblUserCategoryMasters.Where(x => x.CatIsactive != false).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -310,32 +267,9 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Check Pan or Aadhar Exist
         public int PanOrAadharExist(int? id, string? pan, string? aadhar)
         {
-            if (id is null)
-            {
-                if (pan is not null)
-                {
-                    if (_context.TblUserMasters.Any(x => x.UserPan == pan))
-                        return 0;
-                }
-                else if (aadhar is not null)
-                {
-                    if (_context.TblUserMasters.Any(x => x.UserAadhar == aadhar))
-                        return 0;
-                }
-            }
-            else
-            {
-                if (pan is not null)
-                {
-                    if (_context.TblUserMasters.Any(x => x.UserPan == pan && x.UserId != id))
-                        return 0;
-                }
-                else if (aadhar is not null)
-                {
-                    if (_context.TblUserMasters.Any(x => x.UserAadhar == aadhar && x.UserId != id))
-                        return 0;
-                }
-            }
+            if (_context.TblUserMasters.Any(x => (id == null || x.UserId == id) && ((pan != null && x.UserPan == pan) || (aadhar != null && x.UserAadhar == aadhar))))
+                return 0;
+
             return 1;
         }
         #endregion
@@ -343,78 +277,31 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Get All Users For CSV
         public async Task<List<TblUserMaster>> GetUsersForCSV(string filterString, string search, SortingParams sortingParams)
         {
-            var filterData = _context.TblUserMasters.Where(x => x.UserIsactive == true).Include(x => x.TblUserCategoryMaster)
-                                                    .Include(x => x.TblCountryMaster)
-                                                    .Include(x => x.TblStateMaster)
-                                                    .Include(x => x.TblCityMaster)
-                                                    .Include(x => x.ParentName)
-                                                    .Include(x => x.SponserName).AsQueryable();
-
-            if (!string.IsNullOrEmpty(filterString))
-            {
-                switch (filterString.ToLower())
-                {
-                    case "client":
-                        filterData = filterData.Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "customer" && x.UserIsactive == true).AsQueryable();
-                        break;
-                    case "fasttrack":
-                        filterData = filterData.Where(x => x.UserFasttrack == true && x.UserIsactive == true).AsQueryable();
-                        break;
-                    case "employee":
-                        filterData = filterData.Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "employee" && x.UserIsactive == true).AsQueryable();
-                        break;
-                    default:
-                        break;
-                }
-            }
+            var filterData = new List<TblUserMaster>().AsQueryable();
 
             if (search != null)
             {
-                if (!string.IsNullOrEmpty(filterString))
-                {
-                    switch (filterString.ToLower())
-                    {
-                        case "client":
-                            filterData = _context.Search<TblUserMaster>(search).Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "customer" && x.UserIsactive == true)
-                                                    .Include(x => x.TblUserCategoryMaster)
+                filterData = _context.Search<TblUserMaster>(search).Where(x => (filterString == null || (filterString == "client" && x.TblUserCategoryMaster.CatName.ToLower() == "customer")
+                                                     || (filterString == "fasttrack" && x.UserFasttrack == true)
+                                                     || (filterString == "employee" && x.TblUserCategoryMaster.CatName.ToLower() == "employee"))
+                                                     && x.UserIsactive == true).Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .Include(x => x.TblStateMaster)
                                                     .Include(x => x.TblCityMaster)
                                                     .Include(x => x.ParentName)
                                                     .Include(x => x.SponserName).AsQueryable();
-                            break;
-                        case "fasttrack":
-                            filterData = _context.Search<TblUserMaster>(search).Where(x => x.UserFasttrack == true && x.UserIsactive == true)
-                                                    .Include(x => x.TblUserCategoryMaster)
-                                                    .Include(x => x.TblCountryMaster)
-                                                    .Include(x => x.TblStateMaster)
-                                                    .Include(x => x.TblCityMaster)
-                                                    .Include(x => x.ParentName)
-                                                    .Include(x => x.SponserName).AsQueryable();
-                            break;
-                        case "employee":
-                            filterData = _context.Search<TblUserMaster>(search).Where(x => x.TblUserCategoryMaster.CatName.ToLower() == "employee" && x.UserIsactive == true)
-                                                    .Include(x => x.TblUserCategoryMaster)
-                                                    .Include(x => x.TblCountryMaster)
-                                                    .Include(x => x.TblStateMaster)
-                                                    .Include(x => x.TblCityMaster)
-                                                    .Include(x => x.ParentName)
-                                                    .Include(x => x.SponserName).AsQueryable();
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                else
-                {
-                    filterData = _context.Search<TblUserMaster>(search).Where(x => x.UserIsactive == true)
-                                                        .Include(x => x.TblUserCategoryMaster)
-                                                        .Include(x => x.TblCountryMaster)
-                                                        .Include(x => x.TblStateMaster)
-                                                        .Include(x => x.TblCityMaster)
-                                                        .Include(x => x.ParentName)
-                                                        .Include(x => x.SponserName).AsQueryable();
-                }
+            }
+            else
+            {
+                filterData = _context.TblUserMasters.Where(x => (filterString == null || (filterString == "client" && x.TblUserCategoryMaster.CatName.ToLower() == "customer")
+                                                 || (filterString == "fasttrack" && x.UserFasttrack == true)
+                                                 || (filterString == "employee" && x.TblUserCategoryMaster.CatName.ToLower() == "employee"))
+                                                 && x.UserIsactive == true).Include(x => x.TblUserCategoryMaster)
+                                                .Include(x => x.TblCountryMaster)
+                                                .Include(x => x.TblStateMaster)
+                                                .Include(x => x.TblCityMaster)
+                                                .Include(x => x.ParentName)
+                                                .Include(x => x.SponserName).AsQueryable();
             }
 
             // Apply sorting
@@ -518,18 +405,8 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Get User By Parent Id
         public async Task<List<TblUserMaster>> GetUserByParentId(int? userId, DateTime date)
         {
-            var users = new List<TblUserMaster>();
-
-            if (userId is not null)
-            {
-                users = await _context.TblUserMasters.Where(x => x.UserParentid == userId && x.UserDoj.Value.Month >= date.Month && x.UserDoj.Value.Year >= date.Year
-                                                     && x.UserDoj.Value.Month <= DateTime.Now.Month && x.UserDoj.Value.Year <= DateTime.Now.Year && x.UserIsactive == true).ToListAsync();
-            }
-            else
-            {
-                users = await _context.TblUserMasters.Where(x => x.UserDoj.Value.Month >= date.Month && x.UserDoj.Value.Year >= date.Year
-                                                     && x.UserDoj.Value.Month <= DateTime.Now.Month && x.UserDoj.Value.Year <= DateTime.Now.Year && x.UserIsactive == true).ToListAsync();
-            }
+            var users = await _context.TblUserMasters.Where(x => (userId == null && x.UserParentid == userId) && x.UserDoj.Value.Month >= date.Month && x.UserDoj.Value.Year >= date.Year
+                                                 && x.UserDoj.Value.Month <= DateTime.Now.Month && x.UserDoj.Value.Year <= DateTime.Now.Year && x.UserIsactive == true).ToListAsync();
 
             return users;
         }

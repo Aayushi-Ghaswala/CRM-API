@@ -22,12 +22,17 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         {
             double pageCount = 0;
 
-            var filterData = _context.TblMeetingAttachments.Where(x => x.IsDeleted != true).Include(x => x.TblMeetingMaster).AsQueryable();
+            var filterData = new List<TblMeetingAttachment>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblMeetingAttachment>(search).Where(x => x.IsDeleted != true).Include(x => x.TblMeetingMaster).AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblMeetingAttachments.Where(x => x.IsDeleted != true).Include(x => x.TblMeetingMaster).AsQueryable();
+            }
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -51,7 +56,6 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
 
         #endregion
 
-
         #region Get MeetingAttachment by Id
         public async Task<TblMeetingAttachment> GetMeetingAttachmentById(int id)
         {
@@ -60,7 +64,6 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         }
 
         #endregion
-
 
         #region Add MeetingAttachment
         public async Task<int> AddMeetingAttachment(int meetingId, IFormFile file)
@@ -100,7 +103,6 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
 
         #endregion
 
-
         #region Update MeetingAttachment
         public async Task<int> UpdateMeetingAttachment(TblMeetingAttachment meetingAttachment)
         {
@@ -113,7 +115,6 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         }
 
         #endregion
-
 
         #region Deactivate MeetingAttachment
         public async Task<int> DeactivateMeetingAttachment(string path)

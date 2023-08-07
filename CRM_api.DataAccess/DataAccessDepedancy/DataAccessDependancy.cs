@@ -34,7 +34,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
         public static void InjectDataAccessDependecy(this IServiceCollection services, IConfiguration config)
         {
             services.AddDbContext<CRMDbContext>(options =>
-           {
+            {
                 options.UseSqlServer(config.GetConnectionString("DefaultConnection"),
                     sql =>
                     {
@@ -50,6 +50,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             services.AddScoped<IUserMasterRepository, UserMasterRepository>();
             services.AddScoped<IRoleMasterRepository, RoleMasterRepository>();
             services.AddScoped<IRegionRepository, RegionRepository>();
+            services.AddScoped<IUserCategoryRepository, UserCategoryRepository>();
 
             //Business Module
             services.AddScoped<ILoanMasterRepository, LoanMasterRepository>();
