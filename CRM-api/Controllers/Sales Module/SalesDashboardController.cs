@@ -15,6 +15,54 @@ namespace CRM_api.Controllers.Sales_Module
             _salesDashboardService = salesDashboardService;
         }
 
+        #region Get User wise Lead and Meeting
+        [HttpGet("GetUserwiseLeadAndMeeting")]
+        public async Task<IActionResult> GetUserwiseLeadAndMeeting(int? userId, int? campaignId)
+        {
+            try
+            {
+                var leadAndMeetings = await _salesDashboardService.GetUserwiseLeadAndMeetingAsync(userId, campaignId);
+                return Ok(leadAndMeetings);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get User Wise New Client Count
+        [HttpGet("GetUserWiseNewClientCount")]
+        public async Task<IActionResult> GetUserWiseNewClientCount(int? userId)
+        {
+            try
+            {
+                var newClientCount = await _salesDashboardService.GetUserWiseNewClientCountAsync(userId);
+                return Ok(newClientCount);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get User Wise Call/Meeting Schedule Count
+        [HttpGet("GetUserWiseMeetingScheduleCount")]
+        public async Task<IActionResult> GetUserWiseMeetingScheduleCount(int? userId)
+        {
+            try
+            {
+                var meetingScheduleCount = await _salesDashboardService.GetUserWiseMeetingScheduleCountAsync(userId);
+                return Ok(meetingScheduleCount);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region Get Meeting Wise Conversation History 
         [HttpGet("GetLeadWiseConversationHistory")]
         public async Task<IActionResult> GetLeadWiseConversationHistory(int leadId, string? search, [FromQuery] SortingParams sortingParams)

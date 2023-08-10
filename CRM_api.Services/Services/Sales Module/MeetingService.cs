@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BitMiracle.LibTiff.Classic;
 using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Sales_Module;
 using CRM_api.DataAccess.Models;
@@ -11,8 +10,6 @@ using CRM_api.Services.Helper.Reminder_Helper;
 using CRM_api.Services.IServices.Sales_Module;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
-using System.Linq;
-using System.Net.Mail;
 
 namespace CRM_api.Services.Services.Sales_Module
 {
@@ -131,7 +128,10 @@ namespace CRM_api.Services.Services.Sales_Module
             }
             if (email.ToLower() != MeetingConstant.doNotEmail.ToLower())
                 SendMeetingEmailAsync(meetingDto, null, email, attachments);
-            return await _meetingRepository.AddMeetingAttachments(addAttachments);
+            if (addAttachments.Count > 0)
+                await _meetingRepository.AddMeetingAttachments(addAttachments);
+
+            return 1;
         }
 
         #endregion
@@ -266,7 +266,7 @@ namespace CRM_api.Services.Services.Sales_Module
                     return 1;
                 }
             }
-            else if(updateMeetingDto != null)
+            else if (updateMeetingDto != null)
             {
                 if (updateMeetingDto.MeetingParticipants.Count <= 0)
                     return 0;

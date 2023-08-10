@@ -6,6 +6,9 @@ namespace CRM_api.Services.IServices.Sales_Module
 {
     public interface ISalesDashboardService
     {
-        Task<ResponseDto<ConversationHistoryDto>> GetLeadWiseConversationHistoryAsync(int leadId,string? search, SortingParams sortingParams);
+        Task<List<SalesDashboardDto>> GetUserwiseLeadAndMeetingAsync(int? userId, int? campaignId);
+        Task<List<SalesDashboardDto>> GetUserWiseNewClientCountAsync(int? userId);
+        Task<List<MeetingScheduleDto>> GetUserWiseMeetingScheduleCountAsync(int? userId);
+        Task<ResponseDto<ConversationHistoryDto>> GetLeadWiseConversationHistoryAsync(int leadId, string? search, SortingParams sortingParams);
     }
 }
