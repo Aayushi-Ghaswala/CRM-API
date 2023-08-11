@@ -20,12 +20,15 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         public async Task<Response<TblDesignationMaster>> GetDesignation(string search, SortingParams sortingParams)
         {
             double pageCount = 0;
-
-            var filterData = _context.TblDesignationMasters.Where(x => x.Isdeleted != true).AsQueryable();
+            IQueryable<TblDesignationMaster> filterData = new List<TblDesignationMaster>().AsQueryable();
 
             if (search != null)
             {
-                filterData = _context.Search<TblDesignationMaster>(search).Where(x => x.Isdeleted != true).AsQueryable();
+                filterData = _context.Search<TblDesignationMaster>(search).Where(x => x.Isdeleted != true).Include(x => x.TblParentDesignationMaster).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblDesignationMasters.Where(x => x.Isdeleted != true).Include(x => x.TblParentDesignationMaster).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -46,20 +49,6 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             };
 
             return departmentResponse;
-        }
-        #endregion
-
-        #region Get Designation By
-        public async Task<IEnumerable<TblDesignationMaster>> GetDesignationByDepartment(int departmentId)
-        {
-            var depts = await _context.TblDesignationMasters.Include(d => d.DepartmentMaster).Where(d => d.DepartmentId == departmentId && d.Isdeleted != true).ToListAsync();
-            return depts;
-        }
-
-        public async Task<TblDesignationMaster> GetDesignationById(int id)
-        {
-            var department = await _context.TblDesignationMasters.Include(d => d.DepartmentMaster).FirstAsync(x => x.DesignationId == id);
-            return department;
         }
         #endregion
 

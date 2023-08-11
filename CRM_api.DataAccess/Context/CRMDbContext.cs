@@ -31,6 +31,9 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblDepartmentMaster> TblDepartmentMasters { get; set; } = null!;
         public virtual DbSet<TblDesignationMaster> TblDesignationMasters { get; set; } = null!;
         public virtual DbSet<TblEmisipCalculator> TblEmisipCalculators { get; set; } = null!;
+        public virtual DbSet<TblEmployeeExperience> TblEmployeeExperiences { get; set; } = null!;
+        public virtual DbSet<TblEmployeeMaster> TblEmployeeMasters { get; set; } = null!;
+        public virtual DbSet<TblEmployeeQualification> TblEmployeeQualifications { get; set; } = null!;
         public virtual DbSet<TblExcelimportUsermaster> TblExcelimportUsermasters { get; set; } = null!;
         public virtual DbSet<TblFamilyMember> TblFamilyMembers { get; set; } = null!;
         public virtual DbSet<TblFaq> TblFaqs { get; set; } = null!;
@@ -730,7 +733,7 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.DesignationId).HasColumnName("designation_id");
 
-                entity.Property(e => e.DepartmentId).HasColumnName("department_id");
+                entity.Property(e => e.ParentDesignationId).HasColumnName("ParentDesignationId");
 
                 entity.Property(e => e.Isdeleted).HasColumnName("isdeleted");
 
@@ -750,6 +753,84 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<TblEmployeeExperience>(entity =>
+            {
+                entity.ToTable("tbl_Employee_Experience");
+
+                entity.Property(e => e.CompanyName)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.EmpId).HasColumnName("EmpID");
+
+                entity.Property(e => e.FromDate).HasColumnType("date");
+
+                entity.Property(e => e.JobTitle)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ToDate).HasColumnType("date");
+            });
+
+            modelBuilder.Entity<TblEmployeeMaster>(entity =>
+            {
+                entity.ToTable("tbl_Employee_Master");
+
+                entity.Property(e => e.AadharNo)
+                    .HasMaxLength(12)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Address).IsUnicode(false);
+
+                entity.Property(e => e.Doj)
+                    .HasColumnType("datetime")
+                    .HasColumnName("DOJ");
+
+                entity.Property(e => e.Dol)
+                    .HasColumnType("datetime")
+                    .HasColumnName("DOL");
+
+                entity.Property(e => e.Email)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PanNo)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PhoneNo)
+                    .HasMaxLength(12)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<TblEmployeeQualification>(entity =>
+            {
+                entity.ToTable("tbl_Employee_Qualification");
+
+                entity.Property(e => e.Degree)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Score).HasColumnType("decimal(4, 2)");
+
+                entity.Property(e => e.UniCollege)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("Uni_College");
+
+                entity.Property(e => e.Year)
+                    .HasMaxLength(10)
                     .IsUnicode(false);
             });
 

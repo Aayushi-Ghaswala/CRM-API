@@ -29,15 +29,6 @@ namespace CRM_api.Services.Services.HR_Module
         }
         #endregion
 
-        #region Get Department By Id
-        public async Task<DepartmentDto> GetDepartmentByIdAsync(int id)
-        {
-            var department = await _departmentRepository.GetDepartmentById(id);
-            var mappedDepartment = _mapper.Map<DepartmentDto>(department);
-            return mappedDepartment;
-        }
-        #endregion
-
         #region Add department
         public async Task<int> AddDepartmentAsync(AddDepartmentDto departmentDto)
         {

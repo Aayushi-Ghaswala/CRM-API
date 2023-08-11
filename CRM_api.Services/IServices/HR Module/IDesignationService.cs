@@ -8,8 +8,6 @@ namespace CRM_api.Services.IServices.HR_Module
     public interface IDesignationService
     {
         Task<ResponseDto<DesignationDto>> GetDesignationAsync(string search, SortingParams sortingParams);
-        Task<DesignationDto> GetDesignationByIdAsync(int id);
-        Task<IEnumerable<DesignationDto>> GetDesignationByDepartmentAsync(int departmentId);
         Task<int> AddDesignationAsync(AddDesignationDto designationMaster);
         Task<int> UpdateDesignationAsync(UpdateDesignationDto designationMaster);
         Task<int> DeactivateDesignationAsync(int id);
