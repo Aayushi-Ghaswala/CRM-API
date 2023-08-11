@@ -14,6 +14,7 @@ namespace CRM_api.DataAccess.IRepositories.Account_Module
         Task<List<TblAccountTransaction>> GetCompanyAndAccountWiseTransaction(int? companyId, int? accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams);
         Task<List<TblAccountTransaction>> GetAccountTransactionByDocNo(string docNo, decimal? debit, decimal? credit);
         Task<TblAccountTransaction> GetAccountTransactionById(int id);
+        Task<List<TblAccountTransaction>> GetAccountTransactionByDate(DateTime date);
         Task<int> AddAccountTransaction(List<TblAccountTransaction> tblAccountTransactions);
         Task<int> UpdateAccountTransaction(List<TblAccountTransaction> tblAccountTransactions);
         Task<int> DeleteAccountTransaction(List<TblAccountTransaction> accountTransactions);
