@@ -15,6 +15,7 @@ namespace CRM_api.Services.IServices.Business_Module.MGain_Module
         Task<MGainPDFResponseDto> MGainPaymentReceipt(int id);
         Task<(MGainNCmonthlyTotalDto, string)> GetNonCumulativeMonthlyReportAsync(int month, int year, int? schemeId, decimal? tds, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? searchingParams, SortingParams sortingParams, bool? isSendSMS);
         Task<List<MGainValuationDto>> GetValuationReportByUserIdAsync(int UserId);
+        Task<MGainPDFResponseDto> ValuationReportPDF(List<MGainValuationDto> mGainValuations);
         Task<MGainTotalInterestPaidDto<MGainUserInterestPaidDto>> GetMonthWiseInterestPaidAsync(int month, int year, string? searchingParams, SortingParams sortingParams);
         Task<MGainCumulativeReportDto> GetMgGainCumulativeInterestReportAsync(int fromYear, int toYear, int? schemeId, string? search, SortingParams sortingParams);
         Task<MGainTenYearReportDto> GetMGain10YearsInterestDetailsAsync(string userName, int schemeId, DateTime invDate, decimal mGainAmount, string mGainType);

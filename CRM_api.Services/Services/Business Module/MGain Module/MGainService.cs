@@ -1056,6 +1056,197 @@ SURAT - 395009 <p>
         }
         #endregion
 
+        #region Valuation Report PDF
+        public async Task<MGainPDFResponseDto> ValuationReportPDF(List<MGainValuationDto> mGainValuations)
+        {
+            try
+            {
+                var mGain = await _mGainRepository.GetMGainDetailById(mGainValuations.FirstOrDefault().MGainId);
+
+                string htmlContent = $@"<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    
+        table, td, th {{
+        border: 1px solid;
+        text-align: center;
+}}
+table {{
+          width: 100%;
+        border-collapse: collapse;
+}}
+      </style>
+<title>Page Title</title>
+</head>
+<body>
+<div style=""display:flex; flex-direction:row; justify-content:space-between;"">
+<div>{mGain.Mgain1stholder}</div>
+<div>Valuation Report</div>
+</div>
+<hr>
+
+<div style=""margin-top:100px"">
+                  <table>
+                    <tr>
+                      <th style=""width:100px"">Date</th>
+                      <th>INVESTMENT</th>
+                      <th>Payment Mode</th>
+                      <th>Additional Details</th>
+                      <th>Type</th>
+                      <th>Tenure</th>
+                      <th>Scheme</th>
+                      <th>Interest(p. a.)</th>
+                      <th>Interest Accrued</th>
+                      <th>Interest Payout</th>
+                      <th>Lockin Period</th>
+                      <th>Amount Unlock Date</th>
+                    </tr>";
+
+                foreach (var report in mGainValuations)
+                {
+                    htmlContent += @$"<tr>
+                      <td>{report.Date.Value.ToString("dd-MM-yyyy")}</td>
+                      <td>{report.MgainInvamt}</td>";
+                    if (report.TblMgainPaymentMethods.Count() > 0)
+                    {
+                        htmlContent += "<td>";
+                        foreach (var payment in report.TblMgainPaymentMethods)
+                        {
+                            htmlContent += $@"
+                                    <div> - {payment.PaymentMode}</div>";
+                        };
+                        htmlContent += "</td>";
+
+                        htmlContent += "<td>";
+                        foreach (var payment in report.TblMgainPaymentMethods)
+                        {
+                            if (payment.PaymentMode.ToLower().Equals("CHEQUE".ToLower()))
+                            {
+                                if (!string.IsNullOrEmpty(payment.ChequeNo))
+                                {
+                                    htmlContent += $@"
+                                    <div> - {payment.ChequeNo}</div>";
+                                }
+                                else
+                                {
+                                    htmlContent += $@"
+                                    <div>-</div>";
+                                }
+                            }
+                            else if (payment.PaymentMode.ToLower().Equals("RTGS".ToLower()))
+                            {
+                                if (!string.IsNullOrEmpty(payment.ChequeNo))
+                                {
+                                    htmlContent += $@"
+                                    <div> - {payment.ReferenceNo}</div>";
+                                }
+                                else
+                                {
+                                    htmlContent += $@"
+                                    <div>-</div>";
+                                }
+                            }
+                            else if (payment.PaymentMode.ToLower().Equals("UPI".ToLower()))
+                            {
+                                if (!string.IsNullOrEmpty(payment.ChequeNo))
+                                {
+                                    htmlContent += $@"
+                                    <div>{payment.UpiTransactionNo}</div>";
+                                }
+                                else
+                                {
+                                    htmlContent += $@"
+                                    <div>-</div>";
+                                }
+                            }
+                        };
+                        htmlContent += "</td>";
+                    }
+                    else
+                    {
+                        htmlContent += $@"
+                        <td>
+                            <div>-</div>
+                        </td>
+                        <td>
+                            <div>-</div>
+                        </td>";
+                    }
+                    htmlContent += $@"
+                    <td>{report.MgainType}</td>
+                    <td>{report.Tenure}</td>
+                    <td>{report.Schemename}</td>
+                    <td>{report.InterestRate}</td>
+                    <td>{report.InterestAccrued}</td>
+                    <td>{report.InterestPayout}</td>
+                    <td>{report.RemainingLockinPeriod}</td>
+                    <td>{report.AmountUnlockDate.Value.ToString("dd-MM-yyyy")}</td>
+                </tr>";
+                }
+
+                htmlContent += $@"
+</table>
+</body>
+</html>";
+
+                var directoryPath = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\MGain-Documents\\";
+
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+
+                var folderPath = Path.Combine(directoryPath) + $"{mGain.Mgain1stholder}\\";
+
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                var fileName = $"{mGain.Mgain1stholder}-mGainValuation";
+
+                var filePath = folderPath + fileName;
+
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+
+                PdfDocument document = new PdfDocument();
+
+                // Create a new HTML to PDF converter
+                HtmlToPdf converter = new HtmlToPdf();
+
+                converter.Options.PdfPageSize = PdfPageSize.A4;
+                converter.Options.PdfPageOrientation = PdfPageOrientation.Landscape;
+                converter.Options.MarginTop = 50;
+                converter.Options.MarginLeft = 30;
+                converter.Options.MarginRight = 30;
+
+                // Convert the HTML string to PDF
+                PdfDocument result = converter.ConvertHtmlString(htmlContent);
+
+                // Save the PDF document to a memory stream
+                MemoryStream stream = new MemoryStream();
+                result.Save(stream);
+                stream.Position = 0;
+
+                var response = new MGainPDFResponseDto()
+                {
+                    file = stream.ToArray(),
+                    FileName = fileName
+                };
+
+                return response;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        #endregion
+
         #region Get MGain Month wise Total Interest Paid
         public async Task<MGainTotalInterestPaidDto<MGainUserInterestPaidDto>> GetMonthWiseInterestPaidAsync(int month, int year, string? searchingParams, SortingParams sortingParams)
         {

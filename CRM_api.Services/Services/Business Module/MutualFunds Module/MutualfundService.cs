@@ -93,6 +93,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
             var totalBalanceUnit = mutualFundSummaries.Sum(x => x.BalanceUnit);
             var totalAmount = mutualFundSummaries.Sum(x => x.CurrentValue);
+            var totalScheme = mutualFundSummaries.Count();
 
             if (searchingParams != null)
             {
@@ -124,6 +125,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                 response = mutualfundData,
                 totalBalanceUnit = totalBalanceUnit,
                 totalAmount = totalAmount,
+                totalScheme = totalScheme,
             };
 
             return mutualfundResponse;

@@ -8,7 +8,7 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
         public DateTime? Date { get; set; }
         public decimal? MgainInvamt { get; set; }
         public string? MgainType { get; set; }
-        public List<MGainPaymentDto> TblMgainPaymentMethods { get; set; }
+        public List<MGainPaymentDto>? TblMgainPaymentMethods { get; set; }
         public double? Tenure { get; set; }
         public string? Schemename { get; set; }
         public decimal? InterestRate { get; set; }

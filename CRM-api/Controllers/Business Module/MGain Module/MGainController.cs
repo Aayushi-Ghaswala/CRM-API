@@ -1,5 +1,6 @@
 ﻿using CRM_api.DataAccess.Helper;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module;
+using CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module;
 using CRM_api.Services.Helper.File_Helper;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
 using Microsoft.AspNetCore.Mvc;
@@ -118,6 +119,22 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             {
                 var getData = await _mGainService.GetValuationReportByUserIdAsync(UserId);
                 return Ok(getData);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Valuation Report PDF
+        [HttpPost("ValuationReportPDF")]
+        public async Task<IActionResult> ValuationReportPDF(List<MGainValuationDto> mGainValuations)
+        {
+            try
+            {
+                var file = await _mGainService.ValuationReportPDF(mGainValuations);
+                return file is not null ? Ok(new { Message = File(file.file, "application/pdf", file.FileName) }) : BadRequest(new { Message = "Unable to download valuation report." });
             }
             catch (Exception)
             {

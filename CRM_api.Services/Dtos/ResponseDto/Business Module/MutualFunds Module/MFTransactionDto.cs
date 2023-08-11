@@ -7,5 +7,6 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MutualFunds_Module
         public ResponseDto<T>? response { get; set; }
         public decimal? totalBalanceUnit { get; set; }
         public decimal? totalAmount { get; set; }
+        public decimal? totalScheme { get; set;}
     }
 }
