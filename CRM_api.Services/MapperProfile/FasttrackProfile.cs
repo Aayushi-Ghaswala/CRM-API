@@ -17,6 +17,18 @@ namespace CRM_api.Services.MapperProfile
         {
             CreateMap<UpdateFasttrackSchemeDto, TblFasttrackSchemeMaster>();
             CreateMap<UpdateFasttrackLevelCommissionDto, TblFasttrackLevelCommission>();
+            
+            CreateMap<FasttrackResponseModel, FasttrackResponseDto>()
+                             .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.UserMaster.UserName));
+            CreateMap<Response<FasttrackResponseModel>, ResponseDto<FasttrackResponseDto>>();
+            
+            CreateMap<FasttrackInvTypeResponse, FasttrackInvTypeResponseDto>();
+            CreateMap<Response<FasttrackInvTypeResponse>, ResponseDto<FasttrackInvTypeResponseDto>>();
+            CreateMap<UserNameResponse, UserNameDto>();
+            CreateMap<Response<UserNameResponse>, ResponseDto<UserNameDto>>();
+            CreateMap<TblFasttrackLedger, FasttrackLedgerDto>();
+            CreateMap<Response<TblFasttrackLedger>, ResponseDto<FasttrackLedgerDto>>();
+            CreateMap<LedgerResponse<TblFasttrackLedger>, GoldPointResponseDto<FasttrackLedgerDto>>();
             CreateMap<AddFasttrackBenefitsDto, TblFasttrackBenefits>();
             CreateMap<UpdateFasttrackBenefitsDto, TblFasttrackBenefits>();
             CreateMap<TblFasttrackBenefits, FasttrackBenefitsResponseDto>();

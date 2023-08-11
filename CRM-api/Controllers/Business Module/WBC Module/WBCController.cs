@@ -98,12 +98,12 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
 
         #region Release Gold point
         [HttpGet("ReleaseGP")]
-        public async Task<IActionResult> ReleaseGP(DateTime date)
+        public async Task<IActionResult> ReleaseGP(DateTime date, bool isTruncate = false)
         {
             try
             {
-                var gp = await _wbcService.ReleaseGPAsync(date);
-                return gp != 0 ? Ok(new { Message = "Gold point released successfully." }) : BadRequest(new { Message = "Unable to release gold point. Gold point may already released."});
+                var result = await _wbcService.ReleaseGPAsync(date, isTruncate);
+                return result.Item1 > 0 ? Ok(new { Code = result.Item1, Message = result.Item2 }) : BadRequest(new { Code = result.Item1, Message = result.Item2 });
             }
             catch (Exception)
             {

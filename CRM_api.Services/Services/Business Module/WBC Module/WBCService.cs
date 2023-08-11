@@ -66,9 +66,9 @@ namespace CRM_api.Services.Services.Business_Module.WBC_Module
         #endregion
 
         #region Release Gold point
-        public async Task<int> ReleaseGPAsync(DateTime date)
+        public async Task<(int, string)> ReleaseGPAsync(DateTime date, bool isTruncate)
         {
-            return await _wbcRepository.ReleaseGP(date);
+            return await _wbcRepository.ReleaseGP(date, isTruncate);
         }
         #endregion
 

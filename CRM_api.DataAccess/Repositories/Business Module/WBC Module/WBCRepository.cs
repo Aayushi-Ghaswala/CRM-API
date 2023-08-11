@@ -59,17 +59,13 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                 double pageCount = 0;
                 IQueryable<UserNameResponse> filterData = null;
 
-                if (!string.IsNullOrEmpty(type))
-                    filterData = _context.TblGoldPoints.Include(u => u.TblUserMaster).Where(u => u.Type.ToLower().Equals(type.ToLower()) && u.TblUserMaster.UserName != null).Select(x => new UserNameResponse { UserName = x.TblUserMaster.UserName, UserId = x.Userid }).Distinct().AsQueryable();
-                else
-                    filterData = _context.TblGoldPoints.Include(u => u.TblUserMaster).Where(u => u.TblUserMaster.UserName != null).Select(x => new UserNameResponse { UserName = x.TblUserMaster.UserName, UserId = x.Userid }).Distinct().AsQueryable();
-
                 if (searchingParams != null)
                 {
-                    if (!string.IsNullOrEmpty(type))
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(u => u.TblUserMaster).Where(u => u.Type.ToLower().Equals(type.ToLower()) && u.TblUserMaster.UserName != null).Select(x => new UserNameResponse { UserName = x.TblUserMaster.UserName, UserId = x.Userid }).Distinct().AsQueryable();
-                    else
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Where(u => u.TblUserMaster.UserName != null).Include(u => u.TblUserMaster).Select(x => new UserNameResponse { UserName = x.TblUserMaster.UserName, UserId = x.Userid }).Distinct().AsQueryable();
+                    filterData = _context.Search<TblGoldPoint>(searchingParams).Include(u => u.TblUserMaster).Where(g => (type == null || (g.Type != null && g.Type.ToLower().Equals(type.ToLower()))) && g.TblUserMaster.UserName != null).Select(x => new UserNameResponse { UserName = x.TblUserMaster.UserName, UserId = x.Userid }).Distinct().AsQueryable();
+                }
+                else
+                {
+                    filterData = _context.TblGoldPoints.Include(u => u.TblUserMaster).Where(g => (type == null || (g.Type != null && g.Type.ToLower().Equals(type.ToLower()))) && g.TblUserMaster.UserName != null).Select(x => new UserNameResponse { UserName = x.TblUserMaster.UserName, UserId = x.Userid }).Distinct().AsQueryable();
                 }
 
                 pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
@@ -106,17 +102,13 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                 double pageCount = 0;
                 IQueryable<WBCTypeResponse> filterData = null;
 
-                if (userId is not null)
-                    filterData = _context.TblGoldPoints.Include(u => u.TblUserMaster).Where(u => u.Userid == userId).Select(x => new WBCTypeResponse { TypeName = x.Type}).Distinct().AsQueryable();
-                else
-                    filterData = _context.TblGoldPoints.Include(u => u.TblUserMaster).Select(x => new WBCTypeResponse { TypeName = x.Type }).Distinct().AsQueryable();
-
                 if (searchingParams != null)
                 {
-                    if (userId is not null)
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(u => u.TblUserMaster).Where(u => u.Userid == userId).Select(x => new WBCTypeResponse { TypeName = x.Type }).Distinct().AsQueryable();
-                    else
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(u => u.TblUserMaster).Select(x => new WBCTypeResponse { TypeName = x.Type }).Distinct().AsQueryable();
+                    filterData = _context.Search<TblGoldPoint>(searchingParams).Where(g => (userId == null || (g.Userid != null && g.Userid == userId))).Include(u => u.TblUserMaster).Select(x => new WBCTypeResponse { TypeName = x.Type }).Distinct().AsQueryable();
+                }
+                else
+                {
+                    filterData = _context.TblGoldPoints.Where(g => (userId == null || (g.Userid != null && g.Userid == userId))).Include(u => u.TblUserMaster).Select(x => new WBCTypeResponse { TypeName = x.Type }).Distinct().AsQueryable();
                 }
 
                 pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
@@ -146,140 +138,36 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         #endregion
 
         #region Get gold point ledger report
-        public async Task<GoldPointResponse<TblGoldPoint>> GetGPLedgerReport(DateTime? date, int? userId, string? type, int? categoryId, string? searchingParams, SortingParams sortingParams)
+        public async Task<LedgerResponse<TblGoldPoint>> GetGPLedgerReport(DateTime? date, int? userId, string? type, int? categoryId, string? searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
             List<TblGoldPoint> data = new List<TblGoldPoint>();
             IQueryable<TblGoldPoint> filterData = data.AsQueryable();
-
             decimal? totalCredit = 0;
             decimal? totalDebit = 0;
 
-            if (date != null || userId != null || !string.IsNullOrEmpty(type) || categoryId != null)
-            {
-                if (date != null && userId != null && !string.IsNullOrEmpty(type) && categoryId != null)
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId && g.Type.ToLower().Equals(type.ToLower()) && g.PointCategory == categoryId).AsQueryable();
-                }
-                else if (userId != null && !string.IsNullOrEmpty(type) && categoryId != null)
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId && g.Type.ToLower().Equals(type.ToLower()) && g.PointCategory == categoryId).AsQueryable();
-                }
-                else if (date != null && userId != null && categoryId != null)
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId && g.PointCategory == categoryId).AsQueryable();
-                }
-                else if (date != null && userId != null && !string.IsNullOrEmpty(type))
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId && g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
-                }
-                else if (date != null && !string.IsNullOrEmpty(type) && categoryId != null)
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Type.ToLower().Equals(type.ToLower()) && g.PointCategory == categoryId).AsQueryable();
-                }
-                else if (date != null && categoryId != null)
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.PointCategory == categoryId).AsQueryable();
-                }
-                else if (userId != null && categoryId != null)
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId && g.PointCategory == categoryId).AsQueryable();
-                }
-                else if (!string.IsNullOrEmpty(type) && categoryId != null)
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Type.ToLower().Equals(type.ToLower()) && g.PointCategory == categoryId).AsQueryable();
-                }
-                else if (date != null && userId != null)
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId).AsQueryable();
-                }
-                else if (date != null && !string.IsNullOrEmpty(type))
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
-                }
-                else if (userId != null && !string.IsNullOrEmpty(type))
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId && g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
-                }
-                else if (date != null)
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date).AsQueryable();
-                }
-                else if (userId != null)
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId).AsQueryable();
-                }
-                else if (!string.IsNullOrEmpty(type))
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
-                }
-                else if (categoryId != null)
-                {
-                    filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.PointCategory == categoryId).AsQueryable();
-                }
-            }
-            else
-                filterData = _context.TblGoldPoints.Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).AsQueryable();
-
-            totalCredit = filterData.Where(g => g.Credit != 0).Sum(g => g.Credit);
-            totalDebit = filterData.Where(g => g.Debit != 0).Sum(g => g.Debit);
-
             if (searchingParams != null)
             {
-                if (date != null || userId != null || !string.IsNullOrEmpty(type) || categoryId != null)
-                {
-                    if (date != null && userId != null && !string.IsNullOrEmpty(type) && categoryId != null)
-                    {
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId && g.Type.ToLower().Equals(type.ToLower()) && g.PointCategory == categoryId).AsQueryable();
-                    }
-                    else if (date != null && userId != null && categoryId != null)
-                    {
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId && g.PointCategory == categoryId).AsQueryable();
-                    }
-                    else if (date != null && categoryId != null)
-                    {
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.PointCategory == categoryId).AsQueryable();
-                    }
-                    else if (userId != null && categoryId != null)
-                    {
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId && g.PointCategory == categoryId).AsQueryable();
-                    }
-                    else if (!string.IsNullOrEmpty(type) && categoryId != null)
-                    {
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Type.ToLower().Equals(type.ToLower()) && g.PointCategory == categoryId).AsQueryable();
-                    }
-                    else if (date != null && userId != null)
-                    {
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Userid == userId).AsQueryable();
-                    }
-                    else if (date != null && !string.IsNullOrEmpty(type))
-                    {
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date && g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
-                    }
-                    else if (userId != null && !string.IsNullOrEmpty(type))
-                    {
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId && g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
-                    }
-                    else if (date != null)
-                    {
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Timestamp == date).AsQueryable();
-                    }
-                    else if (userId != null)
-                    {
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Userid == userId).AsQueryable();
-                    }
-                    else if (!string.IsNullOrEmpty(type))
-                    {
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.Type.ToLower().Equals(type.ToLower())).AsQueryable();
-                    }
-                    else if (categoryId != null)
-                    {
-                        filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).Where(g => g.PointCategory == categoryId).AsQueryable();
-                    }
-                }
-                else
-                    filterData = _context.Search<TblGoldPoint>(searchingParams).Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory).AsQueryable();
+
+                filterData = _context.Search<TblGoldPoint>(searchingParams).Where(g => (g.Timestamp == null || (g.Timestamp != null && g.Timestamp == date)) &&
+                                    (g.Userid == null || (g.Userid != null && g.Userid == userId)) &&
+                                    (string.IsNullOrEmpty(type) || !(string.IsNullOrEmpty(g.Type) && g.Type.ToLower().Equals(type.ToLower()))) &&
+                                    (g.PointCategory == null || (g.PointCategory != null && g.PointCategory == categoryId)))
+                                    .Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory)
+                                    .AsQueryable();
             }
+            else
+            {
+                filterData = _context.TblGoldPoints.Where(g => (date == null || (g.Timestamp != null && g.Timestamp == date)) &&
+                                    (userId == null || (g.Userid != null && g.Userid == userId)) &&
+                                    (string.IsNullOrEmpty(type) || (!string.IsNullOrEmpty(g.Type) && g.Type.ToLower().Equals(type.ToLower()))) &&
+                                    (categoryId == null || (g.PointCategory != null && g.PointCategory == categoryId)))
+                                    .Include(g => g.TblUserMaster).Include(g => g.TblGoldPointCategory)
+                                    .AsQueryable();
+            }
+
+            totalCredit = filterData.Where(g => g.Credit != 0 && g.TblGoldPointCategory.PointCategory.ToLower().Equals("Redeemable")).Sum(g => g.Credit);
+            totalDebit = filterData.Where(g => g.Debit != 0).Sum(g => g.Debit);
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -297,7 +185,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     Count = (int)pageCount
                 }
             };
-            var goldPointResponse = new GoldPointResponse<TblGoldPoint>()
+            var goldPointResponse = new LedgerResponse<TblGoldPoint>()
             {
                 response = goldPointData,
                 TotalCredit = totalCredit,
@@ -380,7 +268,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
 
                 if (spResult == -1 && tblResult == -1 && tblTypeResult == -1)
                     return spResult;
-                
+
                 return 0;
             }
             catch (Exception)
@@ -457,7 +345,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         #region Get All User Referal Details
         public async Task<List<TblGoldReferral>> GetUserReferalDetails(DateTime date)
         {
-            var userReferals = await _context.TblGoldReferrals.Where(x => x.RefDate.Value.Month == date.Month && x.RefDate.Value.Year == date.Year).Include(x => x.RefBy).ToListAsync();
+            var userReferals = await _context.TblGoldReferrals.Where(x => x.RefDate.Value.Month == date.Month && x.RefDate.Value.Year == date.Year).Include(x => x.RefBy).Where(x => x.RefBy.UserWbcActive == true && x.RefBy.UserFasttrack == false).ToListAsync();
 
             return userReferals;
         }
@@ -485,14 +373,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     var nextDate = Convert.ToDateTime(user.UserDoj).AddMonths(i);
                     var totalMonthContact = userReferalUserWise.Where(x => Convert.ToDateTime(x.RefDate).Month == nextDate.Month && Convert.ToDateTime(x.RefDate).Year == nextDate.Year).Count();
                     if (totalMonthContact == 0)
-                        totalRemainingContacts += user.UserFasttrack != null ? (bool)user.UserFasttrack ? 30 : 10 : 10;
+                        totalRemainingContacts = user.UserFasttrack != null ? (bool)user.UserFasttrack ? 30 : 10 : 10;
                     else
                         totalRemainingContacts = 0;
                 }
 
                 var wbcGP = redemableGP * wbcScheme.GoldPoint;
                 var wbcGPNonRedemable = nonRedemableGP.Count * wbcScheme.GoldPoint;
-                if (totalRemainingContacts <= 120)
+                var remainingContactLimit = user.UserFasttrack != null ? (bool)user.UserFasttrack ? 360 : 120 : 120;
+                if (totalRemainingContacts <= remainingContactLimit)
                 {
                     var currMonthNonRedemableGP = nonRedemableGP.Where(x => Convert.ToDateTime(x.RefDate).Month == date.Month && Convert.ToDateTime(x.RefDate).Year == date.Year).Count();
                     if (currMonthNonRedemableGP > 0)
@@ -500,27 +389,27 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
 
                         if (await _insuranceClientRepository.GetInsClientByUserId(userId, date) > 0)
                         {
-                            wbcGP += currMonthNonRedemableGP * wbcScheme.GoldPoint;
+                            wbcGP = currMonthNonRedemableGP * wbcScheme.GoldPoint;
                             wbcGPNonRedemable -= currMonthNonRedemableGP * wbcScheme.GoldPoint;
                         }
                         else if (await _loanMasterRepository.GetLoanDetailByUserId(userId, date) > 0)
                         {
-                            wbcGP += currMonthNonRedemableGP * wbcScheme.GoldPoint;
+                            wbcGP = currMonthNonRedemableGP * wbcScheme.GoldPoint;
                             wbcGPNonRedemable -= currMonthNonRedemableGP * wbcScheme.GoldPoint;
                         }
                         else if (await _stocksRepository.GetStockMonthlyByUserName(user.UserName, date) > 0)
                         {
-                            wbcGP += currMonthNonRedemableGP * wbcScheme.GoldPoint;
+                            wbcGP = currMonthNonRedemableGP * wbcScheme.GoldPoint;
                             wbcGPNonRedemable -= currMonthNonRedemableGP * wbcScheme.GoldPoint;
                         }
                         else if (_mutualfundRepository.GetMFInSpecificDateForExistUser(date, null, userId).Result.Count() > 0)
                         {
-                            wbcGP += currMonthNonRedemableGP * wbcScheme.GoldPoint;
+                            wbcGP = currMonthNonRedemableGP * wbcScheme.GoldPoint;
                             wbcGPNonRedemable -= currMonthNonRedemableGP * wbcScheme.GoldPoint;
                         }
                         else if (await _mGainRepository.GetMonthlyMGainDetailByUserId(userId, date) > 0)
                         {
-                            wbcGP += currMonthNonRedemableGP * wbcScheme.GoldPoint;
+                            wbcGP = currMonthNonRedemableGP * wbcScheme.GoldPoint;
                             wbcGPNonRedemable -= currMonthNonRedemableGP * wbcScheme.GoldPoint;
                         }
                     }
@@ -531,12 +420,20 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                         subSubInvType = String.IsNullOrEmpty(wbcScheme.TblSubsubInvType.SubInvType) ? "" : wbcScheme.TblSubsubInvType.SubInvType;
                         subInvType = String.IsNullOrEmpty(wbcScheme.TblSubInvesmentType.InvestmentType) ? "" : wbcScheme.TblSubInvesmentType.InvestmentType;
                     }
-                    if (wbcGP > 0) 
+
+                    if (wbcGP > 0)
                     {
-                        await parentGpAllocation(userId, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, subInvType, subSubInvType, wbcGP, 0, 0);
+                        if (wbcScheme.IsParentAllocation)
+                            await parentGpAllocation(userId, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, subInvType, subSubInvType, wbcGP, 0, 0);
+                        else
+                        {
+                            var wbcUser = new WbcGPResponseModel(userId, user.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, subInvType, subSubInvType, wbcGP, 0, 0, true);
+
+                            CheckAddSchemeEntry(wbcUser);
+                        }
                     }
                     if (wbcGPNonRedemable > 0)
-                    {   
+                    {
                         wbcGPResponseModels.Add(new WbcGPResponseModel(userId, user.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, subInvType, subSubInvType, wbcGPNonRedemable, 0, 0, false));
                     }
                 }
@@ -574,7 +471,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
 
                 #region Insurance
                 //Insurance
-                var insClientsList = await _context.TblInsuranceclients.Include(i => i.TblUserMaster).Include(i => i.TblSubInvesmentType).Include(i => i.TblInsuranceTypeMaster).Where(i => i.InsStartdate == date).ToListAsync();
+                var insClientsList = await _context.TblInsuranceclients.Include(i => i.TblUserMaster).Include(i => i.TblSubInvesmentType).Include(i => i.TblInsuranceTypeMaster).Where(i => i.InsStartdate == date && i.TblUserMaster.UserWbcActive == true && i.TblUserMaster.UserFasttrack == false).ToListAsync();
 
                 var wbcSchemesInv = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessConstants.LifeIns) || w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessConstants.GeneralIns)).ToList();
 
@@ -649,7 +546,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
 
                 #region Mutual Fund
                 //MF
-                var mfClientsList = await _context.TblMftransactions.Include(i => i.TblUserMaster).Where(m => m.Date == date).ToListAsync();
+                var mfClientsList = await _context.TblMftransactions.Include(i => i.TblUserMaster).Where(m => m.Date == date && m.TblUserMaster.UserWbcActive == true && m.TblUserMaster.UserFasttrack == false).ToListAsync();
                 var wbcSchemeMF = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessConstants.MF)).ToList();
 
                 foreach (var client in mfClientsList)
@@ -666,14 +563,21 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     if (mfTrans.Count == 1)
                     {
                         var wbcScheme = wbcSchemeMF.FirstOrDefault(w => w.WbcTypeId == 1);
-                        if (wbcScheme != null)
+                        if (wbcScheme != null && client.TblUserMaster.UserParentid != null)
                         {
                             if (wbcScheme.TblSubsubInvType != null)
                             {
                                 subSubInvTypeMF = String.IsNullOrEmpty(wbcScheme.TblSubsubInvType.SubInvType) ? "" : wbcScheme.TblSubsubInvType.SubInvType;
                             }
-                            if (client.TblUserMaster.UserParentid != null)
+
+                            if (wbcScheme.IsParentAllocation != true)
                                 await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, wbcScheme.GoldPoint, 0);
+                            else
+                            {
+                                var wbcParent = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, wbcScheme.GoldPoint, 0, true);
+
+                                CheckAddSchemeEntry(wbcParent);
+                            }
                         }
                     }
 
@@ -686,16 +590,22 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                         {
                             subSubInvTypeMF = String.IsNullOrEmpty(mfUserWbcOwnScheme.TblSubsubInvType.SubInvType) ? "" : mfUserWbcOwnScheme.TblSubsubInvType.SubInvType;
                         }
-                        await parentGpAllocation(client.Userid, mfUserWbcOwnScheme.Id, mfUserWbcOwnScheme.TblWbcTypeMaster.WbcType, mfUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, mfUserWbcOwnScheme.GoldPoint, 0);
+                        if (mfUserWbcOwnScheme.IsParentAllocation)
+                            await parentGpAllocation(client.Userid, mfUserWbcOwnScheme.Id, mfUserWbcOwnScheme.TblWbcTypeMaster.WbcType, mfUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, mfUserWbcOwnScheme.GoldPoint, 0);
+                        else
+                        {
+                            var wbcUser = new WbcGPResponseModel((int)client.Userid, client.TblUserMaster.UserName, mfUserWbcOwnScheme.Id, mfUserWbcOwnScheme.TblWbcTypeMaster.WbcType, mfUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, mfUserWbcOwnScheme.GoldPoint, 0, true);
+
+                            CheckAddSchemeEntry(wbcUser);
+                        }
                     }
 
                     var userWbcOwnBenefitMF = wbcSchemeMF.Where(x => x.TblSubsubInvType != null && x.Business != null).FirstOrDefault(w => w.WbcTypeId == 3 && w.TblSubsubInvType.SubInvType.ToLower().Contains(client.Transactiontype.ToLower()) && w.Business != null);
 
 
-                    var mfClients = mfClientsList.Where(i => i.Userid == client.Userid && i.Transactiontype.ToLower().Contains(client.Transactiontype.ToLower())).ToList();
+                    var mfClients = mfClientsList.Where(i => i.Userid == client.Userid && i.Transactiontype.ToLower().Contains(client.Transactiontype.ToLower()) && i.Foliono == client.Foliono).ToList();
 
-                    var distinctMfTrans = mfClients.DistinctBy(m => m.Foliono).ToList();
-                    var totalMfInvAmt = distinctMfTrans.Sum(m => m.Invamount);
+                    var totalMfInvAmt = mfClients.Sum(m => m.Invamount);
 
                     if (userWbcOwnBenefitMF != null && totalMfInvAmt > 0)
                     {
@@ -713,27 +623,43 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                             {
                                 subSubInvTypeMF = String.IsNullOrEmpty(userWbcOwnBenefitMF.TblSubsubInvType.SubInvType) ? "" : userWbcOwnBenefitMF.TblSubsubInvType.SubInvType;
                             }
-                            await parentGpAllocation(client.Userid, userWbcOwnBenefitMF.Id, userWbcOwnBenefitMF.TblWbcTypeMaster.WbcType, userWbcOwnBenefitMF.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, 0, (int)allowable_on_the_spot_gp);
+
+                            if (userWbcOwnBenefitMF.IsParentAllocation)
+                                await parentGpAllocation(client.Userid, userWbcOwnBenefitMF.Id, userWbcOwnBenefitMF.TblWbcTypeMaster.WbcType, userWbcOwnBenefitMF.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, 0, (int)allowable_on_the_spot_gp);
+                            else
+                            {
+                                var wbcUser = new WbcGPResponseModel((int)client.Userid, client.TblUserMaster.UserName, userWbcOwnBenefitMF.Id, userWbcOwnBenefitMF.TblWbcTypeMaster.WbcType, userWbcOwnBenefitMF.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, 0, (int)allowable_on_the_spot_gp, true);
+
+                                CheckAddSchemeEntry(wbcUser);
+                            }
                         }
                     }
 
                     //Portfolio Review - 4
                     var portfolioReviewRequest = await _context.TblPortfolioReviewRequests.Where(p => Convert.ToInt32(p.RequestUserid) == client.Userid && p.RequestType == 1 && p.RequestDate == date).ToListAsync();
                     var scheme = wbcSchemeMF.FirstOrDefault(w => w.WbcTypeId == 4 && w.TblSubsubInvType.SubInvType.Contains(client.Transactiontype));
-                    if (portfolioReviewRequest.Count == 1)
+                    if (portfolioReviewRequest.Count == 1 && scheme != null)
                     {
                         if (scheme.TblSubsubInvType != null)
                         {
                             subSubInvTypeMF = String.IsNullOrEmpty(scheme.TblSubsubInvType.SubInvType) ? "" : scheme.TblSubsubInvType.SubInvType;
                         }
-                        await parentGpAllocation(client.Userid, scheme.Id, scheme.TblWbcTypeMaster.WbcType, scheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, scheme.GoldPoint, 0);
+                        if (scheme.IsParentAllocation)
+                            await parentGpAllocation(client.Userid, scheme.Id, scheme.TblWbcTypeMaster.WbcType, scheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, scheme.GoldPoint, 0);
+                        else
+                        {
+                            var wbcUser = new WbcGPResponseModel((int)client.Userid, client.TblUserMaster.UserName, scheme.Id, scheme.TblWbcTypeMaster.WbcType, scheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, scheme.GoldPoint, 0, true);
+
+                            CheckAddSchemeEntry(wbcUser);
+                        }
                     }
                 }
+
                 #endregion
 
                 #region Mgain
                 //Mgain
-                var mgainClientsList = await _context.TblMgaindetails.Include(m => m.TblUserMaster).Where(m => m.Date == date && m.MgainIsactive == true).ToListAsync();
+                var mgainClientsList = await _context.TblMgaindetails.Include(m => m.TblUserMaster).Where(m => m.Date == date && m.MgainIsactive == true && m.TblUserMaster.UserWbcActive == true && m.TblUserMaster.UserFasttrack == false).ToListAsync();
                 var wbcSchemeMgain = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessConstants.Mgain)).ToList();
 
                 foreach (var client in mgainClientsList)
@@ -744,13 +670,20 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     if (mgainList.Count == 1)
                     {
                         var wbcScheme = wbcSchemeMgain.FirstOrDefault(w => w.WbcTypeId == 1);
-                        if (wbcScheme != null)
+                        if (wbcScheme != null && client.TblUserMaster.UserParentid != null)
                         {
                             if (wbcScheme.TblSubsubInvType != null)
                             {
                                 subSubInvTypeMgain = String.IsNullOrEmpty(wbcScheme.TblSubsubInvType.SubInvType) ? "" : wbcScheme.TblSubsubInvType.SubInvType;
                             }
-                            await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, wbcScheme.GoldPoint, 0);
+                            if (wbcScheme.IsParentAllocation)
+                                await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, wbcScheme.GoldPoint, 0);
+                            else
+                            {
+                                var wbcParent = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, wbcScheme.GoldPoint, 0, true);
+
+                                CheckAddSchemeEntry(wbcParent);
+                            }
                         }
                     }
 
@@ -762,7 +695,14 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                         {
                             subSubInvTypeMgain = String.IsNullOrEmpty(mgainUserWbcOwnScheme.TblSubsubInvType.SubInvType) ? "" : mgainUserWbcOwnScheme.TblSubsubInvType.SubInvType;
                         }
-                        await parentGpAllocation(client.MgainUserid, mgainUserWbcOwnScheme.Id, mgainUserWbcOwnScheme.TblWbcTypeMaster.WbcType, mgainUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, mgainUserWbcOwnScheme.GoldPoint, 0);
+                        if (mgainUserWbcOwnScheme.IsParentAllocation)
+                            await parentGpAllocation(client.MgainUserid, mgainUserWbcOwnScheme.Id, mgainUserWbcOwnScheme.TblWbcTypeMaster.WbcType, mgainUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, mgainUserWbcOwnScheme.GoldPoint, 0);
+                        else
+                        {
+                            var wbcUser = new WbcGPResponseModel((int)client.MgainUserid, client.TblUserMaster.UserName, mgainUserWbcOwnScheme.Id, mgainUserWbcOwnScheme.TblWbcTypeMaster.WbcType, mgainUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, mgainUserWbcOwnScheme.GoldPoint, 0, true);
+
+                            CheckAddSchemeEntry(wbcUser);
+                        }
                     }
 
                     var userWbcOwnBenefitMgain = wbcSchemeMgain.FirstOrDefault(w => w.WbcTypeId == 3 && w.Business != null);
@@ -784,27 +724,42 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                             {
                                 subSubInvTypeMgain = String.IsNullOrEmpty(userWbcOwnBenefitMgain.TblSubsubInvType.SubInvType) ? "" : userWbcOwnBenefitMgain.TblSubsubInvType.SubInvType;
                             }
-                            await parentGpAllocation(client.TblUserMaster.UserId, userWbcOwnBenefitMgain.Id, userWbcOwnBenefitMgain.TblWbcTypeMaster.WbcType, userWbcOwnBenefitMgain.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, 0, (int)allowable_on_the_spot_gp);
+                            if (userWbcOwnBenefitMgain.IsParentAllocation)
+                                await parentGpAllocation(client.TblUserMaster.UserId, userWbcOwnBenefitMgain.Id, userWbcOwnBenefitMgain.TblWbcTypeMaster.WbcType, userWbcOwnBenefitMgain.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, 0, (int)allowable_on_the_spot_gp);
+                            else
+                            {
+                                var wbcUser = new WbcGPResponseModel((int)client.MgainUserid, client.TblUserMaster.UserName, userWbcOwnBenefitMgain.Id, userWbcOwnBenefitMgain.TblWbcTypeMaster.WbcType, userWbcOwnBenefitMgain.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, 0, (int)allowable_on_the_spot_gp, true);
+
+                                CheckAddSchemeEntry(wbcUser);
+                            }
                         }
                     }
 
                     //Portfolio Review - 4
                     var mgainPortfolioReview = await _context.TblPortfolioReviewRequests.Where(p => Convert.ToInt32(p.RequestUserid) == client.MgainUserid && p.RequestType == 1 && p.RequestDate == date).ToListAsync();
                     var scheme = wbcSchemeMgain.FirstOrDefault(w => w.WbcTypeId == 4);
-                    if (mgainPortfolioReview.Count == 1)
+                    if (mgainPortfolioReview.Count == 1 && scheme != null)
                     {
                         if (scheme.TblSubsubInvType != null)
                         {
                             subSubInvTypeMgain = String.IsNullOrEmpty(scheme.TblSubsubInvType.SubInvType) ? "" : scheme.TblSubsubInvType.SubInvType;
                         }
-                        await parentGpAllocation(client.MgainUserid, scheme.Id, scheme.TblWbcTypeMaster.WbcType, scheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, scheme.GoldPoint, 0);
+                        if (scheme.IsParentAllocation)
+                            await parentGpAllocation(client.MgainUserid, scheme.Id, scheme.TblWbcTypeMaster.WbcType, scheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, scheme.GoldPoint, 0);
+                        else
+                        {
+                            var wbcUser = new WbcGPResponseModel((int)client.MgainUserid, client.TblUserMaster.UserName, scheme.Id, scheme.TblWbcTypeMaster.WbcType, scheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, scheme.GoldPoint, 0, true);
+
+                            CheckAddSchemeEntry(wbcUser);
+                        }
                     }
                 }
+
                 #endregion
 
                 #region Loan Inv
                 //Loan
-                var loanClientsList = await _context.TblLoanMasters.Include(l => l.TblUserMaster).Where(l => l.StartDate == date).ToListAsync();
+                var loanClientsList = await _context.TblLoanMasters.Include(l => l.TblUserMaster).Where(l => l.StartDate == date && l.TblUserMaster.UserWbcActive == true && l.TblUserMaster.UserFasttrack == false).ToListAsync();
                 var wbcSchemeLoan = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessConstants.Loan)).ToList();
 
                 foreach (var client in loanClientsList)
@@ -815,13 +770,20 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     if (loanList.Count == 1)
                     {
                         var wbcScheme = wbcSchemeLoan.FirstOrDefault(w => w.WbcTypeId == 1);
-                        if (wbcScheme != null)
+                        if (wbcScheme != null && client.TblUserMaster.UserParentid != null)
                         {
                             if (wbcScheme.TblSubsubInvType != null)
                             {
                                 subSubInvTypeLoan = String.IsNullOrEmpty(wbcScheme.TblSubsubInvType.SubInvType) ? "" : wbcScheme.TblSubsubInvType.SubInvType;
                             }
-                            await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, wbcScheme.GoldPoint, 0);
+                            if (wbcScheme.IsParentAllocation)
+                                await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, wbcScheme.GoldPoint, 0);
+                            else
+                            {
+                                var wbcParent = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, wbcScheme.GoldPoint, 0, true);
+
+                                CheckAddSchemeEntry(wbcParent);
+                            }
                         }
                     }
 
@@ -833,7 +795,14 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                         {
                             subSubInvTypeLoan = String.IsNullOrEmpty(loanUserWbcOwnScheme.TblSubsubInvType.SubInvType) ? "" : loanUserWbcOwnScheme.TblSubsubInvType.SubInvType;
                         }
-                        await parentGpAllocation(client.UserId, loanUserWbcOwnScheme.Id, loanUserWbcOwnScheme.TblWbcTypeMaster.WbcType, loanUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, loanUserWbcOwnScheme.GoldPoint, 0);
+                        if (loanUserWbcOwnScheme.IsParentAllocation)
+                            await parentGpAllocation(client.UserId, loanUserWbcOwnScheme.Id, loanUserWbcOwnScheme.TblWbcTypeMaster.WbcType, loanUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, loanUserWbcOwnScheme.GoldPoint, 0);
+                        else
+                        {
+                            var wbcUser = new WbcGPResponseModel((int)client.UserId, client.TblUserMaster.UserName, loanUserWbcOwnScheme.Id, loanUserWbcOwnScheme.TblWbcTypeMaster.WbcType, loanUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, loanUserWbcOwnScheme.GoldPoint, 0, true);
+
+                            CheckAddSchemeEntry(wbcUser);
+                        }
                     }
 
                     var userWbcOwnBenefitLoan = wbcSchemeLoan.FirstOrDefault(w => w.WbcTypeId == 3 && w.Business != null);
@@ -855,27 +824,43 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                             {
                                 subSubInvTypeLoan = String.IsNullOrEmpty(userWbcOwnBenefitLoan.TblSubsubInvType.SubInvType) ? "" : userWbcOwnBenefitLoan.TblSubsubInvType.SubInvType;
                             }
-                            await parentGpAllocation(client.TblUserMaster.UserId, userWbcOwnBenefitLoan.Id, userWbcOwnBenefitLoan.TblWbcTypeMaster.WbcType, userWbcOwnBenefitLoan.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, 0, (int)allowable_on_the_spot_gp);
+                            if (userWbcOwnBenefitLoan.IsParentAllocation)
+                                await parentGpAllocation(client.TblUserMaster.UserId, userWbcOwnBenefitLoan.Id, userWbcOwnBenefitLoan.TblWbcTypeMaster.WbcType, userWbcOwnBenefitLoan.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, 0, (int)allowable_on_the_spot_gp);
+                            else
+                            {
+                                var wbcUser = new WbcGPResponseModel((int)client.UserId, client.TblUserMaster.UserName, userWbcOwnBenefitLoan.Id, userWbcOwnBenefitLoan.TblWbcTypeMaster.WbcType, userWbcOwnBenefitLoan.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, 0, (int)allowable_on_the_spot_gp, true);
+
+                                CheckAddSchemeEntry(wbcUser);
+                            }
                         }
                     }
 
                     //Portfolio Review - 4
                     var loanPortfolioReview = await _context.TblPortfolioReviewRequests.Where(p => Convert.ToInt32(p.RequestUserid) == client.UserId && p.RequestType == 4 && p.RequestDate == date).ToListAsync();
                     var scheme = wbcSchemeLoan.FirstOrDefault(w => w.WbcTypeId == 4);
-                    if (loanPortfolioReview.Count == 1)
+                    //                     if (loanPortfolioReview.Count == 1)
+                    if (loanPortfolioReview.Count == 1 && scheme != null)
                     {
                         if (scheme.TblSubsubInvType != null)
                         {
                             subSubInvTypeLoan = String.IsNullOrEmpty(scheme.TblSubsubInvType.SubInvType) ? "" : scheme.TblSubsubInvType.SubInvType;
                         }
-                        await parentGpAllocation(client.UserId, scheme.Id, scheme.TblWbcTypeMaster.WbcType, scheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, scheme.GoldPoint, 0);
+
+                        if (scheme.IsParentAllocation)
+                            await parentGpAllocation(client.UserId, scheme.Id, scheme.TblWbcTypeMaster.WbcType, scheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, scheme.GoldPoint, 0);
+                        else
+                        {
+                            var wbcUser = new WbcGPResponseModel((int)client.UserId, client.TblUserMaster.UserName, userWbcOwnBenefitLoan.Id, userWbcOwnBenefitLoan.TblWbcTypeMaster.WbcType, userWbcOwnBenefitLoan.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, userWbcOwnBenefitLoan.GoldPoint, 0, true);
+
+                            CheckAddSchemeEntry(wbcUser);
+                        }
                     }
                 }
                 #endregion
 
                 #region Stocks
                 //Stocks
-                var stockClientsList = await _context.TblStockData.Include(s => s.TblUserMaster).Where(s => s.StDate == date).ToListAsync();
+                var stockClientsList = await _context.TblStockData.Include(s => s.TblUserMaster).Where(s => s.StDate == date && s.TblUserMaster.UserWbcActive == true && s.TblUserMaster.UserFasttrack == false).ToListAsync();
                 var stockClientsLists = stockClientsList.GroupBy(s => s.StClientname);
                 var wbcSchemeStock = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessConstants.Stocks)).ToList();
 
@@ -888,13 +873,20 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     if (stockList.Count == 1)
                     {
                         var wbcScheme = wbcSchemeStock.FirstOrDefault(w => w.WbcTypeId == 1);
-                        if (wbcScheme != null)
+                        if (wbcScheme != null && client.TblUserMaster.UserParentid != null)
                         {
                             if (wbcScheme.TblSubsubInvType != null)
                             {
                                 subSubInvTypeStocks = String.IsNullOrEmpty(wbcScheme.TblSubsubInvType.SubInvType) ? "" : wbcScheme.TblSubsubInvType.SubInvType;
                             }
-                            await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, wbcScheme.GoldPoint, 0);
+                            if (wbcScheme.IsParentAllocation)
+                                await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, wbcScheme.GoldPoint, 0);
+                            else
+                            {
+                                var wbcParent = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, wbcScheme.GoldPoint, 0, true);
+
+                                CheckAddSchemeEntry(wbcParent);
+                            }
                         }
                     }
 
@@ -907,44 +899,112 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                             subSubInvTypeStocks = String.IsNullOrEmpty(stockUserWbcOwnScheme.TblSubsubInvType.SubInvType) ? "" : stockUserWbcOwnScheme.TblSubsubInvType.SubInvType;
                         }
                         if (client.Userid != null)
-                            await parentGpAllocation(client.Userid, stockUserWbcOwnScheme.Id, stockUserWbcOwnScheme.TblWbcTypeMaster.WbcType, stockUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, stockUserWbcOwnScheme.GoldPoint, 0);
+                        {
+                            if (stockUserWbcOwnScheme.IsParentAllocation)
+                                await parentGpAllocation(client.Userid, stockUserWbcOwnScheme.Id, stockUserWbcOwnScheme.TblWbcTypeMaster.WbcType, stockUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, stockUserWbcOwnScheme.GoldPoint, 0);
+                            else
+                            {
+                                var wbcUser = new WbcGPResponseModel((int)client.Userid, client.TblUserMaster.UserName, stockUserWbcOwnScheme.Id, stockUserWbcOwnScheme.TblWbcTypeMaster.WbcType, stockUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, stockUserWbcOwnScheme.GoldPoint, 0, true);
+
+                                CheckAddSchemeEntry(wbcUser);
+                            }
+                        }
                     }
 
-                    var userWbcOwnBenefitStock = wbcSchemeStock.FirstOrDefault(w => w.WbcTypeId == 3 && w.Business != null);
+                    var userWbcOwnBenefitStock = wbcSchemeStock.FirstOrDefault(w => w.WbcTypeId == 3 && w.TblSubsubInvType != null && w.TblSubsubInvType.SubInvType.ToLower().Contains(BusinessConstants.PortfolioTransfer) && w.Business != null);
 
                     var allTrans = stockClientsList.Where(s => s.StClientname.ToLower().Equals(client.StClientname.ToLower()));
                     var totalInvAmtStock = allTrans.Sum(s => s.StNetcostvalue);
 
-                    if (userWbcOwnBenefitStock != null && totalInvAmtStock > 0)
+                    var alreadyExists = await _context.TblStockData.Include(s => s.TblUserMaster).Where(s => s.StDate < date && s.TblUserMaster.UserWbcActive == true && s.TblUserMaster.UserFasttrack == false && (s.TblUserMaster.UserName.ToLower().Equals(client.StClientname.ToLower()) || s.Userid == client.Userid)).ToListAsync();
+
+                    if (alreadyExists.Count == 0)
                     {
-                        if (totalInvAmtStock >= Convert.ToInt32(userWbcOwnBenefitStock.Business))
+                        if (userWbcOwnBenefitStock != null && totalInvAmtStock > 0)
                         {
-                            var allowable_on_the_spot_gp = 0m;
-                            var everyBenefit = Math.Round((decimal)totalInvAmtStock / Convert.ToDecimal(userWbcOwnBenefitStock.Business));
-                            if (everyBenefit > 0)
+                            if (totalInvAmtStock >= Convert.ToInt32(userWbcOwnBenefitStock.Business))
                             {
-                                allowable_on_the_spot_gp = Convert.ToDecimal(userWbcOwnBenefitStock.On_the_spot_GP) * Convert.ToDecimal(everyBenefit);
+                                var allowable_on_the_spot_gp = 0m;
+                                var everyBenefit = Math.Round((decimal)totalInvAmtStock / Convert.ToDecimal(userWbcOwnBenefitStock.Business));
+                                if (everyBenefit > 0)
+                                {
+                                    allowable_on_the_spot_gp = Convert.ToDecimal(userWbcOwnBenefitStock.On_the_spot_GP) * Convert.ToDecimal(everyBenefit);
+                                }
+                                else
+                                    allowable_on_the_spot_gp = Convert.ToDecimal(userWbcOwnBenefitStock.On_the_spot_GP);
+                                if (userWbcOwnBenefitStock.TblSubsubInvType != null)
+                                {
+                                    subSubInvTypeStocks = String.IsNullOrEmpty(userWbcOwnBenefitStock.TblSubsubInvType.SubInvType) ? "" : userWbcOwnBenefitStock.TblSubsubInvType.SubInvType;
+                                }
+
+                                if (userWbcOwnBenefitStock.IsParentAllocation)
+                                    await parentGpAllocation(client.TblUserMaster.UserId, userWbcOwnBenefitStock.Id, userWbcOwnBenefitStock.TblWbcTypeMaster.WbcType, userWbcOwnBenefitStock.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, 0, (int)allowable_on_the_spot_gp);
+                                else
+                                {
+                                    var wbcUser = new WbcGPResponseModel((int)client.Userid, client.TblUserMaster.UserName, userWbcOwnBenefitStock.Id, userWbcOwnBenefitStock.TblWbcTypeMaster.WbcType, userWbcOwnBenefitStock.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, 0, (int)allowable_on_the_spot_gp, true);
+
+                                    CheckAddSchemeEntry(wbcUser);
+                                }
                             }
-                            else
-                                allowable_on_the_spot_gp = Convert.ToDecimal(userWbcOwnBenefitStock.On_the_spot_GP);
-                            if (userWbcOwnBenefitStock.TblSubsubInvType != null)
+                        }
+                    }
+
+                    var userOwnBrokerageScheme = wbcSchemeStock.FirstOrDefault(w => w.WbcTypeId == 3 && w.TblSubsubInvType != null && w.TblSubsubInvType.SubInvType.ToLower().Contains(BusinessConstants.Brokerage) && w.Business != null);
+                    var stockBrokerageList = stockClientsList.Where(s => s.StBrokerage != null).ToList();
+                    var stockSharingBrokerage = await _context.TblStockSharingBrokerage.FirstOrDefaultAsync(s => s.BrokerageName.ToLower().Contains(BusinessConstants.KAGroup));
+
+                    if (userOwnBrokerageScheme != null && stockBrokerageList.Count > 0 && stockSharingBrokerage != null)
+                    {
+                        foreach (var stock in stockBrokerageList)
+                        {
+                            decimal totalBrokerage = (decimal)stock.StBrokerage * (decimal)stock.StQty;
+                            decimal brokerageAfterSharing = Math.Round(totalBrokerage * stockSharingBrokerage.BrokeragePercentage / 100, 3);
+
+                            if (brokerageAfterSharing >= Convert.ToDecimal(userOwnBrokerageScheme.Business))
                             {
-                                subSubInvTypeStocks = String.IsNullOrEmpty(userWbcOwnBenefitStock.TblSubsubInvType.SubInvType) ? "" : userWbcOwnBenefitStock.TblSubsubInvType.SubInvType;
+                                var brokerageGp = 0;
+                                var everyBenefit = Convert.ToInt32(Math.Round(brokerageAfterSharing / Convert.ToDecimal(userOwnBrokerageScheme.Business)));
+                                if (everyBenefit > 0)
+                                {
+                                    brokerageGp = (int)userOwnBrokerageScheme.GoldPoint * everyBenefit;
+                                }
+                                else
+                                    brokerageGp = (int)userOwnBrokerageScheme.GoldPoint;
+
+                                if (userOwnBrokerageScheme.TblSubsubInvType != null)
+                                {
+                                    subSubInvTypeStocks = String.IsNullOrEmpty(userOwnBrokerageScheme.TblSubsubInvType.SubInvType) ? "" : userOwnBrokerageScheme.TblSubsubInvType.SubInvType;
+                                }
+
+                                if (userOwnBrokerageScheme.IsParentAllocation)
+                                    await parentGpAllocation(client.Userid, userOwnBrokerageScheme.Id, userOwnBrokerageScheme.TblWbcTypeMaster.WbcType, userOwnBrokerageScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, brokerageGp, 0);
+                                else
+                                {
+                                    var wbcUser = new WbcGPResponseModel(stock.TblUserMaster.UserId, userOwnBrokerageScheme.Id, userOwnBrokerageScheme.TblWbcTypeMaster.WbcType, userOwnBrokerageScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, userOwnBrokerageScheme.GoldPoint, 0, true);
+
+                                    CheckAddSchemeEntry(wbcUser);
+                                }
                             }
-                            await parentGpAllocation(client.TblUserMaster.UserId, userWbcOwnBenefitStock.Id, userWbcOwnBenefitStock.TblWbcTypeMaster.WbcType, userWbcOwnBenefitStock.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, 0, (int)allowable_on_the_spot_gp);
                         }
                     }
 
                     //Portfolio Review - 4
                     var stockPortfolioReview = await _context.TblPortfolioReviewRequests.Where(p => Convert.ToInt32(p.RequestUserid) == client.Userid && p.RequestType == 1 && p.RequestDate == date).ToListAsync();
                     var scheme = wbcSchemeStock.FirstOrDefault(w => w.WbcTypeId == 4);
-                    if (stockPortfolioReview.Count == 1)
+                    if (stockPortfolioReview.Count == 1 && scheme != null)
                     {
                         if (scheme.TblSubsubInvType != null)
                         {
                             subSubInvTypeStocks = String.IsNullOrEmpty(scheme.TblSubsubInvType.SubInvType) ? "" : scheme.TblSubsubInvType.SubInvType;
                         }
-                        await parentGpAllocation(client.Userid, scheme.Id, scheme.TblWbcTypeMaster.WbcType, scheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, scheme.GoldPoint, 0);
+                        if (scheme.IsParentAllocation)
+                            await parentGpAllocation(client.Userid, scheme.Id, scheme.TblWbcTypeMaster.WbcType, scheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, scheme.GoldPoint, 0);
+                        else
+                        {
+                            var wbcUser = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, scheme.Id, scheme.TblWbcTypeMaster.WbcType, scheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, scheme.GoldPoint, 0, true);
+
+                            CheckAddSchemeEntry(wbcUser);
+                        }
                     }
                 }
                 #endregion
@@ -1032,29 +1092,58 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         }
         #endregion
 
-        #region Release GP
-        public async Task<int> ReleaseGP(DateTime date)
+        #region Check if golpoint/ ontheSpot point released or not
+        public async Task<int> CheckGoldPointEntries(DateTime date)
         {
+            return _context.TblGoldPoints.Where(g => g.Timestamp == date && !g.Type.ToLower().Contains("fasttrack")).Count();
+        }
+
+        public async Task<int> CheckOntheSpotEntries(DateTime date)
+        {
+            return _context.TblUserOnTheSpotGP.Where(u => u.Date == date).Count();
+        }
+        #endregion
+
+        #region Release GP
+        public async Task<(int, string)> ReleaseGP(DateTime date, bool isTruncate = false)
+        {
+            var goldPointCount = await CheckGoldPointEntries(date);
+            var onTheSpotCount = await CheckOntheSpotEntries(date);
+            if ((goldPointCount > 0 || onTheSpotCount > 0) && !isTruncate)
+                return (0, "Gold point has already released for the day. Do you still want to truncate and Re-release goldpoint and onTheSpotPoint?");
+
+            if ((goldPointCount > 0 || onTheSpotCount > 0) && isTruncate)
+            {
+                if (goldPointCount > 0)
+                {
+                    var gpEntries = await _context.TblGoldPoints.Where(g => g.Timestamp == date && !g.Type.ToLower().Contains("fasttrack")).ToListAsync();
+                    _context.TblGoldPoints.RemoveRange(gpEntries);
+                    await _context.SaveChangesAsync();
+                }
+                if (onTheSpotCount > 0)
+                {
+                    var ontheSpotEntries = await _context.TblUserOnTheSpotGP.Where(o => o.Date == date).ToListAsync();
+                    _context.TblUserOnTheSpotGP.RemoveRange(ontheSpotEntries);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             var spRes = await CreateSPForDataRetrival();
             if (spRes == 0)
-                return 0;
+                return (-1, "Procedure not found");
 
             await GetTempTableData();
-            
+
             var goldPointModelList = new List<TblGoldPoint>();
             var onTheSpotList = new List<TblUserOnTheSpotGP>();
             if (tempTableDataList.Count > 0)
             {
-                var existsOrNot = await CheckGPEntry(date, tempTableDataList);
-                if (existsOrNot > 0)
-                {
-                    return 0;
-                }
                 foreach (var data in tempTableDataList)
                 {
                     var goldPoint = new TblGoldPoint();
                     var onTheSpot = new TblUserOnTheSpotGP();
                     var user = await _context.TblUserMasters.Where(u => u.UserId == data.UserId).FirstOrDefaultAsync();
+                    var currMonthContactLimit = user.UserFasttrack != null ? (bool)user.UserFasttrack ? 30 : 10 : 10;
                     var totalContacts = ((12 * (date.Year - Convert.ToDateTime(user.UserDoj).Year) + date.Month - Convert.ToDateTime(user.UserDoj).Month) + 1) * 10;
                     var currMonthRefferedUser = _context.TblGoldReferrals.Where(g => g.RefById == user.UserId && g.RefDate.Value.Month == date.Month && g.RefDate.Value.Year == date.Year).Count();
                     var refferedUser = _context.TblGoldReferrals.Where(g => g.RefById == user.UserId).Count();
@@ -1065,9 +1154,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     {
                         if (availableContacts > 0)
                         {
-                            if (currMonthRefferedUser > 10)
+                            if (currMonthRefferedUser > currMonthContactLimit)
                             {
-                                var onTheSpotDebit = (currMonthRefferedUser - 10) * 100;
+                                var onTheSpotDebit = (currMonthRefferedUser - currMonthContactLimit) * 100;
                                 goldPoint.Timestamp = date;
                                 goldPoint.Credit = data.ReferralGP;
                                 goldPoint.Userid = user.UserId;
@@ -1158,13 +1247,13 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     if (res > 0 || onTheSpot > 0)
                     {
                         await DropTable();
-                        return res;
+                        return (res, "Gold point released successfully..");
                     }
-                    else 
-                        return 0;
+                    else
+                        return (-1, "Unable to add release gold point entries in table.");
                 }
             }
-            return 0;
+            return (-1, "Unable to release gold point.");
         }
         #endregion
 
@@ -1180,7 +1269,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                         wbcGp.SubInvestmentType = model.SubInvestmentType + ", ";
                     else
                         if (!wbcGp.SubInvestmentType.ToLower().Equals(model.SubInvestmentType.ToLower()))
-                            wbcGp.SubInvestmentType += ", " + model.SubInvestmentType;
+                        wbcGp.SubInvestmentType += ", " + model.SubInvestmentType;
                 }
                 if (!String.IsNullOrEmpty(model.SubSubInvestmentType))
                 {
@@ -1311,14 +1400,14 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
             List<TblSubsubInvType> data = new List<TblSubsubInvType>();
             IQueryable<TblSubsubInvType> filterData = data.AsQueryable();
 
-            if (subInvestmentTypeId != null) 
+            if (subInvestmentTypeId != null)
                 filterData = _context.TblSubsubInvTypes.Include(s => s.TblSubInvesmentType).Where(s => s.SubInvTypeId == subInvestmentTypeId).AsQueryable();
             else
                 filterData = _context.TblSubsubInvTypes.Include(s => s.TblSubInvesmentType).AsQueryable();
 
             if (searchingParams != null)
             {
-                if (subInvestmentTypeId != null) 
+                if (subInvestmentTypeId != null)
                     filterData = _context.Search<TblSubsubInvType>(searchingParams).Include(s => s.TblSubInvesmentType).Where(s => s.SubInvTypeId == subInvestmentTypeId).AsQueryable();
                 else
                     filterData = _context.Search<TblSubsubInvType>(searchingParams).Include(s => s.TblSubInvesmentType).AsQueryable();
@@ -1381,6 +1470,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         #region Add WBC Scheme
         public async Task<int> AddWbcScheme(TblWbcSchemeMaster wbcSchemeMaster)
         {
+            if (await _context.TblWbcSchemeMasters.AnyAsync(w => w.WbcTypeId == wbcSchemeMaster.WbcTypeId && w.ParticularsId == wbcSchemeMaster.ParticularsId && w.ParticularsSubTypeId == wbcSchemeMaster.ParticularsSubTypeId && w.IsRedeemable == wbcSchemeMaster.IsRedeemable && w.Business == wbcSchemeMaster.Business && w.GoldPoint == wbcSchemeMaster.GoldPoint && w.FromDate == wbcSchemeMaster.FromDate && w.ToDate == wbcSchemeMaster.ToDate && w.On_the_spot_GP == wbcSchemeMaster.On_the_spot_GP && w.IsParentAllocation == wbcSchemeMaster.IsParentAllocation))
+                return 0;
+
             _context.TblWbcSchemeMasters.Add(wbcSchemeMaster);
             return await _context.SaveChangesAsync();
         }

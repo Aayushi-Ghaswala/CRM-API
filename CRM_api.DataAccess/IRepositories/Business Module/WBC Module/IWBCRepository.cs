@@ -10,9 +10,9 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.WBC_Module
         Task<List<TblGoldPointCategory>> GetPointCategory();
         Task<Response<UserNameResponse>> GetGPUsername(string? type, string? searchingParams, SortingParams sortingParams);
         Task<Response<WBCTypeResponse>> GetGPTypes(int? userId, string? searchingParams, SortingParams sortingParams);
-        Task<GoldPointResponse<TblGoldPoint>> GetGPLedgerReport(DateTime? date, int? userId, string? type, int? categoryId, string? searchingParams, SortingParams sortingParams);
+        Task<LedgerResponse<TblGoldPoint>> GetGPLedgerReport(DateTime? date, int? userId, string? type, int? categoryId, string? searchingParams, SortingParams sortingParams);
         Task<Response<WbcGPResponseModel>> GetGP(string? search, DateTime date, SortingParams sortingParams);
-        Task<int> ReleaseGP(DateTime date);
+        Task<(int, string)> ReleaseGP(DateTime date, bool isTruncate = false);
         Task<TblWbcSchemeMaster> GetWBCSchemeByWBCTypeId(int id, DateTime date);
         Task<List<TblGoldReferral>> GetUserReferalDetails(DateTime date);
         Task<Response<TblWbcTypeMaster>> GetAllWbcSchemeTypes(string? searchingParams, SortingParams sortingParams);

@@ -979,9 +979,9 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.FtId).HasColumnName("ft_id");
 
-                entity.Property(e => e.Credit).HasColumnName("credit");
+                entity.Property(e => e.Credit).HasColumnName("credit").HasPrecision(10, 3);
 
-                entity.Property(e => e.Debit).HasColumnName("debit");
+                entity.Property(e => e.Debit).HasColumnName("debit").HasPrecision(10, 3);
 
                 entity.Property(e => e.Narration)
                     .HasMaxLength(50)

@@ -38,7 +38,7 @@ namespace CRM_api.Services.MapperProfile
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.TblUserMaster.UserName))
                 .ForMember(dest => dest.PointCategory, opt => opt.MapFrom(src => src.TblGoldPointCategory.PointCategory));
             CreateMap<Response<TblGoldPoint>, ResponseDto<GoldPointDto>>();
-            CreateMap<GoldPointResponse<TblGoldPoint>, GoldPointResponseDto<GoldPointDto>>();
+            CreateMap<LedgerResponse<TblGoldPoint>, GoldPointResponseDto<GoldPointDto>>();
         }
     }
 }

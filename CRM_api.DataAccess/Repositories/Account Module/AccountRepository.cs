@@ -276,6 +276,13 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
         #endregion
 
+        #region Get account by UserId
+        public async Task<int> GetAccountByUserId(int userId)
+        {
+            return await _context.TblAccountMasters.Where(a => a.UserId == userId).Select(a => a.AccountId).FirstOrDefaultAsync();
+        }
+        #endregion
+
         #region Add User Account
         public async Task<int> AddUserAccount(TblAccountMaster tblAccountMaster)
         {
