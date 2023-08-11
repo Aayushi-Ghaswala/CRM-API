@@ -219,7 +219,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Check Pan or Aadhar Exist
         public int PanOrAadharExist(int? id, string? pan, string? aadhar)
         {
-            if (_context.TblUserMasters.Any(x => (id == null || x.UserId == id) && ((pan != null && x.UserPan == pan) || (aadhar != null && x.UserAadhar == aadhar))))
+            if (_context.TblUserMasters.Any(x => (id == null || x.UserId != id) && ((pan != null && x.UserPan == pan) || (aadhar != null && x.UserAadhar == aadhar))))
                 return 0;
 
             return 1;
