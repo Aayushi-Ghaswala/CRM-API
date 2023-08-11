@@ -29,26 +29,11 @@ namespace CRM_api.Services.Services.HR_Module
         }
         #endregion
 
-        #region Get Designations By
-        public async Task<IEnumerable<DesignationDto>> GetDesignationByDepartmentAsync(int departmentId)
-        {
-            var designations = await _designationRepository.GetDesignationByDepartment(departmentId);
-            var mappedDesignation = _mapper.Map<IEnumerable<DesignationDto>>(designations);
-            return mappedDesignation;
-        }
-
-        public async Task<DesignationDto> GetDesignationByIdAsync(int id)
-        {
-            var designation = await _designationRepository.GetDesignationById(id);
-            var mapDesignation = _mapper.Map<DesignationDto>(designation);
-            return mapDesignation;
-        }
-        #endregion
-
         #region Add designation
         public async Task<int> AddDesignationAsync(AddDesignationDto designationMaster)
         {
             var mappedDesignation = _mapper.Map<TblDesignationMaster>(designationMaster);
+            mappedDesignation.Isdeleted = false;
             return await _designationRepository.AddDesignation(mappedDesignation);
         }
         #endregion

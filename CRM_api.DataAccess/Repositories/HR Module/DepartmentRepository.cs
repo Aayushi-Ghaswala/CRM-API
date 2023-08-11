@@ -20,12 +20,15 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         public async Task<Response<TblDepartmentMaster>> GetDepartments(string search, SortingParams sortingParams)
         {
             double pageCount = 0;
-
-            var filterData = _context.TblDepartmentMasters.Where(x => x.Isdeleted != true).AsQueryable();
+            IQueryable<TblDepartmentMaster> filterData = new List<TblDepartmentMaster>().AsQueryable();
 
             if (search != null)
             {
                 filterData = _context.Search<TblDepartmentMaster>(search).Where(x => x.Isdeleted != true).AsQueryable(); ;
+            }
+            else
+            {
+                filterData = _context.TblDepartmentMasters.Where(x => x.Isdeleted != true).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -47,15 +50,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
 
             return departmentResponse;
         }
-        #endregion
-
-        #region Get Department by Id
-        public async Task<TblDepartmentMaster> GetDepartmentById(int id)
-        {
-            var department = await _context.TblDepartmentMasters.FirstAsync(x => x.DepartmentId == id && x.Isdeleted != true);
-            return department;
-        }
-        #endregion
+        #endregion 
 
         #region Add Department
         public async Task<int> AddDepartment(TblDepartmentMaster departmentMaster)
@@ -86,12 +81,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             var department = await _context.TblDepartmentMasters.FindAsync(id);
 
             if (department == null) return 0;
-
-            var designation = _context.TblDesignationMasters.Where(x => x.DepartmentId == id);
-            foreach (var item in designation)
-            {
-                item.Isdeleted = true;
-            }
+            
             department.Isdeleted = true;
             return await _context.SaveChangesAsync();
         }

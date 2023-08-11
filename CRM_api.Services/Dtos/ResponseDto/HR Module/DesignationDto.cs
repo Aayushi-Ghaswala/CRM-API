@@ -3,9 +3,8 @@
     public class DesignationDto
     {
         public int DesignationId { get; set; }
-        public int? DepartmentId { get; set; }
+        public DesignationDto TblParentDesignationMaster { get; set; }
         public string? Name { get; set; }
         public bool? Isdeleted { get; set; }
-        public DepartmentDto DepartmentMaster { get; set; }
     }
 }

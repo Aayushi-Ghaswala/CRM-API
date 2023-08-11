@@ -6,10 +6,15 @@ namespace CRM_api.DataAccess.IRepositories.HR_Module
 {
     public interface IEmployeeRepository
     {
-        Task<Response<TblUserMaster>> GetEmployees(int categoryId, string search, SortingParams sortingParams);
-        Task<TblUserMaster> GetEmployeebyId(int id);
-        Task<int> AddEmployee(TblUserMaster userMaster);
-        Task<int> UpdateEmployee(TblUserMaster userMaster);
+        Task<Response<TblEmployeeMaster>> GetEmployees(string search, SortingParams sortingParams);
+        Task<TblEmployeeMaster> AddEmployee(TblEmployeeMaster employeeMaster);
+        Task<int> AddEmployeeQualification(TblEmployeeQualification employeeQualification);
+        Task<int> AddEmployeeExperience(TblEmployeeExperience employeeExperience);
+        Task<int> UpdateEmployee(TblEmployeeMaster employeeMaster);
+        Task<int> UpdateEmployeeQualification(TblEmployeeQualification employeeQualification);
+        Task<int> UpdateEmployeeExperience(TblEmployeeExperience employeeExperience);
         Task<int> DeactivateEmployee(int id);
+        Task<int> DeleteEmployeeQualification(int id);
+        Task<int> DeleteEmployeeExperience(int id);
     }
 }

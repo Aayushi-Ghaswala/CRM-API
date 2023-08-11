@@ -5,5 +5,7 @@
         public int DepartmentId { get; set; }
         public string? Name { get; set; }
         public bool? Isdeleted { get; set; } = false;
+
+        public virtual ICollection<TblEmployeeMaster> EmployeeMasters { get; set; }
     }
 }

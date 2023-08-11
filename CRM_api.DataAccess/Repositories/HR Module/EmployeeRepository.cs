@@ -17,15 +17,18 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         }
 
         #region Get all employees
-        public async Task<Response<TblUserMaster>> GetEmployees(int categoryId, string search, SortingParams sortingParams)
+        public async Task<Response<TblEmployeeMaster>> GetEmployees(string search, SortingParams sortingParams)
         {
             double pageCount = 0;
-
-            var filterData = _context.TblUserMasters.Where(x => x.CatId == categoryId && x.UserIsactive != false).AsQueryable();
+            IQueryable<TblEmployeeMaster> filterData = new List<TblEmployeeMaster>().AsQueryable();
 
             if (search != null)
             {
-                filterData = _context.Search<TblUserMaster>(search).Where(x => x.CatId == categoryId && x.UserIsactive != false).AsQueryable();
+                filterData = _context.Search<TblEmployeeMaster>(search).Where(x => x.IsActive != false).Include(x => x.TblDepartmentMaster).Include(x => x.TblDesignationMaster).Include(x => x.TblCityMaster).Include(x => x.TblStateMaster).Include(x => x.TblCountryMaster).Include(x => x.TblEmployeeExperiences).Include(x => x.TblEmployeeQualifications).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblEmployeeMasters.Where(x => x.IsActive != false).Include(x => x.TblDepartmentMaster).Include(x => x.TblDesignationMaster).Include(x => x.TblCityMaster).Include(x => x.TblStateMaster).Include(x => x.TblCountryMaster).Include(x => x.TblEmployeeExperiences).Include(x => x.TblEmployeeQualifications).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -35,7 +38,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
             // Apply pagination
             var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
 
-            var employeesResponse = new Response<TblUserMaster>()
+            var employeesResponse = new Response<TblEmployeeMaster>()
             {
                 Values = paginatedData,
                 Pagination = new Pagination()
@@ -49,35 +52,69 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         }
         #endregion
 
-        #region Get Employee by Id
-        public async Task<TblUserMaster> GetEmployeebyId(int id)
+        #region Add Employee
+        public async Task<TblEmployeeMaster> AddEmployee(TblEmployeeMaster employeeMaster)
         {
-            var user = await _context.TblUserMasters.Include(x => x.TblUserCategoryMaster).Include(x => x.TblUserCategoryMaster)
-                                                    .Include(c => c.TblCountryMaster).Include(s => s.TblStateMaster)
-                                                    .Include(ct => ct.TblCityMaster).FirstAsync(x => x.UserId == id && x.UserIsactive != false);
-            return user;
+            if (_context.TblEmployeeMasters.Any(x => x.Name == employeeMaster.Name && x.IsActive != true))
+                return null;
+
+            _context.TblEmployeeMasters.Add(employeeMaster);
+            await _context.SaveChangesAsync();
+            return employeeMaster;
         }
         #endregion
 
-        #region Add Employee
-        public async Task<int> AddEmployee(TblUserMaster userMaster)
+        #region Add Employee Qualification
+        public async Task<int> AddEmployeeQualification(TblEmployeeQualification employeeQualification)
         {
-            if (_context.TblUserMasters.Any(x => x.UserUname == userMaster.UserUname))
+            if (_context.TblEmployeeQualifications.Any(x => x.EmpId == employeeQualification.EmpId && x.Degree == employeeQualification.Degree))
                 return 0;
 
-            _context.TblUserMasters.Add(userMaster);
+            await _context.TblEmployeeQualifications.AddAsync(employeeQualification);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Add Employee Experience
+        public async Task<int> AddEmployeeExperience(TblEmployeeExperience employeeExperience)
+        {
+            if (_context.TblEmployeeExperiences.Any(x => x.EmpId == employeeExperience.EmpId && x.CompanyName == employeeExperience.CompanyName))
+                return 0;
+
+            await _context.TblEmployeeExperiences.AddAsync(employeeExperience);
             return await _context.SaveChangesAsync();
         }
         #endregion
 
         #region Update Employee
-        public async Task<int> UpdateEmployee(TblUserMaster userMaster)
+        public async Task<int> UpdateEmployee(TblEmployeeMaster employeeMaster)
         {
-            var employee = _context.TblUserMasters.AsNoTracking().Where(x => x.UserId == userMaster.UserId);
-
+            var employee = _context.TblEmployeeMasters.AsNoTracking().Where(x => x.Id == employeeMaster.Id || (x.Name == employeeMaster.Name && x.Id != employeeMaster.Id));
             if (employee == null) return 0;
 
-            _context.TblUserMasters.Update(userMaster);
+            _context.TblEmployeeMasters.Update(employeeMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Update Employee Qualification
+        public async Task<int> UpdateEmployeeQualification(TblEmployeeQualification employeeQualification)
+        {
+            if (_context.TblEmployeeQualifications.Any(x => x.Id != employeeQualification.Id && x.EmpId == employeeQualification.EmpId && x.Degree == employeeQualification.Degree))
+                return 0;
+
+            _context.TblEmployeeQualifications.Update(employeeQualification);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Update Employee Experience 
+        public async Task<int> UpdateEmployeeExperience(TblEmployeeExperience employeeExperience)
+        {
+            if (_context.TblEmployeeExperiences.Any(x => x.Id != employeeExperience.Id && x.EmpId == employeeExperience.EmpId && x.CompanyName == employeeExperience.CompanyName))
+                return 0;
+
+            _context.TblEmployeeExperiences.Update(employeeExperience);
             return await _context.SaveChangesAsync();
         }
         #endregion
@@ -85,11 +122,40 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #region Deactivate Employee
         public async Task<int> DeactivateEmployee(int id)
         {
-            var employee = await _context.TblUserMasters.FindAsync(id);
+            var employee = await _context.TblEmployeeMasters.FindAsync(id);
 
             if (employee == null) return 0;
 
-            employee.UserIsactive = false;
+            var employeeExperience = await _context.TblEmployeeExperiences.Where(x => x.EmpId == id).ToListAsync();
+            var employeeQualification = await _context.TblEmployeeQualifications.Where(x => x.EmpId == id).ToListAsync();
+            employee.IsActive = false;
+
+            _context.TblEmployeeExperiences.RemoveRange(employeeExperience);
+            _context.TblEmployeeQualifications.RemoveRange(employeeQualification);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Delete Employee Qualification
+        public async Task<int> DeleteEmployeeQualification(int id)
+        {
+            var employeeQualification = await _context.TblEmployeeQualifications.FindAsync(id);
+
+            if (employeeQualification == null) return 0;
+
+            _context.TblEmployeeQualifications.Remove(employeeQualification);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Delete Employee Experience
+        public async Task<int> DeleteEmployeeExperience(int id)
+        {
+            var employeeQualification = await _context.TblEmployeeExperiences.FindAsync(id);
+
+            if (employeeQualification == null) return 0;
+
+            _context.TblEmployeeExperiences.Remove(employeeQualification);
             return await _context.SaveChangesAsync();
         }
         #endregion

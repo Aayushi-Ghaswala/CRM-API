@@ -19,7 +19,7 @@ namespace CRM_api.Controllers.HR_Module
         }
 
         #region Get all Departments
-        [HttpGet]
+        [HttpGet("GetDepartment")]
         public async Task<IActionResult> GetDepartment([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
@@ -35,24 +35,8 @@ namespace CRM_api.Controllers.HR_Module
         }
         #endregion
 
-        #region Get Department By Id
-        [HttpGet("GetDepartmentById")]
-        public async Task<ActionResult<DepartmentDto>> GetDepartmentById(int deptId)
-        {
-            try
-            {
-                var department = await _departmentService.GetDepartmentByIdAsync(deptId);
-                return department.DepartmentId != 0 ? Ok(department) : NoContent();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        #endregion
-
         #region Add Department
-        [HttpPost]
+        [HttpPost("AddDepartment")]
         public async Task<ActionResult> AddDepartment(AddDepartmentDto addDepartmentDto)
         {
             try
@@ -68,7 +52,7 @@ namespace CRM_api.Controllers.HR_Module
         #endregion
 
         #region Update Department
-        [HttpPut]
+        [HttpPut("UpdateDepartment")]
         public async Task<ActionResult> UpdateDepartment(UpdateDepartmentDto updateDepartmentDto)
         {
             try
@@ -84,7 +68,7 @@ namespace CRM_api.Controllers.HR_Module
         #endregion
 
         #region Deactivate department
-        [HttpDelete]
+        [HttpDelete("DeactivateDepartment")]
         public async Task<IActionResult> DeactivateDepartment(int id)
         {
             try
