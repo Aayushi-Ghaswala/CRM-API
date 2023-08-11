@@ -117,17 +117,21 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         #endregion
 
         #region Get Company And Account wise Account Transaction
-        public async Task<List<TblAccountTransaction>> GetCompanyAndAccountWiseTransaction(int? companyId, int? accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams)
+        public async Task<List<TblAccountTransaction>> GetCompanyAndAccountWiseTransaction(int? companyId, int? accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams, string docType = null)
         {
             var filterData = new List<TblAccountTransaction>().AsQueryable();
 
             if (search is not null)
             {
-                filterData = _context.Search<TblAccountTransaction>(search).Where(x => (companyId == null || x.Companyid == companyId) && x.Accountid == accountId && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date).Include(x => x.TblAccountMaster).Include(x => x.UserMaster).Include(x => x.CompanyMaster).Include(x => x.TblMgainCurrancyMaster).AsQueryable();
+                filterData = _context.Search<TblAccountTransaction>(search).Where(x => (companyId == null || x.Companyid == companyId) && (docType == null || x.DocType.ToLower().Equals(docType.ToLower())) 
+                                                             && (accountId == null || x.Accountid == accountId) && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
+                                                             .Include(x => x.TblAccountMaster).Include(x => x.CompanyMaster).AsQueryable();
             }
             else
             {
-                filterData = _context.TblAccountTransactions.Where(x => (companyId == null || x.Companyid == companyId) && x.Accountid == accountId && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date).Include(x => x.TblAccountMaster).Include(x => x.UserMaster).Include(x => x.CompanyMaster).Include(x => x.TblMgainCurrancyMaster).AsQueryable();
+                filterData = _context.TblAccountTransactions.Where(x => (companyId == null || x.Companyid == companyId) && (docType == null || x.DocType.ToLower().Equals(docType.ToLower()))
+                                                            && (accountId == null || x.Accountid == accountId) && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
+                                                            .Include(x => x.TblAccountMaster).Include(x => x.CompanyMaster).AsQueryable();
             }
 
             // Apply Sortintg
@@ -142,7 +146,7 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         {
             List<TblAccountTransaction> transactions = new List<TblAccountTransaction>();
 
-            if (debit is not null || credit is not null)
+            if (debit is not null || credit is not null || debit != 0 || credit != 0)
             {
                 var transaction = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo) && x.Debit != debit && x.Credit != credit)
                                                                        .Include(x => x.TblAccountMaster).AsNoTracking().FirstOrDefaultAsync();

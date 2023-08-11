@@ -75,9 +75,9 @@ namespace CRM_api.Services.Services.Account_Module
         #endregion
 
         #region Get KA Group Bank And Payment Accounts
-        public async Task<ResponseDto<AccountMasterDto>> GetKAGroupBankAndPaymentAccountsAsync(string? filterString, string? search, SortingParams sortingParams)
+        public async Task<ResponseDto<AccountMasterDto>> GetKAGroupBankAndPaymentAccountsAsync(int? companyId, string? filterString, string? search, SortingParams sortingParams)
         {
-            var accounts = await _accountRepository.GetKAGroupBankAndPaymentAccounts(filterString, search, sortingParams);
+            var accounts = await _accountRepository.GetKAGroupBankAndPaymentAccounts(companyId, filterString, search, sortingParams);
             var mappedAccounts = _mapper.Map<ResponseDto<AccountMasterDto>>(accounts);
             return mappedAccounts;
         }
