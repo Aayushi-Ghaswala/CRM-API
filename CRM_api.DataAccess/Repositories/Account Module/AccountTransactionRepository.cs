@@ -170,6 +170,13 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
         #endregion
 
+        #region Get Account Transaction by date
+        public async Task<List<TblAccountTransaction>> GetAccountTransactionByDate(DateTime date)
+        {
+            return await _context.TblAccountTransactions.Where(a => a.DocDate == date && a.DocParticulars.Equals("Fasttrack Commission")).ToListAsync();
+        }
+        #endregion
+
         #region Add Account Transaction
         public async Task<int> AddAccountTransaction(List<TblAccountTransaction> tblAccountTransactions)
         {

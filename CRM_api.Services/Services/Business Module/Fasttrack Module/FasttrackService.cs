@@ -83,6 +83,12 @@ namespace CRM_api.Services.Services.Business_Module.Fasttrack_Module
             var result = await _fasttrackRepository.ReleaseCommission(date, isTruncate);
             if (result.Item1 > 0 && result.Item3 is not null && result.Item3.Count > 0)
             {
+                var transactions = await _accountTransactionRepository.GetAccountTransactionByDate(date);
+                if (transactions.Count > 0)
+                {
+                    await _accountTransactionRepository.DeleteAccountTransaction(transactions);
+                }
+
                 List<TblAccountTransaction> fasttrackTransactions = new List<TblAccountTransaction>();
                 string docNo = null;
 
