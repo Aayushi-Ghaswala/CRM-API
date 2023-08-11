@@ -6,7 +6,7 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
     {
         public int Id { get; set; }
         public int? Mgainid { get; set; }
-        public MGainCurrancyDto TblMgainCurrancyMaster { get; set; }
+        public MGainCurrancyDto? TblMgainCurrancyMaster { get; set; }
         public string? PaymentMode { get; set; }
         public string? ChequeNo { get; set; }
         public DateTime? ChequeDate { get; set; }
