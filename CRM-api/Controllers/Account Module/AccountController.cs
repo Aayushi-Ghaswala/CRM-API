@@ -114,11 +114,11 @@ namespace CRM_api.Controllers.Account_Module
 
         #region Get KA Group Bank And Payment Accounts
         [HttpGet("GetKAGroupBankAndPaymentAccounts")]
-        public async Task<IActionResult> GetKAGroupBankAndPaymentAccounts(string? filterString, string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetKAGroupBankAndPaymentAccounts(int? companyId, string? filterString, string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var data = await _accountService.GetKAGroupBankAndPaymentAccountsAsync(filterString, search, sortingParams);
+                var data = await _accountService.GetKAGroupBankAndPaymentAccountsAsync(companyId, filterString, search, sortingParams);
                 return Ok(data);
             }
             catch (Exception)

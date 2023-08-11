@@ -54,9 +54,9 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         #endregion
 
         #region Get User Account by Account Id
-        public async Task<TblAccountMaster> GetUserAccountById(int? id)
+        public async Task<List<TblAccountMaster>> GetUserAccountById(int? accountId, int? companyId = null)
         {
-            return await _context.TblAccountMasters.Where(x => x.AccountId == id).FirstOrDefaultAsync();
+            return await _context.TblAccountMasters.Where(x => (accountId == null || x.AccountId == accountId) && (companyId == null || x.Companyid == companyId)).Include(x => x.TblAccountGroupMaster).ToListAsync();
         }
         #endregion
 
@@ -240,18 +240,20 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         #endregion
 
         #region Get KA Group Bank And Payment Accounts
-        public async Task<Response<TblAccountMaster>> GetKAGroupBankAndPaymentAccounts(string? filterString, string? search, SortingParams sortingParams)
+        public async Task<Response<TblAccountMaster>> GetKAGroupBankAndPaymentAccounts(int? companyId, string? filterString, string? search, SortingParams sortingParams)
         {
             double pageCount = 0;
             var filterData = new List<TblAccountMaster>().AsQueryable();
 
             if (search is not null)
             {
-                filterData = _context.Search<TblAccountMaster>(search).Where(x => x.TblAccountGroupMaster.AccountGrpName.ToLower().Equals(filterString.ToLower()) && x.Isdeleted != true).Include(x => x.TblCompanyMaster).AsQueryable();
+                filterData = _context.Search<TblAccountMaster>(search).Where(x => x.TblAccountGroupMaster.AccountGrpName.ToLower().Equals(filterString.ToLower()) && x.Isdeleted != true
+                                                                 && (companyId == null || x.Companyid == companyId)).Include(x => x.TblCompanyMaster).AsQueryable();
             }
             else
             {
-                filterData = _context.TblAccountMasters.Where(x => x.TblAccountGroupMaster.AccountGrpName.ToLower().Equals(filterString.ToLower()) && x.Isdeleted != true).Include(x => x.TblCompanyMaster).AsQueryable();
+                filterData = _context.TblAccountMasters.Where(x => x.TblAccountGroupMaster.AccountGrpName.ToLower().Equals(filterString.ToLower()) && x.Isdeleted != true
+                                                                 && (companyId == null || x.Companyid == companyId)).Include(x => x.TblCompanyMaster).AsQueryable();
             }
 
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
