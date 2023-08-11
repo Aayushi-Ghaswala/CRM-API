@@ -11,6 +11,7 @@
         public static string PortfolioTransfer = "portfolio transfer";
         public static string Brokerage = "brokerage";
         public static string KAGroup = "ka group";
+        public static string Journal = "journal";
 
         public enum UserLevel
         {

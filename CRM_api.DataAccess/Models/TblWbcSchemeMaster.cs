@@ -14,6 +14,7 @@ namespace CRM_api.DataAccess.Models
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
         public int? On_the_spot_GP { get; set; }
+        public bool IsParentAllocation { get; set; }
 
         [ForeignKey(nameof(WbcTypeId))]
         public virtual TblWbcTypeMaster? TblWbcTypeMaster { get; set; }

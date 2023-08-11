@@ -18,12 +18,12 @@ namespace CRM_api.DataAccess.Models
         public int? StQty { get; set; }
         public decimal? StRate { get; set; }
         public decimal? StBrokerage { get; set; }
-        public decimal? StNetrate { get; set; }
-        public decimal? StNetvalue { get; set; }
-        public decimal? StCostpershare { get; set; }
-        public decimal? StCostvalue { get; set; }
-        public decimal? StNetsharerate { get; set; }
-        public decimal? StNetcostvalue { get; set; }
+        public decimal? StNetrate { get; set; } = 0;
+        public decimal? StNetvalue { get; set; } = 0;
+        public decimal? StCostpershare { get; set; } = 0;
+        public decimal? StCostvalue { get; set; } = 0;
+        public decimal? StNetsharerate { get; set; } = 0;
+        public decimal? StNetcostvalue { get; set; } = 0;
         public int? Userid { get; set; }
         public string? FirmName { get; set; }
 

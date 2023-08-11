@@ -9,7 +9,7 @@ namespace CRM_api.DataAccess.Models
         public int UserId { get; set; }
         public int? Credit { get; set; } = 0;
         public int? Debit { get; set; } = 0;
-        public string WbcTypeName { get; set; }
+        public string? WbcTypeName { get; set; }
         public DateTime Date { get; set; }
 
         [ForeignKey(nameof(WbcSchemeId))]

@@ -28,5 +28,25 @@ namespace CRM_api.DataAccess.Models
         public virtual TblCompanyMaster? CompanyMaster { get; set; }
         [ForeignKey(nameof(Currencyid))]
         public virtual TblMgainCurrancyMaster TblMgainCurrancyMaster { get; set; }
+
+        public TblAccountTransaction()
+        {
+            
+        }
+        public TblAccountTransaction(DateTime? docDate, string? docParticulars, string? docType, string? docNo, decimal? debit, decimal? credit, int? docUserid, int? accountid, int? mgainid, int? companyid, string? transactionType, int? currencyid)
+        {
+            DocDate = docDate;
+            DocParticulars = docParticulars;
+            DocType = docType;
+            DocNo = docNo;
+            Debit = debit;
+            Credit = credit;
+            DocUserid = docUserid;
+            Accountid = accountid;
+            Mgainid = mgainid;
+            Companyid = companyid;
+            TransactionType = transactionType;
+            Currencyid = currencyid;
+        }
     }
 }
