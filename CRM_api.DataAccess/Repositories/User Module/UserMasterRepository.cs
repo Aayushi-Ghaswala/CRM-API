@@ -263,6 +263,80 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
         #endregion
 
+        #region Get Family Member By UserId
+        public async Task<Response<TblFamilyMember>> GetFamilyMemberByUserId(int userId, string? search, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+            var filterData = new List<TblFamilyMember>().AsQueryable();
+
+            if (search is not null)
+            {
+                filterData = _context.Search<TblFamilyMember>(search).Where(x => x.Userid == userId).Include(x => x.TblUserMaster).Include(x => x.RelativeUser).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblFamilyMembers.Where(x => x.Userid == userId).Include(x => x.TblUserMaster).Include(x => x.RelativeUser).AsQueryable();
+            }
+
+            pageCount = Math.Ceiling(filterData.Count() / sortingParams.PageSize);
+
+            // Apply Sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+            
+            // Apply Pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var familyResponse = new Response<TblFamilyMember>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+
+            return familyResponse;
+        }
+        #endregion
+
+        #region Get Relative Access By UserId
+        public async Task<Response<TblFamilyMember>> GetRelativeAccessByUserId(int userId, string? search, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+            var filterData = new List<TblFamilyMember>().AsQueryable();
+
+            if (search is not null)
+            {
+                filterData = _context.Search<TblFamilyMember>(search).Where(x => x.RelativeUserId == userId).Include(x => x.TblUserMaster).Include(x => x.RelativeUser).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblFamilyMembers.Where(x => x.RelativeUserId == userId).Include(x => x.TblUserMaster).Include(x => x.RelativeUser).AsQueryable();
+            }
+
+            pageCount = Math.Ceiling(filterData.Count() / sortingParams.PageSize);
+
+            // Apply Sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply Pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var familyResponse = new Response<TblFamilyMember>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+
+            return familyResponse;
+        }
+        #endregion
+
         #region AddUser
         public async Task<TblUserMaster> AddUser(TblUserMaster userMaster)
         {
@@ -308,6 +382,19 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             }
 
             _context.TblUserMasters.Update(userMaster);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Update Relative Access
+        public async Task<int> UpdateRelativeAccess(int id, bool isDisable)
+        {
+            var familyMember = await _context.TblFamilyMembers.Where(x => x.Memberid == id).FirstOrDefaultAsync();
+
+            if (familyMember is null) return 0;
+
+            familyMember.IsDisable = isDisable;
+            _context.TblFamilyMembers.Update(familyMember);
             return await _context.SaveChangesAsync();
         }
         #endregion

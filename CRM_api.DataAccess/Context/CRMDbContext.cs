@@ -1002,6 +1002,8 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false)
                     .HasColumnName("relation");
 
+                entity.Property(e => e.IsDisable).HasColumnName("IsDisable").HasDefaultValue(0);
+
                 entity.Property(e => e.RelativeUserId).HasColumnName("relativeUserId");
 
                 entity.Property(e => e.Userid).HasColumnName("userid");

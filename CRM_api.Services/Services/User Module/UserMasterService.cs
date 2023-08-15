@@ -98,6 +98,26 @@ namespace CRM_api.Services.Services.User_Module
         }
         #endregion
 
+        #region Get Family Member By UserId
+        public async Task<ResponseDto<FamilyMemberDto>> GetFamilyMemberByUserIdAsync(int userId, string? search, SortingParams sortingParams)
+        {
+            var familyMembers = await _userMasterRepository.GetFamilyMemberByUserId(userId, search, sortingParams);
+            var mappedFamilyMembers = _mapper.Map<ResponseDto<FamilyMemberDto>>(familyMembers);
+
+            return mappedFamilyMembers;
+        }
+        #endregion
+
+        #region Get Relative Access By UserId
+        public async Task<ResponseDto<FamilyMemberDto>> GetRelativeAccessByUserIdAsync(int userId, string? search, SortingParams sortingParams)
+        {
+            var relativeAccess = await _userMasterRepository.GetRelativeAccessByUserId(userId, search, sortingParams);
+            var mappedRelativeAccess = _mapper.Map<ResponseDto<FamilyMemberDto>>(relativeAccess);
+
+            return mappedRelativeAccess;
+        }
+        #endregion
+
         #region Add User
         public async Task<int> AddUserAsync(AddUserMasterDto addUser)
         {
@@ -134,6 +154,13 @@ namespace CRM_api.Services.Services.User_Module
             var user = _mapper.Map<TblUserMaster>(updateUser);
 
             return await _userMasterRepository.UpdateUser(user);
+        }
+        #endregion
+
+        #region Update Relative Access
+        public async Task<int> UpdateRelativeAccessAsync(int id, bool isDisable)
+        {
+            return await _userMasterRepository.UpdateRelativeAccess(id, isDisable);
         }
         #endregion
 

@@ -14,8 +14,11 @@ namespace CRM_api.Services.IServices.User_Module
         Task<List<UserNameDto>> GetUsersByCategoryIdAsync(int categoryId, string search, SortingParams sortingParams);
         int PanOrAadharExistAsync(int? id, string? pan, string? aadhar);
         Task<byte[]> GetUsersForCSVAsync(string filterString, string search, SortingParams sortingParams);
+        Task<ResponseDto<FamilyMemberDto>> GetFamilyMemberByUserIdAsync(int userId, string? search, SortingParams sortingParams);
+        Task<ResponseDto<FamilyMemberDto>> GetRelativeAccessByUserIdAsync(int userId, string? search, SortingParams sortingParams);
         Task<int> AddUserAsync(AddUserMasterDto addUser);
         Task<int> UpdateUserAsync(UpdateUserMasterDto updateUser);
+        Task<int> UpdateRelativeAccessAsync(int id, bool isDisable);
         Task<int> DeactivateUserAsync(int id);
     }
 }

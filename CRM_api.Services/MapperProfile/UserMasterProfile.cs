@@ -43,6 +43,9 @@ namespace CRM_api.Services.MapperProfile
                 .ForMember(user => user.UserFcmlastupdaetime, opt => opt.MapFrom(src => src.UserFcmlastupdaetime.Value.ToShortDateString()))
                 .ForMember(user => user.UserDob, opt => opt.MapFrom(src => src.UserDob.Value.ToShortDateString()))
                 .ForMember(user => user.FastTrackActivationDate, opt => opt.MapFrom(src => src.FastTrackActivationDate.Value.ToShortDateString()));
+
+            CreateMap<TblFamilyMember, FamilyMemberDto>();
+            CreateMap<Response<TblFamilyMember>, ResponseDto<FamilyMemberDto>>();
         }
     }
 }
