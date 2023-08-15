@@ -1002,6 +1002,8 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false)
                     .HasColumnName("relation");
 
+                entity.Property(e => e.IsDisable).HasColumnName("IsDisable").HasDefaultValue(0);
+
                 entity.Property(e => e.RelativeUserId).HasColumnName("relativeUserId");
 
                 entity.Property(e => e.Userid).HasColumnName("userid");
@@ -2311,8 +2313,6 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false)
                     .HasColumnName("15H/15G");
             });
-
-            modelBuilder.Entity<TblMgaindetail>().HasOne(x => x.EmployeeMaster).WithMany().HasForeignKey(x => x.MgainEmployeeid);
 
             modelBuilder.Entity<TblMgaindetailsTruncate>(entity =>
             {

@@ -68,6 +68,40 @@ namespace CRM_api.Controllers.User_Module
         }
         #endregion
 
+        #region Get Family Member By UserId
+        [HttpGet("GetFamilyMemberByUserId")]
+        public async Task<IActionResult> GetFamilyMemberByUserId(int userId, string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var familyMembers = await _userMasterService.GetFamilyMemberByUserIdAsync(userId, search, sortingParams);
+                return Ok(familyMembers);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region Get Family Member By UserId
+        [HttpGet("GetRelativeAccessByUserId")]
+        public async Task<IActionResult> GetRelativeAccessByUserId(int userId, string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var relativeAccess = await _userMasterService.GetRelativeAccessByUserIdAsync(userId, search, sortingParams);
+                return Ok(relativeAccess);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        #endregion
+
         #region Check Pan Or Aadhar Exist
         [HttpPost("PanOrAadharExist")]
         public ActionResult PanOrAadharExist(int? id, string? pan, string? aadhar)
@@ -117,6 +151,23 @@ namespace CRM_api.Controllers.User_Module
             {
                 var user = await _userMasterService.UpdateUserAsync(updateUser);
                 return user != 0 ? Ok(new { Message = "User updated successfully." }) : BadRequest(new { Message = "Unable to update user." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Update Relative Access
+        [HttpPut("UpdateRelativeAccess")]
+        public async Task<IActionResult> UpdateRelativeAccess(int id, bool isDisable)
+        {
+            try
+            {
+                var flag = await _userMasterService.UpdateRelativeAccessAsync(id, isDisable);
+                return (flag != 0 && isDisable == false) ? Ok(new { Message = "Access grant successfully." }) : (flag != 0 && isDisable == true) ? Ok(new { Message = "Access disable successfully." })
+                                                        : BadRequest(new { Message = "Unbale to update access" });
             }
             catch (Exception)
             {
