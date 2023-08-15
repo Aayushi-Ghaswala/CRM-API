@@ -1,4 +1,6 @@
-﻿namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
+﻿using CRM_api.Services.Dtos.ResponseDto.HR_Module;
+
+namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
 {
     public class MGainDetailsDto
     {
@@ -26,7 +28,7 @@
         public decimal? MgainRedemamt { get; set; }
         public UserMasterDto TblUserMaster { get; set; }
         public bool? MgainIsactive { get; set; }
-        public UserMasterDto EmployeeMaster { get; set; }
+        public EmployeeMasterDto EmployeeMaster { get; set; }
         public string? MgainSchemename { get; set; }
         public DateTime? Mgain1stholderDob { get; set; }
         public string? Mgain1stholderGender { get; set; }

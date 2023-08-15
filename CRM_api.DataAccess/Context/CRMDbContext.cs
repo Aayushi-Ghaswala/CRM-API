@@ -2314,8 +2314,6 @@ namespace CRM_api.DataAccess.Context
                     .HasColumnName("15H/15G");
             });
 
-            modelBuilder.Entity<TblMgaindetail>().HasOne(x => x.EmployeeMaster).WithMany().HasForeignKey(x => x.MgainEmployeeid);
-
             modelBuilder.Entity<TblMgaindetailsTruncate>(entity =>
             {
                 entity.ToTable("tbl_mgaindetails_truncate");
