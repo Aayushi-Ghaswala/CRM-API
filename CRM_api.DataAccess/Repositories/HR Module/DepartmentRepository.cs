@@ -55,7 +55,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #region Add Department
         public async Task<int> AddDepartment(TblDepartmentMaster departmentMaster)
         {
-            if (_context.TblDepartmentMasters.Any(x => x.Name == departmentMaster.Name))
+            if (_context.TblDepartmentMasters.Any(x => x.Name == departmentMaster.Name && x.Isdeleted != true))
                 return 0;
 
             _context.TblDepartmentMasters.Add(departmentMaster);
