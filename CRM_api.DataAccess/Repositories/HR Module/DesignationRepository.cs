@@ -55,7 +55,7 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         #region Add Designation
         public async Task<int> AddDesignation(TblDesignationMaster designationMaster)
         {
-            if (_context.TblDesignationMasters.Any(x => x.Name == designationMaster.Name))
+            if (_context.TblDesignationMasters.Any(x => x.Name == designationMaster.Name && x.Isdeleted != true))
                 return 0;
 
             _context.TblDesignationMasters.Add(designationMaster);
