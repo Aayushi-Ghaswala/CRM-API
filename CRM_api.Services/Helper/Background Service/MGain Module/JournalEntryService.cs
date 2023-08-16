@@ -35,7 +35,7 @@ namespace CRM_api.Services.Helper.Background_Service.MGain_Module
                 var now = DateTime.Now.ToString("dd-MM-yyyy");
                 string? endOfMonth = null;
                 if (DateTime.Now.Month < 10)
-                    endOfMonth = (16 + "-0" + DateTime.Now.Month + "-" + DateTime.Now.Year);
+                    endOfMonth = (DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month).ToString() + "-0" + DateTime.Now.Month + "-" + DateTime.Now.Year);
                 else
                     endOfMonth = (DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month).ToString() + "-" + DateTime.Now.Month + "-" + DateTime.Now.Year);
 
