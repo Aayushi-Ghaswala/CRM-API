@@ -44,7 +44,7 @@ namespace CRM_api.Services.Services.Account_Module
 
             if (docNo is null)
             {
-                var transaction = await _accountTransactionRepository.GetLastAccountTrasaction(filterString, year);
+                var transaction = _accountTransactionRepository.GetLastAccountTrasaction(filterString, year);
 
                 if (transaction is not null)
                 {

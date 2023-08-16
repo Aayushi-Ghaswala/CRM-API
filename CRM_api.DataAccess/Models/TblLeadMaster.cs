@@ -24,7 +24,7 @@ namespace CRM_api.DataAccess.Models
         public bool IsDeleted { get; set; }
 
         [ForeignKey(nameof(AssignedTo))]
-        public virtual TblUserMaster AssignUser { get; set; }
+        public virtual TblEmployeeMaster AssignUser { get; set; }
         [ForeignKey(nameof(ReferredBy))]
         public virtual TblUserMaster ReferredUser { get; set; }
         [ForeignKey(nameof(CampaignId))]

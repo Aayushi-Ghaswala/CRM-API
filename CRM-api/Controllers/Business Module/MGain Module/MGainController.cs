@@ -96,11 +96,11 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
               
         #region MGain Monthly Non-Cumulative Interest Computation & Release
         [HttpGet("MGainMonthlyNon-CumulativeInterest")]
-        public async Task<IActionResult> GetNonCumulativeMonthlyReport(int month, int year, int? schemaId, decimal? tds, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, bool? isSendSMS, string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetNonCumulativeMonthlyReport(int month, int year, int? schemaId, decimal? tds, bool? isPayment, DateTime? crEntryDate, string? crNarration, bool? isSendSMS, string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var getData = await _mGainService.GetNonCumulativeMonthlyReportAsync(month, year, schemaId, tds, isJournal, jvEntryDate, jvNarration, isPayment, crEntryDate, crNarration, search, sortingParams, isSendSMS);
+                var getData = await _mGainService.GetNonCumulativeMonthlyReportAsync(month, year, schemaId, tds, isPayment, crEntryDate, crNarration, search, sortingParams, isSendSMS);
 
                 return getData.Item2 == null ? Ok(getData.Item1) : getData.Item1 == null ? BadRequest(new { Message = getData.Item2 }) : getData.Item1 != null && getData.Item2 != null ? Ok(new { Message = getData.Item2 }) : Ok(new { Message = getData.Item2 });
             }
