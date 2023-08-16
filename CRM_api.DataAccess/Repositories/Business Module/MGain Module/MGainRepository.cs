@@ -80,9 +80,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             IQueryable<TblMgaindetail> filterData = mGainDetails.AsQueryable();
 
             if (searchingParams is not null)
-                filterData = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date && (schemeId == null || x.MgainSchemeid == schemeId)).Include(x => x.TblMgainSchemeMaster).AsQueryable();
+                filterData = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date && (schemeId == null || x.MgainSchemeid == schemeId)).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainPaymentMethods).AsQueryable();
             else
-                filterData = _context.TblMgaindetails.Where(x => x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date && (schemeId == null || x.MgainSchemeid == schemeId)).Include(x => x.TblMgainSchemeMaster).AsQueryable();
+                filterData = _context.TblMgaindetails.Where(x => x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date && (schemeId == null || x.MgainSchemeid == schemeId)).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainPaymentMethods).AsQueryable();
 
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -239,11 +239,11 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #endregion
 
         #region Get Account by UserId
-        public async Task<TblAccountMaster> GetAccountByUserId(int? userId, string? accountName)
+        public TblAccountMaster GetAccountByUserId(int? userId, string? accountName)
         {
             TblAccountMaster account = new TblAccountMaster();
 
-            account = await _context.TblAccountMasters.FirstOrDefaultAsync(x => (userId != 0 && x.UserId == userId) || (accountName != null & accountName == accountName));
+            account = _context.TblAccountMasters.FirstOrDefault(x => (userId != 0 && x.UserId == userId) || (accountName != null & accountName == accountName));
 
             return account;
         }
@@ -306,17 +306,17 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #endregion
 
         #region Add MGain Interest Entry
-        public async Task<int> AddMGainInterest(List<TblAccountTransaction> tblAccountTransactions, DateTime? date)
+        public int AddMGainInterest(List<TblAccountTransaction> tblAccountTransactions, DateTime? date)
         {
             var accountTransaction = tblAccountTransactions.First();
             if (_context.TblAccountTransactions.Any(x => x.DocType.ToLower().Equals(accountTransaction.DocType) && x.DocDate.Value.Month == date.Value.Month
-                        && x.DocDate.Value.Year == date.Value.Year))
+                        && x.DocDate.Value.Year == date.Value.Year && x.Mgainid != null))
             {
                 return 0;
             }
 
-            await _context.TblAccountTransactions.AddRangeAsync(tblAccountTransactions);
-            return await _context.SaveChangesAsync();
+            _context.TblAccountTransactions.AddRange(tblAccountTransactions);
+            return _context.SaveChanges();
         }
         #endregion
 

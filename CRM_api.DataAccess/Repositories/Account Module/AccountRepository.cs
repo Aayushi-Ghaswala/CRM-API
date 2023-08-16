@@ -163,6 +163,14 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
         #endregion
 
+        #region Get Company By Name
+        public TblCompanyMaster GetCompanyByName(string? Name)
+        {
+            var company = _context.TblCompanyMasters.FirstOrDefault(x => x.Name.ToLower().Equals(Name.ToLower()));
+            return company;
+        }
+        #endregion
+
         #region Get Financial Years
         public async Task<Response<TblFinancialYearMaster>> GetFinancialYears(string? searchingParams, SortingParams sortingParams)
         {

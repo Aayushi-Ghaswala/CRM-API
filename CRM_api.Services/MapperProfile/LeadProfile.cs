@@ -16,7 +16,7 @@ namespace CRM_api.Services.MapperProfile
             CreateMap<TblLeadMaster, LeadDto>();
             CreateMap<UpdateLeadDto, TblLeadMaster>();
             CreateMap<TblLeadMaster, LeadCSVDto>()
-                .ForMember(lead => lead.AssignUser, opt => opt.MapFrom(src => src.AssignUser.UserName))
+                .ForMember(lead => lead.AssignUser, opt => opt.MapFrom(src => src.AssignUser.Name))
                 .ForMember(lead => lead.ReferredUser, opt => opt.MapFrom(src => src.ReferredUser.UserName))
                 .ForMember(lead => lead.Campaign, opt => opt.MapFrom(src => src.CampaignMaster.Name))
                 .ForMember(lead => lead.City, opt => opt.MapFrom(src => src.CityMaster.CityName))

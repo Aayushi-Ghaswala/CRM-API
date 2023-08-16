@@ -4,6 +4,8 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
 {
     public class MGainNonCumulativeMonthlyReportDto
     {
+        public int Id { get; set; }
+        public int? MgainUserid { get; set; }
         public string? IntAccNo { get; set; }
         public string? IntBankName { get; set; }
         public string? MgainRedemdate { get; set; }
@@ -20,5 +22,6 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
         public decimal? TDS { get; set; }
         public decimal? PayAmount { get; set; }
         public decimal? InterstRate { get; set; }
+        public int? CurrancyId { get; set; }
     }
 }

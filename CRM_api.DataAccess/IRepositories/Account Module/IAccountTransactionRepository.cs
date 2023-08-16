@@ -6,7 +6,7 @@ namespace CRM_api.DataAccess.IRepositories.Account_Module
 {
     public interface IAccountTransactionRepository
     {
-        Task<TblAccountTransaction> GetLastAccountTrasaction(string? filterString, string? number);
+        TblAccountTransaction GetLastAccountTrasaction(string? filterString, string? number);
         Task<TblInvesmentType> GetInvestmentType(string? name);
         Task<Response<TblPaymentTypeMaster>> GetPaymentType(string? search, SortingParams sortingParams);
         Task<TblPaymentTypeMaster> GetPaymentTypebyName(string? name);

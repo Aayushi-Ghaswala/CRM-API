@@ -1,4 +1,5 @@
 ﻿using CRM_api.Services.Dtos.ResponseDto.Business_Module.LI_GI_Module;
+using CRM_api.Services.Dtos.ResponseDto.HR_Module;
 using CRM_api.Services.Dtos.ResponseDto.User_Module;
 
 namespace CRM_api.Services.Dtos.ResponseDto.Sales_Module
@@ -6,7 +7,7 @@ namespace CRM_api.Services.Dtos.ResponseDto.Sales_Module
     public class LeadDto
     {
         public int Id { get; set; }
-        public UserNameDto? AssignUser { get; set; }
+        public EmployeeMasterDto? AssignUser { get; set; }
         public UserNameDto? ReferredUser { get; set; }
         public CampaignDto? CampaignMaster { get; set; }
         public StatusDto? StatusMaster { get; set; }

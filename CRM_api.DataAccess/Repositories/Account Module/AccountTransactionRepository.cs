@@ -18,9 +18,9 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
 
         #region Get Transaction Doc No
-        public async Task<TblAccountTransaction> GetLastAccountTrasaction(string? filterString, string? number)
+        public TblAccountTransaction GetLastAccountTrasaction(string? filterString, string? number)
         {
-            var transaction = await _context.TblAccountTransactions.Where(x => x.DocType == filterString && x.DocNo.ToLower().Contains(number.ToLower())).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+            var transaction = _context.TblAccountTransactions.Where(x => x.DocType == filterString && x.DocNo.ToLower().Contains(number.ToLower())).OrderByDescending(x => x.Id).FirstOrDefault();
             return transaction;
         }
         #endregion
