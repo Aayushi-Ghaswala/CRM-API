@@ -103,7 +103,7 @@ namespace CRM_api.Services.Services.WBC_Mall_Module
                 if (flag > 0)
                     return ($"Order {updateOrderDto.TblOrderStatus.Statusname.ToLower()} successfully.", 1);
                 else
-                    return ("Unable to update order status.", flag);
+                    return ("Unable to update order status.", 0);
             }
 
             return ("Unable to update order status.", 0);
