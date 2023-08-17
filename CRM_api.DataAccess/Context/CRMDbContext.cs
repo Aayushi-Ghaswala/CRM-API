@@ -3669,6 +3669,12 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false)
                     .HasColumnName("description");
 
+                entity.Property(e => e.GoldPointPrice).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.ManagedBy)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.ProdAvailableQty).HasColumnName("prod_available_qty");
 
                 entity.Property(e => e.ProdCatId).HasColumnName("prod_cat_id");
@@ -3688,6 +3694,10 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("prod_name");
+
+                entity.Property(e => e.ProdPrice)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("prod_price");
 
                 entity.Property(e => e.ProdRating)
                     .HasColumnType("decimal(2, 1)")
