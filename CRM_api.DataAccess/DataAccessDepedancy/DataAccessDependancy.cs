@@ -89,6 +89,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
 
             //WBC Mall Module
             services.AddScoped<IMallCategoryRepository, MallCategoryRepository>();
+            services.AddScoped<IMallProductRepository, MallProductRepository>();
         }
     }
 }

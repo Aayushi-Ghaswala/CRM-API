@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace CRM_api.DataAccess.Models
+﻿namespace CRM_api.DataAccess.Models
 {
     public partial class TblProductImg
     {
@@ -14,5 +11,15 @@ namespace CRM_api.DataAccess.Models
         public bool Isdeleted { get; set; }
 
         public virtual TblWbcMallProduct Product { get; set; } = null!;
+        public TblProductImg()
+        {
+
+        }
+        public TblProductImg(string img)
+        {
+            Img = img;
+            CeratedDate = DateTime.Now;
+            Isdeleted = false;
+        }
     }
 }

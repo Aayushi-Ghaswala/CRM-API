@@ -1,20 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using CRM_api.Services.Dtos.ResponseDto.WBC_Mall_Module;
+using Microsoft.AspNetCore.Http;
 
-namespace CRM_api.DataAccess.Models
+namespace CRM_api.Services.Dtos.AddDataDto.WBC_Mall_Module
 {
-    public partial class TblWbcMallProduct
+    public class UpdateMallProductDto
     {
-        public TblWbcMallProduct()
-        {
-            TblOrderDetails = new HashSet<TblOrderDetail>();
-            TblProductImgs = new HashSet<TblProductImg>();
-        }
-
         public int ProdId { get; set; }
         public string ProdName { get; set; } = null!;
         public int ProdCatId { get; set; }
         public DateTime ProdDateAdded { get; set; }
         public int? ProdDiscount { get; set; }
+        public IFormFile? FormFile { get; set; }
         public string? ProdImage { get; set; }
         public decimal? ProdRating { get; set; }
         public string? Description { get; set; }
@@ -23,10 +19,6 @@ namespace CRM_api.DataAccess.Models
         public decimal? GoldPointPrice { get; set; }
         public string? ManagedBy { get; set; }
         public bool? IsShowInApp { get; set; }
-
-        [ForeignKey(nameof(ProdCatId))]
-        public virtual TblWbcMallCategory TblWbcMallCategory { get; set; }
-        public virtual ICollection<TblOrderDetail> TblOrderDetails { get; set; }
-        public virtual ICollection<TblProductImg> TblProductImgs { get; set; }
+        public IFormFileCollection? FormFiles { get; set; }
     }
 }
