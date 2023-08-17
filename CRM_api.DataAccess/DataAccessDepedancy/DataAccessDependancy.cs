@@ -11,6 +11,7 @@ using CRM_api.DataAccess.IRepositories.Business_Module.WBC_Module;
 using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.IRepositories.Sales_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
+using CRM_api.DataAccess.IRepositories.WBC_Mall_Module;
 using CRM_api.DataAccess.Repositories.Account_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.Fasttrack_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module;
@@ -22,6 +23,7 @@ using CRM_api.DataAccess.Repositories.Business_Module.WBC_Module;
 using CRM_api.DataAccess.Repositories.HR_Module;
 using CRM_api.DataAccess.Repositories.Sales_Module;
 using CRM_api.DataAccess.Repositories.User_Module;
+using CRM_api.DataAccess.Repositories.WBC_Mall_Module;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -84,6 +86,9 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             //Account Module
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<IAccountTransactionRepository, AccountTransactionRepository>();
+
+            //WBC Mall Module
+            services.AddScoped<IMallCategoryRepository, MallCategoryRepository>();
         }
     }
 }

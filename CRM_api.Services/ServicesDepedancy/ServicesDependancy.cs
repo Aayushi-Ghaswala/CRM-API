@@ -14,6 +14,7 @@ using CRM_api.Services.IServices.Business_Module.WBC_Module;
 using CRM_api.Services.IServices.HR_Module;
 using CRM_api.Services.IServices.Sales_Module;
 using CRM_api.Services.IServices.User_Module;
+using CRM_api.Services.IServices.WBC_Mall_Module;
 using CRM_api.Services.Services.Account_Module;
 using CRM_api.Services.Services.Business_Module.Dashboard;
 using CRM_api.Services.Services.Business_Module.Fasttrack_Module;
@@ -26,6 +27,7 @@ using CRM_api.Services.Services.Business_Module.WBC_Module;
 using CRM_api.Services.Services.HR_Module;
 using CRM_api.Services.Services.Sales_Module;
 using CRM_api.Services.Services.User_Module;
+using CRM_api.Services.Services.WBC_Mall_Module;
 using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
@@ -102,6 +104,9 @@ namespace CRM_api.Services.ServicesDepedancy
             //Account Module
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IAccountTransactionservice, AccountTransactionservice>();
+
+            //WBC Mall Module
+            services.AddScoped<IMallCategoryService, MallCategoryService>();
         }
     }
 }
