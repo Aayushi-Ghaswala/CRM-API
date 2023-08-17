@@ -108,6 +108,8 @@ namespace CRM_api.Services.ServicesDepedancy
             //WBC Mall Module
             services.AddScoped<IMallCategoryService, MallCategoryService>();
             services.AddScoped<IMallProductService, MallProductService>();
+            services.AddScoped<IOrderStatusService, OrderStatusService>();
+            services.AddScoped<IOrderService, OrderService>();
         }
     }
 }

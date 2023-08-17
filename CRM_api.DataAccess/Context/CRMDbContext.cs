@@ -79,6 +79,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblOfferMaster> TblOfferMasters { get; set; } = null!;
         public virtual DbSet<TblOrder> TblOrders { get; set; } = null!;
         public virtual DbSet<TblOrderDetail> TblOrderDetails { get; set; } = null!;
+        public virtual DbSet<TblOrderStatus> TblOrderStatuses { get; set; } = null!;
         public virtual DbSet<TblPaymentTypeMaster> TblPaymentTypeMasters { get; set; } = null!;
         public virtual DbSet<TblPlotMaster> TblPlotMasters { get; set; } = null!;
         public virtual DbSet<TblPayCheck> TblPayChecks { get; set; } = null!;
@@ -2571,17 +2572,22 @@ namespace CRM_api.DataAccess.Context
 
             modelBuilder.Entity<TblOrder>(entity =>
             {
-                entity.HasKey(e => e.OrderId);
+                entity.HasKey(e => e.OrderId)
+                    .HasName("PK_tbl_Order");
 
-                entity.ToTable("tbl_Order");
+                entity.ToTable("tbl_order");
 
                 entity.Property(e => e.OrderId).ValueGeneratedNever();
 
                 entity.Property(e => e.Amount).HasColumnType("numeric(7, 2)");
 
+                entity.Property(e => e.CancelledDate).HasColumnType("datetime");
+
                 entity.Property(e => e.CityId).HasColumnName("City_id");
 
                 entity.Property(e => e.CountryId).HasColumnName("Country_id");
+
+                entity.Property(e => e.DeleveredDate).HasColumnType("datetime");
 
                 entity.Property(e => e.DeliverType)
                     .HasMaxLength(20)
@@ -2591,9 +2597,13 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.OrderStatus).HasColumnName("Order_status");
 
+                entity.Property(e => e.PackedDate).HasColumnType("datetime");
+
                 entity.Property(e => e.Phone)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.ReadyToPickupDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ShipAddress)
                     .HasMaxLength(500)
@@ -2651,6 +2661,18 @@ namespace CRM_api.DataAccess.Context
                     .HasForeignKey(d => d.ProductId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_tbl_OrderDetails_tbl_WBC_Mall_Products");
+            });
+
+            modelBuilder.Entity<TblOrderStatus>(entity =>
+            {
+                entity.ToTable("tbl_order_status");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Statusname)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("statusname");
             });
 
             modelBuilder.Entity<TblPaymentTypeMaster>(entity =>
