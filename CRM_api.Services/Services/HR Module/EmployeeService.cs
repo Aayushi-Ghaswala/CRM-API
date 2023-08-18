@@ -57,7 +57,7 @@ namespace CRM_api.Services.Services.HR_Module
                 }
             }
 
-            if (addEmployee.AddEmployeeExperiences.Count() > 0)
+            if (addEmployee.AddEmployeeExperiences is not null && addEmployee.AddEmployeeExperiences.Count() > 0)
             {
                 var mapEmployeeExperience = _mapper.Map<List<TblEmployeeExperience>>(addEmployee.AddEmployeeExperiences);
 

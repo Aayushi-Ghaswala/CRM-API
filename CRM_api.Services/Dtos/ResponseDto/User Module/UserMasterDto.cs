@@ -16,6 +16,7 @@ namespace CRM_api.Services.Dtos.ResponseDto
         public DateTime? UserDoj { get; set; }
         public string? UserMobile { get; set; }
         public string? UserEmail { get; set; }
+        public string? UserWorkemail { get; set; }
         public string? UserAddr { get; set; }
         public string? UserPin { get; set; }
         public CountryMasterDto TblCountryMaster { get; set; }

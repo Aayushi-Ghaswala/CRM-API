@@ -11,6 +11,7 @@
         public string? UserDoj { get; set; }
         public string? UserMobile { get; set; }
         public string? UserEmail { get; set; }
+        public string? UserWorkemail { get; set; }
         public string? UserAddr { get; set; }
         public string? UserPin { get; set; }
         public string? Country { get; set; }

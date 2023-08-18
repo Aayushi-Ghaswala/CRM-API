@@ -12,6 +12,7 @@ namespace CRM_api.Services.Dtos.ResponseDto.HR_Module
         public CountryMasterDto? TblCountryMaster { get; set; }
         public string? Name { get; set; }
         public string? Email { get; set; }
+        public string? WorkEmail { get; set; }
         public DateTime? Doj { get; set; }
         public string? Address { get; set; }
         public string? PhoneNo { get; set; }
