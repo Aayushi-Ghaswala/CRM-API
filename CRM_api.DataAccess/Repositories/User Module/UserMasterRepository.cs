@@ -24,8 +24,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             if (search != null)
             {
                 filterData = _context.Search<TblUserMaster>(search).Where(x => (filterString == null || (filterString == "client" && x.TblUserCategoryMaster.CatName.ToLower() == "customer")
-                                                     || (filterString == "fasttrack" && x.UserFasttrack == true)
-                                                     || (filterString == "employee" && x.TblUserCategoryMaster.CatName.ToLower() == "employee"))
+                                                     || (filterString == "fasttrack" && x.UserFasttrack == true))
                                                      && x.UserIsactive == true).Include(x => x.TblUserCategoryMaster)
                                                     .Include(x => x.TblCountryMaster)
                                                     .Include(x => x.TblStateMaster)
@@ -36,8 +35,7 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             else
             {
                 filterData = _context.TblUserMasters.Where(x => (filterString == null || (filterString == "client" && x.TblUserCategoryMaster.CatName.ToLower() == "customer")
-                                                 || (filterString == "fasttrack" && x.UserFasttrack == true)
-                                                 || (filterString == "employee" && x.TblUserCategoryMaster.CatName.ToLower() == "employee"))
+                                                 || (filterString == "fasttrack" && x.UserFasttrack == true))
                                                  && x.UserIsactive == true).Include(x => x.TblUserCategoryMaster)
                                                 .Include(x => x.TblCountryMaster)
                                                 .Include(x => x.TblStateMaster)

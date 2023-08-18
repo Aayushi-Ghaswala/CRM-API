@@ -798,6 +798,10 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
+                entity.Property(e => e.WorkEmail)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.IsActive)
                     .IsRequired()
                     .HasDefaultValueSql("((1))");
@@ -3543,6 +3547,11 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("user_email");
+
+                entity.Property(e => e.UserWorkemail)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("user_workemail");
 
                 entity.Property(e => e.UserFasttrack).HasColumnName("user_fasttrack");
 

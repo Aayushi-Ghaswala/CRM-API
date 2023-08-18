@@ -7,7 +7,7 @@ namespace CRM_api.Services.Dtos.AddDataDto.WBC_Mall_Module
     {
         public string ProdName { get; set; } = null!;
         public int ProdCatId { get; set; }
-        public int? ProdDiscount { get; set; }
+        public int? ProdDiscount { get; set; } = 0;
         public IFormFile FormFile { get; set; }
         public decimal? ProdRating { get; set; }
         public string? Description { get; set; }
