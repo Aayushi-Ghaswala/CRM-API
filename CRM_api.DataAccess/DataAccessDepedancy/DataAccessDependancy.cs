@@ -35,7 +35,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
     {
         public static void InjectDataAccessDependecy(this IServiceCollection services, IConfiguration config)
         {
-            services.AddDbContext<CRMDbContext>(options =>
+            services.AddDbContextPool<CRMDbContext>(options =>
             {
                 options.UseSqlServer(config.GetConnectionString("DefaultConnection"),
                     sql =>

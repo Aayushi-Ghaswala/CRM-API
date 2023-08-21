@@ -5,10 +5,6 @@ namespace CRM_api.DataAccess.Context
 {
     public partial class CRMDbContext : DbContext
     {
-        public CRMDbContext()
-        {
-        }
-
         public CRMDbContext(DbContextOptions<CRMDbContext> options)
             : base(options)
         {

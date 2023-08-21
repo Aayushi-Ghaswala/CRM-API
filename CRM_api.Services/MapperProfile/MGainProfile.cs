@@ -29,6 +29,22 @@ namespace CRM_api.Services.MapperProfile
                     entity.MgainModeholder = "Single";
                     if (dto.MgainIsSecondHolder == true)
                         entity.MgainModeholder = "Joint";
+                    else
+                    {
+                        entity.Mgain2ndholdername = null;
+                        entity.Mgain2ndholderDob = null;
+                        entity.Mgain2ndholderGender = null;
+                        entity.Mgain2ndholderMaritalStatus = null;
+                        entity.Mgain2ndholderFatherName = null;
+                        entity.Mgain2ndholderAddress = null;
+                        entity.Mgain2ndholderPan = null;
+                        entity.Mgain2ndholderAadhar = null;
+                        entity.Mgain2ndholderMobile = null;
+                        entity.Mgain2ndholderOccupation = null;
+                        entity.Mgain2ndholderStatus = null;
+                        entity.Mgain2ndholderSignature = null;
+                        entity.Mgain2ndholderEmail = null;
+                    }
 
                     entity.MgainAccountnum = 0;
                     entity.MgainAggre = "Pending";
@@ -43,6 +59,22 @@ namespace CRM_api.Services.MapperProfile
                     entity.MgainModeholder = "Single";
                     if (dto.MgainIsSecondHolder == true)
                         entity.MgainModeholder = "Joint";
+                    else
+                    {
+                        entity.Mgain2ndholdername = null;
+                        entity.Mgain2ndholderDob = null;
+                        entity.Mgain2ndholderGender = null;
+                        entity.Mgain2ndholderMaritalStatus = null;
+                        entity.Mgain2ndholderFatherName = null;
+                        entity.Mgain2ndholderAddress = null;
+                        entity.Mgain2ndholderPan = null;
+                        entity.Mgain2ndholderAadhar = null;
+                        entity.Mgain2ndholderMobile = null;
+                        entity.Mgain2ndholderOccupation = null;
+                        entity.Mgain2ndholderStatus = null;
+                        entity.Mgain2ndholderSignature = null;
+                        entity.Mgain2ndholderEmail = null;
+                    }
 
                     entity.MgainAccountnum = 0;
                     entity.MgainIsactive = true;

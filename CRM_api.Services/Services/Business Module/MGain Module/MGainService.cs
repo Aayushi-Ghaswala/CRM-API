@@ -91,38 +91,420 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
         {
             var mGain = await _mGainRepository.GetMGainDetailById(mGainId);
             var mGainProject = await _mGainRepository.GetProjectByProjectName(mGain.MgainProjectname);
+            TblProjectMaster mGain2ndProject = null;
+            if (mGain.Mgain2ndprojectname is not null)
+                mGain2ndProject = await _mGainRepository.GetProjectByProjectName(mGain.Mgain2ndprojectname);
             var paymentMode = mGain.TblMgainPaymentMethods.First().PaymentMode;
             var currancy = mGain.TblMgainPaymentMethods.First().TblMgainCurrancyMaster.Currancy;
 
-            var filePath = Directory.GetCurrentDirectory() + "\\wwwroot\\MGain Module\\MGainAggrement.html";
-            var streamReader = new StreamReader(filePath);
-            var aggrement = streamReader.ReadToEnd();
+            var htmlContent = $@"<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=""utf-8"" />
+    <title></title>
+</head>
+<body>
+    <div style=""text-align: justify; font-family: Serif; font-size: 20px"">
+        <center>
+            <h3>AGREEMENT FOR M GAIN</h3>";
 
-            aggrement = aggrement.Replace("#date", mGain.Date.Value.Day.ToString()).Replace("#month", mGain.Date.Value.ToString("MMMM")).Replace("#year", mGain.Date.Value.Year.ToString())
-                                  .Replace("#firstHolderName", mGain.Mgain1stholder).Replace("#address", mGain.Mgain1stholderAddress).Replace("#pinCode", mGain.TblUserMaster.UserPin)
-                                  .Replace("#mobile", mGain.Mgain1stholderMobile).Replace("#secondHolderName", mGain.Mgain2ndholdername).Replace("#invAmount", mGain.MgainInvamt.ToString());
+            htmlContent += $@"<p>THIS AGREEMENT is made and executed on, this {mGain.Date.Value.Day}th day of {mGain.Date.Value.ToString("MMMM")}, {mGain.Date.Value.Year}</p>
+            <h3>BETWEEN</h3>
+        </center>
+        <p>
+            <b>KA FINANCIAL SERVICES LIMITED LIABILITY ,</b> registered under the LLP, ACT 2008 vide LLPIN:-AAI- 2331, having its registered office situated at 715, 7TH FLOOR, ROYAL TRADE CENTRE, OPP. STAR BAZAR, HAJIRA ROAD, SURAT, GUJARAT- 395009 INDIA, represented by MR. AMIT HEMANTBHdatAI MEHTA Designated Partner of the LLP hereinafter referred to as the “BORROWER” or the FIRST PARTY to the agreement.
+        </p>
+        <h3><center>AND</center></h3>";
 
+            if (mGain.Mgain2ndholdername is not null)
+            {
             if (mGain.Mgain1stholderAddress == mGain.Mgain2ndholderAddress)
-                aggrement = aggrement.Replace("#asabove", "as above");
-            aggrement = aggrement.Replace("#asabove", mGain.Mgain2ndholderAddress);
-
-            if (paymentMode == "Cheque")
-                aggrement = aggrement.Replace("#PaymentMode", paymentMode).Replace("#PaymentNo", mGain.TblMgainPaymentMethods.Last().ChequeNo)
-                                  .Replace("#PaymentDate", mGain.TblMgainPaymentMethods.Last().ChequeDate.Value.ToString("dd-MM-yyyy")).Replace("#bankDetails", mGain.TblMgainPaymentMethods.First().BankName);
-            else if (paymentMode == "UPI")
-                aggrement = aggrement.Replace("#PaymentMode", paymentMode).Replace("#PaymentNo", mGain.TblMgainPaymentMethods.Last().UpiTransactionNo)
-                                  .Replace("#PaymentDate", mGain.TblMgainPaymentMethods.Last().UpiDate.Value.ToString("dd-MM-yyyy")).Replace("#bankDetails", paymentMode);
+                {
+                    htmlContent += $@"<p><b>{mGain.Mgain1stholder}, RESIDING AT: {mGain.Mgain1stholderAddress}-{mGain.TblUserMaster.UserPin} (Mo.no.{mGain.Mgain1stholderMobile}) and {mGain.Mgain2ndholdername}, Residing at: as above,</b> here in after referred to as the “LENDER” which expression, unless repugnant to the context shall mean and includes its legal representatives, assignee, nominee and administrator, the SECOND PARTY to the agreement.</p>
+        <p><b>WHEREAS,</b> The BORROWER approached the LENDER to borrow the sum of <b>Rs.{mGain.MgainInvamt}/-</b> as secured against Immovable Non- Agricultural Floating Asset i.e. Land.</p>
+        <p><b>AND WHEREAS</b> the LENDER agreed to lend the amount of <b>Rs.{mGain.MgainInvamt}/-</b> to the BORROWER on the acceptance of the Immovable Non- Agricultural Floating Asset i.e. Land.</p>
+        <p>It being the express intention of both the parties that this AGREEMENT will be governed according to the terms and condition laid below as per the Agreement.</p>
+        <p><b>NOW THIS DEED WITNESSTH AS FOLLOWS:-</b></p><br />
+        <div style=""margin-left:20px; "">
+            <ol>
+                <p>";
+                }
+                else
+                {
+                    htmlContent += $@"<p><b>{mGain.Mgain1stholder}, RESIDING AT: {mGain.Mgain1stholderAddress}-{mGain.TblUserMaster.UserPin} (Mo.no.{mGain.Mgain1stholderMobile}) and {mGain.Mgain2ndholdername}, Residing at: {mGain.Mgain2ndholderAddress},</b> here in after referred to as the “LENDER” which expression, unless repugnant to the context shall mean and includes its legal representatives, assignee, nominee and administrator, the SECOND PARTY to the agreement.</p>
+        <p><b>WHEREAS,</b> The BORROWER approached the LENDER to borrow the sum of <b>Rs.{mGain.MgainInvamt}/-</b> as secured against Immovable Non- Agricultural Floating Asset i.e. Land.</p>
+        <p><b>AND WHEREAS</b> the LENDER agreed to lend the amount of <b>Rs.{mGain.MgainInvamt}/-</b> to the BORROWER on the acceptance of the Immovable Non- Agricultural Floating Asset i.e. Land.</p>
+        <p>It being the express intention of both the parties that this AGREEMENT will be governed according to the terms and condition laid below as per the Agreement.</p>
+        <p><b>NOW THIS DEED WITNESSTH AS FOLLOWS:-</b></p><br />
+        <div style=""margin-left:20px; "">
+            <ol>
+                <p>";
+                }
+            }
             else
-                aggrement = aggrement.Replace("#PaymentMode", paymentMode).Replace("#PaymentNo", mGain.TblMgainPaymentMethods.Last().ReferenceNo).Replace("#PaymentDate", "")
-                                  .Replace("#bankDetails", paymentMode);
+            {
+                htmlContent += $@"<p><b>{mGain.Mgain1stholder}, RESIDING AT: {mGain.Mgain1stholderAddress}-{mGain.TblUserMaster.UserPin} (Mo.no.{mGain.Mgain1stholderMobile}) here in after referred to as the “LENDER” which expression, unless repugnant to the context shall mean and includes its legal representatives, assignee, nominee and administrator, the SECOND PARTY to the agreement.</p>
+        <p><b>WHEREAS,</b> The BORROWER approached the LENDER to borrow the sum of <b>Rs.{mGain.MgainInvamt}/-</b> as secured against Immovable Non- Agricultural Floating Asset i.e. Land.</p>
+        <p><b>AND WHEREAS</b> the LENDER agreed to lend the amount of <b>Rs.{mGain.MgainInvamt}/-</b> to the BORROWER on the acceptance of the Immovable Non- Agricultural Floating Asset i.e. Land.</p>
+        <p>It being the express intention of both the parties that this AGREEMENT will be governed according to the terms and condition laid below as per the Agreement.</p>
+        <p><b>NOW THIS DEED WITNESSTH AS FOLLOWS:-</b></p><br />
+        <div style=""margin-left:20px; "">
+            <ol>
+                <p>";
+            }
 
-            aggrement = aggrement.Replace("#plotNo", mGain.MgainPlotno.ToString()).Replace("#allocateSqFt", mGain.MgainAllocatedsqft.ToString()).Replace("#totalSqFt", mGain.MgainTotalsqft.ToString()).Replace("#projectName", mGain.MgainProjectname)
-                                 .Replace("#projectaddress", mGainProject.Address).Replace("#taluka", mGainProject.Taluko).Replace("#city", mGainProject.City).Replace("#state", mGainProject.State)
-                                 .Replace("#currancy", currancy).Replace("#first3yearInterest", mGain.TblMgainSchemeMaster.Interst1.ToString())
-                                 .Replace("#4to6YearInterest", (mGain.TblMgainSchemeMaster.Interst4 + mGain.TblMgainSchemeMaster.AdditionalInterest4).ToString())
-                                 .Replace("#finalInterest", (mGain.TblMgainSchemeMaster.Interst7 + mGain.TblMgainSchemeMaster.AdditionalInterest7).ToString());
-            aggrement = aggrement.Replace("\r\n", " ");
-            return aggrement;
+            if (paymentMode.ToLower().Equals("Cheque".ToLower()))
+            {
+                htmlContent += $@"
+                <li><b>AMOUNT OF ADVANCE:</b></li>
+                The LENDER agrees to advance amount to the BORROWER of sum of
+                <b>Rs.{mGain.MgainInvamt}/-</b>.</p>
+
+                <p>
+                <li><b>MODE OF PAYMENT:</b></li>The Amount Recieved from LENDER has been collected in the form of({paymentMode}) bearing
+                <b>Rs.{mGain.MgainInvamt}/-</b> by {mGain.TblMgainPaymentMethods.First().BankName} {paymentMode} No. {mGain.TblMgainPaymentMethods.Last().ChequeNo}, Dt. {mGain.TblMgainPaymentMethods.Last().ChequeDate}.</p>
+
+                <p>
+                <li><b>SECURITIES:</b></li>
+                The BORROWER is providing Immovable Non-Agricultural Floating Asset i.e. Land as security having its ample value as on the date {mGain.Date.Value.Day} th day of {mGain.Date.Value.ToString("MMMM")}, {mGain.Date.Value.Year} in respect of this agreement given by the LENDER. Allotment of Land as and when required as per clause 6 of the agreement shall be done accordingly to the value mentioned in this clause.
+                </p>";
+            }
+            else if (paymentMode.ToLower().Equals("UPI".ToLower()))
+            {
+                htmlContent += $@"
+                <li><b>AMOUNT OF ADVANCE:</b></li>
+                The LENDER agrees to advance amount to the BORROWER of sum of
+                <b>Rs.{mGain.MgainInvamt}/-</b>.</p>
+
+                <p>
+                <li><b>MODE OF PAYMENT:</b></li>The Amount Recieved from LENDER has been collected in the form of({paymentMode}) bearing
+                <b>Rs.{mGain.MgainInvamt}/-</b> by {mGain.TblMgainPaymentMethods.First().BankName} {paymentMode} No. {mGain.TblMgainPaymentMethods.Last().UpiTransactionNo}, Dt. {mGain.TblMgainPaymentMethods.Last().UpiDate}.</p>
+
+                <p>
+                <li><b>SECURITIES:</b></li>
+                The BORROWER is providing Immovable Non-Agricultural Floating Asset i.e. Land as security having its ample value as on the date {mGain.Date.Value.Day} th day of {mGain.Date.Value.ToString("MMMM")}, {mGain.Date.Value.Year} in respect of this agreement given by the LENDER. Allotment of Land as and when required as per clause 6 of the agreement shall be done accordingly to the value mentioned in this clause.
+                </p>";
+            }
+            else if (paymentMode.ToLower().Equals("RTGS".ToLower()))
+            {
+                htmlContent += $@"
+                <li><b>AMOUNT OF ADVANCE:</b></li>
+                The LENDER agrees to advance amount to the BORROWER of sum of
+                <b>Rs.{mGain.MgainInvamt}/-</b>.</p>
+
+                <p>
+                <li><b>MODE OF PAYMENT:</b></li>The Amount Recieved from LENDER has been collected in the form of({paymentMode}) bearing
+                <b>Rs.{mGain.MgainInvamt}/-</b> by {mGain.TblMgainPaymentMethods.First().BankName} {paymentMode} No. {mGain.TblMgainPaymentMethods.Last().ReferenceNo}.</p>
+
+                <p>
+                <li><b>SECURITIES:</b></li>
+                The BORROWER is providing Immovable Non-Agricultural Floating Asset i.e. Land as security having its ample value as on the date {mGain.Date.Value.Day} th day of {mGain.Date.Value.ToString("MMMM")}, {mGain.Date.Value.Year} in respect of this agreement given by the LENDER. Allotment of Land as and when required as per clause 6 of the agreement shall be done accordingly to the value mentioned in this clause.
+                </p>";
+            }
+
+            if (mGain.Mgain2ndplotno is not null)
+            {
+                htmlContent += $@"<p>
+                    <b>Description of Land against Advances:</b><br>
+                    All that piece and parcel of Plot No: {mGain.MgainPlotno} having {mGain.MgainAllocatedsqft} Square Feets out of {mGain.MgainTotalsqft} Square Feets on the project known as “{mGain.MgainProjectname}” bearing {mGainProject.Address}, Taluka: {mGainProject.Taluko}, District: {mGainProject.City}, State: {mGainProject.State}, Country: India and All that piece and parcel of Plot No: {mGain.Mgain2ndplotno} having {mGain.Mgain2ndallocatedsqft} Square Feets out of {mGain.Mgain2ndtotalsqft} Square Feets on the project known as “{mGain.Mgain2ndprojectname}” bearing {mGain2ndProject.Address}, Taluka: {mGain2ndProject.Taluko}, District: {mGain2ndProject.City}, State: {mGain2ndProject.State}, Country: India along with undivided proportionate share in land with all rights.
+                </p>";
+            }
+            else
+            {
+                htmlContent += $@"<p>
+                    <b>Description of Land against Advances:</b><br>
+                    All that piece and parcel of Plot No: {mGain.MgainPlotno} having {mGain.MgainAllocatedsqft} Square Feets out of {mGain.MgainTotalsqft} Square Feets on the project known as “{mGain.MgainProjectname}” bearing {mGainProject.Address}, Taluka: {mGainProject.Taluko}, District: {mGainProject.City}, State: {mGainProject.State}, Country: India along with undivided proportionate share in land with all rights.
+                </p>";
+            }
+
+            if (mGain.Mgain2ndholdername is not null)
+            {
+                htmlContent += @$"<p>
+                <li><b>CURRENCY:</b></li>
+                The Advances has been received in form of Indian currency i.e. in {currancy}.
+                </p>
+
+                <p>
+                <li><b>TENURE OF THE PROPERTY:</b></li>
+                The Tenure of the holding of land shall be according to the term till repayment of the advances to the LENDER by the BORROWER; further the LENDER is restricted to recall the aforesaid amount, once kept before the expiry of initial period of 3 years. If in any case the LENDER wants to recall the amount of Advance after the expiry of the 3rd year, he shall intimate such intension by giving prior notice of at least 30 days.
+                </p>
+
+                <p>
+                <li><b>INTEREST:</b></li>
+                The borrower shall pay to the lender interest on the principal amount of the advance at the fixed rate of interest 1% per month in the initial 9 month.
+                <br>
+                Further, the borrower shall pay to the lender interest on the principal amount of the advance for the succeeding period i.e. till 3 years at the fixed rate of interest {mGain.TblMgainSchemeMaster.Interst1}% per annum, from 4th year to 6th year at the fixed rate of interest {(mGain.TblMgainSchemeMaster.Interst4 + mGain.TblMgainSchemeMaster.AdditionalInterest4)}% per annum and from 7th year till 10th year at the fixed rate of interest {(mGain.TblMgainSchemeMaster.Interst7 + mGain.TblMgainSchemeMaster.AdditionalInterest7)}% per annum.
+                <br>
+                If borrower fails to pay interest amount in any month then such interest amount shall be carried forward to subsequent month till the end of 12 months from the date of non-payment of interest amount;
+                <br>
+                Thereafter borrower shall transfer asset marked in the name of Lender at the time of execution of this agreement in the proportion of total amount due.
+                </p>
+
+                <p>
+                <li><b>COVENANTS/UNDERTAKINGS TO THE PARTIES:</b></li>
+                <br>
+                <b>BORROWER:</b>
+                <br>
+                1. Shall promptly notify any event or circumstances, this might operate as a cause of delay in the completion of this agreement.
+                <br>
+                2. Has provided accurate and true information in respect of Immovable Non- Agricultural Floating Asset i.e. Land and also the title of has been legally verified and clear.
+                <br>
+                3. Shall be responsible only for the interest if any against the Advance lent by the BORROWER and should not be responsible to pay except the same.
+                <br>
+                4. Shall be responsible for all the legal formalities also bearing execution expenses in relation to this Agreement.
+                <br>
+                <br>
+
+                <b>LENDER:</b>
+                <br>
+                1. Shall provide accurate and true information.
+                <br>
+                2. Has landed the accepted amount to the BORROWER.
+                <br>
+                3. Shall not make any changes or development on the Immovable Non- Agricultural Floating Asset i.e. Land of the Company
+                <br>
+
+                <p>
+                <li><b>TERMS OF REPAYMENTS:</b></li>
+                In case of Repayment of the Advance Amount at any time after the completion of lock in period of three (3rd) years but before termination, the Lender has to inform minimum 30 days advance than the scheduled payment cycles of the BORROWER (i.e. the scheduled payment cycles are January 1st to 10th, April 1st to 10th, July 1st to 10th and October 1st to 10th) so that the Borrower can disburse the money to Lender during either of the payment cycles mentioned above (i.e. if the Lender needs payment in 1-10 Jan 2024 window then he has to inform on or before 30th November, 2023.
+                <br>
+                In this case, the interest will be calculated till the last day of the immediate previous month of upcoming payment cycle (i.e. in case of above example i.e. 31st December, 2023).
+                <p>
+
+                <p>
+                <li><b>TERMS OF PREPAYMENTS:</b></li>
+                If the Borrower wants to pay advance amount before the expiry of the tenure, then the BORROWER shall pay to the LENDER, the Principal amount along with initial 3 months pending interest of the 1st year.
+
+                <p>
+                <li><b>BENEFIT OF EQUITY SHARES:</b></li>
+                In the event of issuance of IPO whenever issued by the BORROWER i.e. Company, the LENDER can prefer to get captivating benefit on issued IPO price of such Equity Shares against their Advances. The amount of Equity Shares shall be provided to the LENDER according to the Principal amount of Advances.
+                </p>
+
+                <p>
+                <li><b>EVENTS OF DEFAULT:</b></li>
+                In the event of any default by the BORROWER, the LENDER of money have right of Foreclosure of under the Specific Relief Act, 1963
+                </p>
+
+                <p>
+                <li><b>FORCE MAJEURE:</b></li>
+                For the purpose of this Agreement, Force Majeure shall mean governmental laws, orders or regulations, act of God, and other similar contingencies.
+                <br>
+                None of the parties will remain liable to the other for Force Majeure of any loss incurred due to such reasons.
+                </p>
+
+                <p>
+                <li><b>ARBITRATION CLAUSE:</b></li>
+                That in the event of any dispute between the parties in relation to the agreement, the same shall be dealt by Arbitrator under the provisions of the Indian Arbitration and Conciliation Act, 1996, shall apply in that behalf.
+                </p>
+            </ol>
+        </div>
+        <p>IN WITNESS WHEREOF THE PARTIES HAVE EXECUTED THIS AGREEMENT AS ON THE ABOVE REFFERED DATEIN THE PRESENCE OF THE FOLLOWING WITNESSES:-</p>
+        <br>
+        <p><b>SIGN AND DELIVERED</b></p>
+        <p><b>For and on behalf of</b></p>
+        <p style=""line-height:1.5""><b>KA FINANCIAL SERVICES LIMITED LIABILITY PARTNERSHIP</b></p>
+        <div style=""display:flex;margin-bottom:20px"">
+            <div style=""flex:1;display:flex;align-items:flex-end"">
+                <b style=""border-top:2px solid black"">AMIT HEMANTBHAI MEHTA (BORROWER)</b>
+            </div>
+            <div>
+                <canvas id=""canvas""
+                        height=""170""
+                        width=""132""
+                        style=""border: 3px solid #385D8A"">
+                </canvas>
+            </div>
+            <div>
+                <svg height=""140"" width=""300"">
+                    <ellipse cx=""200""
+                             cy=""85""
+                             rx=""60""
+                             ry=""30""
+                             style=""stroke:gray;fill: transparent"" />
+                </svg>
+            </div>
+        </div>
+        <div style=""display:flex;margin-bottom:20px"">
+            <div style=""flex:1;display:flex;align-items:flex-end"">
+                <b style=""border-top: 1px solid black"">{mGain.Mgain1stholder} (LENDER)</b>
+            </div>
+            <div>
+                <canvas id=""canvas""
+                        height=""170""
+                        width=""132""
+                        style=""border: 3px solid #385D8A"">
+                </canvas>
+            </div>
+            <div>
+                <svg height=""140"" width=""300"">
+                    <ellipse cx=""200""
+                             cy=""85""
+                             rx=""60""
+                             ry=""30""
+                             style=""stroke:gray;fill: transparent"" />
+                </svg>
+            </div>
+        </div>
+        <div style=""display:flex;margin-bottom:20px"">
+            <div style=""flex:1;display:flex;align-items:flex-end"">
+                <b style=""border-top: 1px solid black"">{mGain.Mgain2ndholdername} (Joint Holder)</b>
+            </div>
+            <div>
+                <canvas id=""canvas""
+                        height=""170""
+                        width=""132""
+                        style=""border: 3px solid #385D8A"">
+                </canvas>
+            </div>
+            <div>
+                <svg height=""140"" width=""300"">
+                    <ellipse cx=""200""
+                             cy=""85""
+                             rx=""60""
+                             ry=""30""
+                             style=""stroke:gray;fill: transparent"" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>";
+            }
+            else
+            {
+                htmlContent += @$"<p>
+                <li><b>CURRENCY:</b></li>
+                The Advances has been received in form of Indian currency i.e. in {currancy}.
+                </p>
+
+                <p>
+                <li><b>TENURE OF THE PROPERTY:</b></li>
+                The Tenure of the holding of land shall be according to the term till repayment of the advances to the LENDER by the BORROWER; further the LENDER is restricted to recall the aforesaid amount, once kept before the expiry of initial period of 3 years. If in any case the LENDER wants to recall the amount of Advance after the expiry of the 3rd year, he shall intimate such intension by giving prior notice of at least 30 days.
+                </p>
+
+                <p>
+                <li><b>INTEREST:</b></li>
+                The borrower shall pay to the lender interest on the principal amount of the advance at the fixed rate of interest 1% per month in the initial 9 month.
+                <br>
+                Further, the borrower shall pay to the lender interest on the principal amount of the advance for the succeeding period i.e. till 3 years at the fixed rate of interest {mGain.TblMgainSchemeMaster.Interst1}% per annum, from 4th year to 6th year at the fixed rate of interest {(mGain.TblMgainSchemeMaster.Interst4 + mGain.TblMgainSchemeMaster.AdditionalInterest4)}% per annum and from 7th year till 10th year at the fixed rate of interest {(mGain.TblMgainSchemeMaster.Interst7 + mGain.TblMgainSchemeMaster.AdditionalInterest7)}% per annum.
+                <br>
+                If borrower fails to pay interest amount in any month then such interest amount shall be carried forward to subsequent month till the end of 12 months from the date of non-payment of interest amount;
+                <br>
+                Thereafter borrower shall transfer asset marked in the name of Lender at the time of execution of this agreement in the proportion of total amount due.
+                </p>
+
+                <p>
+                <li><b>COVENANTS/UNDERTAKINGS TO THE PARTIES:</b></li>
+                <br>
+                <b>BORROWER:</b>
+                <br>
+                1. Shall promptly notify any event or circumstances, this might operate as a cause of delay in the completion of this agreement.
+                <br>
+                2. Has provided accurate and true information in respect of Immovable Non- Agricultural Floating Asset i.e. Land and also the title of has been legally verified and clear.
+                <br>
+                3. Shall be responsible only for the interest if any against the Advance lent by the BORROWER and should not be responsible to pay except the same.
+                <br>
+                4. Shall be responsible for all the legal formalities also bearing execution expenses in relation to this Agreement.
+                <br>
+                <br>
+
+                <b>LENDER:</b>
+                <br>
+                1. Shall provide accurate and true information.
+                <br>
+                2. Has landed the accepted amount to the BORROWER.
+                <br>
+                3. Shall not make any changes or development on the Immovable Non- Agricultural Floating Asset i.e. Land of the Company
+                <br>
+
+                <p>
+                <li><b>TERMS OF REPAYMENTS:</b></li>
+                In case of Repayment of the Advance Amount at any time after the completion of lock in period of three (3rd) years but before termination, the Lender has to inform minimum 30 days advance than the scheduled payment cycles of the BORROWER (i.e. the scheduled payment cycles are January 1st to 10th, April 1st to 10th, July 1st to 10th and October 1st to 10th) so that the Borrower can disburse the money to Lender during either of the payment cycles mentioned above (i.e. if the Lender needs payment in 1-10 Jan 2024 window then he has to inform on or before 30th November, 2023.
+                <br>
+                In this case, the interest will be calculated till the last day of the immediate previous month of upcoming payment cycle (i.e. in case of above example i.e. 31st December, 2023).
+                <p>
+
+                <p>
+                <li><b>TERMS OF PREPAYMENTS:</b></li>
+                If the Borrower wants to pay advance amount before the expiry of the tenure, then the BORROWER shall pay to the LENDER, the Principal amount along with initial 3 months pending interest of the 1st year.
+
+                <p>
+                <li><b>BENEFIT OF EQUITY SHARES:</b></li>
+                In the event of issuance of IPO whenever issued by the BORROWER i.e. Company, the LENDER can prefer to get captivating benefit on issued IPO price of such Equity Shares against their Advances. The amount of Equity Shares shall be provided to the LENDER according to the Principal amount of Advances.
+                </p>
+
+                <p>
+                <li><b>EVENTS OF DEFAULT:</b></li>
+                In the event of any default by the BORROWER, the LENDER of money have right of Foreclosure of under the Specific Relief Act, 1963
+                </p>
+
+                <p>
+                <li><b>FORCE MAJEURE:</b></li>
+                For the purpose of this Agreement, Force Majeure shall mean governmental laws, orders or regulations, act of God, and other similar contingencies.
+                <br>
+                None of the parties will remain liable to the other for Force Majeure of any loss incurred due to such reasons.
+                </p>
+
+                <p>
+                <li><b>ARBITRATION CLAUSE:</b></li>
+                That in the event of any dispute between the parties in relation to the agreement, the same shall be dealt by Arbitrator under the provisions of the Indian Arbitration and Conciliation Act, 1996, shall apply in that behalf.
+                </p>
+            </ol>
+        </div>
+        <p>IN WITNESS WHEREOF THE PARTIES HAVE EXECUTED THIS AGREEMENT AS ON THE ABOVE REFFERED DATEIN THE PRESENCE OF THE FOLLOWING WITNESSES:-</p>
+        <br>
+        <p><b>SIGN AND DELIVERED</b></p>
+        <p><b>For and on behalf of</b></p>
+        <p style=""line-height:1.5""><b>KA FINANCIAL SERVICES LIMITED LIABILITY PARTNERSHIP</b></p>
+        <div style=""display:flex;margin-bottom:20px"">
+            <div style=""flex:1;display:flex;align-items:flex-end"">
+                <b style=""border-top:2px solid black"">AMIT HEMANTBHAI MEHTA (BORROWER)</b>
+            </div>
+            <div>
+                <canvas id=""canvas""
+                        height=""170""
+                        width=""132""
+                        style=""border: 3px solid #385D8A"">
+                </canvas>
+            </div>
+            <div>
+                <svg height=""140"" width=""300"">
+                    <ellipse cx=""200""
+                             cy=""85""
+                             rx=""60""
+                             ry=""30""
+                             style=""stroke:gray;fill: transparent"" />
+                </svg>
+            </div>
+        </div>
+        <div style=""display:flex;margin-bottom:20px"">
+            <div style=""flex:1;display:flex;align-items:flex-end"">
+                <b style=""border-top: 1px solid black"">{mGain.Mgain1stholder} (LENDER)</b>
+            </div>
+            <div>
+                <canvas id=""canvas""
+                        height=""170""
+                        width=""132""
+                        style=""border: 3px solid #385D8A"">
+                </canvas>
+            </div>
+            <div>
+                <svg height=""140"" width=""300"">
+                    <ellipse cx=""200""
+                             cy=""85""
+                             rx=""60""
+                             ry=""30""
+                             style=""stroke:gray;fill: transparent"" />
+                </svg>
+            </div>
+        </div>
+    </div>
+</body>
+</html>";
+            }
+            htmlContent = htmlContent.Replace("\r\n", " ");
+            return htmlContent;
         }
         #endregion
 
