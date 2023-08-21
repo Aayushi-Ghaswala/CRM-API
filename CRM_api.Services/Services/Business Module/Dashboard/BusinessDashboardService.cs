@@ -1,9 +1,13 @@
-﻿using CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module;
+﻿using AutoMapper;
+using CRM_api.DataAccess.Helper;
+using CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.Dashboard;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Helper.ConstantValue;
 using CRM_api.Services.Helper.Reminder_Helper;
 using CRM_api.Services.IServices.Business_Module.Dashboard;
@@ -21,8 +25,9 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
         private readonly IMutualfundRepository _mutualfundRepository;
         private readonly IUserCategoryRepository _userCategoryRepository;
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
 
-        public BusinessDashboardService(IUserMasterRepository userMasterRepository, IInsuranceClientRepository insuranceClientRepository, IStocksRepository stocksRepository, IMutualfundRepository mutualfundRepository, IConfiguration configuration, IUserCategoryRepository userCategoryRepository)
+        public BusinessDashboardService(IUserMasterRepository userMasterRepository, IInsuranceClientRepository insuranceClientRepository, IStocksRepository stocksRepository, IMutualfundRepository mutualfundRepository, IConfiguration configuration, IUserCategoryRepository userCategoryRepository, IMapper mapper)
         {
             _userMasterRepository = userMasterRepository;
             _insuranceClientRepository = insuranceClientRepository;
@@ -30,25 +35,34 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
             _mutualfundRepository = mutualfundRepository;
             _configuration = configuration;
             _userCategoryRepository = userCategoryRepository;
+            _mapper = mapper;
         }
 
         #region Client Current Investment Snapshot
-        public async Task<List<ClientReportDto<ClientCurrentInvSnapshotDto>>> GetClientCurrentInvSnapshotAsync(int? userId, bool? isZero, string search)
+        public async Task<ResponseDto<ClientReportDto<ClientCurrentInvSnapshotDto>>> GetClientCurrentInvSnapshotAsync(int? userId, bool? isZero, string search, SortingParams sortingParams)
+
         {
             var category = await _userCategoryRepository.GetCategoryByName(CategoryConstant.customer);
-            List<TblUserMaster> clients = new List<TblUserMaster>();
+            Response<TblUserMaster> clients = new Response<TblUserMaster>();
 
             if (userId is null)
-                clients = await _userMasterRepository.GetUsersByCategoryId(category.CatId, null, null, search, true);
+                clients = await _userMasterRepository.GetUsersByCategoryId(category.CatId, null, null, search, sortingParams, true);
             else
             {
                 var client = await _userMasterRepository.GetUserMasterbyId((int)userId, null, null, true);
-                clients.Add(client);
+                var clientList = new List<TblUserMaster>();
+                clientList.Add(client);
+                clients.Values = clientList;
             }
+
+            var generalInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.General.ToString());
+            var lifeInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.Life.ToString());
+            var usernames = clients.Values.Select(x => x.UserName.ToLower());
+            var stocksData = await _stocksRepository.RetrieveStocksByUsernames(usernames);
 
             List<ClientReportDto<ClientCurrentInvSnapshotDto>> clientCurrentInvSnapshots = new List<ClientReportDto<ClientCurrentInvSnapshotDto>>();
 
-            foreach (var client in clients)
+            foreach (var client in clients.Values)
             {
                 var clientReport = new ClientReportDto<ClientCurrentInvSnapshotDto>();
                 clientReport.UserName = client.UserName;
@@ -58,24 +72,22 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
 
                 if (client.TblInsuranceclients.Count() < 0)
                 {
-                    var lifeInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.Life.ToString());
-                    clientCurrentSnapshot.LI = client.TblInsuranceclients.Where(x => x.InsUserid == userId && x.IsDeleted != true && x.InvSubtype == lifeInsId)
+                    clientCurrentSnapshot.LI = client.TblInsuranceclients.Where(x => x.IsDeleted != true && x.InvSubtype == lifeInsId)
                                                                          .Sum(x => x.InsAmount);
 
-                    var generalInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.General.ToString());
-                    clientCurrentSnapshot.GI = client.TblInsuranceclients.Where(x => x.InsUserid == userId && x.IsDeleted != true && x.InvSubtype == generalInsId)
+                    clientCurrentSnapshot.GI = client.TblInsuranceclients.Where(x => x.IsDeleted != true && x.InvSubtype == generalInsId)
                                                                          .Sum(x => x.InsAmount);
                 }
 
-                var stocks = await _stocksRepository.GetStockDataByUserName(client.UserName, null, null);
-                if (stocks.Count > 0)
+                var stocks = stocksData.Where(x => x.StClientname.ToLower().Equals(client.UserName.ToLower()));
+                if (stocks.Count() > 0)
                 {
                     var totalPurchase = stocks.Where(s => s.StType.Equals("B")).Sum(x => x.StNetcostvalue);
                     var totalSale = stocks.Where(s => s.StType.Equals("S")).Sum(x => x.StNetcostvalue);
-                    clientCurrentSnapshot.Stocks = totalPurchase - totalSale;
+                    clientCurrentSnapshot.Stocks = totalSale - totalPurchase;
                 }
 
-                if (client.TblMgaindetails.Count() < 0)
+                if (client.TblMgaindetails.Count() > 0)
                     clientCurrentSnapshot.MGain = client.TblMgaindetails.Sum(x => x.MgainInvamt);
 
                 if (client.TblMftransactions is not null)
@@ -86,7 +98,7 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
                     var TotalpurchaseUnit = client.TblMftransactions.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" && x.Transactiontype != "Sale");
                     var purchaseAmount = TotalpurchaseUnit.Sum(x => x.Invamount);
 
-                    clientCurrentSnapshot.MutualFunds = purchaseAmount - redemAmount;
+                    clientCurrentSnapshot.MutualFunds = redemAmount - purchaseAmount;
                 }
 
                 clientReport.ClientInvSnapshot = clientCurrentSnapshot;
@@ -105,26 +117,39 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
                 }
             }
 
-            return clientCurrentInvSnapshots;
+            var currentInvResponse = new ResponseDto<ClientReportDto<ClientCurrentInvSnapshotDto>>()
+            {
+                Values = clientCurrentInvSnapshots,
+                Pagination = _mapper.Map<PaginationDto>(clients.Pagination)
+            };
+
+            return currentInvResponse;
         }
         #endregion
 
         #region Client Monthly Transaction Snapshot
-        public async Task<List<ClientReportDto<ClientMonthlyTransSnapshotDto>>> GetClientMonthlyTransSnapshotAsync(int? userId, int? month, int? year, bool? isZero, string search)
+        public async Task<ResponseDto<ClientReportDto<ClientMonthlyTransSnapshotDto>>> GetClientMonthlyTransSnapshotAsync(int? userId, int? month, int? year, bool? isZero, string search, SortingParams sortingParams)
         {
-            var clients = new List<TblUserMaster>();
+            var clients = new Response<TblUserMaster>();
             var category = await _userCategoryRepository.GetCategoryByName(CategoryConstant.customer);
             List<ClientReportDto<ClientMonthlyTransSnapshotDto>> clientMonthlyTransSnapshots = new List<ClientReportDto<ClientMonthlyTransSnapshotDto>>();
 
             if (userId is not null)
             {
                 var client = await _userMasterRepository.GetUserMasterbyId((int)userId, month, year);
-                clients.Add(client);
+                var clientList = new List<TblUserMaster>();
+                clientList.Add(client);
+                clients.Values = clientList;
             }
             else
-                clients = await _userMasterRepository.GetUsersByCategoryId(category.CatId, month, year, search);
+                clients = await _userMasterRepository.GetUsersByCategoryId(category.CatId, month, year, search, sortingParams);
 
-            foreach (var client in clients)
+            var lifeInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.Life.ToString());
+            var generalInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.General.ToString());
+            var userNames = clients.Values.Select(x => x.UserName.ToLower());
+            var stocks = await _stocksRepository.GetCurrentStockDataByUserName(month, year, userNames);
+
+            foreach (var client in clients.Values)
             {
                 var clientReport = new ClientReportDto<ClientMonthlyTransSnapshotDto>();
                 clientReport.UserName = client.UserName;
@@ -133,8 +158,7 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
                 var clientMonthlyTransSnapshot = new ClientMonthlyTransSnapshotDto();
                 if (client.TblInsuranceclients.Count > 0)
                 {
-                    var lifeInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.Life.ToString());
-                    var generalInsId = await _insuranceClientRepository.GetSubInsTypeIdByName(SubInvType.General.ToString());
+                    
 
                     clientMonthlyTransSnapshot.LIPremium = client.TblInsuranceclients.Where(x => x.InvSubtype == lifeInsId)
                                                             .Sum(x => x.PremiumAmount);
@@ -150,8 +174,8 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
                 }
 
 
-                var stockData = await _stocksRepository.GetCurrentStockDataByUserName(month, year, client.UserName);
-                if (stockData.Count > 0)
+                var stockData = stocks.Where(x => x.StClientname.ToLower().Equals(client.UserName.ToLower()));
+                if (stockData.Count() > 0)
                 {
                     clientMonthlyTransSnapshot.Trading = Math.Round((decimal)stockData.Where(x => x.StType.Equals("B")).Sum(x => x.StNetcostvalue), 2);
 
@@ -177,7 +201,13 @@ namespace CRM_api.Services.Services.Business_Module.Dashboard
 
             }
 
-            return clientMonthlyTransSnapshots;
+            var monthlyInvResponse = new ResponseDto<ClientReportDto<ClientMonthlyTransSnapshotDto>>()
+            {
+                Values = clientMonthlyTransSnapshots,
+                Pagination = _mapper.Map<PaginationDto>(clients.Pagination)
+            };
+
+            return monthlyInvResponse;
         }
         #endregion
 

@@ -9,7 +9,7 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<Response<TblUserMaster>> GetUsers(string filterString, string search, SortingParams sortingParams);
         Task<TblUserMaster> GetUserMasterbyId(int id, int? month = null, int? year = null, bool isCurrent = false);
         Task<Dictionary<string,int>> GetUserCount();
-        Task<List<TblUserMaster>> GetUsersByCategoryId(int categoryId, int? month, int? year, string search, bool isCurrent = false);
+        Task<Response<TblUserMaster>> GetUsersByCategoryId(int categoryId, int? month, int? year, string search, SortingParams sortingParams, bool isCurrent = false);
         TblUserMaster GetUserByUserPan(string UserPan);
         int PanOrAadharExist(int? id, string? pan, string? aadhar);
         Task<List<TblUserMaster>> GetUsersForCSV(string filterString, string search, SortingParams sortingParams);

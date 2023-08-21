@@ -86,59 +86,59 @@ namespace CRM_api.Services.Services.Sales_Module
             if (leads.Count > 0)
             {
                 var mfClients = leads.Where(x => x.InterestedIn.Split(',').Any(x => x == investmentTypes.Values.First(x => x.InvestmentName == InvesmentType.MutualFund.ToString()).Id.ToString())).ToList();
+                var salesMFDashboardDto = new SalesDashboardDto();
+                salesMFDashboardDto.Type = "Mutual Fund";
                 if (mfClients.Count > 0)
                 {
-                    var salesDashboardDto = new SalesDashboardDto();
-                    salesDashboardDto.Type = "Mutual Fund";
-                    salesDashboardDto.Week = mfClients.Where(x => x.CreatedAt >= startOfWeek && x.CreatedAt <= endOfWeek).Count();
-                    salesDashboardDto.Month = mfClients.Where(x => x.CreatedAt.Month == DateTime.Now.Month && x.CreatedAt.Year == DateTime.Now.Year).Count();
-                    salesDashboardDto.Quarter = mfClients.Count();
-                    salesDashboardDtoList.Add(salesDashboardDto);
+                    salesMFDashboardDto.Week = mfClients.Where(x => x.CreatedAt >= startOfWeek && x.CreatedAt <= endOfWeek).Count();
+                    salesMFDashboardDto.Month = mfClients.Where(x => x.CreatedAt.Month == DateTime.Now.Month && x.CreatedAt.Year == DateTime.Now.Year).Count();
+                    salesMFDashboardDto.Quarter = mfClients.Count();
                 }
+                salesDashboardDtoList.Add(salesMFDashboardDto);
 
                 var stockClients = leads.Where(x => x.InterestedIn.Split(',').Any(x => x == investmentTypes.Values.First(x => x.InvestmentName == InvesmentType.MutualFund.ToString()).Id.ToString())).ToList();
+                var salesStockDashboardDto = new SalesDashboardDto();
+                salesStockDashboardDto.Type = "Stocks";
                 if (stockClients.Count > 0)
                 {
-                    var salesDashboardDto = new SalesDashboardDto();
-                    salesDashboardDto.Type = "Stocks";
-                    salesDashboardDto.Week = stockClients.Where(x => x.CreatedAt >= startOfWeek && x.CreatedAt <= endOfWeek).Count();
-                    salesDashboardDto.Month = stockClients.Where(x => x.CreatedAt.Month == DateTime.Now.Month && x.CreatedAt.Year == DateTime.Now.Year).Count();
-                    salesDashboardDto.Quarter = stockClients.Count();
-                    salesDashboardDtoList.Add(salesDashboardDto);
+                    salesStockDashboardDto.Week = stockClients.Where(x => x.CreatedAt >= startOfWeek && x.CreatedAt <= endOfWeek).Count();
+                    salesStockDashboardDto.Month = stockClients.Where(x => x.CreatedAt.Month == DateTime.Now.Month && x.CreatedAt.Year == DateTime.Now.Year).Count();
+                    salesStockDashboardDto.Quarter = stockClients.Count();
                 }
+                salesDashboardDtoList.Add(salesStockDashboardDto);
 
                 var mgainClients = leads.Where(x => x.InterestedIn.Split(',').Any(x => x == investmentTypes.Values.First(x => x.InvestmentName == InvesmentType.MutualFund.ToString()).Id.ToString())).ToList();
+                var salesMGainDashboardDto = new SalesDashboardDto();
+                salesMGainDashboardDto.Type = "MGain";
                 if (mgainClients.Count > 0)
                 {
-                    var salesDashboardDto = new SalesDashboardDto();
-                    salesDashboardDto.Type = "MGain";
-                    salesDashboardDto.Week = mgainClients.Where(x => x.CreatedAt >= startOfWeek && x.CreatedAt <= endOfWeek).Count();
-                    salesDashboardDto.Month = mgainClients.Where(x => x.CreatedAt.Month == DateTime.Now.Month && x.CreatedAt.Year == DateTime.Now.Year).Count();
-                    salesDashboardDto.Quarter = mgainClients.Count();
-                    salesDashboardDtoList.Add(salesDashboardDto);
+                    salesMGainDashboardDto.Week = mgainClients.Where(x => x.CreatedAt >= startOfWeek && x.CreatedAt <= endOfWeek).Count();
+                    salesMGainDashboardDto.Month = mgainClients.Where(x => x.CreatedAt.Month == DateTime.Now.Month && x.CreatedAt.Year == DateTime.Now.Year).Count();
+                    salesMGainDashboardDto.Quarter = mgainClients.Count();
                 }
+                salesDashboardDtoList.Add(salesMGainDashboardDto);
 
                 var insuranceClients = leads.Where(x => x.InterestedIn.Split(',').Any(x => x == investmentTypes.Values.First(x => x.InvestmentName == InvesmentType.MutualFund.ToString()).Id.ToString())).ToList();
+                var salesInsDashboardDto = new SalesDashboardDto();
+                salesInsDashboardDto.Type = "Insurance";
                 if (insuranceClients.Count > 0)
                 {
-                    var salesDashboardDto = new SalesDashboardDto();
-                    salesDashboardDto.Type = "Insurance";
-                    salesDashboardDto.Week = insuranceClients.Where(x => x.CreatedAt >= startOfWeek && x.CreatedAt <= endOfWeek).Count();
-                    salesDashboardDto.Month = insuranceClients.Where(x => x.CreatedAt.Month == DateTime.Now.Month && x.CreatedAt.Year == DateTime.Now.Year).Count();
-                    salesDashboardDto.Quarter = insuranceClients.Count();
-                    salesDashboardDtoList.Add(salesDashboardDto);
+                    salesInsDashboardDto.Week = insuranceClients.Where(x => x.CreatedAt >= startOfWeek && x.CreatedAt <= endOfWeek).Count();
+                    salesInsDashboardDto.Month = insuranceClients.Where(x => x.CreatedAt.Month == DateTime.Now.Month && x.CreatedAt.Year == DateTime.Now.Year).Count();
+                    salesInsDashboardDto.Quarter = insuranceClients.Count();
                 }
+                salesDashboardDtoList.Add(salesInsDashboardDto);
 
                 var realEstateClients = leads.Where(x => x.InterestedIn.Split(',').Any(x => x == investmentTypes.Values.First(x => x.InvestmentName == InvesmentType.MutualFund.ToString()).Id.ToString())).ToList();
+                var salesDashboardDto = new SalesDashboardDto();
+                salesDashboardDto.Type = "Real Estate";
                 if (realEstateClients.Count > 0)
                 {
-                    var salesDashboardDto = new SalesDashboardDto();
-                    salesDashboardDto.Type = "Real Estate";
                     salesDashboardDto.Week = realEstateClients.Where(x => x.CreatedAt >= startOfWeek && x.CreatedAt <= endOfWeek).Count();
                     salesDashboardDto.Month = realEstateClients.Where(x => x.CreatedAt.Month == DateTime.Now.Month && x.CreatedAt.Year == DateTime.Now.Year).Count();
                     salesDashboardDto.Quarter = realEstateClients.Count();
-                    salesDashboardDtoList.Add(salesDashboardDto);
                 }
+                salesDashboardDtoList.Add(salesDashboardDto);
             }
 
             return salesDashboardDtoList;
@@ -151,7 +151,7 @@ namespace CRM_api.Services.Services.Sales_Module
             var meetings = await _meetingRepository.GetUserWiseMeetingsSchedule(userId);
             var meetingScheduleDtoList = new List<MeetingScheduleDto>();
             var meetingScheduleDto = new MeetingScheduleDto();
-            meetingScheduleDto.WeekDay = "Today";
+            meetingScheduleDto.WeekDay = string.Concat("Today", " ", $"({DateTime.Now.ToShortDateString()})");
 
             if (meetings.Count > 0)
             {
@@ -166,9 +166,9 @@ namespace CRM_api.Services.Services.Sales_Module
                 date = date.AddDays(1);
                 var meetingSchedule = new MeetingScheduleDto();
                 if (i == 0)
-                    meetingSchedule.WeekDay = "Tomorrow";
+                    meetingSchedule.WeekDay = string.Concat("Tomorrow", " ", $"({date.ToShortDateString()})");
                 else
-                    meetingSchedule.WeekDay = date.DayOfWeek.ToString();
+                    meetingSchedule.WeekDay = string.Concat(date.DayOfWeek.ToString(), " ", $"({date.ToShortDateString()})");
 
                 if (meetings.Count > 0)
                 {
