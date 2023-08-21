@@ -65,7 +65,7 @@ namespace CRM_api.Services.Services.User_Module
         #region Get All User By Category Id
         public async Task<List<UserNameDto>> GetUsersByCategoryIdAsync(int categoryId, string search, SortingParams sortingParams)
         {
-            var users = await _userMasterRepository.GetUsersByCategoryId(categoryId, null, null, search, true);
+            var users = await _userMasterRepository.GetUsersByCategoryId(categoryId, null, null, search, sortingParams, true);
             var mapUsers = _mapper.Map<List<UserNameDto>>(users);
 
             return mapUsers;

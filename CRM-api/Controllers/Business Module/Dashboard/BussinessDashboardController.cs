@@ -18,11 +18,11 @@ namespace CRM_api.Controllers.Business_Module.Dashboard
 
         #region Get Client Current Investment Snapshot
         [HttpGet("GetClientCurrentInvSnapshot")]
-        public async Task<IActionResult> GetClientCurrentInvSnapshot(bool? isZero, string? search, int? userId)
+        public async Task<IActionResult> GetClientCurrentInvSnapshot(bool? isZero, string? search, int? userId, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var getData = await _businessDashboardService.GetClientCurrentInvSnapshotAsync(userId, isZero, search);
+                var getData = await _businessDashboardService.GetClientCurrentInvSnapshotAsync(userId, isZero, search, sortingParams);
 
                 return Ok(getData);
             }
@@ -35,11 +35,11 @@ namespace CRM_api.Controllers.Business_Module.Dashboard
 
         #region Get Client Monthly Transaction Snapshot
         [HttpGet("GetClientMonthlyTransSnapshot")]
-        public async Task<IActionResult> GetClientMonthlyTransSnapshot(int? userId, int? month, int? year, bool? isZero, string? search)
+        public async Task<IActionResult> GetClientMonthlyTransSnapshot(int? userId, int? month, int? year, bool? isZero, string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var getData = await _businessDashboardService.GetClientMonthlyTransSnapshotAsync(userId, month, year, isZero, search);
+                var getData = await _businessDashboardService.GetClientMonthlyTransSnapshotAsync(userId, month, year, isZero, search, sortingParams);
 
                 return Ok(getData);
             }

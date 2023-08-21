@@ -67,9 +67,6 @@ namespace CRM_api.Services.Services.WBC_Mall_Module
                             return ("You can't cancelled after order is delivered or shipped.", 0);
                         break;
                     case OrderStatusConstant.delivered:
-                        if (order.DeliverType.ToLower() != delivery)
-                            return ("You can't deliver this order", 0);
-
                         order.DeleveredDate = DateTime.Now;
                         order.Status = true;
                         break;

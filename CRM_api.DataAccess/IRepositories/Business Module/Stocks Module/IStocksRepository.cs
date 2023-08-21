@@ -15,6 +15,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module
         Task<int> AddData(List<TblStockData> tblStockData);
         Task<int> DeleteData(List<TblStockData> tblStockData);
         Task<List<TblStockData>> GetStockDataByUserName(string userName, DateTime? startDate, DateTime? endDate);
-        Task<List<TblStockData>> GetCurrentStockDataByUserName(int? month, int? year, string userName);
+        Task<List<TblStockData>> RetrieveStocksByUsernames(IEnumerable<string> usernames);
+        Task<List<TblStockData>> GetCurrentStockDataByUserName(int? month, int? year, IEnumerable<string> userNames);
     }
 }

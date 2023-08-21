@@ -3,8 +3,8 @@
     public class SalesDashboardDto
     {
         public string? Type { get; set; }
-        public int? Week { get; set; }
-        public int? Month { get; set; }
-        public int? Quarter { get; set; }
+        public int? Week { get; set; } = 0;
+        public int? Month { get; set; } = 0;
+        public int? Quarter { get; set; } = 0;
     }
 }
