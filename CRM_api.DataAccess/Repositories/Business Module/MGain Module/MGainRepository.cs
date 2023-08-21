@@ -146,43 +146,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         }
         #endregion
 
-        #region Get All Project
-        public async Task<Response<TblProjectMaster>> GetAllProject(string? searchingParams, SortingParams sortingParams)
-        {
-            double pageCount = 0;
-            IQueryable<TblProjectMaster> projects = new List<TblProjectMaster>().AsQueryable();
-            
-            if (searchingParams != null)
-            {
-                projects = _context.Search<TblProjectMaster>(searchingParams).Where(x => x.IsActive == true).Include(x => x.TblPlotMasters).AsQueryable(); ;
-            }
-            else
-            {
-                projects = _context.TblProjectMasters.Where(x => x.IsActive == true).Include(x => x.TblPlotMasters).AsQueryable();
-            }
-
-            pageCount = Math.Ceiling(projects.Count() / sortingParams.PageSize);
-
-            //Apply Sorting
-            var sortedProject = SortingExtensions.ApplySorting(projects, sortingParams.SortBy, sortingParams.IsSortAscending);
-
-            //Apply Pagination
-            var paginatedData = SortingExtensions.ApplyPagination(sortedProject, sortingParams.PageNumber, sortingParams.PageSize).ToList();
-
-            var responseProjects = new Response<TblProjectMaster>()
-            {
-                Values = paginatedData,
-                Pagination = new Pagination()
-                {
-                    Count = (int)pageCount,
-                    CurrentPage = sortingParams.PageNumber
-                }
-            };
-
-            return responseProjects;
-        }
-        #endregion
-
         #region Get Project By Project Name
         public async Task<TblProjectMaster> GetProjectByProjectName(string projectName)
         {
@@ -195,7 +158,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         public async Task<List<TblPlotMaster>> GetPlotsByProjectId(int projectId, int? plotId)
         {
             double pageCount = 0;
-            var plots = _context.TblPlotMasters.Where(x => x.ProjectId == projectId).Include(x => x.TblProjectMaster).ToList();
+            var plots = _context.TblPlotMasters.Where(x => x.ProjectId == projectId && x.Purpose.ToLower().Equals("mgain")).Include(x => x.TblProjectMaster).ToList();
 
             if (plotId != 0)
             {

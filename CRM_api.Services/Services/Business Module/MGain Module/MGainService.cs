@@ -1705,20 +1705,6 @@ table {{
         }
         #endregion
 
-        #region Get All Projects
-        public async Task<ResponseDto<ProjectMasterDto>> GetAllProjectAsync(string? searchingParams, SortingParams sortingParams)
-        {
-            var projects = await _mGainRepository.GetAllProject(searchingParams, sortingParams);
-            var mapProjects = _mapper.Map<ResponseDto<ProjectMasterDto>>(projects);
-
-            foreach (var project in projects.Values)
-            {
-                project.Name = project.Name.ToLower();
-            }
-            return mapProjects;
-        }
-        #endregion
-
         #region Get Plots By ProjectId
         public async Task<List<PlotMasterDto>> GetPlotsByProjectIdAsync(int projectId, int? plotId)
         {

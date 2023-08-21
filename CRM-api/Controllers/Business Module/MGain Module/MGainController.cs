@@ -215,22 +215,6 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         }
         #endregion
 
-        #region Get All Projects
-        [HttpGet("GetAllProjects")]
-        public async Task<IActionResult> GetAllProjects([FromQuery] string? search, [FromQuery] SortingParams sortingParams)
-        {
-            try
-            {
-                var getData = await _mGainService.GetAllProjectAsync(search, sortingParams);
-                return Ok(getData);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        #endregion
-
         #region Get Plots By ProjectId
         [HttpGet("GetPlotsByProjectId")]
         public async Task<IActionResult> GetPlotsByProjectId(int projectId, int? plotId)
