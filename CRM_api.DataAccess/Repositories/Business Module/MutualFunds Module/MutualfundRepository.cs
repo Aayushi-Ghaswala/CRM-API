@@ -83,7 +83,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             var purchaseAmount = TotalpurchaseUnit.Sum(x => x.Invamount);
 
             decimal? totalPurchaseunit = purchaseUnit - redemUnit;
-            decimal? totalAmount = purchaseAmount - redemAmount;
+            decimal? totalAmount = redemAmount - purchaseAmount;
 
             if (searchingParams != null)
             {
@@ -160,7 +160,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             double pageCount = 0;
 
             if (searchingParams != null)
-                userName = userName.Where(x => x.UserName.ToLower().Contains(searchingParams.ToLower()));
+                userName = _context.Search<TblMftransaction>(searchingParams).Where(x => x.Username.ToLower().Contains(searchingParams.ToLower())).Select(x => new UserNameResponse { UserId = x.Userid, UserName = x.Username }).Distinct().AsQueryable();
             else userName = _context.TblMftransactions.Select(x => new UserNameResponse { UserId = x.Userid, UserName = x.Username }).Distinct().AsQueryable();
 
             pageCount = Math.Ceiling(userName.Count() / sortingParams.PageSize);
