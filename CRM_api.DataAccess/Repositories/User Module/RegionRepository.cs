@@ -92,6 +92,14 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
         #endregion
 
+        #region Get City by Name
+        public async Task<TblStateMaster> GetStateByName(string? name)
+        {
+            var state = await _context.TblStateMasters.FirstOrDefaultAsync(x => x.StateName == name);
+            return state;
+        }
+        #endregion
+
         #region Get All City Of State
         public async Task<Response<TblCityMaster>> GetCityByState(int stateId, string search, SortingParams sortingParams)
         {
@@ -127,6 +135,14 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             };
 
             return cityResponse;
+        }
+        #endregion
+
+        #region Get City By Name
+        public async Task<TblCityMaster> GetCityByName(string? name)
+        {
+            var city = await _context.TblCityMasters.FirstOrDefaultAsync(x => x.CityName == name);
+            return city;
         }
         #endregion
 

@@ -6,9 +6,11 @@ using CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.Loan_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.MGain_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module;
+using CRM_api.DataAccess.IRepositories.Business_Module.Real_Estate_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.WBC_Module;
 using CRM_api.DataAccess.IRepositories.HR_Module;
+using CRM_api.DataAccess.IRepositories.Real_Estate_Module;
 using CRM_api.DataAccess.IRepositories.Sales_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.IRepositories.WBC_Mall_Module;
@@ -18,9 +20,11 @@ using CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.Loan_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.MGain_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module;
+using CRM_api.DataAccess.Repositories.Business_Module.Real_Estate_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.WBC_Module;
 using CRM_api.DataAccess.Repositories.HR_Module;
+using CRM_api.DataAccess.Repositories.Real_Estate_Module;
 using CRM_api.DataAccess.Repositories.Sales_Module;
 using CRM_api.DataAccess.Repositories.User_Module;
 using CRM_api.DataAccess.Repositories.WBC_Mall_Module;
@@ -63,6 +67,9 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             services.AddScoped<IMGainSchemeRepository, MGainSchemeRepository>();
             services.AddScoped<IWBCRepository, WBCRepository>();
             services.AddScoped<IFasttrackRepository, FasttrackRepository>();
+            services.AddScoped<IPlotRepository, PlotRepository>();
+            services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<IProjectTypeDetailRepository, ProjectTypeDetailRepository>();
 
             //HR Module
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();

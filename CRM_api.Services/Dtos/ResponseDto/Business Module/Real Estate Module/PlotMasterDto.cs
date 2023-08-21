@@ -1,11 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace CRM_api.DataAccess.Models
+﻿namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
 {
-    public partial class TblPlotMaster
+    public class PlotMasterDto
     {
         public int Id { get; set; }
-        public int? ProjectId { get; set; }
+        public ProjectMasterDto TblProjectMaster { get; set; }
         public string? PlotNo { get; set; }
         public decimal? SqMt { get; set; }
         public decimal? SqFt { get; set; }
@@ -18,8 +16,5 @@ namespace CRM_api.DataAccess.Models
         public decimal? Available_PlotValue { get; set; }
         public decimal? FasttrackCommission { get; set; }
         public string? Purpose { get; set; }
-
-        [ForeignKey(nameof(ProjectId))]
-        public virtual TblProjectMaster TblProjectMaster { get; set; }
     }
 }

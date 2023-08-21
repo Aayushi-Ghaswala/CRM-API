@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace CRM_api.DataAccess.Models
+﻿namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.Real_Estate_Module
 {
-    public partial class TblProjectMaster
+    public class UpdateProjectDto
     {
         public int Id { get; set; }
         public int? ProjectTypeId { get; set; }
@@ -21,9 +19,5 @@ namespace CRM_api.DataAccess.Models
         public string? Features { get; set; }
         public string? ProjectDocument { get; set; }
         public bool? IsActive { get; set; }
-
-        [ForeignKey(nameof(ProjectTypeId))]
-        public virtual TblProjectTypeDetail? TblProjectTypeDetail { get; set; }
-        public virtual ICollection<TblPlotMaster> TblPlotMasters { get; set; }
     }
 }

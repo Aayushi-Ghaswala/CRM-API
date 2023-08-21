@@ -9,6 +9,7 @@ using CRM_api.Services.IServices.Business_Module.LI_GI_Module;
 using CRM_api.Services.IServices.Business_Module.Loan_Module;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
 using CRM_api.Services.IServices.Business_Module.MutualFunds_Module;
+using CRM_api.Services.IServices.Business_Module.Real_Estate_Module;
 using CRM_api.Services.IServices.Business_Module.Stocks_Module;
 using CRM_api.Services.IServices.Business_Module.WBC_Module;
 using CRM_api.Services.IServices.HR_Module;
@@ -22,6 +23,7 @@ using CRM_api.Services.Services.Business_Module.LI_GI_Module;
 using CRM_api.Services.Services.Business_Module.Loan_Module;
 using CRM_api.Services.Services.Business_Module.MGain_Module;
 using CRM_api.Services.Services.Business_Module.MutualFunds_Module;
+using CRM_api.Services.Services.Business_Module.Real_Estate_Module;
 using CRM_api.Services.Services.Business_Module.Stocks_Module;
 using CRM_api.Services.Services.Business_Module.WBC_Module;
 using CRM_api.Services.Services.HR_Module;
@@ -80,6 +82,9 @@ namespace CRM_api.Services.ServicesDepedancy
             services.AddScoped<IWBCService, WBCService>();
             services.AddScoped<IBusinessDashboardService, BusinessDashboardService>();
             services.AddScoped<IFasttrackService, FasttrackService>();
+            services.AddScoped<IPlotService, PlotService>();
+            services.AddScoped<IProjectService, ProjectService>();
+            services.AddScoped<IProjectTypeDetailService, ProjectTypeDetailService>();
 
             //Hr Module
             services.AddScoped<IEmployeeService, EmployeeService>();

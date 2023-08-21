@@ -2710,6 +2710,20 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.WidthFt).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.Yard).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Available_PlotValue)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Available_PlotValue");
+
+                entity.Property(e => e.Available_SqFt)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("Available_SqFt");
+
+                entity.Property(e => e.FasttrackCommission).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Purpose)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<TblPayCheck>(entity =>
@@ -2870,7 +2884,7 @@ namespace CRM_api.DataAccess.Context
             {
                 entity.ToTable("tbl_project_master");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Address)
                     .HasMaxLength(150)
@@ -2884,7 +2898,9 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.Features).IsUnicode(false);
 
-                entity.Property(e => e.LocationId).HasColumnName("Location_Id");
+                entity.Property(e => e.District)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(50)
@@ -2911,8 +2927,6 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.Remark)
                     .HasMaxLength(100)
                     .IsUnicode(false);
-
-                entity.Property(e => e.ShowDetails).HasColumnName("show_details");
 
                 entity.Property(e => e.State)
                     .HasMaxLength(50)

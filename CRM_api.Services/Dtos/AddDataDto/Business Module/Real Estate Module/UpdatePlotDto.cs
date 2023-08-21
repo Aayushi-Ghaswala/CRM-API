@@ -1,9 +1,9 @@
-﻿namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
+﻿namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.Real_Estate_Module
 {
-    public class PlotMasterDto
+    public class UpdatePlotDto
     {
         public int Id { get; set; }
-        public ProjectMasterDto TblProjectMaster { get; set; }
+        public int? ProjectId { get; set; }
         public string? PlotNo { get; set; }
         public decimal? SqMt { get; set; }
         public decimal? SqFt { get; set; }
@@ -14,5 +14,7 @@
         public decimal? PlotValue { get; set; }
         public decimal? Available_SqFt { get; set; }
         public decimal? Available_PlotValue { get; set; }
+        public decimal? FasttrackCommission { get; set; }
+        public string? Purpose { get; set; }
     }
 }

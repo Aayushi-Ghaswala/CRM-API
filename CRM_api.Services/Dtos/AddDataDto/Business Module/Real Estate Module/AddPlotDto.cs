@@ -1,10 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace CRM_api.DataAccess.Models
+﻿namespace CRM_api.Services.Dtos.AddDataDto.Real_Estate_Module
 {
-    public partial class TblPlotMaster
+    public class AddPlotDto
     {
-        public int Id { get; set; }
         public int? ProjectId { get; set; }
         public string? PlotNo { get; set; }
         public decimal? SqMt { get; set; }
@@ -14,12 +11,7 @@ namespace CRM_api.DataAccess.Models
         public decimal? HeightFt { get; set; }
         public decimal? Rate { get; set; }
         public decimal? PlotValue { get; set; }
-        public decimal? Available_SqFt { get; set; }
-        public decimal? Available_PlotValue { get; set; }
         public decimal? FasttrackCommission { get; set; }
         public string? Purpose { get; set; }
-
-        [ForeignKey(nameof(ProjectId))]
-        public virtual TblProjectMaster TblProjectMaster { get; set; }
     }
 }
