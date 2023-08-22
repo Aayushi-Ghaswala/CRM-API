@@ -17,7 +17,7 @@ namespace CRM_api.Services.IServices.Business_Module.WBC_Module
         Task<ResponseDto<WbcTypeDto>> GetAllWbcSchemeTypesAsync(string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<WBCSchemeMasterDto>> GetAllWbcSchemesAsync(string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<ReferenceTrackingResponseDto>> GetDirectRefferalsAsync(int userId, string? search, SortingParams sortingParams);
-        Task<List<ReferenceTrackingResponseDto>> GetRefferedByListAsync(int userId);
+        Task<List<ReferenceTrackingResponseDto>> GetReferredByListAsync(int? userId);
         Task<int> AddWbcSchemeAsync(AddWBCSchemeDto addWBCSchemeDto);
         Task<int> UpdateWbcSchemeAsync(UpdateWBCSchemeDto updateWBCSchemeDto);
         Task<int> DeleteWbcSchemeAsync(int id);

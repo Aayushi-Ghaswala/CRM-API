@@ -1430,8 +1430,10 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         #endregion
 
         #region Get referred by list
-        public async Task<List<ReferenceTrackingResponseModel>> GetRefferedByList(int userId)
+        public async Task<List<ReferenceTrackingResponseModel>> GetReferredByList(int? userId)
         {
+            if (userId is null) return new List<ReferenceTrackingResponseModel>();
+
             var parentUserId = await _context.TblUserMasters.Where(u => u.UserId == userId).Select(u => u.UserParentid).FirstOrDefaultAsync();
             return await GetUserParentList((int)parentUserId, 1);
         }

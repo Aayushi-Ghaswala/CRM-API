@@ -18,7 +18,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.WBC_Module
         Task<Response<TblWbcTypeMaster>> GetAllWbcSchemeTypes(string? searchingParams, SortingParams sortingParams);
         Task<Response<TblWbcSchemeMaster>> GetAllWbcSchemes(string? searchingParams, SortingParams sortingParams);
         Task<Response<ReferenceTrackingResponseModel>> GetDirectRefferals(int userId, string? search, SortingParams sortingParams);
-        Task<List<ReferenceTrackingResponseModel>> GetRefferedByList(int userId);
+        Task<List<ReferenceTrackingResponseModel>> GetReferredByList(int? userId);
         Task<int> AddWbcScheme(TblWbcSchemeMaster wbcSchemeMaster);
         Task<int> UpdateWbcScheme(TblWbcSchemeMaster wbcSchemeMaster);
         Task<int> DeleteWbcScheme(int id);

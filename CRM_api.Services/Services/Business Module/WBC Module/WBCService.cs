@@ -113,9 +113,9 @@ namespace CRM_api.Services.Services.Business_Module.WBC_Module
         #endregion
 
         #region Get reffered by list
-        public async Task<List<ReferenceTrackingResponseDto>> GetRefferedByListAsync(int userId)
+        public async Task<List<ReferenceTrackingResponseDto>> GetReferredByListAsync(int? userId)
         {
-            var reffUsers = await _wbcRepository.GetRefferedByList(userId);
+            var reffUsers = await _wbcRepository.GetReferredByList(userId);
             var mappedReffUsers = _mapper.Map<List<ReferenceTrackingResponseDto>>(reffUsers);
             return mappedReffUsers;
         }

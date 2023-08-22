@@ -160,13 +160,13 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
         }
         #endregion
 
-        #region Get reffered by list
-        [HttpGet("GetRefferedByList")]
-        public async Task<IActionResult> GetRefferedByList(int userId)
+        #region Get referred by list
+        [HttpGet("GetReferredByList")]
+        public async Task<IActionResult> GetReferredByList(int? userId)
         {
             try
             {
-                var result = await _wbcService.GetRefferedByListAsync(userId);
+                var result = await _wbcService.GetReferredByListAsync(userId);
                 return Ok(result);
             }
             catch (Exception)
