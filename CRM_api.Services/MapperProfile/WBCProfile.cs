@@ -14,8 +14,6 @@ namespace CRM_api.Services.MapperProfile
         public WBCProfile()
         {
             CreateMap<TblWbcTypeMaster, WbcTypeDto>();
-            CreateMap<TblSubInvesmentType, SubInvestmentTypeDto>();
-            CreateMap<TblSubsubInvType, SubSubInvestmentTypeDto>();
             CreateMap<WbcGPResponseModel, WbcGPResponseDto>();
 
             CreateMap<TblWbcSchemeMaster, WBCSchemeMasterDto>();
@@ -25,8 +23,6 @@ namespace CRM_api.Services.MapperProfile
 
             CreateMap<Response<WbcGPResponseModel>, ResponseDto<WbcGPResponseDto>>();
             CreateMap<Response<TblWbcTypeMaster>, ResponseDto<WbcTypeDto>>();
-            CreateMap<Response<TblSubInvesmentType>, ResponseDto<SubInvestmentTypeDto>>();
-            CreateMap<Response<TblSubsubInvType>, ResponseDto<SubSubInvestmentTypeDto>>();
 
             CreateMap<TblGoldPointCategory, GoldPointCategoryDto>();
             CreateMap<UserNameResponse, UserNameDto>();
@@ -39,6 +35,9 @@ namespace CRM_api.Services.MapperProfile
                 .ForMember(dest => dest.PointCategory, opt => opt.MapFrom(src => src.TblGoldPointCategory.PointCategory));
             CreateMap<Response<TblGoldPoint>, ResponseDto<GoldPointDto>>();
             CreateMap<LedgerResponse<TblGoldPoint>, GoldPointResponseDto<GoldPointDto>>();
+
+            CreateMap<ReferenceTrackingResponseModel, ReferenceTrackingResponseDto>();
+            CreateMap<Response<ReferenceTrackingResponseModel>, ResponseDto<ReferenceTrackingResponseDto>>();
         }
     }
 }

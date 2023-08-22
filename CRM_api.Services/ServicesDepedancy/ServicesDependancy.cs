@@ -5,6 +5,7 @@ using CRM_api.Services.Helper.Background_Service.MGain_Module;
 using CRM_api.Services.IServices.Account_Module;
 using CRM_api.Services.IServices.Business_Module.Dashboard;
 using CRM_api.Services.IServices.Business_Module.Fasttrack_Module;
+using CRM_api.Services.IServices.Business_Module.Insvestment_Module;
 using CRM_api.Services.IServices.Business_Module.LI_GI_Module;
 using CRM_api.Services.IServices.Business_Module.Loan_Module;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
@@ -19,6 +20,7 @@ using CRM_api.Services.IServices.WBC_Mall_Module;
 using CRM_api.Services.Services.Account_Module;
 using CRM_api.Services.Services.Business_Module.Dashboard;
 using CRM_api.Services.Services.Business_Module.Fasttrack_Module;
+using CRM_api.Services.Services.Business_Module.Insvestment_Module;
 using CRM_api.Services.Services.Business_Module.LI_GI_Module;
 using CRM_api.Services.Services.Business_Module.Loan_Module;
 using CRM_api.Services.Services.Business_Module.MGain_Module;
@@ -85,6 +87,7 @@ namespace CRM_api.Services.ServicesDepedancy
             services.AddScoped<IPlotService, PlotService>();
             services.AddScoped<IProjectService, ProjectService>();
             services.AddScoped<IProjectTypeDetailService, ProjectTypeDetailService>();
+            services.AddScoped<IInvestmentService, InvestmentService>();
 
             //Hr Module
             services.AddScoped<IEmployeeService, EmployeeService>();
