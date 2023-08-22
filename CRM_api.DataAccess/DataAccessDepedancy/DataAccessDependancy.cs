@@ -2,6 +2,7 @@
 using CRM_api.DataAccess.IRepositories.Account_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.Fasttrack_Module;
+using CRM_api.DataAccess.IRepositories.Business_Module.Investment_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.Loan_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.MGain_Module;
@@ -16,6 +17,7 @@ using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.IRepositories.WBC_Mall_Module;
 using CRM_api.DataAccess.Repositories.Account_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.Fasttrack_Module;
+using CRM_api.DataAccess.Repositories.Business_Module.Insvestment_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.Loan_Module;
 using CRM_api.DataAccess.Repositories.Business_Module.MGain_Module;
@@ -70,6 +72,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             services.AddScoped<IPlotRepository, PlotRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IProjectTypeDetailRepository, ProjectTypeDetailRepository>();
+            services.AddScoped<IInvestmentRepository, InvestmentRepository>();
 
             //HR Module
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();

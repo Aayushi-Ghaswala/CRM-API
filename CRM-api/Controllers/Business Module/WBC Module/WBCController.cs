@@ -128,38 +128,6 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
         }
         #endregion
 
-        #region Get all subInvestment types
-        [HttpGet("GetAllSubInvestmentTypes")]
-        public async Task<IActionResult> GetAllSubInvestmentTypes([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
-        {
-            try
-            {
-                var schemes = await _wbcService.GetAllSubInvestmentTypesAsync(search, sortingParams);
-                return Ok(schemes);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        #endregion
-
-        #region Get all subSubInvestment types
-        [HttpGet("GetAllSubSubInvestmentTypes")]
-        public async Task<IActionResult> GetAllSubSubInvestmentTypes([FromQuery] string? search, [FromQuery] SortingParams? sortingParams, int? subInvestmentTypeId)
-        {
-            try
-            {
-                var schemes = await _wbcService.GetAllSubSubInvestmentTypesAsync(search, sortingParams, subInvestmentTypeId);
-                return Ok(schemes);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        #endregion
-
         #region Get all wbc schemes
         [HttpGet("GetAllWbcSchemes")]
         public async Task<IActionResult> GetAllWbcSchemes([FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
@@ -168,6 +136,38 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
             {
                 var schemes = await _wbcService.GetAllWbcSchemesAsync(search, sortingParams);
                 return Ok(schemes);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get direct refferals list
+        [HttpGet("GetDirectRefferals")]
+        public async Task<IActionResult> GetDirectRefferals(int userId, string? search, [FromQuery] SortingParams? sortingParams)
+        {
+            try
+            {
+                var result = await _wbcService.GetDirectRefferalsAsync(userId, search, sortingParams);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get reffered by list
+        [HttpGet("GetRefferedByList")]
+        public async Task<IActionResult> GetRefferedByList(int userId)
+        {
+            try
+            {
+                var result = await _wbcService.GetRefferedByListAsync(userId);
+                return Ok(result);
             }
             catch (Exception)
             {

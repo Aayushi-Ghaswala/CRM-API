@@ -86,34 +86,6 @@ namespace CRM_api.Services.Services.Business_Module.WBC_Module
         }
         #endregion
 
-        #region Get all subInvestment types
-        public async Task<ResponseDto<SubInvestmentTypeDto>> GetAllSubInvestmentTypesAsync(string? searchingParams, SortingParams sortingParams)
-        {
-            var response = await _wbcRepository.GetAllSubInvestmentTypes(searchingParams, sortingParams);
-            var mappedResponse = _mapper.Map<ResponseDto<SubInvestmentTypeDto>>(response);
-
-            foreach(var item in mappedResponse.Values)
-            {
-                item.InvestmentType = item.InvestmentType.ToLower();
-            }
-            return mappedResponse;
-        }
-        #endregion
-
-        #region Get all subSubInvestment types
-        public async Task<ResponseDto<SubSubInvestmentTypeDto>> GetAllSubSubInvestmentTypesAsync(string? searchingParams, SortingParams sortingParams, int? subInvestmentTypeId)
-        {
-            var response = await _wbcRepository.GetAllSubSubInvestmentTypes(searchingParams, sortingParams, subInvestmentTypeId);
-            var mappedResponse = _mapper.Map<ResponseDto<SubSubInvestmentTypeDto>>(response);
-
-            foreach(var item in mappedResponse.Values)
-            {
-                item.SubInvType = item.SubInvType.ToLower();
-            }
-            return mappedResponse;
-        }
-        #endregion
-
         #region Gel all wbc scheme
         public async Task<ResponseDto<WBCSchemeMasterDto>> GetAllWbcSchemesAsync(string? searchingParams, SortingParams sortingParams)
         {
@@ -128,6 +100,24 @@ namespace CRM_api.Services.Services.Business_Module.WBC_Module
         {
             var schemeModel = _mapper.Map<TblWbcSchemeMaster>(addWBCSchemeDto);
             return await _wbcRepository.AddWbcScheme(schemeModel);
+        }
+        #endregion
+
+        #region Get direct refferals list
+        public async Task<ResponseDto<ReferenceTrackingResponseDto>> GetDirectRefferalsAsync(int userId, string? search, SortingParams sortingParams)
+        {
+            var result = await _wbcRepository.GetDirectRefferals(userId, search, sortingParams);
+            var mappedResult = _mapper.Map<ResponseDto<ReferenceTrackingResponseDto>>(result);
+            return mappedResult;
+        }
+        #endregion
+
+        #region Get reffered by list
+        public async Task<List<ReferenceTrackingResponseDto>> GetRefferedByListAsync(int userId)
+        {
+            var reffUsers = await _wbcRepository.GetRefferedByList(userId);
+            var mappedReffUsers = _mapper.Map<List<ReferenceTrackingResponseDto>>(reffUsers);
+            return mappedReffUsers;
         }
         #endregion
 

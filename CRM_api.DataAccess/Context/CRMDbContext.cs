@@ -1544,6 +1544,8 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.InvestmentName)
                     .HasMaxLength(30)
                     .IsUnicode(false);
+
+                entity.Property(e => e.IsActive).HasColumnName("IsActive");
             });
 
             modelBuilder.Entity<TblLeaveType>(entity =>
@@ -3397,6 +3399,8 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(30)
                     .IsUnicode(false);
 
+                entity.Property(e => e.IsActive).HasColumnName("IsActive");
+
                 entity.HasOne(d => d.InvesmentType)
                     .WithMany(p => p.TblSubInvesmentTypes)
                     .HasForeignKey(d => d.InvesmentTypeId)
@@ -3409,6 +3413,8 @@ namespace CRM_api.DataAccess.Context
                 entity.ToTable("tbl_subsub_inv_type");
 
                 entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.IsActive).HasColumnName("IsActive");
 
                 entity.Property(e => e.SubInvType)
                     .HasMaxLength(50)

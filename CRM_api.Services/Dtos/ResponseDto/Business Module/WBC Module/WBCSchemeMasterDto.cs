@@ -1,4 +1,6 @@
-﻿namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.WBC_Module
+﻿using CRM_api.Services.Dtos.ResponseDto.Business_Module.Investment_Module;
+
+namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.WBC_Module
 {
     public class WBCSchemeMasterDto
     {
@@ -13,6 +15,6 @@
         public DateTime? ToDate { get; set; }
         public virtual WbcTypeDto? TblWbcTypeMaster { get; set; }
         public virtual SubInvestmentTypeDto? TblSubInvesmentType { get; set; }
-        public virtual SubSubInvestmentTypeDto? TblSubsubInvType { get; set; }
+        public virtual SubsubInvTypeDto? TblSubsubInvType { get; set; }
     }
 }

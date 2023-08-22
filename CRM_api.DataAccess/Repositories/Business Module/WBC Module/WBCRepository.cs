@@ -1360,80 +1360,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         }
         #endregion
 
-        #region Get all subInvestment types
-        public async Task<Response<TblSubInvesmentType>> GetAllSubInvestmentTypes(string? searchingParams, SortingParams sortingParams)
-        {
-            double pageCount = 0;
-
-            var filterData = _context.TblSubInvesmentTypes.AsQueryable();
-
-            if (searchingParams != null)
-            {
-                filterData = _context.Search<TblSubInvesmentType>(searchingParams).AsQueryable();
-            }
-            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
-
-            // Apply sorting
-            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
-
-            // Apply pagination
-            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
-
-            var subInvestmentTypesResponse = new Response<TblSubInvesmentType>()
-            {
-                Values = paginatedData,
-                Pagination = new Pagination()
-                {
-                    CurrentPage = sortingParams.PageNumber,
-                    Count = (int)pageCount
-                }
-            };
-
-            return subInvestmentTypesResponse;
-        }
-        #endregion
-
-        #region Get all subSubInvestment types
-        public async Task<Response<TblSubsubInvType>> GetAllSubSubInvestmentTypes(string? searchingParams, SortingParams sortingParams, int? subInvestmentTypeId)
-        {
-            double pageCount = 0;
-            List<TblSubsubInvType> data = new List<TblSubsubInvType>();
-            IQueryable<TblSubsubInvType> filterData = data.AsQueryable();
-
-            if (subInvestmentTypeId != null)
-                filterData = _context.TblSubsubInvTypes.Include(s => s.TblSubInvesmentType).Where(s => s.SubInvTypeId == subInvestmentTypeId).AsQueryable();
-            else
-                filterData = _context.TblSubsubInvTypes.Include(s => s.TblSubInvesmentType).AsQueryable();
-
-            if (searchingParams != null)
-            {
-                if (subInvestmentTypeId != null)
-                    filterData = _context.Search<TblSubsubInvType>(searchingParams).Include(s => s.TblSubInvesmentType).Where(s => s.SubInvTypeId == subInvestmentTypeId).AsQueryable();
-                else
-                    filterData = _context.Search<TblSubsubInvType>(searchingParams).Include(s => s.TblSubInvesmentType).AsQueryable();
-            }
-            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
-
-            // Apply sorting
-            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
-
-            // Apply pagination
-            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
-
-            var subSubInvestmentTypesResponse = new Response<TblSubsubInvType>()
-            {
-                Values = paginatedData,
-                Pagination = new Pagination()
-                {
-                    CurrentPage = sortingParams.PageNumber,
-                    Count = (int)pageCount
-                }
-            };
-
-            return subSubInvestmentTypesResponse;
-        }
-        #endregion
-
         #region Get All WBC Schemes
         public async Task<Response<TblWbcSchemeMaster>> GetAllWbcSchemes(string? searchingParams, SortingParams sortingParams)
         {
@@ -1464,6 +1390,69 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
             };
 
             return wbcSchemeResponse;
+        }
+        #endregion
+
+        #region Get direct reference tracking list
+        public async Task<Response<ReferenceTrackingResponseModel>> GetDirectRefferals(int userId, string? search, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+            IQueryable<ReferenceTrackingResponseModel> filterData = null;
+
+            if (search != null)
+            {
+                filterData = _context.Search<TblUserMaster>(search).Where(u => u.UserParentid == userId).Select(u => new ReferenceTrackingResponseModel { UserId = u.UserId, Username = u.UserName, MobileNo = u.UserMobile, IsActive = u.UserIsactive, IsFasttrack = u.UserFasttrack == null ? false : true }).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblUserMasters.Where(u => u.UserParentid == userId).Select(u => new ReferenceTrackingResponseModel { UserId = u.UserId, Username = u.UserName, MobileNo = u.UserMobile, IsActive = u.UserIsactive, IsFasttrack = u.UserFasttrack == null ? false : true }).AsQueryable();
+            }
+            pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var directReferenceResponse = new Response<ReferenceTrackingResponseModel>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+
+            return directReferenceResponse;
+        }
+        #endregion
+
+        #region Get referred by list
+        public async Task<List<ReferenceTrackingResponseModel>> GetRefferedByList(int userId)
+        {
+            var parentUserId = await _context.TblUserMasters.Where(u => u.UserId == userId).Select(u => u.UserParentid).FirstOrDefaultAsync();
+            return await GetUserParentList((int)parentUserId, 1);
+        }
+        #endregion
+
+        List<ReferenceTrackingResponseModel> parentUsers = new List<ReferenceTrackingResponseModel>();
+
+        #region Get User parent list
+        public async Task<List<ReferenceTrackingResponseModel>> GetUserParentList(int userId, int count)
+        {
+            if (count < 6)
+            {
+                //var parentUserId = await _context.TblUserMasters.Where(u => u.UserId == userId).Select(u => u.UserParentid).FirstOrDefaultAsync();
+                var user = await _context.TblUserMasters.Where(u => u.UserId == userId).FirstOrDefaultAsync();
+
+                parentUsers.Add(new ReferenceTrackingResponseModel(user.UserId, user.UserName, user.UserMobile, user.UserIsactive, user.UserFasttrack == null ? false : true));
+
+                if (user.UserParentid != null)
+                    await GetUserParentList((int)user.UserParentid, count + 1);
+            }
+            return parentUsers;
         }
         #endregion
 
