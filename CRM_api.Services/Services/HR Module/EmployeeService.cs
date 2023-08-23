@@ -24,13 +24,7 @@ namespace CRM_api.Services.Services.HR_Module
         public async Task<ResponseDto<EmployeeMasterDto>> GetEmployeesAsync(string search, SortingParams sortingParams)
         {
             var employees = await _employeeRepository.GetEmployees(search, sortingParams);
-
             var mapEmployees = _mapper.Map<ResponseDto<EmployeeMasterDto>>(employees);
-
-            foreach (var user in mapEmployees.Values)
-            {
-                user.Name = user.Name.ToLower();
-            }
             return mapEmployees;
         }
         #endregion

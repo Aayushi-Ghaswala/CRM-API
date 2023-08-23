@@ -20,7 +20,7 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<int> UpdateRelativeAccess(int id, bool isDisable);
         Task<int> DeactivateUser(int id);
         int GetUserIdByUserPan(string UserPan);
-        Task<TblUserMaster> GetUserByEmail(string email);
+        Task<TblUserMaster> GetUserByWorkEmail(string email);
         Task<List<TblUserMaster>> GetUserByParentId(int? userId, DateTime date);
     }
 }

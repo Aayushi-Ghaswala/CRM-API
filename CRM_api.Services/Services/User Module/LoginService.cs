@@ -27,7 +27,7 @@ namespace CRM_api.Services.Services.User_Module
         #region Generate OTP
         public async Task<int> GenerateOTPAsync(string email)
         {
-            var user = await _userMasterRepository.GetUserByEmail(email);
+            var user = await _userMasterRepository.GetUserByWorkEmail(email);
             if (user is null)
                 return 0;
 
@@ -76,7 +76,7 @@ namespace CRM_api.Services.Services.User_Module
                 return (1, null);
             else
             {
-                var user = await _userMasterRepository.GetUserByEmail(email);
+                var user = await _userMasterRepository.GetUserByWorkEmail(email);
                 var mapUser = _mapper.Map<UserMasterDto>(user);
                 return (2, mapUser);
             }

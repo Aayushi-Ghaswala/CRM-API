@@ -439,9 +439,9 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #endregion
 
         #region Get User By Email
-        public async Task<TblUserMaster> GetUserByEmail(string email)
+        public async Task<TblUserMaster> GetUserByWorkEmail(string email)
         {
-            var user = await _context.TblUserMasters.Where(x => x.UserEmail.ToLower().Equals(email.ToLower()) && x.UserIsactive == true)
+            var user = await _context.TblUserMasters.Where(x => x.UserWorkemail.ToLower().Equals(email.ToLower()) && x.UserIsactive == true)
                                                     .Include(x => x.TblRoleAssignments.Where(x => x.IsDeleted == false))
                                                         .ThenInclude(x => x.TblRoleMaster)
                                                             .ThenInclude(x => x.TblRolePermissions.Where(x => x.IsDeleted == false)).ThenInclude(x => x.TblModuleMaster)
