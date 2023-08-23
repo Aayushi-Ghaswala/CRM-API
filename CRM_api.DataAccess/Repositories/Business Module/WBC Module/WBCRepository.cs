@@ -31,6 +31,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         public List<WbcGPResponseModel> wbcGPResponseModels = new List<WbcGPResponseModel>();
         public List<WbcGPResponseModel> tempTableDataList = new List<WbcGPResponseModel>();
         public List<WbcGPResponseModel> wbcGPFilteredList = new List<WbcGPResponseModel>();
+        public List<ReferenceTrackingResponseModel> parentUsers = new List<ReferenceTrackingResponseModel>();
 
         public WBCRepository(CRMDbContext context, IUserMasterRepository userMasterRepository, IInsuranceClientRepository insuranceClientRepository, ILoanMasterRepository loanMasterRepository, IStocksRepository stocksRepository, IMGainRepository mGainRepository, IMutualfundRepository mutualfundRepository, IConfiguration configuration)
         {
@@ -1331,12 +1332,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         public async Task<Response<TblWbcTypeMaster>> GetAllWbcSchemeTypes(string? searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
-
-            var filterData = _context.TblWbcTypeMasters.AsQueryable();
+            IQueryable<TblWbcTypeMaster> filterData = null;
 
             if (searchingParams != null)
             {
                 filterData = _context.Search<TblWbcTypeMaster>(searchingParams).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblWbcTypeMasters.AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -1364,12 +1368,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         public async Task<Response<TblWbcSchemeMaster>> GetAllWbcSchemes(string? searchingParams, SortingParams sortingParams)
         {
             double pageCount = 0;
-
-            var filterData = _context.TblWbcSchemeMasters.Include(w => w.TblWbcTypeMaster).Include(s => s.TblSubInvesmentType).Include(w => w.TblSubsubInvType).AsQueryable();
+            IQueryable<TblWbcSchemeMaster> filterData = null;
 
             if (searchingParams != null)
             {
                 filterData = _context.Search<TblWbcSchemeMaster>(searchingParams).Include(w => w.TblWbcTypeMaster).Include(s => s.TblSubInvesmentType).Include(w => w.TblSubsubInvType).AsQueryable();
+            }
+            else
+            {
+                filterData = _context.TblWbcSchemeMasters.Include(w => w.TblWbcTypeMaster).Include(s => s.TblSubInvesmentType).Include(w => w.TblSubsubInvType).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -1401,11 +1408,11 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
 
             if (search != null)
             {
-                filterData = _context.Search<TblUserMaster>(search).Where(u => u.UserParentid == userId).Select(u => new ReferenceTrackingResponseModel { UserId = u.UserId, Username = u.UserName, MobileNo = u.UserMobile, IsActive = u.UserIsactive, IsFasttrack = u.UserFasttrack == null ? false : true }).AsQueryable();
+                filterData = _context.Search<TblUserMaster>(search).Where(u => userId != 0 && u.UserParentid == userId).Select(u => new ReferenceTrackingResponseModel { UserId = u.UserId, Username = u.UserName, MobileNo = u.UserMobile, IsActive = u.UserIsactive, IsFasttrack = u.UserFasttrack == null ? false : true }).AsQueryable();
             }
             else
             {
-                filterData = _context.TblUserMasters.Where(u => u.UserParentid == userId).Select(u => new ReferenceTrackingResponseModel { UserId = u.UserId, Username = u.UserName, MobileNo = u.UserMobile, IsActive = u.UserIsactive, IsFasttrack = u.UserFasttrack == null ? false : true }).AsQueryable();
+                filterData = _context.TblUserMasters.Where(u => userId != 0 && u.UserParentid == userId).Select(u => new ReferenceTrackingResponseModel { UserId = u.UserId, Username = u.UserName, MobileNo = u.UserMobile, IsActive = u.UserIsactive, IsFasttrack = u.UserFasttrack == null ? false : true }).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -1435,11 +1442,12 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
             if (userId is null) return new List<ReferenceTrackingResponseModel>();
 
             var parentUserId = await _context.TblUserMasters.Where(u => u.UserId == userId).Select(u => u.UserParentid).FirstOrDefaultAsync();
+
+            if (parentUserId is null) return new List<ReferenceTrackingResponseModel>();
+
             return await GetUserParentList((int)parentUserId, 1);
         }
         #endregion
-
-        List<ReferenceTrackingResponseModel> parentUsers = new List<ReferenceTrackingResponseModel>();
 
         #region Get User parent list
         public async Task<List<ReferenceTrackingResponseModel>> GetUserParentList(int userId, int count)
