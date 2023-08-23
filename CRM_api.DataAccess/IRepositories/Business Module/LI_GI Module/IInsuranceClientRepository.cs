@@ -8,6 +8,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module
     {
         Task<int> GetInsClientByUserId(int userId, DateTime date);
         Task<Response<TblInsuranceclient>> GetInsuranceClients(string? filterString, string search, SortingParams sortingParams);
+        Task<List<TblInsuranceTypeMaster>> GetPlanTypes();
         Task<TblInsuranceclient> GetInsuranceClientById(int id);
         Task<TblInsuranceTypeMaster> GetInsuranceplanTypeById(int id);
         IEnumerable<TblInsuranceclient> GetInsClientsForInsPremiumReminder();
@@ -15,6 +16,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.LI_GI_Module
         Task<TblInvesmentType> GetInvesmentTypeByName(string name);
         Task<Response<TblInsuranceCompanylist>> GetCompanyListByInsTypeId(int id, SortingParams sortingParams);
         Task<int> AddInsuranceDetail(TblInsuranceclient tblInsuranceclient);
+        Task<int> ImportInsClientsFile(List<TblInsuranceclient> tblInsuranceclients);
         Task<int> UpdateInsuranceClientDetail(TblInsuranceclient tblInsuranceclient, bool flag = false);
         Task<int> DeactivateInsuranceClientDetail(int id);
         Task<int> GetSubInsTypeIdByName(string name);
