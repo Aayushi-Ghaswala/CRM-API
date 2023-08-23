@@ -1401,7 +1401,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         #endregion
 
         #region Get direct reference tracking list
-        public async Task<Response<ReferenceTrackingResponseModel>> GetDirectRefferals(int userId, string? search, SortingParams sortingParams)
+        public async Task<Response<ReferenceTrackingResponseModel>> GetDirectReferrals(int userId, string? search, SortingParams sortingParams)
         {
             double pageCount = 0;
             IQueryable<ReferenceTrackingResponseModel> filterData = null;
