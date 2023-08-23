@@ -106,7 +106,7 @@ namespace CRM_api.Services.Services.Business_Module.WBC_Module
         #region Get direct refferals list
         public async Task<ResponseDto<ReferenceTrackingResponseDto>> GetDirectReferralsAsync(int userId, string? search, SortingParams sortingParams)
         {
-            var result = await _wbcRepository.GetDirectRefferals(userId, search, sortingParams);
+            var result = await _wbcRepository.GetDirectReferrals(userId, search, sortingParams);
             var mappedResult = _mapper.Map<ResponseDto<ReferenceTrackingResponseDto>>(result);
             return mappedResult;
         }
