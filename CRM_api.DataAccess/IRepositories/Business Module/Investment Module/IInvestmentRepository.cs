@@ -12,6 +12,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.Investment_Module
         Task<Response<TblSubInvesmentType>> GetSubInvestmentTypeByInvId(int invId, string? search, SortingParams sortingParams);
         Task<Response<TblSubsubInvType>> GetSubsubInvestmentType(string? search, SortingParams sortingParams, bool? isActive);
         Task<Response<TblSubsubInvType>> GetSubsubInvestmentTypeBySubInvId(int subInvId, string? search, SortingParams sortingParams);
+        Task<List<TblSubInvesmentType>> GetAllSubInvTypes();
         Task<int> AddInvestmentType(TblInvesmentType tblInvesmentType);
         Task<int> AddSubInvestmentType(TblSubInvesmentType tblSubInvesment);
         Task<int> AddSubsubInvestmentType(TblSubsubInvType tblSubsubInvType);

@@ -13,6 +13,16 @@ namespace CRM_api.Services.MapperProfile
         {
             CreateMap<AddInsuranceClientDto, TblInsuranceclient>();
             CreateMap<UpdateInsuranceClientDto, TblInsuranceclient>();
+            CreateMap<ImportInsClientDto, TblInsuranceclient>()
+                .AfterMap((dto, ins) =>
+                {
+                    ins.IsDeleted = false;
+                    ins.IsSmsReminder = false;
+                    ins.IsEmailReminder = false;
+                    ins.IsKathrough = false;
+                    ins.IsNotification = false;
+                    ins.IsSendForReview = false;
+                });
 
             CreateMap<TblInsuranceclient, InsuranceClientDto>();
             CreateMap<TblInsuranceCompanylist, InsuranceCompanyListDto>();
@@ -22,6 +32,7 @@ namespace CRM_api.Services.MapperProfile
 
             CreateMap<Response<TblInsuranceclient>, ResponseDto<InsuranceClientDto>>();
             CreateMap<Response<TblInsuranceCompanylist>, ResponseDto<InsuranceCompanyListDto>>();
+
         }
     }
 }

@@ -192,6 +192,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Insvestment_Module
         }
         #endregion
 
+        #region Get All SubInvestment Types
+        public async Task<List<TblSubInvesmentType>> GetAllSubInvTypes()
+        {
+            var subInvTypes = await _context.TblSubInvesmentTypes.Where(x => x.IsActive == true).ToListAsync();
+
+            return subInvTypes;
+        }
+        #endregion
+
         #region Add InvestmentType
         public async Task<int> AddInvestmentType(TblInvesmentType tblInvesmentType)
         {

@@ -64,6 +64,22 @@ namespace CRM_api.Controllers.Business_Module.LI_GI_Module
         }
         #endregion
 
+        #region Import InsuranceClients File
+        [HttpPost("ImportInsClientsFile")]
+        public async Task<ActionResult> ImportInsClientsFile(IFormFile formFile)
+        {
+            try
+            {
+                var flag = await _insuranceClientService.ImportInsClientsFileAsync(formFile);
+                return flag.Item2 != 0 ? Ok(new { Message = flag.Item1}) : BadRequest(new { Message = flag.Item1 });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region Add Insurance Client Detail
         [HttpPost("AddInsuranceClientDetail")]
         public async Task<ActionResult> AddInsuranceClientDetail(AddInsuranceClientDto insuranceClientDto)

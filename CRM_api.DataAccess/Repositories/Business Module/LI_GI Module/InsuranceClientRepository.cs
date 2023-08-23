@@ -98,6 +98,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
         }
         #endregion
 
+        #region Get All Plan Types
+        public async Task<List<TblInsuranceTypeMaster>> GetPlanTypes()
+        {
+            var planTypes = await _context.TblInsuranceTypeMasters.ToListAsync();
+
+            return planTypes;
+        }
+        #endregion
+
         #region Get InsuranceClient By Id
         public async Task<TblInsuranceclient> GetInsuranceClientById(int id)
         {
@@ -163,6 +172,14 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
                 return 0;
 
             _context.TblInsuranceclients.Add(tblInsuranceclient);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Imort Insurance Client File
+        public async Task<int> ImportInsClientsFile(List<TblInsuranceclient> tblInsuranceclients)
+        {
+            await _context.TblInsuranceclients.AddRangeAsync(tblInsuranceclients);
             return await _context.SaveChangesAsync();
         }
         #endregion
