@@ -144,13 +144,13 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
         }
         #endregion
 
-        #region Get direct refferals list
-        [HttpGet("GetDirectRefferals")]
-        public async Task<IActionResult> GetDirectRefferals(int userId, string? search, [FromQuery] SortingParams? sortingParams)
+        #region Get direct referrals list
+        [HttpGet("GetDirectReferrals")]
+        public async Task<IActionResult> GetDirectReferrals(int userId, string? search, [FromQuery] SortingParams? sortingParams)
         {
             try
             {
-                var result = await _wbcService.GetDirectRefferalsAsync(userId, search, sortingParams);
+                var result = await _wbcService.GetDirectReferralsAsync(userId, search, sortingParams);
                 return Ok(result);
             }
             catch (Exception)
