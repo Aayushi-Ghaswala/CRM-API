@@ -25,12 +25,6 @@ namespace CRM_api.Services.Services.User_Module
         {
             var countries = await _regionRepository.GetCountries(search, sortingParams);
             var mapCountries = _mapper.Map<ResponseDto<CountryMasterDto>>(countries);
-
-            foreach(var country in mapCountries.Values)
-            {
-                country.CountryName = country.CountryName.ToLower();
-            }
-
             return mapCountries;
         }
         #endregion
@@ -40,12 +34,6 @@ namespace CRM_api.Services.Services.User_Module
         {
             var states = await _regionRepository.GetStateBycountry(countryId, search, sortingParams);
             var mapStates = _mapper.Map<ResponseDto<StateMasterDto>>(states);
-
-            foreach(var state in mapStates.Values)
-            {
-                state.StateName = state.StateName.ToLower();
-            }
-
             return mapStates;
         }
         #endregion
@@ -55,11 +43,6 @@ namespace CRM_api.Services.Services.User_Module
         {
             var cities = await _regionRepository.GetCityByState(stateId, search, sortingParams);
             var mapCities = _mapper.Map<ResponseDto<CityMasterDto>>(cities);
-
-            foreach(var city in mapCities.Values)
-            {
-                city.CityName = city.CityName.ToLower();
-            }
             return mapCities;
         }
         #endregion

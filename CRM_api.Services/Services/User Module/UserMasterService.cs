@@ -36,8 +36,6 @@ namespace CRM_api.Services.Services.User_Module
                     var fasttrackCategory = await _fasttrackRepository.GetUserFasttrackCategory(user.UserId);
                     user.UserFasttrackCategory = fasttrackCategory;
                 }
-                if (user.UserName is not null)
-                    user.UserName = user.UserName.ToLower();
             }
             return mapUsers;
         }

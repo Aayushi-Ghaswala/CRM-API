@@ -25,12 +25,6 @@ namespace CRM_api.Services.Services.User_Module
         {
             var catagories = await _userCategoryRepository.GetUserCategories(search, sortingParams);
             var mapCatagories = _mapper.Map<ResponseDto<UserCategoryDto>>(catagories);
-
-            foreach (var catagory in catagories.Values)
-            {
-                catagory.CatName = catagory.CatName.ToLower();
-            }
-
             return mapCatagories;
         }
         #endregion
