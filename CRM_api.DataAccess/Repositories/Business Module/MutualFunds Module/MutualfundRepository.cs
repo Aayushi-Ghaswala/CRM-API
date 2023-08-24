@@ -74,15 +74,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
                                                         (schemeName == null || x.Schemename == schemeName) &&
                                                         (folioNo == null || x.Foliono == folioNo)).AsQueryable();
 
-            var redemptionUnit = mftransactions.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale");
-            var redemUnit = redemptionUnit.Sum(x => x.Noofunit);
-            var redemAmount = redemptionUnit.Sum(x => x.Invamount);
+            var redeemptionUnit = mftransactions.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale");
+            var redeemUnit = redeemptionUnit.Sum(x => x.Noofunit);
+            var redeemAmount = redeemptionUnit.Sum(x => x.Invamount);
 
             var TotalpurchaseUnit = mftransactions.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" && x.Transactiontype != "Sale");
             var purchaseUnit = TotalpurchaseUnit.Sum(x => x.Noofunit);
             var purchaseAmount = TotalpurchaseUnit.Sum(x => x.Invamount);
 
-            decimal? totalPurchaseunit = purchaseUnit - redemUnit;
+            decimal? totalPurchaseunit = purchaseUnit - redeemUnit;
 
             if (searchingParams != null)
             {
@@ -115,7 +115,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             {
                 response = mutualfundData,
                 totalPurchaseAmount = purchaseAmount,
-                totalRedemAmount = redemAmount,
+                totalRedeemAmount = redeemAmount,
                 totalBalanceUnit = totalPurchaseunit,
             };
 

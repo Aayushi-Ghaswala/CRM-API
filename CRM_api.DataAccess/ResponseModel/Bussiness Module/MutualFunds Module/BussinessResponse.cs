@@ -7,6 +7,6 @@ namespace CRM_api.DataAccess.ResponseModel.Bussiness_Module.MutualFunds_Module
         public Response<T>? response { get; set; }
         public decimal? totalBalanceUnit { get; set; }
         public decimal? totalPurchaseAmount { get; set; }
-        public decimal? totalRedemAmount { get; set; }
+        public decimal? totalRedeemAmount { get; set; }
     }
 }

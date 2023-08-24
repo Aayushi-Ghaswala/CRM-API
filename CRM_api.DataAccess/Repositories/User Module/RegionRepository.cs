@@ -142,18 +142,18 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         #region Get State By Name
         public async Task<TblStateMaster> GetStateByName(string? name)
         {
-            var country = await _context.TblStateMasters.Where(x => x.StateName.ToLower().Contains(name.ToLower()) && x.IsDeleted != true).FirstOrDefaultAsync();
+            var state = await _context.TblStateMasters.Where(x => x.StateName.ToLower().Contains(name.ToLower()) && x.IsDeleted != true).FirstOrDefaultAsync();
 
-            return country;
+            return state;
         }
         #endregion
 
         #region Get City By Name
         public async Task<TblCityMaster> GetCityByName(string? name)
         {
-            var country = await _context.TblCityMasters.Where(x => x.CityName.ToLower().Contains(name.ToLower()) && x.IsDeleted != true).FirstOrDefaultAsync();
+            var city = await _context.TblCityMasters.Where(x => x.CityName.ToLower().Contains(name.ToLower()) && x.IsDeleted != true).FirstOrDefaultAsync();
 
-            return country;
+            return city;
         }
         #endregion
 
