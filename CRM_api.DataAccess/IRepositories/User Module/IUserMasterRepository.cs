@@ -13,6 +13,7 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         TblUserMaster GetUserByUserPan(string UserPan);
         int PanOrAadharExist(int? id, string? pan, string? aadhar);
         Task<List<TblUserMaster>> GetUsersForCSV(string filterString, string search, SortingParams sortingParams);
+        Task<TblUserMaster> GetUserByName(string name);
         Task<Response<TblFamilyMember>> GetFamilyMemberByUserId(int userId, string? search, SortingParams sortingParams);
         Task<Response<TblFamilyMember>> GetRelativeAccessByUserId(int userId, string? search, SortingParams sortingParams);
         Task<TblUserMaster> AddUser(TblUserMaster userMaster);

@@ -1,4 +1,7 @@
-﻿using CRM_api.Services.Dtos.AddDataDto.Sales_Module;
+﻿using CRM_api.DataAccess.Helper;
+using CRM_api.Services.Dtos.AddDataDto.Sales_Module;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
+using CRM_api.Services.Dtos.ResponseDto.Sales_Module;
 using CRM_api.Services.IServices.Sales_Module;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +17,23 @@ namespace CRM_api.Controllers.Sales_Module
         {
             _conversationHistoryService = conversationHistoryService;
         }
+
+        #region Get Conversation Histories
+        [HttpGet("GetConversationHistory")]
+        public async Task<IActionResult> GetConversationHistory(int? meetingId, string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var conversationHistories = await _conversationHistoryService.GetConversationHistoryAsync(meetingId, search, sortingParams);
+                return Ok(conversationHistories);
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
 
         #region Add Conversation History
         [HttpPost("AddConversationHistory")]

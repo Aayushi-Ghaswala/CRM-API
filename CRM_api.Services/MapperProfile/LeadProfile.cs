@@ -13,6 +13,7 @@ namespace CRM_api.Services.MapperProfile
         public LeadProfile()
         {
             CreateMap<AddLeadDto, TblLeadMaster>().ReverseMap();
+            CreateMap<ImportLeadDto, TblLeadMaster>().ReverseMap();
             CreateMap<TblLeadMaster, LeadDto>();
             CreateMap<UpdateLeadDto, TblLeadMaster>();
             CreateMap<TblLeadMaster, LeadCSVDto>()

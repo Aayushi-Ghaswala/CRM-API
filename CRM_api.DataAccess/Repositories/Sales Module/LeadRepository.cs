@@ -5,6 +5,7 @@ using CRM_api.DataAccess.IRepositories.Sales_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace CRM_api.DataAccess.Repositories.Sales_Module
 {
@@ -198,13 +199,12 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
         #endregion
 
         #region Add Lead
-        public async Task<int> AddLead(TblLeadMaster lead)
+        public async Task<int> AddLead(List<TblLeadMaster> leads)
         {
-            if (_context.TblLeadMasters.Any(x => x.MobileNo == lead.MobileNo && !x.IsDeleted))
+            if (_context.TblLeadMasters.Any(x => leads.Select(x => x.MobileNo).Contains(x.MobileNo) && !x.IsDeleted))
                 return 0;
 
-            lead.CreatedAt = DateTime.Now.Date;
-            _context.TblLeadMasters.Add(lead);
+            _context.TblLeadMasters.AddRange(leads);
             return await _context.SaveChangesAsync();
         }
         #endregion

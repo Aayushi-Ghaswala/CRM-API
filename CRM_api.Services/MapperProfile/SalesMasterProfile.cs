@@ -20,7 +20,6 @@ namespace CRM_api.Services.MapperProfile
                     model.IsDeleted = false;
                 });
             CreateMap<UpdateConversationHistoryDto, TblConversationHistoryMaster>();
-
             CreateMap<Response<TblConversationHistoryMaster>, ResponseDto<ConversationHistoryDto>>();
         }
     }

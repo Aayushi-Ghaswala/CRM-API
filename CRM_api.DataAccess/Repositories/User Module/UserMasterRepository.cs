@@ -273,6 +273,15 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
         #endregion
 
+        #region Get User By Name
+        public async Task<TblUserMaster> GetUserByName(string name)
+        {
+            var user = await _context.TblUserMasters.Where(x => x.UserName == name && x.UserIsactive == true).FirstOrDefaultAsync();
+
+            return user;
+        }
+        #endregion
+
         #region Get Family Member By UserId
         public async Task<Response<TblFamilyMember>> GetFamilyMemberByUserId(int userId, string? search, SortingParams sortingParams)
         {
