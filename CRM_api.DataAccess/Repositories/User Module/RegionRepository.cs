@@ -92,14 +92,6 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
         #endregion
 
-        #region Get City by Name
-        public async Task<TblStateMaster> GetStateByName(string? name)
-        {
-            var state = await _context.TblStateMasters.FirstOrDefaultAsync(x => x.StateName == name);
-            return state;
-        }
-        #endregion
-
         #region Get All City Of State
         public async Task<Response<TblCityMaster>> GetCityByState(int stateId, string search, SortingParams sortingParams)
         {
@@ -138,11 +130,30 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         }
         #endregion
 
+        #region Get Country By Name
+        public async Task<TblCountryMaster> GetCountryByName(string? name)
+        {
+            var country = await _context.TblCountryMasters.Where(x => x.CountryName.ToLower().Contains(name.ToLower()) && x.IsDeleted != true).FirstOrDefaultAsync();
+
+            return country;
+        }
+        #endregion
+
+        #region Get State By Name
+        public async Task<TblStateMaster> GetStateByName(string? name)
+        {
+            var country = await _context.TblStateMasters.Where(x => x.StateName.ToLower().Contains(name.ToLower()) && x.IsDeleted != true).FirstOrDefaultAsync();
+
+            return country;
+        }
+        #endregion
+
         #region Get City By Name
         public async Task<TblCityMaster> GetCityByName(string? name)
         {
-            var city = await _context.TblCityMasters.FirstOrDefaultAsync(x => x.CityName == name);
-            return city;
+            var country = await _context.TblCityMasters.Where(x => x.CityName.ToLower().Contains(name.ToLower()) && x.IsDeleted != true).FirstOrDefaultAsync();
+
+            return country;
         }
         #endregion
 

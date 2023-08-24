@@ -3,6 +3,7 @@ using CRM_api.Services.Dtos.AddDataDto.Sales_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.LI_GI_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Dtos.ResponseDto.Sales_Module;
+using Microsoft.AspNetCore.Http;
 
 namespace CRM_api.Services.IServices.Sales_Module
 {
@@ -15,6 +16,7 @@ namespace CRM_api.Services.IServices.Sales_Module
         Task<byte[]> GetLeadsForCSVAsync(int? assignTo, string search, SortingParams sortingParams);
         int CheckMobileExistAsync(int? id, string mobileNo);
         Task<int> AddLeadAsync(AddLeadDto leadDto);
+        Task<int> ImportLeadAsync(IFormFile formFile);
         Task<int> UpdateLeadAsync(UpdateLeadDto leadDto);
         Task<int> DeactivateLeadAsync(int id);
         int SendLeadEmailAsync(LeadDto leadDto);

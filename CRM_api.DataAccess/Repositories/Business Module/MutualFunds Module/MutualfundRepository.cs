@@ -83,7 +83,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             var purchaseAmount = TotalpurchaseUnit.Sum(x => x.Invamount);
 
             decimal? totalPurchaseunit = purchaseUnit - redemUnit;
-            decimal? totalAmount = redemAmount - purchaseAmount;
 
             if (searchingParams != null)
             {
@@ -115,7 +114,8 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             var mutualfundResponse = new BussinessResponse<TblMftransaction>()
             {
                 response = mutualfundData,
-                totalAmount = totalAmount,
+                totalPurchaseAmount = purchaseAmount,
+                totalRedemAmount = redemAmount,
                 totalBalanceUnit = totalPurchaseunit,
             };
 

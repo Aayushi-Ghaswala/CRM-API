@@ -1,12 +1,4 @@
-﻿using CRM_api.DataAccess.Models;
-using CRM_api.Services.Dtos.ResponseDto.User_Module;
-
-using CRM_api.Services.Dtos.ResponseDto.User_Module;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CRM_api.Services.Dtos.ResponseDto.User_Module;
 
 namespace CRM_api.Services.Dtos.ResponseDto.Sales_Module
 {

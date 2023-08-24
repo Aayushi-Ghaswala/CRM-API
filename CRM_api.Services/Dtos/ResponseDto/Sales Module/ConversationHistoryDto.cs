@@ -3,7 +3,7 @@
     public class ConversationHistoryDto
     {
         public int Id { get; set; }
-        public MeetingMasterDto TblMeetingMaster { get; set; }
+        public MeetingDto TblMeetingMaster { get; set; }
         public DateTime? Date { get; set; }
         public string? DiscussionSummary { get; set; }
         public DateTime? NextDate { get; set; }

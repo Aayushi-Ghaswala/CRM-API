@@ -8,8 +8,9 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
     {
         Task<Response<TblCountryMaster>> GetCountries(string search, SortingParams sortingParams);
         Task<Response<TblStateMaster>> GetStateBycountry(int countryId, string search, SortingParams sortingParams);
-        Task<TblStateMaster> GetStateByName(string? name);
         Task<Response<TblCityMaster>> GetCityByState(int stateId, string search, SortingParams sortingParams);
+        Task<TblCountryMaster> GetCountryByName(string? name);
+        Task<TblStateMaster> GetStateByName(string? name);
         Task<TblCityMaster> GetCityByName(string? name);
         Task<int> AddCountry(TblCountryMaster countryMaster);
         Task<int> AddState(TblStateMaster stateMaster);

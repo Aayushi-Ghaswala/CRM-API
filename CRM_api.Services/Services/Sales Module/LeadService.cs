@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.Helper;
+using CRM_api.DataAccess.IRepositories.Business_Module.Investment_Module;
 using CRM_api.DataAccess.IRepositories.Sales_Module;
+using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Sales_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.LI_GI_Module;
@@ -9,22 +11,35 @@ using CRM_api.Services.Dtos.ResponseDto.Sales_Module;
 using CRM_api.Services.Helper.File_Helper;
 using CRM_api.Services.Helper.Reminder_Helper;
 using CRM_api.Services.IServices.Sales_Module;
+using CsvHelper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
+using System.Globalization;
 
 namespace CRM_api.Services.Services.Sales_Module
 {
     public class LeadService : ILeadService
     {
         private readonly ILeadRepository _leadRepository;
+        private readonly IUserMasterRepository _userMasterRepository;
+        private readonly ICampaignRepository _campaignRepository;
+        private readonly IStatusRepository _statusRepository;
+        private readonly IRegionRepository _regionRepository;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
+        private readonly IInvestmentRepository _investmentRepository;
 
-        public LeadService(ILeadRepository leadRepository, IMapper mapper, IConfiguration configuration)
+        public LeadService(ILeadRepository leadRepository, IMapper mapper, IConfiguration configuration, IUserMasterRepository userMasterRepository, ICampaignRepository campaignRepository, IStatusRepository statusRepository, IRegionRepository regionRepository, IInvestmentRepository investmentRepository)
         {
             _leadRepository = leadRepository;
             _mapper = mapper;
             _configuration = configuration;
+            _userMasterRepository = userMasterRepository;
+            _campaignRepository = campaignRepository;
+            _statusRepository = statusRepository;
+            _regionRepository = regionRepository;
+            _investmentRepository = investmentRepository;
         }
 
         #region Get Leads
@@ -103,11 +118,11 @@ namespace CRM_api.Services.Services.Sales_Module
                         if (string.IsNullOrEmpty(investTypes))
                             investTypes = mapInvestmentType.InvestmentName;
                         else
-                            investTypes += investTypes + $", {mapInvestmentType.InvestmentName}";
+                            investTypes += $", {mapInvestmentType.InvestmentName}";
                     });
                     lead.InterestedIn = investTypes;
                     if (lead.DateOfBirth is not null)
-                    lead.DateOfBirth = leadData.DateOfBirth.Value.ToShortDateString(); ;
+                        lead.DateOfBirth = leadData.DateOfBirth.Value.ToShortDateString(); ;
                     lead.CreatedAt = leadData.CreatedAt.ToShortDateString();
                 });
 
@@ -127,9 +142,129 @@ namespace CRM_api.Services.Services.Sales_Module
         public async Task<int> AddLeadAsync(AddLeadDto leadDto)
         {
             var lead = _mapper.Map<TblLeadMaster>(leadDto);
-            return await _leadRepository.AddLead(lead);
+            var leadList = new List<TblLeadMaster>();
+            leadList.Add(lead);
+            return await _leadRepository.AddLead(leadList);
         }
         #endregion
+
+        #region Import Lead Data
+        public async Task<int> ImportLeadAsync(IFormFile formFile)
+        {
+            CultureInfo culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+            culture.DateTimeFormat.ShortDatePattern = "dd-MM-yyyy";
+            Thread.CurrentThread.CurrentCulture = culture;
+
+            var filePath = Path.GetTempFileName();
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await formFile.CopyToAsync(stream);
+            }
+            var directory = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\Lead";
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            //Delete file if already exists with same name
+            if (File.Exists(Path.Combine(directory, formFile.FileName)))
+            {
+                File.Delete(Path.Combine(directory, formFile.FileName));
+            }
+            var localFilePath = Path.Combine(directory, formFile.FileName);
+            File.Copy(filePath, localFilePath);
+
+            var leadList = new List<ImportLeadDto>();
+
+            using (var fs = new StreamReader(localFilePath))
+            {
+                // to load the records from the file in my List<CsvLine>
+                leadList = new CsvReader(fs, culture).GetRecords<ImportLeadDto>().ToList();
+            }
+
+            var mappedLeadList = new List<TblLeadMaster>();
+            foreach (var lead in leadList)
+            {
+                var mappedLead = new TblLeadMaster();
+                mappedLead.Name = lead.Name;
+                mappedLead.Email = lead.Email;
+                mappedLead.MobileNo = lead.MobileNo;
+                mappedLead.Address = lead.Address;
+                mappedLead.DateOfBirth = lead.DateOfBirth;
+                mappedLead.Gender = lead.Gender;
+                mappedLead.CreatedAt = lead.CreatedAt;
+
+                if (!string.IsNullOrEmpty(lead.AssignUser))
+                {
+                    var assignTo = await _userMasterRepository.GetUserByName(lead.AssignUser);
+                    if (assignTo is not null)
+                        mappedLead.AssignedTo = assignTo.UserId;
+                }
+
+                if (!string.IsNullOrEmpty(lead.ReferredUser))
+                {
+                    var referredBy = await _userMasterRepository.GetUserByName(lead.ReferredUser);
+                    if (referredBy is not null)
+                        mappedLead.ReferredBy = referredBy.UserId;
+                }
+
+                if (!string.IsNullOrEmpty(lead.Campaign))
+                {
+                    var campaign = await _campaignRepository.GetCampaignByName(lead.Campaign);
+                    if (campaign is not null)
+                        mappedLead.CampaignId = campaign.Id;
+                }
+
+                if (!string.IsNullOrEmpty(lead.Status))
+                {
+                    var status = await _statusRepository.GetStatusByName(lead.Status);
+                    if (status is not null)
+                        mappedLead.StatusId = status.Id;
+                }
+
+                if (!string.IsNullOrEmpty(lead.Country))
+                {
+                    var country = await _regionRepository.GetCountryByName(lead.Country);
+                    if (country is not null)
+                        mappedLead.CountryId = country.CountryId;
+                }
+
+                if (!string.IsNullOrEmpty(lead.State))
+                {
+                    var state = await _regionRepository.GetStateByName(lead.State);
+                    if (state is not null)
+                        mappedLead.StateId = state.StateId;
+                }
+
+                if (!string.IsNullOrEmpty(lead.City))
+                {
+                    var city = await _regionRepository.GetCityByName(lead.City);
+                    if (city is not null)
+                        mappedLead.CityId = city.CityId;
+                }
+
+                if (!string.IsNullOrEmpty(lead.InterestedIn))
+                {
+                    var interestedIns = lead.InterestedIn.Split(',');
+                    foreach (var interestedIn in interestedIns)
+                    {
+                        var invId = await _investmentRepository.GetInvTypeByName(interestedIn.Trim());
+                        if (invId != 0)
+                        {
+                            if (string.IsNullOrEmpty(mappedLead.InterestedIn))
+                                mappedLead.InterestedIn = invId.ToString();
+                            else
+                                mappedLead.InterestedIn += ", " + invId.ToString();
+                        }
+                    }
+                }
+
+                mappedLeadList.Add(mappedLead);
+            }
+            
+            return await _leadRepository.AddLead(mappedLeadList);
+        }
+        #endregion 
 
         #region Update Lead
         public async Task<int> UpdateLeadAsync(UpdateLeadDto leadDto)
@@ -166,12 +301,12 @@ namespace CRM_api.Services.Services.Sales_Module
 
             var subject = "CRM - Lead";
 
-           var message = $"Dear User,\n\n" +
-                "I hope this email finds you well. I would like to share the details of a new lead that we have acquired. Please find the information below:\r\n\r\n" +
-                "Name : " + leadDto.Name + "\r\n" +
-                "Phone : " + leadDto.MobileNo + "\r\n" +
-                "Address : " + leadDto.Address + "\r\n" +
-                "Campaign : " + leadDto.CampaignMaster.Name + "\r\n";
+            var message = $"Dear User,\n\n" +
+                 "I hope this email finds you well. I would like to share the details of a new lead that we have acquired. Please find the information below:\r\n\r\n" +
+                 "Name : " + leadDto.Name + "\r\n" +
+                 "Phone : " + leadDto.MobileNo + "\r\n" +
+                 "Address : " + leadDto.Address + "\r\n" +
+                 "Campaign : " + leadDto.CampaignMaster.Name + "\r\n";
             if (leadDto.ReferredUser.UserName is not null)
                 message += "Referred By : " + leadDto.ReferredUser.UserName + "\r\n";
             message += "Status : " + leadDto.StatusMaster.Name + "\r\n" +

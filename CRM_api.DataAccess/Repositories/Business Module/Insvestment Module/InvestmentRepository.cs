@@ -4,6 +4,7 @@ using CRM_api.DataAccess.IRepositories.Business_Module.Investment_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace CRM_api.DataAccess.Repositories.Business_Module.Insvestment_Module
 {
@@ -198,6 +199,17 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Insvestment_Module
             var subInvTypes = await _context.TblSubInvesmentTypes.Where(x => x.IsActive == true).ToListAsync();
 
             return subInvTypes;
+        }
+        #endregion
+
+        #region Get InvestmentType By Name
+        public async Task<int> GetInvTypeByName(string invType)
+        {
+            var investmentType = await _context.TblInvesmentTypes.Where(x => x.InvestmentName.ToLower().Equals(invType.ToLower()) && x.IsActive == true).FirstOrDefaultAsync();
+            if (investmentType is null)
+                return 0;
+
+            return investmentType.Id;
         }
         #endregion
 
