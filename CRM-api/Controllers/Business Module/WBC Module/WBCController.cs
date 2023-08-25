@@ -82,11 +82,11 @@ namespace CRM_api.Controllers.Business_Module.WBC_Module
 
         #region Get wbc GP of month
         [HttpGet("GetGP")]
-        public async Task<IActionResult> GetGoldPoint(string? search, DateTime date, [FromQuery] SortingParams? sortingParams)
+        public async Task<IActionResult> GetGoldPoint(DateTime date)
         {
             try
             {
-                var wbc = await _wbcService.GetGPAsync(search, date, sortingParams);
+                var wbc = await _wbcService.GetGPAsync(date);
                 return Ok(wbc);
             }
             catch (Exception)

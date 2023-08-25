@@ -69,10 +69,10 @@ namespace CRM_api.Services.Services.Business_Module.Fasttrack_Module
         #endregion
 
         #region Get fasttrack commission view
-        public async Task<ResponseDto<FasttrackResponseDto>> GetFasttrackCommissionViewAsync(DateTime date, string? search, SortingParams sortingParams)
+        public async Task<List<FasttrackResponseDto>> GetFasttrackCommissionViewAsync(DateTime date)
         {
-            var result = await _fasttrackRepository.GetFasttrackCommissionView(date, search, sortingParams);
-            var mappedResult = _mapper.Map<ResponseDto<FasttrackResponseDto>>(result);
+            var result = await _fasttrackRepository.GetFasttrackCommissionView(date);
+            var mappedResult = _mapper.Map<List<FasttrackResponseDto>>(result);
             return mappedResult;
         }
         #endregion

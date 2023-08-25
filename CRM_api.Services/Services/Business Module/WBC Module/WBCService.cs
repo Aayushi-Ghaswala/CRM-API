@@ -57,10 +57,10 @@ namespace CRM_api.Services.Services.Business_Module.WBC_Module
         #endregion
 
         #region Get wbc GP of month
-        public async Task<ResponseDto<WbcGPResponseDto>> GetGPAsync(string? search, DateTime date, SortingParams sortingParams)
+        public async Task<List<WbcGPResponseDto>> GetGPAsync(DateTime date)
         {
-            var res = await _wbcRepository.GetGP(search, date, sortingParams);
-            var mappedResponse = _mapper.Map<ResponseDto<WbcGPResponseDto>>(res);
+            var res = await _wbcRepository.GetGP(date);
+            var mappedResponse = _mapper.Map<List<WbcGPResponseDto>>(res);
             return mappedResponse;
         }
         #endregion

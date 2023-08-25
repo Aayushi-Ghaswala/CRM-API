@@ -12,7 +12,7 @@ namespace CRM_api.Services.IServices.Business_Module.WBC_Module
         Task<ResponseDto<UserNameDto>> GetGPUsernameAsync(string? type, string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<WbcTypeDto>> GetGPTypesAsync(int? userId, string? searchingParams, SortingParams sortingParams);
         Task<GoldPointResponseDto<GoldPointDto>> GetGPLedgerReportAsync(DateTime? date, int? userId, string? type, int? categoryId, string? searchingParams, SortingParams sortingParams);
-        Task<ResponseDto<WbcGPResponseDto>> GetGPAsync(string? search, DateTime date, SortingParams sortingParams);
+        Task<List<WbcGPResponseDto>> GetGPAsync(DateTime date);
         Task<(int,string)> ReleaseGPAsync(DateTime date, bool isTruncate);
         Task<ResponseDto<WbcTypeDto>> GetAllWbcSchemeTypesAsync(string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<WBCSchemeMasterDto>> GetAllWbcSchemesAsync(string? searchingParams, SortingParams sortingParams);

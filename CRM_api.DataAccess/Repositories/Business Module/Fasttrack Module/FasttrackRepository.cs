@@ -270,7 +270,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Fasttrack_Module
         #endregion
 
         #region Get fasttrack commission view
-        public async Task<Response<FasttrackResponseModel>> GetFasttrackCommissionView(DateTime date, string? search, SortingParams sortingParams)
+        public async Task<List<FasttrackResponseModel>> GetFasttrackCommissionView(DateTime date)
         {
             try
             {
@@ -411,28 +411,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Fasttrack_Module
                 {
                     await AddDataIntoTempTable(fasttrackResponseList);
                 }
-                var filterData = fasttrackResponseList.AsQueryable();
-                var pageCount = Math.Ceiling(filterData.Count() / sortingParams.PageSize);
-
-                if (search != null)
-                    filterData = _context.SearchFasttrack<FasttrackResponseModel>(search, fasttrackResponseList.AsQueryable());
-
-                // Apply sorting
-                var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
-
-                // Apply pagination
-                var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
-
-                var fasttrackResponse = new Response<FasttrackResponseModel>()
-                {
-                    Values = paginatedData,
-                    Pagination = new Pagination()
-                    {
-                        CurrentPage = sortingParams.PageNumber,
-                        Count = (int)pageCount
-                    }
-                };
-                return fasttrackResponse;
+                return fasttrackResponseList;
             }
             catch (Exception)
             {
@@ -720,7 +699,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Fasttrack_Module
             var goldPointUserList = tempTableDataList.Where(g => g.GoldPoint != 0).ToList();
             var commissionUserList = tempTableDataList.Where(c => c.Commission > 0.000m).ToList();
 
-            if (goldPointUserList.Count <= 0 || commissionUserList.Count <= 0)
+            if (goldPointUserList.Count <= 0 && commissionUserList.Count <= 0)
                 return (-1, "No records to release commisison.", null);
 
             goldPointModelList.AddRange(goldPointUserList.Select(u => createGoldPointObject(u, date)));

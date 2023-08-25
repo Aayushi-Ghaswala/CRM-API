@@ -1,6 +1,4 @@
 ﻿using CRM_api.DataAccess.Context;
-using CRM_api.DataAccess.ResponseModel.Bussiness_Module.Fasttrack_Module;
-using CRM_api.DataAccess.ResponseModel.Bussiness_Module.WBC_Module;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
@@ -72,24 +70,6 @@ namespace CRM_api.DataAccess.Helper
             var lambda = Expression.Lambda<Func<T, bool>>(expression, parameter);
 
             return dbContext.Set<T>().Where(lambda);
-        }
-
-        public static IQueryable<WbcGPResponseModel> SearchWBC<T>(this CRMDbContext dbContext, string value, IQueryable<WbcGPResponseModel> list) where T : class
-        {
-            var parameter = Expression.Parameter(typeof(T), "x");
-            Expression expression = BuildExpression(parameter, null, value);
-
-            var lambda = Expression.Lambda<Func<T, bool>>(expression, parameter);
-            return list.Where(lambda);
-        }
-
-        public static IQueryable<FasttrackResponseModel> SearchFasttrack<T>(this CRMDbContext dbContext, string value, IQueryable<FasttrackResponseModel> list) where T : class
-        {
-            var parameter = Expression.Parameter(typeof(T), "x");
-            Expression expression = BuildExpression(parameter, null, value);
-
-            var lambda = Expression.Lambda<Func<T, bool>>(expression, parameter);
-            return list.Where(lambda);
         }
 
         private static Expression BuildExpression(Expression parameter, Expression expression, string value)
