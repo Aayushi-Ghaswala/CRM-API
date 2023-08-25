@@ -459,7 +459,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         #endregion
 
         #region Get wbc GP of month
-        public async Task<Response<WbcGPResponseModel>> GetGP(string? search, DateTime date, SortingParams sortingParams)
+        public async Task<List<WbcGPResponseModel>> GetGP(DateTime date)
         {
             try
             {
@@ -1013,28 +1013,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                 if (wbcGPResponseModels.Count > 0)
                     dataResult = await AddDataIntoTempTable(wbcGPResponseModels);
 
-                var filterData = wbcGPResponseModels.AsQueryable();
-                var pageCount = Math.Ceiling(filterData.Count() / sortingParams.PageSize);
-
-                if (search != null)
-                    filterData = _context.SearchWBC<WbcGPResponseModel>(search, wbcGPResponseModels.AsQueryable());
-
-                // Apply sorting
-                var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
-
-                // Apply pagination
-                var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
-
-                var wbcResponse = new Response<WbcGPResponseModel>()
-                {
-                    Values = paginatedData,
-                    Pagination = new Pagination()
-                    {
-                        CurrentPage = sortingParams.PageNumber,
-                        Count = (int)pageCount
-                    }
-                };
-                return wbcResponse;
+                return wbcGPResponseModels;
             }
             catch (Exception)
             {

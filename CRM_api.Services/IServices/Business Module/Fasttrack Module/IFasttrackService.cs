@@ -13,7 +13,7 @@ namespace CRM_api.Services.IServices.Business_Module.Fasttrack_Module
         Task<ResponseDto<FasttrackInvTypeResponseDto>> GetFtInvTypesAsync(int? userId, string? search, SortingParams sortingParams);
         Task<ResponseDto<UserNameDto>> GetFtUsernameAsync(int? typeId, int? subTypeId, string? search, SortingParams sortingParams);
         Task<GoldPointResponseDto<FasttrackLedgerDto>> GetFasttrackLedgerReportAsync(int? userId, int? typeId, int? subTypeId, string? search, SortingParams sortingParams);
-        Task<ResponseDto<FasttrackResponseDto>> GetFasttrackCommissionViewAsync(DateTime date, string? search, SortingParams sortingParams);
+        Task<List<FasttrackResponseDto>> GetFasttrackCommissionViewAsync(DateTime date);
         Task<(int, string)> ReleaseCommissionAsync(DateTime date, bool isTruncate);
         Task<List<FasttrackBenefitsResponseDto>> GetFasttrackBenefitsAsync();
         Task<List<FasttrackSchemeResponseDto>> GetFasttrackSchemesAsync();

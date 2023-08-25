@@ -11,7 +11,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.Fasttrack_Module
         Task<Response<FasttrackInvTypeResponse>> GetFtInvTypes(int? userId, string? search, SortingParams sortingParams);
         Task<Response<UserNameResponse>> GetFtUsername(int? typeId, int? subTypeId, string? search, SortingParams sortingParams);
         Task<LedgerResponse<TblFasttrackLedger>> GetFasttrackLedgerReport(int? userId, int? typeId, int? subTypeId, string? search, SortingParams sortingParams);
-        Task<Response<FasttrackResponseModel>> GetFasttrackCommissionView(DateTime date, string? search, SortingParams sortingParams);
+        Task<List<FasttrackResponseModel>> GetFasttrackCommissionView(DateTime date);
         Task<(int, string, List<FasttrackResponseModel>?)> ReleaseCommission(DateTime date, bool isTruncate);
         Task<string> GetUserFasttrackCategory(int userId);
         Task<List<TblFasttrackBenefits>> GetFasttrackBenefits();

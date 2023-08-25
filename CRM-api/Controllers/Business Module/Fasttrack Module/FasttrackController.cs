@@ -82,11 +82,11 @@ namespace CRM_api.Controllers.Business_Module.Fasttrack_Module
 
         #region Get fasttrack commission view
         [HttpGet("GetFasttrackCommission")]
-        public async Task<IActionResult> GetFasttrackCommission(DateTime date, string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetFasttrackCommission(DateTime date)
         {
             try
             {
-                var result = await _fasttrackService.GetFasttrackCommissionViewAsync(date, search, sortingParams);
+                var result = await _fasttrackService.GetFasttrackCommissionViewAsync(date);
                 return Ok(result);
             }
             catch (Exception)
