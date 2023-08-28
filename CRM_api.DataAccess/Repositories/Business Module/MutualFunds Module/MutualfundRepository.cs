@@ -324,7 +324,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         public async Task<int> UpdateMFScheme(List<TblMfSchemeMaster> schemeMasters)
         {
             _context.TblMfSchemeMasters.UpdateRange(schemeMasters);
-            return await _context.SaveChangesAsync(true);
+            return await _context.SaveChangesAsync();
         }
         #endregion
 
