@@ -15,5 +15,6 @@ namespace CRM_api.Services.IServices.Business_Module.Stocks_Module
         Task<StockSummaryDto<ScripwiseSummaryDto>> GetAllClientwiseStockSummaryAsync(bool? isZero, DateTime? startDate, DateTime? endDate, string? searchingParams, SortingParams sortingParams);
         Task<int> ImportSharekhanTradeFileAsync(IFormFile formFile, string firmName, int id, bool overrideData);
         Task<int> ImportJainamTradeFileAsync(IFormFile formFile, string firmName, string clientName, bool overrideData);
+        Task<int> ImportAllClientSherkhanFileAsync(IFormFile formFile, bool overrideData);
     }
 }

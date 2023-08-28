@@ -52,6 +52,7 @@ namespace CRM_api.DataAccess.Models
         public int? FamilyId { get; set; }
         public string? UserNjname { get; set; }
         public DateTime? FastTrackActivationDate { get; set; }
+        public string? UserClientCode { get; set; }
 
         [ForeignKey(nameof(CatId))]
         public virtual TblUserCategoryMaster? TblUserCategoryMaster { get; set; }

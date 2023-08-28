@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
+using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.Stocks_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module;
@@ -19,11 +20,13 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
     {
         private readonly IStocksRepository _stocksRepository;
         private readonly IMapper _mapper;
+        private readonly IUserMasterRepository _userMasterRepository;
 
-        public StockService(IStocksRepository stocksRepository, IMapper mapper)
+        public StockService(IStocksRepository stocksRepository, IMapper mapper, IUserMasterRepository userMasterRepository)
         {
             _stocksRepository = stocksRepository;
             _mapper = mapper;
+            _userMasterRepository = userMasterRepository;
         }
 
         #region Get stock user's client names
@@ -89,7 +92,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 scripwiseSummaries.Add(scripwiseSummary);
             }
 
-            if(isZero is true)
+            if (isZero is true)
                 scripwiseSummaries = scripwiseSummaries.Where(x => x.TotalAvailableQuantity == 0).ToList();
             else
                 scripwiseSummaries = scripwiseSummaries.Where(x => x.TotalAvailableQuantity != 0).ToList();
@@ -101,7 +104,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
             pageCount = Math.Ceiling(scripwiseSummaries.Count() / sortingParams.PageSize);
 
-            if(searchingParams != null)
+            if (searchingParams != null)
             {
                 scriptwiseSummaryDto = scriptwiseSummaryDto.Where(x => x.StScripname.ToLower().Contains(searchingParams.ToLower()) || x.TotalBuyQuantity.ToString().Contains(searchingParams) || x.TotalSellQuantity.ToString().Contains(searchingParams) || x.TotalAvailableQuantity.ToString().Contains(searchingParams) || x.NetCostValue.ToString().Contains(searchingParams) || x.TotalCurrentValue.ToString().Contains(searchingParams));
             }
@@ -430,5 +433,137 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             }
         }
         #endregion
+
+        #region Import Sharekhan trade file.
+        public async Task<int> ImportAllClientSherkhanFileAsync(IFormFile formFile, bool overrideData)
+        {
+            try
+            {
+                var filename = "";
+                var xlsxFilePath = "";
+                var firmName = "sharekhan";
+                var listStocks = new List<AddSharekhanStocksDto>();
+                var filePath = Path.GetTempFileName();
+                var scrips = await _stocksRepository.GetAllScrip();
+                var users = await _userMasterRepository.GetUserWhichClientCodeNotNull();
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await formFile.CopyToAsync(stream);
+                    await stream.DisposeAsync();
+                }
+
+                var directory = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\Sharekhan";
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                var ex = Path.GetExtension(formFile.FileName);
+
+                //Delete file if already exists with same name
+                // For .xls file
+                var tmpFilePath = Path.Combine(directory, formFile.FileName);
+
+
+                if (File.Exists(tmpFilePath))
+                {
+                    GC.Collect();
+                    File.Delete(tmpFilePath);
+                }
+
+                // For .xlsx file
+                xlsxFilePath = Path.Combine(directory, formFile.FileName);
+                if (File.Exists(xlsxFilePath))
+                {
+                    File.Delete(xlsxFilePath);
+                }
+
+                // saving .xls file into folder
+                File.Copy(filePath, xlsxFilePath);
+
+                WorkBook workbook = WorkBook.LoadExcel(xlsxFilePath);
+                var worksheet = workbook.WorkSheets[0];
+
+                //starts reading data from 2nd row of excel sheet
+                for (var i = 1; i < worksheet.Rows.Count(); i++)
+                {
+                    var clientCode = worksheet.Rows[i].Columns[1].Value.ToString();
+                    var user = users.Where(x => x.UserClientCode.Equals(clientCode)).FirstOrDefault();
+                    var scripList = new List<TblScripMaster>();
+                    var n = 1;
+                    var scripName = worksheet.Rows[i].Columns[3].Value.ToString().Split('.')[0].Split(' ');
+
+                    do
+                    {
+                        string? scripData = "";
+                        for (var j = 0; j <= n; j++)
+                        {
+                            if (string.IsNullOrEmpty(scripData))
+                                scripData = scripName[j];
+                            else
+                                scripData += " " + scripName[j];
+                        }
+                        scripList = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Contains(scripData.ToLower())).ToList();
+                        n += 1;
+                    } while (scripList.Count() != 1 && n < scripName.Count());
+
+                    int? userId = null;
+                    string userName = "";
+                    if (user is not null)
+                    {
+                        userId = user.UserId;
+                        userName = user.UserName;
+                    }
+                    else
+                    {
+                        userName = worksheet.Rows[i].Columns[2].Value.ToString();
+                    }
+
+                    var trans = new AddSharekhanStocksDto()
+                    {
+                        StScripname = scripList.FirstOrDefault() is null ? null : scripList.First().Scripname,
+                        StBranch = Convert.ToInt32(worksheet.Rows[i].Columns[0].Value.ToString()),
+                        StClientcode = clientCode,
+                        StClientname = userName,
+                        StSettno = worksheet.Rows[i].Columns[4].Value.ToString(),
+                        StDate = Convert.ToDateTime(worksheet.Rows[i].Columns[5].Value.ToString()),
+                        StType = worksheet.Rows[i].Columns[6].Value.ToString(),
+                        StQty = Convert.ToInt32(worksheet.Rows[i].Columns[7].Value.ToString()),
+                        StRate = Convert.ToDecimal(worksheet.Rows[i].Columns[8].Value.ToString()),
+                        StBrokerage = Convert.ToDecimal(worksheet.Rows[i].Columns[9].Value.ToString()),
+                        StNetrate = Math.Abs(Convert.ToDecimal(worksheet.Rows[i].Columns[10].Value.ToString())),
+                        StNetvalue = Convert.ToDecimal(worksheet.Rows[i].Columns[11].Value.ToString()),
+                        StCostpershare = Convert.ToDecimal(worksheet.Rows[i].Columns[12].Value.ToString()),
+                        StCostvalue = Convert.ToDecimal(worksheet.Rows[i].Columns[13].Value.ToString()),
+                        StNetsharerate = Convert.ToDecimal(worksheet.Rows[i].Columns[14].Value.ToString()),
+                        StNetcostvalue = Convert.ToDecimal(worksheet.Rows[i].Columns[15].Value.ToString()),
+                        Userid = userId
+                    };
+                    listStocks.Insert(0, trans);
+                }
+
+                var mappedStockModel = _mapper.Map<List<TblStockData>>(listStocks);
+                mappedStockModel.ForEach(x => x.FirmName = firmName);
+
+                if (overrideData)
+                {
+                    var listOfDates = new List<DateTime>();
+                    listStocks.ForEach(s => listOfDates.Add((DateTime)s.StDate));
+                    var stockDataIfExists = await _stocksRepository.GetStockDataForSpecificDateRange(listOfDates.Min(), listOfDates.Max(), firmName);
+
+                    if (stockDataIfExists.Count > 0)
+                        await _stocksRepository.DeleteData(stockDataIfExists);
+                }
+                //Add Data
+                return await _stocksRepository.AddData(mappedStockModel);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+        #endregion
     }
 }
+

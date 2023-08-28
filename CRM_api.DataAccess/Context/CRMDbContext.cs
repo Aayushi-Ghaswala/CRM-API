@@ -3645,6 +3645,11 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false)
                     .HasColumnName("user_uname");
 
+                entity.Property(e => e.UserClientCode)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("user_clientcode");
+
                 entity.Property(e => e.UserWbcActive).HasColumnName("user_wbcActive");
             });
 

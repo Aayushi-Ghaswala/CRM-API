@@ -65,7 +65,7 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region Get scriptwise client summary
         [HttpGet("GetClientwiseScriptSummary")]
-        public async Task<IActionResult> GetClientwiseScriptSummary(string? userName, bool? isZero, DateTime? startDate, DateTime? endDate,[FromQuery] string? search,[FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetClientwiseScriptSummary(string? userName, bool? isZero, DateTime? startDate, DateTime? endDate, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
@@ -135,6 +135,22 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
             {
                 var res = await _stockService.ImportJainamTradeFileAsync(formFile, firmName, clientName, overrideData);
                 return res != 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Import Sharekhan trade file.
+        [HttpPost("ImportSharekhanAllClientFile")]
+        public async Task<ActionResult> ImportSharekhanAllClientFile(IFormFile formFile, bool overrideData = false)
+        {
+            try
+            {
+                var flag = await _stockService.ImportAllClientSherkhanFileAsync(formFile, overrideData);
+                return flag > 0 ? Ok(new { Message = "Imported successfully." }) : BadRequest(new { Message = "Unable to import successfully." });
             }
             catch (Exception)
             {
