@@ -3203,6 +3203,10 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("scripsymbol");
+
+                entity.Property(e => e.Date)
+                    .HasColumnType("date")
+                    .HasColumnName("date");
             });
 
             modelBuilder.Entity<TblSegmentMaster>(entity =>

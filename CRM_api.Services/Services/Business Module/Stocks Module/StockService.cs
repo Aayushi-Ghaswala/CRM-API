@@ -12,6 +12,7 @@ using CsvHelper;
 using IronXL;
 using Microsoft.AspNetCore.Http;
 using System.Globalization;
+using System.IO.Compression;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace CRM_api.Services.Services.Business_Module.Stocks_Module
@@ -20,12 +21,14 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
     {
         private readonly IStocksRepository _stocksRepository;
         private readonly IMapper _mapper;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IUserMasterRepository _userMasterRepository;
 
-        public StockService(IStocksRepository stocksRepository, IMapper mapper, IUserMasterRepository userMasterRepository)
+        public StockService(IStocksRepository stocksRepository, IMapper mapper, IHttpClientFactory httpClientFactory, IUserMasterRepository userMasterRepository)
         {
             _stocksRepository = stocksRepository;
             _mapper = mapper;
+            _httpClientFactory = httpClientFactory;
             _userMasterRepository = userMasterRepository;
         }
 
@@ -431,6 +434,181 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             {
                 return 0;
             }
+        }
+        #endregion
+
+        #region Import Daily Stock Price file 
+        public async Task<int> ImportDailyStockPriceFileAsync()
+        {
+            try
+            {
+                var date = DateTime.Now;
+
+                //NSE Equity File Import
+                var nseFilePath = $"https://archives.nseindia.com/content/historical/EQUITIES/{date.Year}/{date.ToString("MMM").ToUpper()}/cm{date.ToString("ddMMMyyyy").ToUpper()}bhav.csv.zip";
+                nseFilePath = await ExtractFile(nseFilePath);
+
+                //NSE FNO File Import
+                var nseFNOFilePath = $"https://archives.nseindia.com/content/historical/DERIVATIVES/{date.Year}/{date.ToString("MMM").ToUpper()}/fo{date.ToString("ddMMMyyyy").ToUpper()}bhav.csv.zip";
+                nseFNOFilePath = await ExtractFile(nseFNOFilePath);
+
+                //BSE File Import
+                var bseFilePath = $"https://www.bseindia.com/download/BhavCopy/Equity/EQ{date.ToString("ddMMyy")}_CSV.ZIP";
+                bseFilePath = await ExtractFile(bseFilePath);
+
+                List<TblScripMaster> UpdateScrips = new List<TblScripMaster>();
+
+                var nseStockDataList = await SaveAndReadFile<AddNSEStockPriceDto>(nseFilePath);
+                var nseFNOStockDataList = await SaveAndReadFile<AddFNONSEStockPriceDto>(nseFNOFilePath);
+                var bseStockDataList = await SaveAndReadFile<AddBSEStockPriceDto>(bseFilePath);
+                var allScrip = await _stocksRepository.GetAllScrip();
+
+                foreach (var stock in nseStockDataList)
+                {
+                    var scrip = allScrip.FirstOrDefault(x => x.Isin == stock.ISIN && x.Exchange == "NSE");
+                    if (scrip is not null)
+                    {
+                        scrip.Ltp = stock.LAST;
+                        scrip.Date = DateTime.Now.Date;
+
+                        UpdateScrips.Add(scrip);
+                    }
+                    else
+                    {
+                        AddScripDto newScrip = new AddScripDto();
+                        newScrip.Scripsymbol = stock.SYMBOL;
+                        newScrip.Isin = stock.ISIN;
+                        newScrip.Exchange = "NSE";
+                        newScrip.Ltp = stock.LAST;
+                        newScrip.Date = DateTime.Now.Date;
+
+                        var mapScrip = _mapper.Map<TblScripMaster>(newScrip);
+                        UpdateScrips.Add(mapScrip);
+                    }
+                }
+
+                foreach (var stock in bseStockDataList)
+                {
+                    var scrip = allScrip.FirstOrDefault(x => x.Scripsymbol == stock.SCCode && x.Exchange == "BSE");
+                    if (scrip is not null)
+                    {
+                        scrip.Ltp = stock.LAST;
+                        scrip.Date = DateTime.Now.Date;
+
+                        UpdateScrips.Add(scrip);
+                    }
+                    else
+                    {
+                        AddScripDto newScrip = new AddScripDto();
+                        newScrip.Scripsymbol = stock.SCCode;
+                        newScrip.Scripname = stock.SCName;
+                        newScrip.Exchange = "BSE";
+                        newScrip.Ltp = stock.LAST;
+                        newScrip.Date = DateTime.Now.Date;
+
+                        var mapScrip = _mapper.Map<TblScripMaster>(newScrip);
+                        UpdateScrips.Add(mapScrip);
+                    }
+                }
+
+                foreach (var stock in nseFNOStockDataList)
+                {
+                    string? scripSymbol = null;
+                    var stockDate = stock.EXPIRY_DT.ToString().Split("-");
+
+                    if (stock.STRIKE_PR == 0)
+                    {
+                        scripSymbol = stock.SYMBOL + stockDate[2].Substring(2, 2) + stockDate[1] + stockDate[0] + "FUT";
+                    }
+                    else
+                    {
+                        scripSymbol = stock.SYMBOL + stockDate[2].Substring(2, 2) + stockDate[1] + stockDate[0] + stock.STRIKE_PR + stock.OPTION_TYP;
+                    }
+
+                    var scrip = allScrip.FirstOrDefault(x => x.Scripsymbol == scripSymbol && x.Exchange == "NSE");
+                    if (scrip is not null)
+                    {
+                        scrip.Ltp = stock.CLOSE;
+                        scrip.Date = DateTime.Now.Date;
+
+                        UpdateScrips.Add(scrip);
+                    }
+                    else
+                    {
+                        AddScripDto newScrip = new AddScripDto();
+                        newScrip.Scripsymbol = scripSymbol;
+                        newScrip.Exchange = "NSE";
+                        newScrip.Ltp = stock.CLOSE;
+                        newScrip.Date = DateTime.Now.Date;
+
+                        var mapScrip = _mapper.Map<TblScripMaster>(newScrip);
+                        UpdateScrips.Add(mapScrip);
+                    }
+                }
+
+                return await _stocksRepository.UpdateScripData(UpdateScrips);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+        #endregion
+
+        #region Extract File
+        private async Task<string?> ExtractFile(string url)
+        {
+            HttpClient httpClient = _httpClientFactory.CreateClient();
+            HttpResponseMessage response = await httpClient.GetAsync(url);
+            string? entryPath = null;
+
+            if (response.IsSuccessStatusCode)
+            {
+                using (Stream zipStream = await response.Content.ReadAsStreamAsync())
+                using (ZipArchive archive = new ZipArchive(zipStream))
+                {
+                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    {
+                        var directory = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\NSEBSEFile";
+                        if (!Directory.Exists(directory))
+                        {
+                            Directory.CreateDirectory(directory);
+                        }
+                        entryPath = Path.Combine(directory, entry.FullName);
+
+                        if (File.Exists(entryPath))
+                        {
+                            File.Delete(entryPath);
+                        }
+
+                        using (Stream entryStream = entry.Open())
+                        using (FileStream fileStream = System.IO.File.Create(entryPath))
+                        {
+                            entryStream.CopyTo(fileStream);
+                        }
+                    }
+                }
+            }
+            return entryPath;
+        }
+        #endregion
+
+        #region Save And Read File
+        public async Task<List<T>> SaveAndReadFile<T>(string filePath)
+        {
+            CultureInfo culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+            culture.DateTimeFormat.ShortDatePattern = "dd-MM-yyyy";
+            Thread.CurrentThread.CurrentCulture = culture;
+
+            List<T> stockDataList = new List<T>();
+
+            using (var fs = new StreamReader(filePath))
+            {
+                // to load the records from the file in my List<CsvLine>
+                stockDataList = new CsvReader(fs, culture).GetRecords<T>().ToList();
+            }
+
+            return stockDataList;
         }
         #endregion
 

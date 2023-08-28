@@ -143,6 +143,22 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         }
         #endregion
 
+        #region Import Daily Stock Price File
+        [HttpPost("ImportDailyStockPriceFile")]
+        public async Task<IActionResult> ImportDailyStockPriceFile()
+        {
+            try
+            {
+                var res = await _stockService.ImportDailyStockPriceFileAsync();
+                return res != 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region Import Sharekhan trade file.
         [HttpPost("ImportSharekhanAllClientFile")]
         public async Task<ActionResult> ImportSharekhanAllClientFile(IFormFile formFile, bool overrideData = false)
