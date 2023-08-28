@@ -152,5 +152,21 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
             }
         }
         #endregion
+
+        #region Import Daily NJ Price
+        [HttpPost("ImportNJDailyPriceFile")]
+        public async Task<IActionResult> ImportNJDailyPriceFile(IFormFile file)
+        {
+            try
+            {
+                var flag = await _mutualfundService.ImportNJDailyPriceFileAsync(file);
+                return (flag != 0) ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
     }
 }

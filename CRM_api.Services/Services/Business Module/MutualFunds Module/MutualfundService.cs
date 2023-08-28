@@ -10,6 +10,7 @@ using CRM_api.Services.Dtos.ResponseDto.User_Module;
 using CRM_api.Services.Helper.Extensions;
 using CRM_api.Services.IServices.Business_Module.MutualFunds_Module;
 using ExcelDataReader;
+using IronXL;
 using Microsoft.AspNetCore.Http;
 using System.Data;
 using System.Globalization;
@@ -79,14 +80,14 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
                 mutualFundSummaries.Add(mfSummaryDto);
             }
-            
-            if(isBalanceUnitZero is true)
+
+            if (isBalanceUnitZero is true)
             {
                 mutualFundSummaries = mutualFundSummaries.Where(x => x.BalanceUnit == 0).ToList();
             }
             else
             {
-                mutualFundSummaries =  mutualFundSummaries.Where(x => x.BalanceUnit != 0).ToList();
+                mutualFundSummaries = mutualFundSummaries.Where(x => x.BalanceUnit != 0).ToList();
             }
 
             IQueryable<MFSummaryDto> mutualFundSummaryDto = mutualFundSummaries.AsQueryable();
@@ -313,7 +314,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             var mfUser = await _mutualfundRepository.GetMFUserName(searchingParams, sortingParams);
             var mapMFUser = _mapper.Map<ResponseDto<UserNameDto>>(mfUser);
 
-            foreach(var user in mapMFUser.Values)
+            foreach (var user in mapMFUser.Values)
             {
                 user.UserName = user.UserName.ToLower();
             }
@@ -328,7 +329,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             var mutualfunds = await _mutualfundRepository.GetSchemeName(userId, folioNo, searchingParams, sortingParams);
             var schemeName = _mapper.Map<ResponseDto<SchemaNameDto>>(mutualfunds);
 
-            foreach(var scheme in schemeName.Values)
+            foreach (var scheme in schemeName.Values)
             {
                 scheme.Schemename = scheme.Schemename.ToLower();
             }
@@ -674,6 +675,125 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             catch (Exception)
             {
                 return -1;
+            }
+        }
+        #endregion
+
+        #region Import Daily NJ Price
+        public async Task<int> ImportNJDailyPriceFileAsync(IFormFile formFile)
+        {
+            try
+            {
+                var filename = "";
+                var xlsxFilePath = "";
+                var listNJPrice = new List<TblMfSchemeMaster>();
+                var filePath = Path.GetTempFileName();
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await formFile.CopyToAsync(stream);
+                    await stream.DisposeAsync();
+                }
+
+                var directory = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\NJStockPriceFile";
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                var ex = Path.GetExtension(formFile.FileName);
+
+                //Delete file if already exists with same name
+                // For .xls file
+                var tmpFilePath = Path.Combine(directory, formFile.FileName);
+
+
+                if (File.Exists(tmpFilePath))
+                {
+                    GC.Collect();
+                    File.Delete(tmpFilePath);
+                }
+
+                // For .xlsx file
+                var name = formFile.FileName.Split(".");
+                filename = name[0] + ".xlsx";
+                if (File.Exists(Path.Combine(directory, filename)))
+                {
+                    File.Delete(Path.Combine(directory, filename));
+                }
+
+                // saving .xls file into folder
+                var localFilePath = Path.Combine(directory, formFile.FileName);
+                File.Copy(filePath, localFilePath);
+
+                if (ex.Equals(".xls"))
+                {
+                    // Create an Excel Application object
+                    Microsoft.Office.Interop.Excel.Application excelApp = new Microsoft.Office.Interop.Excel.Application();
+
+                    //Open the XLS file
+                    Microsoft.Office.Interop.Excel.Workbook workbooks = excelApp.Workbooks.Open(localFilePath);
+                    try
+                    {
+                        // Save the workbook as XLSX format
+                        name = formFile.FileName.Split(".");
+                        filename = name[0] + ".xlsx";
+                        xlsxFilePath = Path.Combine(directory, filename);
+                        workbooks.SaveAs(xlsxFilePath, Microsoft.Office.Interop.Excel.XlFileFormat.xlOpenXMLWorkbook);
+                    }
+                    catch (Exception exe)
+                    {
+                        // Handle any exceptions that occur during the conversion process
+                        Console.WriteLine("Error saving XLSX file: " + exe.Message);
+                    }
+                    finally
+                    {
+                        // Close the workbook and Excel application
+                        workbooks.Close();
+                        excelApp.Quit();
+
+                        // Release the COM objects to avoid memory leaks
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(workbooks);
+                        System.Runtime.InteropServices.Marshal.ReleaseComObject(excelApp);
+                    }
+                }
+
+                if (File.Exists(Path.Combine(directory, formFile.FileName)))
+                {
+                    File.Delete(Path.Combine(directory, formFile.FileName));
+                }
+                //localFilePath = localFilePath.Replace("\\", "/");
+
+                WorkBook workbook = WorkBook.LoadExcel(xlsxFilePath);
+                var worksheet = workbook.WorkSheets[0];
+                var allScheme = await _mutualfundRepository.GetAllMFScheme();
+
+                for (var i = 2; i < worksheet.RowCount; i++)
+                {
+                    var schemeName = worksheet.Rows[i].Columns[1].Value.ToString();
+                    var scheme = allScheme.FirstOrDefault(x => x.SchemeName.ToLower().Equals(schemeName.ToLower()));
+                    if (scheme is not null)
+                    {
+                        scheme.NetAssetValue = worksheet.Rows[i].Columns[3].Value.ToString();
+                        scheme.SchemeDate = Convert.ToDateTime(worksheet.Rows[i].Columns[2].Value);
+                        listNJPrice.Add(scheme);
+                    }
+                    else
+                    {
+                        var NJPrice = new AddNJDailyPriceDto();
+                        NJPrice.SchemeName = schemeName;
+                        NJPrice.NetAssetValue = worksheet.Rows[i].Columns[3].Value.ToString();
+                        NJPrice.SchemeDate = Convert.ToDateTime(worksheet.Rows[i].Columns[2].Value);
+                        var mapScheme = _mapper.Map<TblMfSchemeMaster>(NJPrice);
+                        listNJPrice.Add(mapScheme);
+                    }
+                }
+
+                return await _mutualfundRepository.UpdateMFScheme(listNJPrice);
+            }
+            catch (Exception)
+            {
+                return 0;
             }
         }
         #endregion
