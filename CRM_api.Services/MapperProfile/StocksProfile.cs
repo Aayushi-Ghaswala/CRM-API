@@ -42,6 +42,7 @@ namespace CRM_api.Services.MapperProfile
             CreateMap<Response<TblStockData>, ResponseDto<UserNameDto>>();
             CreateMap<ScriptNameResponse, ScriptNamesDto>();
             CreateMap<Response<ScriptNameResponse>, ResponseDto<ScriptNamesDto>>();
+            CreateMap<AddScripDto, TblScripMaster>();
         }
     }
 }

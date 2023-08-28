@@ -1,8 +1,7 @@
-﻿namespace CRM_api.DataAccess.Models
+﻿namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.Stocks_Module
 {
-    public partial class TblScripMaster
+    public class AddScripDto
     {
-        public int Scripid { get; set; }
         public string? Scripsymbol { get; set; }
         public string? Scripname { get; set; }
         public string? Isin { get; set; }

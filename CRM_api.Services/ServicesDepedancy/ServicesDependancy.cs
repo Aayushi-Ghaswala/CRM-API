@@ -49,6 +49,8 @@ namespace CRM_api.Services.ServicesDepedancy
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+            services.AddHttpClient();
+
             FirebaseApp.Create(new AppOptions
             {
                 Credential = GoogleCredential.FromFile(Directory.GetCurrentDirectory() + "\\wwwroot\\Firebase Credintial\\FirebaseCredintial.json")

@@ -94,6 +94,13 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         }
         #endregion
 
+        #region Get All Scrip
+        public async Task<List<TblScripMaster>> GetAllScrip()
+        {
+            return await _context.TblScripMasters.ToListAsync();
+        }
+        #endregion
+
         #region Get stocks transaction data
         public async Task<StocksResponse<TblStockData>> GetStocksTransactions(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string firmName, string? searchingParams, SortingParams sortingParams)
         {
@@ -184,15 +191,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         }
         #endregion
 
-        #region Get All Scrip 
-        public async Task<List<TblScripMaster>> GetAllScrip()
-        {
-            var scrips = await _context.TblScripMasters.ToListAsync();
-
-            return scrips;
-        }
-        #endregion
-
         #region Add stocks data
         public async Task<int> AddData(List<TblStockData> tblStockData)
         {
@@ -200,6 +198,14 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
             return await _context.SaveChangesAsync();
         }
         #endregion
+
+        #region Update Scrip Data
+        public async Task<int> UpdateScripData(List<TblScripMaster> scripMasters)
+        {
+            _context.TblScripMasters.UpdateRange(scripMasters);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion 
 
         #region Delete stocks data
         public Task<int> DeleteData(List<TblStockData> tblStockData)
