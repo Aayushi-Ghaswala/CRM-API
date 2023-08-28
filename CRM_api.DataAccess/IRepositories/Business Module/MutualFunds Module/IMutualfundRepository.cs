@@ -19,8 +19,10 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module
         Task<Response<TblMftransaction>> GetFolioNo(int userId, string? schemeName, string? searchingParams, SortingParams sortingParams);
         Task<List<IGrouping<string?, TblMftransaction>>> GetMFTransactionSummaryByCategory(int userId);
         Task<List<IGrouping<string?, TblMftransaction>>> GetAllCLientMFSummary(DateTime fromDate, DateTime toDate);
+        Task<List<TblMfSchemeMaster>> GetAllMFScheme();
         Task<int> AddMFDataForExistUser(List<TblMftransaction> tblMftransaction);
         Task<int> AddMFDataForNotExistUser(List<TblNotexistuserMftransaction> tblNotexistuserMftransaction);
+        Task<int> UpdateMFScheme(List<TblMfSchemeMaster> schemeMasters);
         Task<int> DeleteMFForUserExist(TblMftransaction tblMftransaction);
         Task<int> DeleteMFForNotUserExist(TblNotexistuserMftransaction tblMftransaction);
         Task<decimal?> GetMFTransactionByUserId(int userId);

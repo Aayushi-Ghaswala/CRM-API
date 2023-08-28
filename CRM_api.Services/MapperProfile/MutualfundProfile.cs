@@ -33,6 +33,7 @@ namespace CRM_api.Services.MapperProfile
                 .ForMember(x => x.CurrentValue, opt => opt.MapFrom(dest => dest.Invamount));
             CreateMap<UserNameResponse, UserNameDto>();
             CreateMap<Response<UserNameResponse>, ResponseDto<UserNameDto>>();
+            CreateMap<AddNJDailyPriceDto, TblMfSchemeMaster>();
         }
     }
 }

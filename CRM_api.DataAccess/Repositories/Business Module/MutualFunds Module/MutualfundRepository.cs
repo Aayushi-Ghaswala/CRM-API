@@ -218,6 +218,13 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         }
         #endregion
 
+        #region Get All Schemes
+        public async Task<List<TblMfSchemeMaster>> GetAllMFScheme()
+        {
+            return await _context.TblMfSchemeMasters.ToListAsync();
+        }
+        #endregion
+
         #region Get Mutual Funds SIP
         public async Task<List<TblMftransaction>> GetMonthlyMFTransactionSIPLumpsum()
         {
@@ -309,6 +316,14 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         public async Task<int> AddMFDataForNotExistUser(List<TblNotexistuserMftransaction> tblNotexistuserMftransaction)
         {
             await _context.TblNotexistuserMftransactions.AddRangeAsync(tblNotexistuserMftransaction);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Add And Update MF Scheme
+        public async Task<int> UpdateMFScheme(List<TblMfSchemeMaster> schemeMasters)
+        {
+            _context.TblMfSchemeMasters.UpdateRange(schemeMasters);
             return await _context.SaveChangesAsync();
         }
         #endregion
