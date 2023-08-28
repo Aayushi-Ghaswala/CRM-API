@@ -184,6 +184,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         }
         #endregion
 
+        #region Get All Scrip 
+        public async Task<List<TblScripMaster>> GetAllScrip()
+        {
+            var scrips = await _context.TblScripMasters.ToListAsync();
+
+            return scrips;
+        }
+        #endregion
+
         #region Add stocks data
         public async Task<int> AddData(List<TblStockData> tblStockData)
         {

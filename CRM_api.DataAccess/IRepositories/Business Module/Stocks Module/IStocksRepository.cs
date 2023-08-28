@@ -12,6 +12,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module
         Task<Response<ScriptNameResponse>> GetAllScriptNames(string clientName, string? firmName, string? searchingParams, SortingParams sortingParams);
         Task<StocksResponse<TblStockData>> GetStocksTransactions(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string firmName, string? searchingParams, SortingParams sortingParams);
         Task<List<TblStockData>> GetStockDataForSpecificDateRange(DateTime? startDate, DateTime? endDate, string firmName);
+        Task<List<TblScripMaster>> GetAllScrip();
         Task<int> AddData(List<TblStockData> tblStockData);
         Task<int> DeleteData(List<TblStockData> tblStockData);
         Task<List<TblStockData>> GetStockDataByUserName(string userName, DateTime? startDate, DateTime? endDate);

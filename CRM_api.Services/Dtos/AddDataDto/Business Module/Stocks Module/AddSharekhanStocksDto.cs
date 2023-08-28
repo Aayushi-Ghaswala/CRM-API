@@ -8,7 +8,7 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.Stocks_Module
         [Name("Branch")]
         public int StBranch { get; set; }
         [Name("Client Code")]
-        public int StClientcode { get; set; }
+        public string? StClientcode { get; set; }
         [Name("Client Name")]
         public string? StClientname { get; set; }
         [Name("Scrip Name")]
@@ -38,7 +38,7 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.Stocks_Module
         public decimal? StNetsharerate { get; set; }
         [Name("Net Cost Value")]
         public decimal? StNetcostvalue { get; set; }
-        //[Name("")]
-        //public int? Userid { get; set; } = null;
+        [Name("")]
+        public int? Userid { get; set; } = null;
     }
 }

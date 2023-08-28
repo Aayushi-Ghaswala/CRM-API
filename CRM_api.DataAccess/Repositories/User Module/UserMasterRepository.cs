@@ -3,6 +3,7 @@ using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRM_api.DataAccess.Repositories.User_Module
@@ -465,6 +466,15 @@ namespace CRM_api.DataAccess.Repositories.User_Module
         {
             var users = await _context.TblUserMasters.Where(x => (userId == null && x.UserParentid == userId) && x.UserDoj.Value.Month >= date.Month && x.UserDoj.Value.Year >= date.Year
                                                  && x.UserDoj.Value.Month <= DateTime.Now.Month && x.UserDoj.Value.Year <= DateTime.Now.Year && x.UserIsactive == true).ToListAsync();
+
+            return users;
+        }
+        #endregion
+
+        #region Get All User Which client code is not null
+        public async Task<List<TblUserMaster>> GetUserWhichClientCodeNotNull()
+        {
+            var users = await _context.TblUserMasters.Where(x => x.UserIsactive == true && x.UserClientCode != null).ToListAsync();
 
             return users;
         }

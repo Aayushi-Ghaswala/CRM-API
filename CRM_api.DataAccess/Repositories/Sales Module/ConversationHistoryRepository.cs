@@ -38,8 +38,8 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
             var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
 
             //Apply Pagination
-            var paginatedData = SortingExtensions.ApplyPagination(filterData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
-
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+            
             var historyResponse = new Response<TblConversationHistoryMaster>()
             {
                 Values = paginatedData,
