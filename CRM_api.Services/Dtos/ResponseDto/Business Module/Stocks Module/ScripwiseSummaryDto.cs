@@ -8,6 +8,6 @@
         public int? TotalSellQuantity { get; set;}
         public int? TotalAvailableQuantity { get; set; }
         public decimal? NetCostValue { get; set; }
-        public decimal? TotalCurrentValue { get; set; }
+        public decimal TotalCurrentValue { get; set; } = 0;
     }
 }

@@ -75,9 +75,10 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         {
             var stockData = await _stocksRepository.GetStockDataByUserName(userName, startDate, endDate);
             var scripwiseStocks = stockData.GroupBy(x => x.StScripname).ToList();
+            var scrips = await _stocksRepository.GetAllScrip();
             double? pageCount = 0;
 
-            List<ScripwiseSummaryDto> scripwiseSummaries = new List<ScripwiseSummaryDto>();
+            List<ScripwiseSummaryDto> scripwiseSummaries = new List<ScripwiseSummaryDto>(); 
 
             foreach (var scripwiseStock in scripwiseStocks)
             {
@@ -89,7 +90,12 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 scripwiseSummary.TotalSellQuantity = scripwiseStock.Where(x => x.StType.Equals("S")).Sum(x => x.StQty);
                 scripwiseSummary.TotalAvailableQuantity = scripwiseSummary.TotalBuyQuantity - scripwiseSummary.TotalSellQuantity;
 
-                scripwiseSummary.NetCostValue = Math.Round((decimal)scripwiseStock.Average(x => x.StNetsharerate), 2);
+                var scrip = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Equals(scripwiseStock.Key.ToLower())).FirstOrDefault();
+                if (scrip is not null)
+                    scripwiseSummary.NetCostValue = scrip.Ltp;
+                else
+                    scripwiseSummary.NetCostValue = Math.Round((decimal)scripwiseStock.Last().StNetcostvalue, 2);
+
                 scripwiseSummary.TotalCurrentValue = Math.Round((decimal)(scripwiseSummary.TotalAvailableQuantity * scripwiseSummary.NetCostValue), 2);
 
                 scripwiseSummaries.Add(scripwiseSummary);
@@ -144,6 +150,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         {
             var stockData = await _stocksRepository.GetStockDataForSpecificDateRange(startDate, endDate, null);
             var clientwiseStocks = stockData.GroupBy(x => x.StClientname).ToList();
+            var scrips = await _stocksRepository.GetAllScrip();
             double? pageCount = 0;
 
             List<ScripwiseSummaryDto> clientwiseSummaries = new List<ScripwiseSummaryDto>();
@@ -156,11 +163,28 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
                 clientwiseSummary.TotalBuyQuantity = clientwiseStock.Where(x => x.StType.Equals("B")).Sum(x => x.StQty);
                 clientwiseSummary.TotalSellQuantity = clientwiseStock.Where(x => x.StType.Equals("S")).Sum(x => x.StQty);
+                
+                var clientwiseScripwiseStocks = clientwiseStock.GroupBy(x => x.StScripname);
+                decimal? ncv = 0;
+
+                foreach (var clientwiseScripwiseStock in clientwiseScripwiseStocks)
+                {
+                    var scrip = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Equals(clientwiseScripwiseStock.Key.ToLower())).FirstOrDefault();
+                    if (scrip is not null)
+                        clientwiseSummary.NetCostValue = scrip.Ltp;
+                    else
+                        clientwiseSummary.NetCostValue = Math.Round((decimal)clientwiseScripwiseStock.Last().StNetcostvalue, 2);
+
+                    var buyQty = clientwiseScripwiseStock.Where(x => x.StType.Equals("B")).Sum(x => x.StQty);
+                    var sellQty = clientwiseScripwiseStock.Where(x => x.StType.Equals("S")).Sum(x => x.StQty);
+                    clientwiseSummary.TotalAvailableQuantity = buyQty - sellQty;
+                    clientwiseSummary.TotalCurrentValue += Math.Round((decimal)(clientwiseSummary.TotalAvailableQuantity * clientwiseSummary.NetCostValue), 2);
+
+                    ncv += clientwiseSummary.NetCostValue;
+                }
+
+                clientwiseSummary.NetCostValue = Math.Round((decimal)(ncv / clientwiseScripwiseStocks.Count()), 2);
                 clientwiseSummary.TotalAvailableQuantity = clientwiseSummary.TotalBuyQuantity - clientwiseSummary.TotalSellQuantity;
-
-                clientwiseSummary.NetCostValue = Math.Round((decimal)clientwiseStock.Average(x => x.StNetsharerate), 2);
-                clientwiseSummary.TotalCurrentValue = Math.Round((decimal)(clientwiseSummary.TotalAvailableQuantity * clientwiseSummary.NetCostValue), 2);
-
                 clientwiseSummaries.Add(clientwiseSummary);
             }
 
@@ -250,7 +274,33 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 if (id != 0)
                     mappedStockModel.ForEach(s => s.Userid = id);
 
-                mappedStockModel.ForEach(st => st.FirmName = firmName);
+                var scrips = await _stocksRepository.GetAllScrip();
+
+                foreach (var mappedStock in mappedStockModel)
+                {
+                    var scripList = new List<TblScripMaster>();
+                    var n = 1;
+                    var scripName = mappedStock.StScripname.Split('.')[0].Split(' ');
+
+                    do
+                    {
+                        string? scripData = "";
+                        for (var j = 0; j <= n; j++)
+                        {
+                            if (string.IsNullOrEmpty(scripData))
+                                scripData = scripName[j];
+                            else
+                                scripData += " " + scripName[j];
+                        }
+                        scripList = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Contains(scripData.ToLower())).ToList();
+                        n += 1;
+                    } while (scripList.Count() != 1 && n < scripName.Count());
+
+                    if (scripList.Count() == 1)
+                        mappedStock.StScripname = scripList.First().Scripname;
+
+                    mappedStock.FirmName = firmName;
+                }
 
                 //To override existing data
                 if (overrideData)
@@ -617,7 +667,6 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         {
             try
             {
-                var filename = "";
                 var xlsxFilePath = "";
                 var firmName = "sharekhan";
                 var listStocks = new List<AddSharekhanStocksDto>();
@@ -700,7 +749,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
                     var trans = new AddSharekhanStocksDto()
                     {
-                        StScripname = scripList.FirstOrDefault() is null ? null : scripList.First().Scripname,
+                        StScripname = scripList.FirstOrDefault() is null ? worksheet.Rows[i].Columns[3].Value.ToString() : scripList.First().Scripname,
                         StBranch = Convert.ToInt32(worksheet.Rows[i].Columns[0].Value.ToString()),
                         StClientcode = clientCode,
                         StClientname = userName,
