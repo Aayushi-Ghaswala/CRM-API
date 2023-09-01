@@ -80,6 +80,7 @@ namespace CRM_api.Services.ServicesDepedancy
             //Business Module
             services.AddScoped<ILoanMasterService, LoanMasterService>();
             services.AddScoped<IStockService, StockService>();
+            services.AddScoped<IStocksDashboardService, StocksDashboardService>();
             services.AddScoped<IInsuranceClientService, InsuranceClientService>();
             services.AddScoped<IMutualfundService, MutualfundService>();
             services.AddScoped<IMGainService, MGainService>();

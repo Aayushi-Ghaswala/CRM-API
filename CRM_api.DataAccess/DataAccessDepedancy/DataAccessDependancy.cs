@@ -64,6 +64,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             //Business Module
             services.AddScoped<ILoanMasterRepository, LoanMasterRepository>();
             services.AddScoped<IStocksRepository, StocksRepository>();
+            services.AddScoped<IStocksDashboardRepository, StocksDashboardRepository>();
             services.AddScoped<IMutualfundRepository, MutualfundRepository>();
             services.AddScoped<IInsuranceClientRepository, InsuranceClientRepository>();
             services.AddScoped<IMGainRepository, MGainRepository>();
