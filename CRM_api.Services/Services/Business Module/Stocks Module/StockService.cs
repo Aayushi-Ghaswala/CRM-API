@@ -92,11 +92,11 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
                 var scrip = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Equals(scripwiseStock.Key.ToLower())).FirstOrDefault();
                 if (scrip is not null)
-                    scripwiseSummary.NetCostValue = scrip.Ltp;
+                    scripwiseSummary.NetShareRate = scrip.Ltp;
                 else
-                    scripwiseSummary.NetCostValue = Math.Round((decimal)scripwiseStock.Last().StNetcostvalue, 2);
+                    scripwiseSummary.NetShareRate = Math.Round((decimal)scripwiseStock.Last().StNetsharerate, 2);
 
-                scripwiseSummary.TotalCurrentValue = Math.Round((decimal)(scripwiseSummary.TotalAvailableQuantity * scripwiseSummary.NetCostValue), 2);
+                scripwiseSummary.TotalCurrentValue = Math.Round((decimal)(scripwiseSummary.TotalAvailableQuantity * scripwiseSummary.NetShareRate), 2);
 
                 scripwiseSummaries.Add(scripwiseSummary);
             }
@@ -115,7 +115,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
             if (searchingParams != null)
             {
-                scriptwiseSummaryDto = scriptwiseSummaryDto.Where(x => x.StScripname.ToLower().Contains(searchingParams.ToLower()) || x.TotalBuyQuantity.ToString().Contains(searchingParams) || x.TotalSellQuantity.ToString().Contains(searchingParams) || x.TotalAvailableQuantity.ToString().Contains(searchingParams) || x.NetCostValue.ToString().Contains(searchingParams) || x.TotalCurrentValue.ToString().Contains(searchingParams));
+                scriptwiseSummaryDto = scriptwiseSummaryDto.Where(x => x.StScripname.ToLower().Contains(searchingParams.ToLower()) || x.TotalBuyQuantity.ToString().Contains(searchingParams) || x.TotalSellQuantity.ToString().Contains(searchingParams) || x.TotalAvailableQuantity.ToString().Contains(searchingParams) || x.NetShareRate.ToString().Contains(searchingParams) || x.TotalCurrentValue.ToString().Contains(searchingParams));
             }
 
             //Apply Sorting 
@@ -171,19 +171,19 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 {
                     var scrip = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Equals(clientwiseScripwiseStock.Key.ToLower())).FirstOrDefault();
                     if (scrip is not null)
-                        clientwiseSummary.NetCostValue = scrip.Ltp;
+                        clientwiseSummary.NetShareRate = scrip.Ltp;
                     else
-                        clientwiseSummary.NetCostValue = Math.Round((decimal)clientwiseScripwiseStock.Last().StNetcostvalue, 2);
+                        clientwiseSummary.NetShareRate = Math.Round((decimal)clientwiseScripwiseStock.Last().StNetsharerate, 2);
 
                     var buyQty = clientwiseScripwiseStock.Where(x => x.StType.Equals("B")).Sum(x => x.StQty);
                     var sellQty = clientwiseScripwiseStock.Where(x => x.StType.Equals("S")).Sum(x => x.StQty);
                     clientwiseSummary.TotalAvailableQuantity = buyQty - sellQty;
-                    clientwiseSummary.TotalCurrentValue += Math.Round((decimal)(clientwiseSummary.TotalAvailableQuantity * clientwiseSummary.NetCostValue), 2);
+                    clientwiseSummary.TotalCurrentValue += Math.Round((decimal)(clientwiseSummary.TotalAvailableQuantity * clientwiseSummary.NetShareRate), 2);
 
-                    ncv += clientwiseSummary.NetCostValue;
+                    ncv += clientwiseSummary.NetShareRate;
                 }
 
-                clientwiseSummary.NetCostValue = Math.Round((decimal)(ncv / clientwiseScripwiseStocks.Count()), 2);
+                clientwiseSummary.NetShareRate = Math.Round((decimal)(ncv / clientwiseScripwiseStocks.Count()), 2);
                 clientwiseSummary.TotalAvailableQuantity = clientwiseSummary.TotalBuyQuantity - clientwiseSummary.TotalSellQuantity;
                 clientwiseSummaries.Add(clientwiseSummary);
             }
@@ -202,7 +202,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
             if (searchingParams != null)
             {
-                clientwiseSummaryDto = clientwiseSummaryDto.Where(x => x.StClientname.ToLower().Contains(searchingParams.ToLower()) || x.TotalBuyQuantity.ToString().Contains(searchingParams) || x.TotalSellQuantity.ToString().Contains(searchingParams) || x.TotalAvailableQuantity.ToString().Contains(searchingParams) || x.NetCostValue.ToString().Contains(searchingParams) || x.TotalCurrentValue.ToString().Contains(searchingParams));
+                clientwiseSummaryDto = clientwiseSummaryDto.Where(x => x.StClientname.ToLower().Contains(searchingParams.ToLower()) || x.TotalBuyQuantity.ToString().Contains(searchingParams) || x.TotalSellQuantity.ToString().Contains(searchingParams) || x.TotalAvailableQuantity.ToString().Contains(searchingParams) || x.NetShareRate.ToString().Contains(searchingParams) || x.TotalCurrentValue.ToString().Contains(searchingParams));
             }
 
             //Apply Sorting 
@@ -230,7 +230,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
             return stockSummaryResponse;
         }
-        #endregion
+        #endregion  
 
         #region Import Sharekhan trade file for all and/or individual client.
         public async Task<int> ImportSharekhanTradeFileAsync(IFormFile formFile, string firmName, int id, bool overrideData)

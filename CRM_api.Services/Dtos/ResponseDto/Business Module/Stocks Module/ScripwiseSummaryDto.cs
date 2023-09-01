@@ -7,7 +7,7 @@
         public int? TotalBuyQuantity { get; set; }
         public int? TotalSellQuantity { get; set;}
         public int? TotalAvailableQuantity { get; set; }
-        public decimal? NetCostValue { get; set; }
+        public decimal? NetShareRate { get; set; }
         public decimal TotalCurrentValue { get; set; } = 0;
     }
 }

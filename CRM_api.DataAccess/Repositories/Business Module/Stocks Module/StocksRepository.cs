@@ -162,7 +162,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         {
             List<TblStockData> stockData = new List<TblStockData>();
 
-            stockData = await _context.TblStockData.Where(s => (startDate == null || (s.StDate != null && s.StDate >= startDate)) && (endDate == null || (s.StDate != null && s.StDate <= endDate)) && (string.IsNullOrEmpty(userName) || (!string.IsNullOrEmpty(s.StClientname) && s.StClientname.ToLower().Equals(s.StClientname)))).ToListAsync();
+            stockData = await _context.TblStockData.Where(s => (startDate == null || (s.StDate != null && s.StDate >= startDate)) && (endDate == null || (s.StDate != null && s.StDate <= endDate)) && (string.IsNullOrEmpty(userName) || (!string.IsNullOrEmpty(s.StClientname) && s.StClientname.ToLower().Equals(userName)))).ToListAsync();
 
             return stockData;
         }

@@ -2,6 +2,7 @@
 {
     public class InterestReportDto
     {
+        public int? MgainId { get; set; }
         public int DepositeCode { get; set; }
         public DateTime? Date { get; set; }
         public string ShcemeName { get; set; }
