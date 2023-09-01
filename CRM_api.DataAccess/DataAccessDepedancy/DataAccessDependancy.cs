@@ -59,6 +59,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
             services.AddScoped<IRoleMasterRepository, RoleMasterRepository>();
             services.AddScoped<IRegionRepository, RegionRepository>();
             services.AddScoped<IUserCategoryRepository, UserCategoryRepository>();
+            services.AddScoped<IUserDashboardRepository, UserDashboardRepository>();
 
             //Business Module
             services.AddScoped<ILoanMasterRepository, LoanMasterRepository>();
