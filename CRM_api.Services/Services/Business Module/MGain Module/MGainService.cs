@@ -11,7 +11,6 @@ using CRM_api.Services.Helper.ConstantValue;
 using CRM_api.Services.Helper.Reminder_Helper;
 using CRM_api.Services.IServices.Account_Module;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
-using Microsoft.AspNetCore.Hosting;
 using SelectPdf;
 using static CRM_api.Services.Helper.ConstantValue.GenderConstant;
 using static CRM_api.Services.Helper.ConstantValue.MaritalStatusConstant;
@@ -118,7 +117,7 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
 
             if (mGain.Mgain2ndholdername is not null)
             {
-            if (mGain.Mgain1stholderAddress == mGain.Mgain2ndholderAddress)
+                if (mGain.Mgain1stholderAddress == mGain.Mgain2ndholderAddress)
                 {
                     htmlContent += $@"<p><b>{mGain.Mgain1stholder}, RESIDING AT: {mGain.Mgain1stholderAddress}-{mGain.TblUserMaster.UserPin} (Mo.no.{mGain.Mgain1stholderMobile}) and {mGain.Mgain2ndholdername}, Residing at: as above,</b> here in after referred to as the “LENDER” which expression, unless repugnant to the context shall mean and includes its legal representatives, assignee, nominee and administrator, the SECOND PARTY to the agreement.</p>
         <p><b>WHEREAS,</b> The BORROWER approached the LENDER to borrow the sum of <b>Rs.{mGain.MgainInvamt}/-</b> as secured against Immovable Non- Agricultural Floating Asset i.e. Land.</p>
@@ -960,7 +959,7 @@ SURAT - 395009 <p>
                 "August",
                 "September",
                 "October",
-                "Nevember",
+                "November",
                 "December",
                 "January",
                 "February",
@@ -984,6 +983,7 @@ SURAT - 395009 <p>
                             foreach (var detail in details)
                             {
                                 var interestReport = new InterestReportDto();
+                                interestReport.MgainId = detail.Mgainid;
                                 interestReport.DepositeCode = detail.Id;
                                 interestReport.Date = detail.DocDate;
                                 interestReport.InterestPaid = detail.Debit;
@@ -1004,6 +1004,7 @@ SURAT - 395009 <p>
                                 foreach (var detail in details)
                                 {
                                     var interestMarchReport = new InterestReportDto();
+                                    interestMarchReport.MgainId = detail.Mgainid;
                                     interestMarchReport.DepositeCode = detail.Id;
                                     interestMarchReport.InterestAccrued = detail.Debit;
                                     interestMarchReport.InterestPaid = 0;
@@ -1049,7 +1050,7 @@ SURAT - 395009 <p>
                 "August",
                 "September",
                 "October",
-                "Nevember",
+                "November",
                 "December",
                 "January",
                 "February",
