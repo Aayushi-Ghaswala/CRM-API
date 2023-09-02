@@ -119,6 +119,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<Usercleantable> Usercleantables { get; set; } = null!;
         public virtual DbSet<TblLoanMaster> TblLoanMasters { get; set; } = null!;
         public virtual DbSet<TblLoanTypeMaster> TblLoanTypeMasters { get; set; } = null!;
+        public virtual DbSet<GetTopTenSchemeByInvestment> GetTopTenSchemeByInvestments  { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -3946,6 +3947,11 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.LoanType)
                     .HasMaxLength(20)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<GetTopTenSchemeByInvestment>(entity =>
+            {
+                entity.ToTable("GetTopTenSchemeByInvestment");
             });
 
             modelBuilder.HasSequence("OrderId")

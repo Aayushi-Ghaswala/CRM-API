@@ -49,6 +49,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
             double pageCount = 0;
             var mfSummary = await _mutualfundRepository.GetMFTransactionSummary(userId);
+            var allScheme = await _mutualfundRepository.GetAllMFScheme();
 
             foreach (var records in mfSummary)
             {
@@ -56,7 +57,12 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                 decimal? redemptionUnit = 0;
                 decimal? totalPurchaseUnits = 0;
 
-                mfSummaryDto.NAV = Math.Round((double)records.Average(x => x.Nav), 3);
+                var nav = allScheme.FirstOrDefault(x => x.SchemeName.ToLower().Equals(records.Key.Replace("  ", " ").ToLower()));
+                if (nav != null) 
+                    mfSummaryDto.NAV = Convert.ToDouble(nav.NetAssetValue);
+                else
+                    mfSummaryDto.NAV = 0;
+
                 mfSummaryDto.SchemeId = records.DistinctBy(x => x.SchemeId).Select(x => x.SchemeId).FirstOrDefault();
                 mfSummaryDto.Schemename = records.Key;
                 mfSummaryDto.Foliono = records.DistinctBy(x => x.Foliono).Select(x => x.Foliono).FirstOrDefault();
@@ -227,33 +233,49 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
             double pageCount = 0;
             var mfSummary = await _mutualfundRepository.GetAllCLientMFSummary(fromDate, toDate);
+            var allScheme = await _mutualfundRepository.GetAllMFScheme();
 
             foreach (var records in mfSummary)
             {
                 var allClientMFSummary = new AllClientMFSummaryDto();
                 decimal? redemptionUnit = 0;
                 decimal? totalPurchaseUnits = 0;
+                decimal? currentValue = 0;
+                decimal? avgNAV = 0;
 
-                allClientMFSummary.NAV = Math.Round((double)records.Average(x => x.Nav), 3);
                 allClientMFSummary.Userid = records.DistinctBy(x => x.Userid).Select(x => x.Userid).FirstOrDefault();
                 allClientMFSummary.Username = records.Key;
+                var purchaseTransaction = records.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" && x.Transactiontype != "Sale");
+                allClientMFSummary.TotalPurchaseUnit = Math.Round((decimal)purchaseTransaction.Sum(x => x.Noofunit), 3);
 
                 var redemptionTransaction = records.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale");
-                foreach (var transaction in redemptionTransaction)
-                {
-                    redemptionUnit += transaction.Noofunit;
-                }
+                allClientMFSummary.TotalRedemptionUnit = Math.Round((decimal)redemptionTransaction.Sum(x => x.Noofunit), 3);
+                allClientMFSummary.BalanceUnit = allClientMFSummary.TotalPurchaseUnit - allClientMFSummary.TotalRedemptionUnit;
 
-                var purchaseTransaction = records.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" && x.Transactiontype != "Sale");
-                foreach (var transaction in purchaseTransaction)
-                {
-                    totalPurchaseUnits += transaction.Noofunit;
-                }
+                var schemewiseRecords = records.GroupBy(x => x.Schemename).ToList();
 
-                allClientMFSummary.TotalPurchaseUnit = Math.Round((decimal)totalPurchaseUnits, 3);
-                allClientMFSummary.TotalRedemptionUnit = Math.Round((decimal)redemptionUnit, 3);
-                allClientMFSummary.BalanceUnit = Math.Round((decimal)(allClientMFSummary.TotalPurchaseUnit - allClientMFSummary.TotalRedemptionUnit), 3);
-                allClientMFSummary.CurrentValue = Math.Round((decimal)(allClientMFSummary.BalanceUnit * (decimal)allClientMFSummary.NAV), 3);
+                foreach(var record in schemewiseRecords)
+                {
+                    decimal? nav = 0;
+
+                    var purchase = record.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" && x.Transactiontype != "Sale");
+                    totalPurchaseUnits = purchase.Sum(x => x.Noofunit);
+
+                    var redeem = record.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale");
+                    redemptionUnit = redeem.Sum(x => x.Noofunit);
+
+                    var balanceUnit = totalPurchaseUnits - redemptionUnit;
+                    var scheme = allScheme.FirstOrDefault(x => x.SchemeName.ToLower().Equals(record.Key.Replace("  ", " ").ToLower()));
+                    if (scheme is not null)
+                        nav = Convert.ToDecimal(scheme.NetAssetValue);
+                    else
+                        nav = 0;
+
+                    currentValue += balanceUnit * nav;
+                    avgNAV += nav;
+                }
+                allClientMFSummary.NAV = Convert.ToDouble(Math.Round((decimal)(avgNAV / schemewiseRecords.Count()), 3));
+                allClientMFSummary.CurrentValue = Math.Round((decimal)currentValue, 3);
 
                 mutualFundSummaries.Add(allClientMFSummary);
             }
