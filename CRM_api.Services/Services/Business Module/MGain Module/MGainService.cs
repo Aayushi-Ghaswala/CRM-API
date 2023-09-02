@@ -1122,6 +1122,7 @@ SURAT - 395009 <p>
 
             string? tdsYear = null;
             string? docNo = null;
+            string? tdsDocNo = null;
             int? companyId = 0;
 
             var currYear = date.Year;
@@ -1230,15 +1231,17 @@ SURAT - 395009 <p>
                             {
                                 docNo = await _accountTransactionservice.GetTransactionDocNoAsync("Journal", docNo);
 
-                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null, tdsYear, docNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
+                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
                             }
                             if (isPayment is true)
                             {
                                 docNo = await _accountTransactionservice.GetTransactionDocNoAsync("Payment", docNo);
                                 if (MGainDetail.MgainIsTdsDeduction is true)
-                                    docNo = await _accountTransactionservice.GetTransactionDocNoAsync("Journal", docNo);
+                                {
+                                    tdsDocNo = await _accountTransactionservice.GetTransactionDocNoAsync("Journal", tdsDocNo);
 
-                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration, tdsYear, docNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
+                                    accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
+                                }
                             }
 
                             if (isSendSMS is true)
@@ -1266,15 +1269,18 @@ SURAT - 395009 <p>
                             if (isJournal is true)
                             {
                                 docNo = await _accountTransactionservice.GetTransactionDocNoAsync("Journal", docNo);
-                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null, tdsYear, docNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
+                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
                             }
                             if (isPayment is true)
                             {
                                 docNo = await _accountTransactionservice.GetTransactionDocNoAsync("Payment", docNo);
-                                if (MGainDetail.MgainIsTdsDeduction is true)
-                                    docNo = await _accountTransactionservice.GetTransactionDocNoAsync("Journal", docNo);
 
-                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration, tdsYear, docNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
+                                if (MGainDetail.MgainIsTdsDeduction is true)
+                                {
+                                    tdsDocNo = await _accountTransactionservice.GetTransactionDocNoAsync("Journal", tdsDocNo);
+
+                                    accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
+                                }
                             }
 
                             if (isSendSMS is true)
@@ -1303,15 +1309,17 @@ SURAT - 395009 <p>
                         if (isJournal is true)
                         {
                             docNo = await _accountTransactionservice.GetTransactionDocNoAsync("Journal", docNo);
-                            accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null, tdsYear, docNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
+                            accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
                         }
                         if (isPayment is true)
                         {
                             docNo = await _accountTransactionservice.GetTransactionDocNoAsync("Payment", docNo);
                             if (MGainDetail.MgainIsTdsDeduction is true)
-                                docNo = await _accountTransactionservice.GetTransactionDocNoAsync("Journal", docNo);
+                            {
+                                tdsDocNo = await _accountTransactionservice.GetTransactionDocNoAsync("Journal", tdsDocNo);
 
-                            accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration, tdsYear, docNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
+                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
+                            }
                         }
 
                         if (isSendSMS is true)
@@ -2319,57 +2327,14 @@ table {{
         #endregion
 
         #region Method For Account Entry
-        public List<TblAccountTransaction> AccountEntry(MGainNonCumulativeMonthlyReportDto MGainNonCumulativeMonthlyReport, int? mGainId, int? mGainUserId, bool? isTdsDeduction, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? tdsYear, string? docNo, int? currancyId, int? companyId, string? transactionType)
+        public List<TblAccountTransaction> AccountEntry(MGainNonCumulativeMonthlyReportDto MGainNonCumulativeMonthlyReport, int? mGainId, int? mGainUserId, bool? isTdsDeduction, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? tdsYear, string? docNo, string? tdsDocNo, int? currancyId, int? companyId, string? transactionType)
         {
             List<TblAccountTransaction> accountTransactions = new List<TblAccountTransaction>();
             if (isJournal is true)
             {
-                TblAccountTransaction creditAccountTransaction = new TblAccountTransaction();
-                TblAccountTransaction debitAccountTransaction = new TblAccountTransaction();
+                var creditAccountTransaction = new TblAccountTransaction(jvEntryDate, jvNarration, MGainAccountPaymentConstant.MGainPayment.Journal.ToString(), docNo, 0, MGainNonCumulativeMonthlyReport.InterestAmount, mGainUserId, _mGainRepository.GetAccountByUserId(mGainUserId, null).AccountId, mGainId, companyId, transactionType, currancyId);
 
-                //Journal Credit Entry
-                creditAccountTransaction.DocDate = jvEntryDate;
-                creditAccountTransaction.DocParticulars = jvNarration;
-                if (isTdsDeduction is true)
-                {
-                    var no = docNo.Split('/');
-                    var number = (Convert.ToInt32(no.Last()) - 1).ToString().PadLeft(4, '0');
-
-                    creditAccountTransaction.DocNo = no.First() + "/" + no.Skip(1).First() + "/" + number;
-                }
-                else
-                    creditAccountTransaction.DocNo = docNo;
-                creditAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Journal.ToString();
-                creditAccountTransaction.Debit = 0;
-                creditAccountTransaction.Credit = MGainNonCumulativeMonthlyReport.InterestAmount;
-                creditAccountTransaction.DocUserid = mGainUserId;
-                creditAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(mGainUserId, null).AccountId;
-                creditAccountTransaction.Mgainid = mGainId;
-                creditAccountTransaction.Currencyid = currancyId;
-                creditAccountTransaction.Companyid = companyId;
-                creditAccountTransaction.TransactionType = transactionType;
-
-                //Journal Debit Entry
-                debitAccountTransaction.DocDate = jvEntryDate;
-                debitAccountTransaction.DocParticulars = jvNarration;
-                if (isTdsDeduction is true)
-                {
-                    var no = docNo.Split('/');
-                    var number = (Convert.ToInt32(no.Last()) - 1).ToString().PadLeft(4, '0');
-
-                    debitAccountTransaction.DocNo = no.First() + "/" + no.Skip(1).First() + "/" + number;
-                }
-                else
-                    debitAccountTransaction.DocNo = docNo;
-                debitAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Journal.ToString();
-                debitAccountTransaction.Debit = MGainNonCumulativeMonthlyReport.InterestAmount;
-                debitAccountTransaction.Credit = 0;
-                debitAccountTransaction.DocUserid = mGainUserId;
-                debitAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(0, jvNarration).AccountId;
-                debitAccountTransaction.Mgainid = mGainId;
-                debitAccountTransaction.Currencyid = currancyId;
-                debitAccountTransaction.Companyid = companyId;
-                debitAccountTransaction.TransactionType = transactionType;
+                var debitAccountTransaction = new TblAccountTransaction(jvEntryDate, jvNarration, MGainAccountPaymentConstant.MGainPayment.Journal.ToString(), docNo, MGainNonCumulativeMonthlyReport.InterestAmount, 0, mGainUserId, _mGainRepository.GetAccountByUserId(mGainUserId, null).AccountId, mGainId, companyId, transactionType, currancyId);
 
                 accountTransactions.Add(creditAccountTransaction);
                 accountTransactions.Add(debitAccountTransaction);
@@ -2377,69 +2342,15 @@ table {{
 
             if (isPayment is true)
             {
-                TblAccountTransaction creditAccountTransaction = new TblAccountTransaction();
-                TblAccountTransaction debitAccountTransaction = new TblAccountTransaction();
+                var creditAccountTransaction = new TblAccountTransaction(crEntryDate, crNarration, MGainAccountPaymentConstant.MGainPayment.Payment.ToString(), docNo, 0, MGainNonCumulativeMonthlyReport.InterestAmount, mGainUserId, _mGainRepository.GetAccountByUserId(0, crNarration).AccountId, mGainId, companyId, transactionType, currancyId);
 
-                //Payment Credit Entry
-                creditAccountTransaction.DocDate = crEntryDate;
-                creditAccountTransaction.DocParticulars = crNarration;
-                creditAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Payment.ToString();
-                creditAccountTransaction.DocNo = docNo;
-                creditAccountTransaction.Debit = 0;
-                creditAccountTransaction.Credit = MGainNonCumulativeMonthlyReport.InterestAmount;
-                creditAccountTransaction.DocUserid = mGainUserId;
-                creditAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(0, crNarration).AccountId;
-                creditAccountTransaction.Mgainid = mGainId;
-                creditAccountTransaction.Currencyid = currancyId;
-                creditAccountTransaction.Companyid = companyId;
-                creditAccountTransaction.TransactionType = transactionType;
-
-                //Payment Debit Entry
-                debitAccountTransaction.DocDate = crEntryDate;
-                debitAccountTransaction.DocParticulars = crNarration;
-                debitAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Payment.ToString();
-                debitAccountTransaction.DocNo = docNo;
-                debitAccountTransaction.Debit = MGainNonCumulativeMonthlyReport.InterestAmount;
-                debitAccountTransaction.Credit = 0;
-                debitAccountTransaction.DocUserid = mGainUserId;
-                debitAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(mGainUserId, null).AccountId;
-                debitAccountTransaction.Mgainid = mGainId;
-                debitAccountTransaction.Currencyid = currancyId;
-                debitAccountTransaction.Companyid = companyId;
-                debitAccountTransaction.TransactionType = transactionType;
+                var debitAccountTransaction = new TblAccountTransaction(crEntryDate, crNarration, MGainAccountPaymentConstant.MGainPayment.Payment.ToString(), docNo, MGainNonCumulativeMonthlyReport.InterestAmount, 0, mGainUserId, _mGainRepository.GetAccountByUserId(mGainUserId, null).AccountId, mGainId, companyId, transactionType, currancyId);
 
                 if (isTdsDeduction is true)
                 {
-                    TblAccountTransaction creditTDCAccountTransaction = new TblAccountTransaction();
-                    TblAccountTransaction debitTDCAccountTransaction = new TblAccountTransaction();
+                    var creditTDCAccountTransaction = new TblAccountTransaction(crEntryDate, crNarration, MGainAccountPaymentConstant.MGainPayment.Journal.ToString(), tdsDocNo, 0, MGainNonCumulativeMonthlyReport.InterestAmount, mGainUserId, _mGainRepository.GetAccountByUserId(0, tdsYear).AccountId, mGainId, companyId, transactionType, currancyId);
 
-                    //Journal TDS Credit Entry
-                    creditTDCAccountTransaction.DocDate = jvEntryDate;
-                    creditTDCAccountTransaction.DocParticulars = tdsYear;
-                    creditTDCAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Journal.ToString();
-                    creditTDCAccountTransaction.DocNo = docNo;
-                    creditTDCAccountTransaction.Debit = 0;
-                    creditTDCAccountTransaction.Credit = MGainNonCumulativeMonthlyReport.TDS;
-                    creditTDCAccountTransaction.DocUserid = mGainUserId;
-                    creditTDCAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(0, tdsYear).AccountId;
-                    creditTDCAccountTransaction.Mgainid = mGainId;
-                    creditTDCAccountTransaction.Currencyid = currancyId;
-                    creditTDCAccountTransaction.Companyid = companyId;
-                    creditTDCAccountTransaction.TransactionType = transactionType;
-
-                    //Journal TDS Credit Entry
-                    debitTDCAccountTransaction.DocDate = jvEntryDate;
-                    debitTDCAccountTransaction.DocParticulars = tdsYear;
-                    debitTDCAccountTransaction.DocType = MGainAccountPaymentConstant.MGainPayment.Journal.ToString();
-                    debitTDCAccountTransaction.DocNo = docNo;
-                    debitTDCAccountTransaction.Debit = MGainNonCumulativeMonthlyReport.TDS;
-                    debitTDCAccountTransaction.Credit = 0;
-                    debitTDCAccountTransaction.DocUserid = mGainUserId;
-                    debitTDCAccountTransaction.Accountid = _mGainRepository.GetAccountByUserId(mGainUserId, null).AccountId;
-                    debitTDCAccountTransaction.Mgainid = mGainId;
-                    debitAccountTransaction.Currencyid = currancyId;
-                    debitTDCAccountTransaction.Companyid = companyId;
-                    debitTDCAccountTransaction.TransactionType = transactionType;
+                    var debitTDCAccountTransaction = new TblAccountTransaction(crEntryDate, crNarration, MGainAccountPaymentConstant.MGainPayment.Journal.ToString(), tdsDocNo, MGainNonCumulativeMonthlyReport.InterestAmount, 0, mGainUserId, _mGainRepository.GetAccountByUserId(mGainUserId, null).AccountId, mGainId, companyId, transactionType, currancyId);
 
                     accountTransactions.Add(creditTDCAccountTransaction);
                     accountTransactions.Add(debitTDCAccountTransaction);
