@@ -7,6 +7,7 @@ namespace CRM_api.DataAccess.Models
         public int Id { get; set; }
         public int? AssignedTo { get; set; }
         public int? ReferredBy { get; set; }
+        public int? UserId { get; set; }
         public int CampaignId { get; set; }
         public int StatusId { get; set; }
         public int CityId { get; set; }
@@ -36,6 +37,8 @@ namespace CRM_api.DataAccess.Models
         [ForeignKey(nameof(StateId))]
         public virtual TblStateMaster StateMaster { get; set; }
         [ForeignKey(nameof(CountryId))]
-        public virtual TblCountryMaster CountryMaster { get; set; }        
+        public virtual TblCountryMaster CountryMaster { get; set; }
+        [ForeignKey(nameof(UserId))]
+        public virtual TblUserMaster TblUserMaster { get; set; }
     }
 }

@@ -10,5 +10,6 @@ namespace CRM_api.Services.IServices.Sales_Module
         Task<List<SalesDashboardDto>> GetUserWiseNewClientCountAsync(int? userId);
         Task<List<MeetingScheduleDto>> GetUserWiseMeetingScheduleCountAsync(int? userId);
         Task<ResponseDto<ConversationHistoryDto>> GetLeadWiseConversationHistoryAsync(int leadId, string? search, SortingParams sortingParams);
+        Task<LeadSummaryChartDto> GetLeadSummaryChartAsync(int? assignTo, DateTime fromDate, DateTime toDate);
     }
 }

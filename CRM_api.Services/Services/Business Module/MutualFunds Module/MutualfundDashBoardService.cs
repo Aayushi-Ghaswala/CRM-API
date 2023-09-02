@@ -80,59 +80,25 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             var mfTransaction = await _mutualfundDashBoardRepository.GetAllMFTransaction();
             List<TimeWiseMutualFundSummaryDto> timeWiseMutualFunds = new List<TimeWiseMutualFundSummaryDto>();
 
-            TimeWiseMutualFundSummaryDto todayMutualFundSummary = new TimeWiseMutualFundSummaryDto();
-            TimeWiseMutualFundSummaryDto currentWeekMutualFundSummary = new TimeWiseMutualFundSummaryDto();
-            TimeWiseMutualFundSummaryDto currentMonthMutualFundSummary = new TimeWiseMutualFundSummaryDto();
-            TimeWiseMutualFundSummaryDto currentQuarterMutualFundSummary = new TimeWiseMutualFundSummaryDto();
-            TimeWiseMutualFundSummaryDto currentYearMutualFundSummary = new TimeWiseMutualFundSummaryDto();
-            TimeWiseMutualFundSummaryDto allTimeMutualFundSummary = new TimeWiseMutualFundSummaryDto();
+            var today = DateTime.Now.Date;
+            var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+            var startOfMonth = new DateTime(today.Year, today.Month, 1);
+            var startOfQuarter = new DateTime(today.Year, (today.Month - 1) / 3 * 3 + 1, 1);
+            var startOfYear = new DateTime(today.Year, 1, 1);
 
-            var curDate = DateTime.Now.Date;
-            todayMutualFundSummary.Duration = "Today";
-            var todayTransaction = mfTransaction.Where(x => x.Date == curDate).ToList();
-            if (todayTransaction.Count() > 0)
-            {
-                todayMutualFundSummary = await GetTimeWiseMutualFund(todayTransaction, todayMutualFundSummary.Duration);
-                timeWiseMutualFunds.Add(todayMutualFundSummary);
-            }
-            else
-                timeWiseMutualFunds.Add(todayMutualFundSummary);
+            // Filter stock data for different durations
+            var yearDataList = mfTransaction.Where(s => s.Date.Value.Year == today.Year).ToList();
+            var quarterDataList = yearDataList.Where(s => s.Date.Value.Date >= startOfQuarter.Date && s.Date.Value <= startOfQuarter.AddMonths(2)).ToList();
+            var monthDataList = quarterDataList.Where(s => s.Date.Value.Month == startOfMonth.Month).ToList();
+            var weekDataList = monthDataList.Where(s => s.Date.Value.Date >= startOfWeek.Date && s.Date.Value.Date < startOfWeek.AddDays(7).Date).ToList();
+            var todayDataList = weekDataList.Where(s => s.Date.Value.Date == today.Date).ToList();
 
-            var weekStartDate = DateTime.Now.AddDays(-(curDate.DayOfWeek - DayOfWeek.Monday));
-            var weekEndDate = weekStartDate.AddDays(6);
-            var currentWeekTransaction = mfTransaction.Where(x => x.Date >= weekStartDate && x.Date <= weekEndDate).ToList();
-            currentWeekMutualFundSummary.Duration = "This Week";
-            if(currentWeekTransaction.Count() > 0)
-                currentWeekMutualFundSummary = await GetTimeWiseMutualFund(currentWeekTransaction, currentWeekMutualFundSummary.Duration);
-
-            timeWiseMutualFunds.Add(currentWeekMutualFundSummary);
-
-            var thisMonthTransaction = mfTransaction.Where(x => x.Date.Value.Month == DateTime.Now.Month && x.Date.Value.Year == DateTime.Now.Year).ToList();
-            currentMonthMutualFundSummary.Duration = "This Month";
-            if (thisMonthTransaction.Count() > 0)
-                currentMonthMutualFundSummary = await GetTimeWiseMutualFund(thisMonthTransaction, currentMonthMutualFundSummary.Duration);
-                
-            timeWiseMutualFunds.Add(currentMonthMutualFundSummary);
-
-            DateTime quarterStartDate = new DateTime(curDate.Year, 3 * ((curDate.Month - 1) / 3 + 1) - 2, 1);
-            DateTime quarterEndDate = new DateTime(curDate.Year, 3 * ((curDate.Month - 1) / 3 + 1) + 1, 1).AddDays(-1);
-            var currQuarterTransaction = mfTransaction.Where(x => x.Date >= quarterStartDate && x.Date <= quarterEndDate).ToList();
-            currentQuarterMutualFundSummary.Duration = "This Quarter";
-            if (currQuarterTransaction.Count() > 0)
-                currentQuarterMutualFundSummary = await GetTimeWiseMutualFund(currQuarterTransaction, currentQuarterMutualFundSummary.Duration);
-                
-            timeWiseMutualFunds.Add(currentQuarterMutualFundSummary);
-
-            var currYearTransaction = mfTransaction.Where(x => x.Date.Value.Year == DateTime.Now.Year).ToList();
-            currentYearMutualFundSummary.Duration = "This Year";
-            if (currYearTransaction.Count() > 0)
-                currentYearMutualFundSummary = await GetTimeWiseMutualFund(currYearTransaction, currentYearMutualFundSummary.Duration);
-                
-            timeWiseMutualFunds.Add(currentYearMutualFundSummary);
-
-            allTimeMutualFundSummary.Duration = "All Time";
-            allTimeMutualFundSummary = await GetTimeWiseMutualFund(mfTransaction, allTimeMutualFundSummary.Duration);
-            timeWiseMutualFunds.Add(allTimeMutualFundSummary);
+            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(todayDataList, "Today"));
+            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(weekDataList, "This Week"));
+            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(monthDataList, "This Month"));
+            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(quarterDataList, "This Quarter"));
+            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(yearDataList, "This Year"));
+            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(mfTransaction, "All Time"));
 
             return timeWiseMutualFunds;
         }

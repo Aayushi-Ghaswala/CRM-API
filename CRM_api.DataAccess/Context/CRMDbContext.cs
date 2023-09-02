@@ -1582,6 +1582,8 @@ namespace CRM_api.DataAccess.Context
 
                 entity.Property(e => e.ReferredBy);
 
+                entity.Property(e => e.UserId);
+
                 entity.Property(e => e.CampaignId);
 
                 entity.Property(e => e.StatusId);

@@ -235,6 +235,15 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         }
         #endregion
 
+        #region Get Mutual Fund Transactions By User Ids
+        public async Task<List<TblMftransaction>> GetMFTransactionsByUserIds(List<int?> userIds, DateTime fromDate, DateTime toDate)
+        {
+            var transactions = await _context.TblMftransactions.Where(x => userIds.Contains(x.Userid) && x.Date.Value.Date >= fromDate.Date && x.Date.Value.Date <= toDate.Date).ToListAsync();
+
+            return transactions;
+        }
+        #endregion
+
         #region Display Scheme List
         public async Task<Response<TblMftransaction>> GetSchemeName(int userId, string? folioNo, string? searchingParams, SortingParams sortingParams)
         {

@@ -14,6 +14,7 @@ namespace CRM_api.Services.Dtos.ResponseDto.Sales_Module
         public CityMasterDto? CityMaster { get; set; }
         public StateMasterDto? StateMaster { get; set; }
         public CountryMasterDto? CountryMaster { get; set; }
+        public int? UserId { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
         public string MobileNo { get; set; }

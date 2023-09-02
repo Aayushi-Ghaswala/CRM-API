@@ -117,7 +117,7 @@ namespace CRM_api.Services.Services.User_Module
         #endregion
 
         #region Add User
-        public async Task<int> AddUserAsync(AddUserMasterDto addUser)
+        public async Task<int> AddUserAsync(AddUserMasterDto addUser, bool isFromLead = false)
         {
             var user = _mapper.Map<TblUserMaster>(addUser);
 
@@ -137,12 +137,17 @@ namespace CRM_api.Services.Services.User_Module
                         addedUser.UserUname = string.Concat(uname[0], "_", uname[2], "_", addedUser.UserId);
                         break;
                 }
-                return await _userMasterRepository.UpdateUser(addedUser);
+                var flag = await _userMasterRepository.UpdateUser(addedUser);
+
+                if (isFromLead && flag > 0)
+                   return addedUser.UserId;
+                else if (flag == 0)
+                    return 0;
+                else
+                     return 1; 
             }
             else
-            {
                 return 0;
-            }
         }
         #endregion
 

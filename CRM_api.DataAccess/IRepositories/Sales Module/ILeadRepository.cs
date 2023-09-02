@@ -14,6 +14,7 @@ namespace CRM_api.DataAccess.IRepositories.Sales_Module
         Task<List<TblLeadMaster>> GetLeadsForCSV(int? assignTo, string search, SortingParams sortingParams);
         int CheckMobileExist(int? id, string mobileNo);
         Task<List<TblLeadMaster>> GetUserwiseLeads(int? userId, int? campaignId, DateTime date);
+        Task<(List<TblLeadMaster>, List<TblLeadMaster>)> GetLeadsByDateRange(int? assignTo, DateTime fromDate, DateTime toDate);
         Task<int> AddLead(List<TblLeadMaster> leads);
         Task<int> UpdateLead(TblLeadMaster lead);
         Task<int> DeactivateLead(int id);

@@ -16,7 +16,7 @@ namespace CRM_api.Services.IServices.User_Module
         Task<byte[]> GetUsersForCSVAsync(string filterString, string search, SortingParams sortingParams);
         Task<ResponseDto<FamilyMemberDto>> GetFamilyMemberByUserIdAsync(int userId, string? search, SortingParams sortingParams);
         Task<ResponseDto<FamilyMemberDto>> GetRelativeAccessByUserIdAsync(int userId, string? search, SortingParams sortingParams);
-        Task<int> AddUserAsync(AddUserMasterDto addUser);
+        Task<int> AddUserAsync(AddUserMasterDto addUser, bool isFromLead = false);
         Task<int> UpdateUserAsync(UpdateUserMasterDto updateUser);
         Task<int> UpdateRelativeAccessAsync(int id, bool isDisable);
         Task<int> DeactivateUserAsync(int id);

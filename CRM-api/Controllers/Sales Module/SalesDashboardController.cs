@@ -78,5 +78,21 @@ namespace CRM_api.Controllers.Sales_Module
             }
         }
         #endregion
+
+        #region Get Lead Summary Chart By Date Range
+        [HttpGet("GetLeadSummaryChart")]
+        public async Task<IActionResult> GetLeadSummaryChart(int? assignTo, DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                var leadCount = await _salesDashboardService.GetLeadSummaryChartAsync(assignTo, fromDate, toDate);
+                return Ok(leadCount);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
     }
 }
