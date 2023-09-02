@@ -1,11 +1,10 @@
-﻿using CRM_api.Services.Dtos.ResponseDto.User_Module;
-
-namespace CRM_api.Services.Dtos.ResponseDto.Sales_Module
+﻿namespace CRM_api.Services.Dtos.ResponseDto.Sales_Module
 {
     public class LeadCSVDto
     {
         public string? AssignUser { get; set; }
         public string? ReferredUser { get; set; }
+        public int? UserId { get; set; }
         public string? Campaign { get; set; }
         public string? Status { get; set; }
         public string? City { get; set; }

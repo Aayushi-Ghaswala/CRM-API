@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CRM_api.Services.Dtos.AddDataDto.Sales_Module
+﻿namespace CRM_api.Services.Dtos.AddDataDto.Sales_Module
 {
     public class UpdateLeadDto
     {
         public int Id { get; set; }
         public int AssignedTo { get; set; }
         public int ReferredBy { get; set; }
+        public int? UserId { get; set; }
         public int CampaignId { get; set; }
         public int StatusId { get; set; }
         public int CityId { get; set; }

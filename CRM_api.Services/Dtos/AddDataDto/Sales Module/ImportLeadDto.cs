@@ -4,6 +4,7 @@
     {
         public string? AssignUser { get; set; }
         public string? ReferredUser { get; set; }
+        public int? UserId { get; set; }
         public string? Campaign { get; set; }
         public string? Status { get; set; }
         public string? City { get; set; }

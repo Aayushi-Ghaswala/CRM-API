@@ -52,6 +52,15 @@ namespace CRM_api.DataAccess.Repositories.HR_Module
         }
         #endregion
 
+        #region Get Employee By Name
+        public async Task<TblEmployeeMaster> GetEmployeeByName(string name)
+        {
+            var employee = await _context.TblEmployeeMasters.Where(x => x.Name.ToLower().Equals(name.ToLower())).FirstOrDefaultAsync();
+
+            return employee;
+        }
+        #endregion
+
         #region Add Employee
         public async Task<TblEmployeeMaster> AddEmployee(TblEmployeeMaster employeeMaster)
         {

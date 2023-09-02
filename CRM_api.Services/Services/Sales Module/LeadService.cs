@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.Investment_Module;
+using CRM_api.DataAccess.IRepositories.HR_Module;
 using CRM_api.DataAccess.IRepositories.Sales_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
+using CRM_api.Services.Dtos.AddDataDto;
 using CRM_api.Services.Dtos.AddDataDto.Sales_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.LI_GI_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
@@ -11,6 +13,7 @@ using CRM_api.Services.Dtos.ResponseDto.Sales_Module;
 using CRM_api.Services.Helper.File_Helper;
 using CRM_api.Services.Helper.Reminder_Helper;
 using CRM_api.Services.IServices.Sales_Module;
+using CRM_api.Services.IServices.User_Module;
 using CsvHelper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -29,8 +32,11 @@ namespace CRM_api.Services.Services.Sales_Module
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly IInvestmentRepository _investmentRepository;
+        private readonly IUserCategoryRepository _userCategoryRepository;
+        private readonly IUserMasterService _userMasterService;
+        private readonly IEmployeeRepository _employeeRepository;
 
-        public LeadService(ILeadRepository leadRepository, IMapper mapper, IConfiguration configuration, IUserMasterRepository userMasterRepository, ICampaignRepository campaignRepository, IStatusRepository statusRepository, IRegionRepository regionRepository, IInvestmentRepository investmentRepository)
+        public LeadService(ILeadRepository leadRepository, IMapper mapper, IConfiguration configuration, IUserMasterRepository userMasterRepository, ICampaignRepository campaignRepository, IStatusRepository statusRepository, IRegionRepository regionRepository, IInvestmentRepository investmentRepository, IUserCategoryRepository userCategoryRepository, IUserMasterService userMasterService, IEmployeeRepository employeeRepository)
         {
             _leadRepository = leadRepository;
             _mapper = mapper;
@@ -40,6 +46,9 @@ namespace CRM_api.Services.Services.Sales_Module
             _statusRepository = statusRepository;
             _regionRepository = regionRepository;
             _investmentRepository = investmentRepository;
+            _userCategoryRepository = userCategoryRepository;
+            _userMasterService = userMasterService;
+            _employeeRepository = employeeRepository;
         }
 
         #region Get Leads
@@ -193,12 +202,14 @@ namespace CRM_api.Services.Services.Sales_Module
                 mappedLead.DateOfBirth = lead.DateOfBirth;
                 mappedLead.Gender = lead.Gender;
                 mappedLead.CreatedAt = lead.CreatedAt;
+                mappedLead.Description = lead.Description;
+                mappedLead.UserId = lead.UserId;
 
                 if (!string.IsNullOrEmpty(lead.AssignUser))
                 {
-                    var assignTo = await _userMasterRepository.GetUserByName(lead.AssignUser);
+                    var assignTo = await _employeeRepository.GetEmployeeByName(lead.AssignUser);
                     if (assignTo is not null)
-                        mappedLead.AssignedTo = assignTo.UserId;
+                        mappedLead.AssignedTo = assignTo.Id;
                 }
 
                 if (!string.IsNullOrEmpty(lead.ReferredUser))
@@ -269,8 +280,18 @@ namespace CRM_api.Services.Services.Sales_Module
         #region Update Lead
         public async Task<int> UpdateLeadAsync(UpdateLeadDto leadDto)
         {
-            var lead = _mapper.Map<TblLeadMaster>(leadDto);
-            return await _leadRepository.UpdateLead(lead);
+            var lead = await _leadRepository.GetLeadById(leadDto.Id);
+            var status = await _statusRepository.GetStatusByName("won");
+            var updatedlead = _mapper.Map<TblLeadMaster>(leadDto);
+            if (updatedlead.StatusId == status.Id && lead.StatusId != status.Id)
+            {
+                var userId = await AddUserByLead(updatedlead);
+                if (userId > 0)
+                    updatedlead.UserId = userId;
+                else
+                    return 0;
+            }
+            return await _leadRepository.UpdateLead(updatedlead);
         }
         #endregion
 
@@ -353,6 +374,34 @@ namespace CRM_api.Services.Services.Sales_Module
 
             SMSHelper.SendSMS(mobile, message, "1207161796095952513");
             return 1;
+        }
+        #endregion
+
+        #region Add User By Lead
+        private async Task<int> AddUserByLead(TblLeadMaster leadMaster)
+        {
+            var category = await _userCategoryRepository.GetCategoryByName("Customer");
+            var adduserDto = new AddUserMasterDto();
+            adduserDto.UserName = leadMaster.Name;
+            adduserDto.UserEmail = leadMaster.Email;
+            adduserDto.UserMobile = leadMaster.MobileNo;
+            adduserDto.UserDoj = DateTime.Now;
+            adduserDto.UserDob = leadMaster.DateOfBirth;
+            adduserDto.UserWbcActive = true;
+            if (category is not null)
+                adduserDto.CatId = category.CatId;
+            adduserDto.UserCityId = leadMaster.CityId;
+            adduserDto.UserStateId = leadMaster.StateId;
+            adduserDto.UserCountryId = leadMaster.CountryId;
+            adduserDto.UserParentId = leadMaster.ReferredBy;
+            adduserDto.UserAddr = leadMaster.Address;
+
+            var userId = await _userMasterService.AddUserAsync(adduserDto, true);
+
+            if (userId > 0)
+                return userId;
+            else
+                return 0;
         }
         #endregion
     }

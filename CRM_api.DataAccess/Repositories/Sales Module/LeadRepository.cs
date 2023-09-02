@@ -1,11 +1,9 @@
-﻿
-using CRM_api.DataAccess.Context;
+﻿using CRM_api.DataAccess.Context;
 using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Sales_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace CRM_api.DataAccess.Repositories.Sales_Module
 {
@@ -115,7 +113,7 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
                                                     .Include(x => x.StatusMaster)
                                                     .Include(x => x.CityMaster)
                                                     .Include(x => x.StateMaster)
-                                                    .Include(x => x.CountryMaster).FirstAsync(x => x.Id == id && x.IsDeleted != true);
+                                                    .Include(x => x.CountryMaster).AsNoTracking().FirstAsync(x => x.Id == id && x.IsDeleted != true);
             return lead;
         }
         #endregion
@@ -195,6 +193,39 @@ namespace CRM_api.DataAccess.Repositories.Sales_Module
                                                  && x.CreatedAt.Month <= DateTime.Now.Month && x.CreatedAt.Year <= DateTime.Now.Year).ToListAsync();
 
             return leads;
+        }
+        #endregion
+
+        #region Get Leads By Date Range
+        public async Task<(List<TblLeadMaster>, List<TblLeadMaster>)> GetLeadsByDateRange(int? assignTo, DateTime fromDate, DateTime toDate)
+        {
+            var leads = await _context.TblLeadMasters.Where(x => (assignTo == null || x.AssignedTo == assignTo) && x.CreatedAt.Date >= fromDate.Date && x.CreatedAt.Date <= toDate.Date && x.IsDeleted == false && x.UserId != null).Include(x => x.TblUserMaster).ToListAsync();
+
+           var newClientLeadList = new List<TblLeadMaster>();
+
+            var stClientNames = _context.TblStockData.Select(x => x.StClientname.ToLower()).Distinct().ToList();
+            var newSTLeadClient = leads.Where(x => stClientNames.Contains(x.TblUserMaster.UserName.ToLower())).ToList();
+            newClientLeadList.AddRange(newSTLeadClient);
+
+            var mfUserIds = _context.TblMftransactions.Select(x => x.Userid).Distinct().ToList();
+            var newMFLeadCLient = leads.Where(x => mfUserIds.Contains(x.TblUserMaster.UserId)).ToList();
+            newClientLeadList.AddRange(newMFLeadCLient);
+
+            var insUserIds = _context.TblInsuranceclients.Select(x => x.InsUserid).Distinct().ToList();
+            var newInsLeadClients = leads.Where(x => insUserIds.Contains(x.TblUserMaster.UserId)).ToList();
+            newClientLeadList.AddRange(newInsLeadClients);
+
+            var mgainUserIds = _context.TblMgaindetails.Select(x => x.MgainUserid).Distinct().ToList();
+            var newMgainLeadClients = leads.Where(x => mgainUserIds.Contains(x.TblUserMaster.UserId)).ToList();
+            newClientLeadList.AddRange(newMgainLeadClients);
+
+            var loanUserIds = _context.TblLoanMasters.Select(x => x.UserId).Distinct().ToList();
+            var newLoanLeadClients = leads.Where(x => loanUserIds.Contains(x.TblUserMaster.UserId)).ToList();
+            newClientLeadList.AddRange(newLoanLeadClients);
+
+            newClientLeadList = newClientLeadList.DistinctBy(x => x.UserId).ToList();
+
+            return (leads, newClientLeadList);
         }
         #endregion
 

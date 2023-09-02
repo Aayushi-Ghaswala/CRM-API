@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using CRM_api.DataAccess.Helper;
+using CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module;
 using CRM_api.DataAccess.IRepositories.Sales_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Dtos.ResponseDto.Sales_Module;
+using CRM_api.Services.Dtos.ResponseDto.User_Module;
 using CRM_api.Services.IServices.Sales_Module;
 using static CRM_api.Services.Helper.ConstantValue.InvesmentTypeConstant;
 
@@ -15,15 +17,17 @@ namespace CRM_api.Services.Services.Sales_Module
         private readonly IUserMasterRepository _userMasterRepository;
         private readonly ILeadRepository _leadRepository;
         private readonly IConversationHistoryRepository _conversationHistoryRepository;
+        private readonly IMutualfundRepository _mutualfundRepository;
         private readonly IMapper _mapper;
 
-        public SalesDashboardService(IUserMasterRepository userMasterRepository, IMapper mapper, ILeadRepository leadRepository, IConversationHistoryRepository conversationHistoryRepository, IMeetingRepository meetingRepository)
+        public SalesDashboardService(IUserMasterRepository userMasterRepository, IMapper mapper, ILeadRepository leadRepository, IConversationHistoryRepository conversationHistoryRepository, IMeetingRepository meetingRepository, IMutualfundRepository mutualfundRepository)
         {
             _userMasterRepository = userMasterRepository;
             _mapper = mapper;
             _leadRepository = leadRepository;
             _conversationHistoryRepository = conversationHistoryRepository;
             _meetingRepository = meetingRepository;
+            _mutualfundRepository = mutualfundRepository;
         }
 
         #region Get User wise Lead and Meeting
@@ -192,5 +196,63 @@ namespace CRM_api.Services.Services.Sales_Module
             return mapConversationHistories;
         }
         #endregion
+
+        #region Get Lead Summary Chart By Date Range
+        public async Task<LeadSummaryChartDto> GetLeadSummaryChartAsync(int? assignTo, DateTime fromDate, DateTime toDate)
+        {
+            var leads = await _leadRepository.GetLeadsByDateRange(assignTo, fromDate, toDate);
+            var userIds = leads.Item1.Select(x => x.UserId).ToList();
+            var mfSchemes = await _mutualfundRepository.GetAllMFScheme();
+            var mfTransactions = await _mutualfundRepository.GetMFTransactionsByUserIds(userIds, fromDate, toDate);
+            var newUserClientCounts = new List<NewUserClientCountDto>();
+            var leadUserMFSummaryDtos = new List<LeadUserMFSummaryDto>();
+            var monthdiffrence = (12 * (toDate.Year - fromDate.Year) + toDate.Month - fromDate.Month) + 1;
+
+            for (int i = 0; i < monthdiffrence; i++)
+            {
+                var date = fromDate.AddMonths(i);
+                var newUserCount = leads.Item1.Where(x => x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year).Count();
+                var newClientCount = leads.Item2.Where(x => x.CreatedAt.Month == date.Month && x.CreatedAt.Year == date.Year).Count();
+                var newUserClientCount = new NewUserClientCountDto(date.ToString("MMM-yyyy"), newUserCount, newClientCount);
+                newUserClientCounts.Add(newUserClientCount);
+
+                var monthWiseMFTransactions = mfTransactions.Where(x => x.Date.Value.Month == date.Month).ToList();
+                var schemeWiseMFTransactions = monthWiseMFTransactions.GroupBy(x => x.Schemename).ToList();
+                decimal? currValue = 0;
+                decimal? sipAmount = 0;
+
+                foreach (var schemeWiseMFTransaction in schemeWiseMFTransactions)
+                {
+                    decimal? nav = 0;
+                    var sipPurchaseUnit = schemeWiseMFTransaction.Where(x => x.Transactiontype == "PIP (SIP)").Sum(x => x.Noofunit);
+
+                    var purchase = schemeWiseMFTransaction.Where(x => x.Transactiontype != "SWO" && x.Transactiontype != "RED" && x.Transactiontype != "Sale");
+                    var totalPurchaseUnits = purchase.Sum(x => x.Noofunit);
+
+                    var redeem = schemeWiseMFTransaction.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale");
+                    var redemptionUnit = redeem.Sum(x => x.Noofunit);
+
+                    var balanceUnit = totalPurchaseUnits - redemptionUnit;
+                    var scheme = mfSchemes.FirstOrDefault(x => x.SchemeName.ToLower().Equals(schemeWiseMFTransaction.Key.Replace("  ", " ").ToLower()));
+                    if (scheme is not null)
+                        nav = Convert.ToDecimal(scheme.NetAssetValue);
+                    else
+                        nav = 0;
+
+                    currValue += Math.Round((decimal)(balanceUnit * nav), 2);
+                    sipAmount += Math.Round((decimal)(sipPurchaseUnit * nav), 2);
+                }
+
+                var leadUserMFSummaryDto = new LeadUserMFSummaryDto(date.ToString("MMM-yyyy"), currValue, sipAmount);
+                leadUserMFSummaryDtos.Add(leadUserMFSummaryDto);
+            }
+
+            var leadChartSummary = new LeadSummaryChartDto(newUserClientCounts, leadUserMFSummaryDtos);
+
+            return leadChartSummary;
+        }
+        #endregion
+
+
     }
 }
