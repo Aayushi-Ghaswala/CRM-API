@@ -52,7 +52,7 @@ namespace CRM_api.Services.Services.User_Module
             //This Year
             var thisYearNewUsers = users.Item1.Where(x => x.UserDoj?.Year == currDate.Year).Count();
             var thisYearNewClients = users.Item2.Where(x => x.UserDoj?.Year == currDate.Year).Count();
-            var thisYearNewUserClientCount = new NewUserClientCountDto("This Year", thisYearNewUsers, thisMonthNewClients);
+            var thisYearNewUserClientCount = new NewUserClientCountDto("This Year", thisYearNewUsers, thisYearNewClients);
             newUserClientCountList.Add(thisYearNewUserClientCount);
 
             //All Time

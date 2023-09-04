@@ -52,29 +52,38 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #endregion
 
         #region stock summary calculation
-        private StocksDashboardSummaryDto CalculateStockSummary(string duration, List<TblStockData> stockData, List<TblScripMaster> scrips)
+        private StocksDashboardSummaryDto CalculateStockSummary(string duration, List<vw_StockData> stockData, List<TblScripMaster> scrips)
         {
-            var stockList = stockData.GroupBy(s => s.StClientname).ToList();
             decimal? totalIntraAmount = 0.0m;
             decimal? totalDeliveryAmount = 0.0m;
-            int totalDeliveryClient = 0;
-            int totalIntraClient = 0;
+            var totalDeliveryClient = 0;
+            var totalIntraClient = 0;
 
-            foreach (var clientWiseStock in stockList)
+            var stockDataLookup = stockData.ToLookup(s => s.StClientname);
+
+            foreach (var clientName in stockDataLookup)
             {
+                var clientWiseStock = clientName.ToList();
                 decimal? intraAmount = 0;
                 decimal? deliveryAmount = 0;
-                var scripWiseStockList = clientWiseStock.GroupBy(s => s.StScripname).ToList();
-                foreach (var scripWiseStock in scripWiseStockList)
+
+                var scripWiseStockLookup = clientWiseStock.ToLookup(s => s.StScripname);
+
+                foreach (var scripName in scripWiseStockLookup)
                 {
-                    var dateWiseStockList = scripWiseStock.GroupBy(s => s.StDate).ToList();
+                    var scripWiseStock = scripName.ToList();
+
+                    var dateWiseStockLookup = scripWiseStock.ToLookup(s => s.StDate);
+
                     decimal? price = 0.0m;
-                    var scrip = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Equals(scripWiseStock.Key.ToLower())).FirstOrDefault();
+                    var scrip = scrips.FirstOrDefault(x => x.Scripname != null && x.Scripname.ToLower() == scripName.Key.ToLower());
+
                     if (scrip is not null)
                         price = scrip.Ltp;
                     else
                         price = Math.Round((decimal)scripWiseStock.Last().StNetsharerate, 2);
-                    foreach (var stock in dateWiseStockList)
+
+                    foreach (var stock in dateWiseStockLookup)
                     {
                         var totalBuyQty = stock.Where(s => s.StType == "B").Sum(s => s.StQty);
                         var totalSaleQty = stock.Where(s => s.StType == "S").Sum(s => s.StQty);
@@ -90,21 +99,26 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                         }
                     }
                 }
+
                 if (intraAmount > 0)
                 {
                     totalIntraAmount += intraAmount;
                     totalIntraClient += 1;
                 }
+
                 if (deliveryAmount > 0)
                 {
                     totalDeliveryAmount += deliveryAmount;
                     totalDeliveryClient += 1;
                 }
             }
-            var totalClients = stockList.Count();
-            decimal totalClientAmount = Math.Round((decimal)stockData.Where(s => s.StType == "B").Sum(s => s.StNetcostvalue), 2);
+
+            var totalClients = stockDataLookup.Count;
+            var totalClientAmount = Math.Round((decimal)stockData.Where(s => s.StType == "B").Sum(s => s.StNetcostvalue), 2);
+
             return new StocksDashboardSummaryDto(duration, totalClients, totalClientAmount, totalDeliveryClient, totalDeliveryAmount, totalIntraClient, totalIntraAmount);
         }
+
         #endregion
 
         #region get summary chart report

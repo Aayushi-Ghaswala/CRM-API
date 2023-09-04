@@ -120,6 +120,8 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblLoanMaster> TblLoanMasters { get; set; } = null!;
         public virtual DbSet<TblLoanTypeMaster> TblLoanTypeMasters { get; set; } = null!;
         public virtual DbSet<GetTopTenSchemeByInvestment> GetTopTenSchemeByInvestments  { get; set; } = null!;
+        public virtual DbSet<vw_Mftransaction> Vw_Mftransactions  { get; set; } = null!;
+        public virtual DbSet<vw_StockData> Vw_StockDatas { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -3954,6 +3956,47 @@ namespace CRM_api.DataAccess.Context
             modelBuilder.Entity<GetTopTenSchemeByInvestment>(entity =>
             {
                 entity.ToTable("GetTopTenSchemeByInvestment");
+            });
+
+            modelBuilder.Entity<vw_Mftransaction>(entity =>
+            {
+                entity.ToTable("vw_Mftransaction");
+            });
+
+            modelBuilder.Entity<vw_StockData>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("vw_StockData");
+
+                entity.Property(e => e.StClientname)
+                    .HasMaxLength(70)
+                    .IsUnicode(false)
+                    .HasColumnName("st_clientname");
+
+                entity.Property(e => e.StDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("st_date");
+
+                entity.Property(e => e.StNetcostvalue)
+                    .HasColumnType("decimal(20, 3)")
+                    .HasColumnName("st_netcostvalue");
+
+                entity.Property(e => e.StNetsharerate)
+                    .HasColumnType("decimal(20, 3)")
+                    .HasColumnName("st_netsharerate");
+
+                entity.Property(e => e.StQty).HasColumnName("st_qty");
+
+                entity.Property(e => e.StScripname)
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasColumnName("st_scripname");
+
+                entity.Property(e => e.StType)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("st_type");
             });
 
             modelBuilder.HasSequence("OrderId")

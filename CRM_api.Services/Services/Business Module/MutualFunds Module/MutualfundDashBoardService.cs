@@ -105,7 +105,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get MF Data Time Wise
-        private async Task<TimeWiseMutualFundSummaryDto> GetTimeWiseMutualFund(List<TblMftransaction> tblMftransactions, string? duration)
+        private async Task<TimeWiseMutualFundSummaryDto> GetTimeWiseMutualFund(List<vw_Mftransaction> tblMftransactions, string? duration)
         {
             TimeWiseMutualFundSummaryDto timeWiseMutualFundSummary = new TimeWiseMutualFundSummaryDto();
 

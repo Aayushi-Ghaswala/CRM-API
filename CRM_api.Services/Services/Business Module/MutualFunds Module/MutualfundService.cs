@@ -12,6 +12,7 @@ using CRM_api.Services.IServices.Business_Module.MutualFunds_Module;
 using ExcelDataReader;
 using IronXL;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -397,6 +398,9 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             }
             File.Copy(filePath, localFilePath);
 
+            var user = await _userMasterRepository.GetAllUser();
+            var allScheme = await _mutualfundRepository.GetAllMFScheme();
+
             using (var stream = File.Open(localFilePath, FileMode.Open, FileAccess.Read))
             {
                 try
@@ -439,8 +443,8 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                                 obj.Userpan = row["PAN"] == DBNull.Value ? null : row["PAN"].ToString();
 
 
-                                var userId = _userMasterRepository.GetUserIdByUserPan(obj.Userpan);
-                                var schemeId = _mutualfundRepository.GetSchemeIdBySchemeName(obj.Schemename);
+                                var userId = user.FirstOrDefault(x => x.UserPan?.ToLower() == obj.Userpan?.ToLower())?.UserId;
+                                var schemeId = allScheme.FirstOrDefault(x => x.SchemeName.ToLower() == obj.Schemename.ToLower())?.SchemeId;
 
                                 if (userId == 0)
                                     obj.Userid = null;

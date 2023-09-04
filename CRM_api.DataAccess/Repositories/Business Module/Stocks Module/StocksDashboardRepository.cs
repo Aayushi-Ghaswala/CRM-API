@@ -2,6 +2,7 @@
 using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
 {
@@ -22,9 +23,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         #endregion
 
         #region get all stock transactions
-        public async Task<List<TblStockData>> GetAllStockData()
+        public async Task<List<vw_StockData>> GetAllStockData()
         {
-            return await _context.TblStockData.ToListAsync();
+            return await _context.Vw_StockDatas.ToListAsync();
         }
         #endregion
     }
