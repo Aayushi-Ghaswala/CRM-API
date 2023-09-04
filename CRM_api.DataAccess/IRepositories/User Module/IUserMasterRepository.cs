@@ -24,5 +24,6 @@ namespace CRM_api.DataAccess.IRepositories.User_Module
         Task<TblUserMaster> GetUserByWorkEmail(string email);
         Task<List<TblUserMaster>> GetUserByParentId(int? userId, DateTime date);
         Task<List<TblUserMaster>> GetUserWhichClientCodeNotNull();
+        Task<List<TblUserMaster>> GetAllUser();
     }
 }
