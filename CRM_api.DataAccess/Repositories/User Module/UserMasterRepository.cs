@@ -479,5 +479,12 @@ namespace CRM_api.DataAccess.Repositories.User_Module
             return users;
         }
         #endregion
+
+        #region Get All User
+        public async Task<List<TblUserMaster>> GetAllUser()
+        {
+            return await _context.TblUserMasters.ToListAsync();
+        }
+        #endregion
     }
 }
