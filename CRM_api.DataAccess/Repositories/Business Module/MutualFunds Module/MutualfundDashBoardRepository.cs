@@ -1,9 +1,7 @@
 ﻿using CRM_api.DataAccess.Context;
 using CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module;
 using CRM_api.DataAccess.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 
 namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
 {
@@ -33,9 +31,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get All MF Transaction
-        public async Task<List<TblMftransaction>> GetAllMFTransaction()
+        public async Task<List<vw_Mftransaction>> GetAllMFTransaction()
         {
-            return _context.TblMftransactions.ToList();
+            return _context.Vw_Mftransactions.ToList();
         }
         #endregion
     }

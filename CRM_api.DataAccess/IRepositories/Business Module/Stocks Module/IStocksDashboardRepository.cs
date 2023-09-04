@@ -5,6 +5,6 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module
     public interface IStocksDashboardRepository
     {
         Task<List<TblStockData>> GetStockDataOfDateRange(DateTime fromDate, DateTime toDate);
-        Task<List<TblStockData>> GetAllStockData();
+        Task<List<vw_StockData>> GetAllStockData();
     }
 }
