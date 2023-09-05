@@ -149,7 +149,12 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     decimal? price = 0.0m;
                     var scrip = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Equals(stock.Key.ToLower())).FirstOrDefault();
                     if (scrip is not null)
-                        price = scrip.Ltp;
+                    {
+                        if (scrip.Ltp is null)
+                             price = Math.Round((decimal)stock.Last().StNetsharerate, 2);
+                        else
+                            price = scrip.Ltp;
+                    }
                     else
                         price = Math.Round((decimal)stock.Last().StNetsharerate, 2);
 
