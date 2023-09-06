@@ -60,7 +60,7 @@ namespace CRM_api.Services.Services.User_Module
                 }
                 var cacheOptions = new MemoryCacheEntryOptions()
                                         .SetSlidingExpiration(TimeSpan.FromMinutes(3));
-                _cache.Set(user.UserEmail, otp, cacheOptions);
+                _cache.Set(email, otp, cacheOptions);
                 return 1;
             }
         }

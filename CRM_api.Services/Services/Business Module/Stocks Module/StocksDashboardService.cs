@@ -124,7 +124,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #region get summary chart report
         public async Task<List<HoldingChartReportDto>> GetSummaryChartReportAsync(DateTime fromDate, DateTime toDate)
         {
-            var stockData = await _stocksDashboardRepository.GetStockDataOfDateRange(fromDate, toDate);
+            var stockData = await _stocksDashboardRepository.GetStockDataOfDateRange(toDate);
             var monthDiffrence = (12 * (toDate.Year - fromDate.Year) + toDate.Month - fromDate.Month) + 1;
             var scrips = await _stocksRepository.GetAllScrip();
             List<HoldingChartReportDto> holdingChartReportDtos = new List<HoldingChartReportDto>();
@@ -133,10 +133,11 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             {
                 var holdingChartDto = new HoldingChartReportDto();
                 var date = fromDate.AddMonths(i);
+                var lastDay = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
                 decimal? currentAmount = 0;
 
                 holdingChartDto.Month = date.ToString("MMM-yyyy");
-                var currentMonthData = stockData.Where(x => x.StDate.Value.Month == date.Month && x.StDate.Value.Year == date.Year).ToList();
+                var currentMonthData = stockData.Where(x => x.StDate <= lastDay).ToList();
                 holdingChartDto.UserCount = currentMonthData.DistinctBy(x => x.StScripname).Count();
 
                 var scripWiseData = currentMonthData.GroupBy(s => s.StScripname).ToList();
@@ -158,7 +159,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     else
                         price = Math.Round((decimal)stock.Last().StNetsharerate, 2);
 
-                    holdingChartDto.CurrentValue = Math.Round((decimal)availableQty * (decimal)price, 2);
+                    holdingChartDto.CurrentValue += Math.Round((decimal)availableQty * (decimal)price, 2);
                 }
                 holdingChartReportDtos.Add(holdingChartDto);
             }
