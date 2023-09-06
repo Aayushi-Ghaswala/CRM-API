@@ -2,7 +2,6 @@
 using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 
 namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
 {
@@ -16,9 +15,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         }
 
         #region get stock data from date range
-        public async Task<List<TblStockData>> GetStockDataOfDateRange(DateTime fromDate, DateTime toDate)
+        public async Task<List<vw_StockData>> GetStockDataOfDateRange(DateTime toDate)
         {
-            return await _context.TblStockData.Where(s => s.StDate >= fromDate && s.StDate <= toDate).ToListAsync();
+            return await _context.Vw_StockDatas.Where(s => s.StDate <= toDate).ToListAsync();
         }
         #endregion
 

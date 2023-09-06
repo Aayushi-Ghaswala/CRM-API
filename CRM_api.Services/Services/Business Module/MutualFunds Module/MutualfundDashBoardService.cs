@@ -33,7 +33,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #region Get Mf Holding Summary Month Wise
         public async Task<List<HoldingChartReportDto>> GetMFHoldingSummaryAsync(DateTime? fromDate, DateTime? toDate)
         {
-            var mfTransaction = await _mutualfundDashBoardRepository.GetMFInSpecificDateForExistUser(fromDate, toDate);
+            var mfTransaction = await _mutualfundDashBoardRepository.GetMFInSpecificDateForExistUser(toDate);
             var monthDiffrence = (12 * (toDate.Value.Year - fromDate.Value.Year) + toDate.Value.Month - fromDate.Value.Month) + 1;
             var allScheme = await _mutualfundRepository.GetAllMFScheme();
             List<HoldingChartReportDto> userCounts = new List<HoldingChartReportDto>();
@@ -42,10 +42,11 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             {
                 HoldingChartReportDto userCountDto = new HoldingChartReportDto();
                 var date = fromDate.Value.AddMonths(i);
+                var lastDay = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
                 decimal currentAmount = 0;
 
-                userCountDto.Month = date.ToString("MMM-yy");
-                var currentMonthData = mfTransaction.Where(x => x.Date.Value.Month == date.Month && x.Date.Value.Year == date.Year).ToList();
+                userCountDto.Month = date.ToString("MMM-yyyy");
+                var currentMonthData = mfTransaction.Where(x => x.Date <= lastDay).ToList();
                 userCountDto.UserCount = currentMonthData.GroupBy(x => x.Username).Count();
 
                 var schemewiseData = currentMonthData.GroupBy(x => x.Schemename).ToList();
