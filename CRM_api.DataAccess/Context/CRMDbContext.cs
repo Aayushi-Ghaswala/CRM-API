@@ -121,6 +121,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblLoanTypeMaster> TblLoanTypeMasters { get; set; } = null!;
         public virtual DbSet<GetTopTenSchemeByInvestment> GetTopTenSchemeByInvestments  { get; set; } = null!;
         public virtual DbSet<vw_Mftransaction> Vw_Mftransactions  { get; set; } = null!;
+        public virtual DbSet<vw_MFChartHolding> Vw_MFChartHoldings { get; set; } = null!;
         public virtual DbSet<vw_StockData> Vw_StockDatas { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -3961,6 +3962,11 @@ namespace CRM_api.DataAccess.Context
             modelBuilder.Entity<vw_Mftransaction>(entity =>
             {
                 entity.ToTable("vw_Mftransaction");
+            });
+
+            modelBuilder.Entity<vw_MFChartHolding>(entity =>
+            {
+                entity.ToTable("vw_MFChartHolding");
             });
 
             modelBuilder.Entity<vw_StockData>(entity =>
