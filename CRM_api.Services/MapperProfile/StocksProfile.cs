@@ -14,6 +14,7 @@ namespace CRM_api.Services.MapperProfile
         public StocksProfile()
         {
             CreateMap<AddSharekhanStocksDto, TblStockData>();
+            CreateMap<AddSharekhanAllClientStockDto, TblStockData>();
             CreateMap<AddJainamStocksDto, TblStockData>()
                 .ForMember(dest => dest.StScripname, opt => opt.MapFrom(src => src.ScriptName))
                 .ForMember(dest => dest.StSettno, opt => opt.MapFrom(src => src.Narration))
