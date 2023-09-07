@@ -669,7 +669,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             {
                 var xlsxFilePath = "";
                 var firmName = "sharekhan";
-                var listStocks = new List<AddSharekhanStocksDto>();
+                var listStocks = new List<AddSharekhanAllClientStockDto>();
                 var filePath = Path.GetTempFileName();
                 var scrips = await _stocksRepository.GetAllScrip();
                 var users = await _userMasterRepository.GetUserWhichClientCodeNotNull();
@@ -747,7 +747,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                         userName = worksheet.Rows[i].Columns[2].Value.ToString();
                     }
 
-                    var trans = new AddSharekhanStocksDto()
+                    var trans = new AddSharekhanAllClientStockDto()
                     {
                         StScripname = scripList.FirstOrDefault() is null ? worksheet.Rows[i].Columns[3].Value.ToString() : scripList.First().Scripname,
                         StBranch = Convert.ToInt32(worksheet.Rows[i].Columns[0].Value.ToString()),
