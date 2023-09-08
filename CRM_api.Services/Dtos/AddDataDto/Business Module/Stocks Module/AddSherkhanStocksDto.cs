@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.Stocks_Module
 {
-    public class AddSharekhanAllClientStockDto
+    public class AddSherkhanStocksDto
     {
         [Name("Branch")]
         public int StBranch { get; set; }
@@ -38,7 +38,7 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.Stocks_Module
         public decimal? StNetsharerate { get; set; }
         [Name("Net Cost Value")]
         public decimal? StNetcostvalue { get; set; }
-        [Name("")]
-        public int? Userid { get; set; } = null;
+        //[Name("")]
+        //public int? Userid { get; set; } = null;
     }
 }

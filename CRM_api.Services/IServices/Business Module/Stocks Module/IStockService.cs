@@ -13,9 +13,9 @@ namespace CRM_api.Services.IServices.Business_Module.Stocks_Module
         Task<StockResponseDto<StockMasterDto>> GetStockDataAsync(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string firmName, string? searchingParams, SortingParams sortingParams);
         Task<StockSummaryDto<ScripwiseSummaryDto>> GetClientwiseScripSummaryAsync(string? userName, bool? isZero, DateTime? startDate, DateTime? endDate, string? searchingParams, SortingParams sortingParams);
         Task<StockSummaryDto<ScripwiseSummaryDto>> GetAllClientwiseStockSummaryAsync(bool? isZero, DateTime? startDate, DateTime? endDate, string? searchingParams, SortingParams sortingParams);
-        Task<int> ImportSharekhanTradeFileAsync(IFormFile formFile, string firmName, int id, bool overrideData);
+        Task<int> ImportSherkhanTradeFileAsync(IFormFile formFile, string firmName, int id, bool overrideData);
         Task<int> ImportJainamTradeFileAsync(IFormFile formFile, string firmName, string clientName, bool overrideData);
-        Task<int> ImportDailyStockPriceFileAsync();
+        Task<int> ImportDailyStockPriceFileAsync(DateTime date);
         Task<int> ImportAllClientSherkhanFileAsync(IFormFile formFile, bool overrideData);
     }
 }
