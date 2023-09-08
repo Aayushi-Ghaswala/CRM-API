@@ -95,13 +95,13 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         }
         #endregion
 
-        #region Import Sharekhan All Trade File[.csv]
-        [HttpPost("ImportSharekhanAllTradeFile")]
-        public async Task<IActionResult> ImportSharekhanAllTradeFile(IFormFile formFile, string firmName, bool overrideData = false)
+        #region Import Sherkhan All Trade File[.csv]
+        [HttpPost("ImportSherkhanAllTradeFile")]
+        public async Task<IActionResult> ImportSherkhanAllTradeFile(IFormFile formFile, string firmName, bool overrideData = false)
         {
             try
             {
-                var res = await _stockService.ImportSharekhanTradeFileAsync(formFile, firmName, 0, overrideData);
+                var res = await _stockService.ImportSherkhanTradeFileAsync(formFile, firmName, 0, overrideData);
                 return res != 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
             }
             catch (Exception)
@@ -111,13 +111,13 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         }
         #endregion
 
-        #region Import Sharekhan Individual Trade File[.csv]
-        [HttpPost("ImportSharekhanIndividualTradeFile")]
-        public async Task<IActionResult> ImportSharekhanIndividualTradeFile(IFormFile formFile, string firmName, int id, bool overrideData = false)
+        #region Import Sherkhan Individual Trade File[.csv]
+        [HttpPost("ImportSherkhanIndividualTradeFile")]
+        public async Task<IActionResult> ImportSherkhanIndividualTradeFile(IFormFile formFile, string firmName, int id, bool overrideData = false)
         {
             try
             {
-                var res = await _stockService.ImportSharekhanTradeFileAsync(formFile, firmName, id, overrideData);
+                var res = await _stockService.ImportSherkhanTradeFileAsync(formFile, firmName, id, overrideData);
                 return res != 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
             }
             catch (Exception)
@@ -145,11 +145,11 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region Import Daily Stock Price File
         [HttpPost("ImportDailyStockPriceFile")]
-        public async Task<IActionResult> ImportDailyStockPriceFile()
+        public async Task<IActionResult> ImportDailyStockPriceFile(DateTime date)
         {
             try
             {
-                var res = await _stockService.ImportDailyStockPriceFileAsync();
+                var res = await _stockService.ImportDailyStockPriceFileAsync(date);
                 return res != 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
             }
             catch (Exception)
@@ -159,14 +159,14 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         }
         #endregion
 
-        #region Import Sharekhan trade file.
-        [HttpPost("ImportSharekhanAllClientFile")]
-        public async Task<ActionResult> ImportSharekhanAllClientFile(IFormFile formFile, bool overrideData = false)
+        #region Import Sherkhan trade file.
+        [HttpPost("ImportSherkhanAllClientFile")]
+        public async Task<ActionResult> ImportSherkhanAllClientFile(IFormFile formFile, bool overrideData = false)
         {
             try
             {
                 var flag = await _stockService.ImportAllClientSherkhanFileAsync(formFile, overrideData);
-                return flag > 0 ? Ok(new { Message = "Imported successfully." }) : BadRequest(new { Message = "Unable to import successfully." });
+                return flag > 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
             }
             catch (Exception)
             {

@@ -232,8 +232,8 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         }
         #endregion  
 
-        #region Import Sharekhan trade file for all and/or individual client.
-        public async Task<int> ImportSharekhanTradeFileAsync(IFormFile formFile, string firmName, int id, bool overrideData)
+        #region Import Sherkhan trade file for all and/or individual client.
+        public async Task<int> ImportSherkhanTradeFileAsync(IFormFile formFile, string firmName, int id, bool overrideData)
         {
             try
             {
@@ -246,7 +246,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 {
                     await formFile.CopyToAsync(stream);
                 }
-                var directory = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\Sharekhan";
+                var directory = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\Sherkhan";
                 if (!Directory.Exists(directory))
                 {
                     Directory.CreateDirectory(directory);
@@ -260,12 +260,12 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 var localFilePath = Path.Combine(directory, formFile.FileName);
                 File.Copy(filePath, localFilePath);
 
-                List<AddSharekhanStocksDto> stockDataList = new List<AddSharekhanStocksDto>();
+                List<AddSherkhanStocksDto> stockDataList = new List<AddSherkhanStocksDto>();
 
                 using (var fs = new StreamReader(localFilePath))
                 {
                     // to load the records from the file in my List<CsvLine>
-                    stockDataList = new CsvReader(fs, culture).GetRecords<AddSharekhanStocksDto>().ToList();
+                    stockDataList = new CsvReader(fs, culture).GetRecords<AddSherkhanStocksDto>().ToList();
                 }
                 var mappedStockModel = _mapper.Map<List<TblStockData>>(stockDataList);
                 //mappedStockModel.Reverse();
@@ -488,12 +488,10 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #endregion
 
         #region Import Daily Stock Price file 
-        public async Task<int> ImportDailyStockPriceFileAsync()
+        public async Task<int> ImportDailyStockPriceFileAsync(DateTime date)
         {
             try
             {
-                var date = DateTime.Now;
-
                 //NSE Equity File Import
                 var nseFilePath = $"https://archives.nseindia.com/content/historical/EQUITIES/{date.Year}/{date.ToString("MMM").ToUpper()}/cm{date.ToString("ddMMMyyyy").ToUpper()}bhav.csv.zip";
                 nseFilePath = await ExtractFile(nseFilePath);
@@ -519,7 +517,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     if (scrip is not null)
                     {
                         scrip.Ltp = stock.LAST;
-                        scrip.Date = DateTime.Now.Date;
+                        scrip.Date = date;
 
                         UpdateScrips.Add(scrip);
                     }
@@ -530,7 +528,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                         newScrip.Isin = stock.ISIN;
                         newScrip.Exchange = "NSE";
                         newScrip.Ltp = stock.LAST;
-                        newScrip.Date = DateTime.Now.Date;
+                        newScrip.Date = date;
 
                         var mapScrip = _mapper.Map<TblScripMaster>(newScrip);
                         UpdateScrips.Add(mapScrip);
@@ -543,7 +541,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     if (scrip is not null)
                     {
                         scrip.Ltp = stock.LAST;
-                        scrip.Date = DateTime.Now.Date;
+                        scrip.Date = date;
 
                         UpdateScrips.Add(scrip);
                     }
@@ -554,7 +552,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                         newScrip.Scripname = stock.SCName;
                         newScrip.Exchange = "BSE";
                         newScrip.Ltp = stock.LAST;
-                        newScrip.Date = DateTime.Now.Date;
+                        newScrip.Date = date;
 
                         var mapScrip = _mapper.Map<TblScripMaster>(newScrip);
                         UpdateScrips.Add(mapScrip);
@@ -579,7 +577,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     if (scrip is not null)
                     {
                         scrip.Ltp = stock.CLOSE;
-                        scrip.Date = DateTime.Now.Date;
+                        scrip.Date = date;
 
                         UpdateScrips.Add(scrip);
                     }
@@ -589,7 +587,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                         newScrip.Scripsymbol = scripSymbol;
                         newScrip.Exchange = "NSE";
                         newScrip.Ltp = stock.CLOSE;
-                        newScrip.Date = DateTime.Now.Date;
+                        newScrip.Date = date;
 
                         var mapScrip = _mapper.Map<TblScripMaster>(newScrip);
                         UpdateScrips.Add(mapScrip);
@@ -662,14 +660,14 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         }
         #endregion
 
-        #region Import Sharekhan trade file.
+        #region Import Sherkhan trade file.
         public async Task<int> ImportAllClientSherkhanFileAsync(IFormFile formFile, bool overrideData)
         {
             try
             {
                 var xlsxFilePath = "";
-                var firmName = "sharekhan";
-                var listStocks = new List<AddSharekhanAllClientStockDto>();
+                var firmName = "Sherkhan";
+                var listStocks = new List<AddSherkhanAllClientStockDto>();
                 var filePath = Path.GetTempFileName();
                 var scrips = await _stocksRepository.GetAllScrip();
                 var users = await _userMasterRepository.GetUserWhichClientCodeNotNull();
@@ -680,7 +678,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     await stream.DisposeAsync();
                 }
 
-                var directory = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\Sharekhan";
+                var directory = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\Sherkhan";
                 if (!Directory.Exists(directory))
                 {
                     Directory.CreateDirectory(directory);
@@ -747,7 +745,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                         userName = worksheet.Rows[i].Columns[2].Value.ToString();
                     }
 
-                    var trans = new AddSharekhanAllClientStockDto()
+                    var trans = new AddSherkhanAllClientStockDto()
                     {
                         StScripname = scripList.FirstOrDefault() is null ? worksheet.Rows[i].Columns[3].Value.ToString() : scripList.First().Scripname,
                         StBranch = Convert.ToInt32(worksheet.Rows[i].Columns[0].Value.ToString()),
