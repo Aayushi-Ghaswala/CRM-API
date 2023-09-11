@@ -791,97 +791,104 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #endregion
 
         #region Import NSE FNO Trade file.
-        public async Task<int> ImportNSEFNOTradeFileAsync(IFormFile formFile, bool overrideData)
+        public async Task<(int, string)> ImportNSEFNOTradeFileAsync(IFormFile formFile, bool overrideData)
         {
-            CultureInfo culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
-            culture.DateTimeFormat.ShortDatePattern = "dd-MM-yyyy";
-            Thread.CurrentThread.CurrentCulture = culture;
-
-            var users = await _userMasterRepository.GetUserWhichClientCodeNotNull();
-            string? firmName = "Sherkhan";
-            List<AddFNONSETradeListDto> addFNONSETradeLists = new List<AddFNONSETradeListDto>();
-
-            var filePath = Path.GetTempFileName();
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            try
             {
-                await formFile.CopyToAsync(stream);
-            }
-            var directory = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\NSE-FNOFile";
-            if (!Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
+                CultureInfo culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+                culture.DateTimeFormat.ShortDatePattern = "dd-MM-yyyy";
+                Thread.CurrentThread.CurrentCulture = culture;
 
-            //Delete file if already exists with same name
-            if (File.Exists(Path.Combine(directory, formFile.FileName)))
-            {
-                File.Delete(Path.Combine(directory, formFile.FileName));
-            }
-            var localFilePath = Path.Combine(directory, formFile.FileName);
-            File.Copy(filePath, localFilePath);
+                var users = await _userMasterRepository.GetUserWhichClientCodeNotNull();
+                string? firmName = "Sherkhan";
+                List<AddFNONSETradeListDto> addFNONSETradeLists = new List<AddFNONSETradeListDto>();
 
-            WorkBook workbook = WorkBook.LoadExcel(localFilePath);
-            workbook.SaveAsCsv(directory + "\\" + ".csv");
-
-            var fileName = formFile.FileName.Split("_");
-
-            var csvFile = directory + $"\\.{fileName[0]}_{fileName[1]}_{fileName[2].Substring(0, 2)}.csv";
-
-            using (var fs = new StreamReader(csvFile))
-            {
-                // to load the records from the file in my List<CsvLine>
-                addFNONSETradeLists = new CsvReader(fs, culture).GetRecords<AddFNONSETradeListDto>().ToList();
-            }
-
-            if (File.Exists(csvFile))
-                File.Delete(csvFile);
-
-            var mapStockData = _mapper.Map<List<TblStockData>>(addFNONSETradeLists);
-
-            foreach (var stockData in mapStockData)
-            {
-                var user = users.Where(x => x.UserClientCode.Equals(stockData.StClientcode)).FirstOrDefault();
-
-                if (user is not null)
+                var filePath = Path.GetTempFileName();
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    stockData.Userid = user.UserId;
-                    stockData.StClientname = user.UserName;
+                    await formFile.CopyToAsync(stream);
+                }
+                var directory = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\NSE-FNOFile";
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
                 }
 
-                //NIFTY FUT 28SEP 23 - NIFTY230928FUT
-                //TCS OPT 28SEP 23 CE  @ 3520 - TCS2309283520CE
-                var scripName = stockData.StScripname;
+                //Delete file if already exists with same name
+                if (File.Exists(Path.Combine(directory, formFile.FileName)))
+                {
+                    File.Delete(Path.Combine(directory, formFile.FileName));
+                }
+                var localFilePath = Path.Combine(directory, formFile.FileName);
+                File.Copy(filePath, localFilePath);
 
-                if (scripName.ToLower().Contains("FUT".ToLower()))
+                WorkBook workbook = WorkBook.LoadExcel(localFilePath);
+                workbook.SaveAsCsv(directory + "\\" + ".csv");
+
+                var fileName = formFile.FileName.Split("_");
+
+                var csvFile = directory + $"\\.{fileName[0]}_{fileName[1]}_{fileName[2].Substring(0, 2)}.csv";
+
+                using (var fs = new StreamReader(csvFile))
                 {
-                    var name = scripName.Split(" ");
-                    var monthNumber = DateTime.ParseExact(name[2], "ddMMM", CultureInfo.CurrentCulture).ToString().Split("-");
-                    var date = name[3] + monthNumber[1] + monthNumber[0];
-                    stockData.StScripname = name[0] + date + name[1];
+                    // to load the records from the file in my List<CsvLine>
+                    addFNONSETradeLists = new CsvReader(fs, culture).GetRecords<AddFNONSETradeListDto>().ToList();
                 }
-                else if (scripName.ToLower().Contains("OPT".ToLower()))
+
+                if (File.Exists(csvFile))
+                    File.Delete(csvFile);
+
+                var mapStockData = _mapper.Map<List<TblStockData>>(addFNONSETradeLists);
+
+                foreach (var stockData in mapStockData)
                 {
-                    var name = scripName.Split(" ");
-                    var monthNumber = DateTime.ParseExact(name[2], "ddMMM", CultureInfo.CurrentCulture).ToString().Split("-");
-                    var date = name[3] + monthNumber[1] + monthNumber[0];
-                    stockData.StScripname = name[0] + date + name.Last() + name[4];
+                    var user = users.Where(x => x.UserClientCode.Equals(stockData.StClientcode)).FirstOrDefault();
+
+                    if (user is not null)
+                    {
+                        stockData.Userid = user.UserId;
+                        stockData.StClientname = user.UserName;
+                    }
+
+                    //NIFTY FUT 28SEP 23 - NIFTY230928FUT
+                    //TCS OPT 28SEP 23 CE  @ 3520 - TCS2309283520CE
+                    var scripName = stockData.StScripname;
+
+                    if (scripName.ToLower().Contains("FUT".ToLower()))
+                    {
+                        var name = scripName.Split(" ");
+                        var monthNumber = DateTime.ParseExact(name[2], "ddMMM", CultureInfo.CurrentCulture).ToString().Split("-");
+                        var date = name[3] + monthNumber[1] + monthNumber[0];
+                        stockData.StScripname = name[0] + date + name[1];
+                    }
+                    else if (scripName.ToLower().Contains("OPT".ToLower()))
+                    {
+                        var name = scripName.Split(" ");
+                        var monthNumber = DateTime.ParseExact(name[2], "ddMMM", CultureInfo.CurrentCulture).ToString().Split("-");
+                        var date = name[3] + monthNumber[1] + monthNumber[0];
+                        stockData.StScripname = name[0] + date + name.Last() + name[4];
+                    }
+                    stockData.StNetcostvalue = Math.Abs((decimal)stockData.StNetcostvalue);
+                    stockData.FirmName = firmName;
                 }
-                stockData.StNetcostvalue = Math.Abs((decimal)stockData.StNetcostvalue);
-                stockData.FirmName = firmName;
+
+                if (overrideData)
+                {
+                    var listOfDates = new List<DateTime>();
+                    addFNONSETradeLists.ForEach(s => listOfDates.Add((DateTime)s.StDate));
+                    var stockDataIfExists = await _stocksRepository.GetStockDataForSpecificDateRange(listOfDates.Min(), listOfDates.Max(), firmName);
+
+                    if (stockDataIfExists.Count > 0)
+                        await _stocksRepository.DeleteData(stockDataIfExists);
+                }
+
+                //Add Data
+                return (await _stocksRepository.AddData(mapStockData), "");
             }
-
-            if (overrideData)
+            catch (Exception ex)
             {
-                var listOfDates = new List<DateTime>();
-                addFNONSETradeLists.ForEach(s => listOfDates.Add((DateTime)s.StDate));
-                var stockDataIfExists = await _stocksRepository.GetStockDataForSpecificDateRange(listOfDates.Min(), listOfDates.Max(), firmName);
-
-                if (stockDataIfExists.Count > 0)
-                    await _stocksRepository.DeleteData(stockDataIfExists);
+                return (0,  ex.Message);
             }
-
-            //Add Data
-            return await _stocksRepository.AddData(mapStockData);
         }
         #endregion 
     }

@@ -17,6 +17,6 @@ namespace CRM_api.Services.IServices.Business_Module.Stocks_Module
         Task<int> ImportJainamTradeFileAsync(IFormFile formFile, string firmName, string clientName, bool overrideData);
         Task<int> ImportDailyStockPriceFileAsync(DateTime date);
         Task<int> ImportAllClientSherkhanFileAsync(IFormFile formFile, bool overrideData);
-        Task<int> ImportNSEFNOTradeFileAsync(IFormFile formFile, bool overrideData);
+        Task<(int, string)> ImportNSEFNOTradeFileAsync(IFormFile formFile, bool overrideData);
     }
 }
