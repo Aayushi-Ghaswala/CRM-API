@@ -174,5 +174,21 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
             }
         }
         #endregion
+
+        #region Import NSE FNO trade file.
+        [HttpPost("ImportNSEFNOTradeFile")]
+        public async Task<ActionResult> ImportNSEFNOTradeFile(IFormFile formFile, bool overrideData = false)
+        {
+            try
+            {
+                var flag = await _stockService.ImportNSEFNOTradeFileAsync(formFile, overrideData);
+                return flag > 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
     }
 }
