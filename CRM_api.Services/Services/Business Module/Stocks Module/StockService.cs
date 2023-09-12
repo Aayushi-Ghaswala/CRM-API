@@ -687,37 +687,23 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 var ex = Path.GetExtension(formFile.FileName);
 
                 //Delete file if already exists with same name
-                // For .xls file
-                var tmpFilePath = Path.Combine(directory, formFile.FileName);
-
-
-                if (File.Exists(tmpFilePath))
+                if (File.Exists(Path.Combine(directory, formFile.FileName)))
                 {
-                    GC.Collect();
-                    File.Delete(tmpFilePath);
+                    File.Delete(Path.Combine(directory, formFile.FileName));
                 }
+                var localFilePath = Path.Combine(directory, formFile.FileName);
+                File.Copy(filePath, localFilePath);
 
-                // For .xlsx file
-                xlsxFilePath = Path.Combine(directory, formFile.FileName);
-                if (File.Exists(xlsxFilePath))
+                listStocks = await SaveAndReadFile<AddSherkhanAllClientStockDto>(localFilePath);
+                var mappedStockModel = _mapper.Map<List<TblStockData>>(listStocks);
+
+                foreach (var stockData in mappedStockModel)
                 {
-                    File.Delete(xlsxFilePath);
-                }
-
-                // saving .xls file into folder
-                File.Copy(filePath, xlsxFilePath);
-
-                WorkBook workbook = WorkBook.LoadExcel(xlsxFilePath);
-                var worksheet = workbook.WorkSheets[0];
-
-                //starts reading data from 2nd row of excel sheet
-                for (var i = 1; i < worksheet.Rows.Count(); i++)
-                {
-                    var clientCode = worksheet.Rows[i].Columns[1].Value.ToString();
+                    var clientCode = stockData.StClientcode;
                     var user = users.Where(x => x.UserClientCode.Equals(clientCode)).FirstOrDefault();
                     var scripList = new List<TblScripMaster>();
                     var n = 1;
-                    var scripName = worksheet.Rows[i].Columns[3].Value.ToString().Split('.')[0].Split(' ');
+                    var scripName = stockData.StScripname.Split('.')[0].Split(' ');
 
                     do
                     {
@@ -742,34 +728,12 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     }
                     else
                     {
-                        userName = worksheet.Rows[i].Columns[2].Value.ToString();
+                        userName = stockData.StClientname;
                     }
 
-                    var trans = new AddSherkhanAllClientStockDto()
-                    {
-                        StScripname = scripList.FirstOrDefault() is null ? worksheet.Rows[i].Columns[3].Value.ToString() : scripList.First().Scripname,
-                        StBranch = Convert.ToInt32(worksheet.Rows[i].Columns[0].Value.ToString()),
-                        StClientcode = clientCode,
-                        StClientname = userName,
-                        StSettno = worksheet.Rows[i].Columns[4].Value.ToString(),
-                        StDate = Convert.ToDateTime(worksheet.Rows[i].Columns[5].Value.ToString()),
-                        StType = worksheet.Rows[i].Columns[6].Value.ToString(),
-                        StQty = Convert.ToInt32(worksheet.Rows[i].Columns[7].Value.ToString()),
-                        StRate = Convert.ToDecimal(worksheet.Rows[i].Columns[8].Value.ToString()),
-                        StBrokerage = Convert.ToDecimal(worksheet.Rows[i].Columns[9].Value.ToString()),
-                        StNetrate = Math.Abs(Convert.ToDecimal(worksheet.Rows[i].Columns[10].Value.ToString())),
-                        StNetvalue = Convert.ToDecimal(worksheet.Rows[i].Columns[11].Value.ToString()),
-                        StCostpershare = Convert.ToDecimal(worksheet.Rows[i].Columns[12].Value.ToString()),
-                        StCostvalue = Convert.ToDecimal(worksheet.Rows[i].Columns[13].Value.ToString()),
-                        StNetsharerate = Convert.ToDecimal(worksheet.Rows[i].Columns[14].Value.ToString()),
-                        StNetcostvalue = Convert.ToDecimal(worksheet.Rows[i].Columns[15].Value.ToString()),
-                        Userid = userId
-                    };
-                    listStocks.Insert(0, trans);
+                    stockData.Userid = userId;
+                    stockData.FirmName = firmName;
                 }
-
-                var mappedStockModel = _mapper.Map<List<TblStockData>>(listStocks);
-                mappedStockModel.ForEach(x => x.FirmName = firmName);
 
                 if (overrideData)
                 {
