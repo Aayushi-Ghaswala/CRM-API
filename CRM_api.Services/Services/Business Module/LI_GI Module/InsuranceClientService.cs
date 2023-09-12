@@ -168,11 +168,11 @@ namespace CRM_api.Services.Services.Business_Module.LI_GI_Module
                         return ("File imported successfully.", 1);
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     if (File.Exists(localFilePath))
                         File.Delete(localFilePath);
-                    return ("Unable to import file data.", 0);
+                    return (ex.Message, 0);
                 }
             }
         }
