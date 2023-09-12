@@ -795,10 +795,6 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         {
             try
             {
-                CultureInfo culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
-                culture.DateTimeFormat.ShortDatePattern = "dd-MM-yyyy";
-                Thread.CurrentThread.CurrentCulture = culture;
-
                 var users = await _userMasterRepository.GetUserWhichClientCodeNotNull();
                 string? firmName = "Sherkhan";
                 List<AddFNONSETradeListDto> addFNONSETradeLists = new List<AddFNONSETradeListDto>();
@@ -822,21 +818,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 var localFilePath = Path.Combine(directory, formFile.FileName);
                 File.Copy(filePath, localFilePath);
 
-                WorkBook workbook = WorkBook.LoadExcel(localFilePath);
-                workbook.SaveAsCsv(directory + "\\" + ".csv");
-
-                var fileName = formFile.FileName.Split("_");
-
-                var csvFile = directory + $"\\.{fileName[0]}_{fileName[1]}_{fileName[2].Substring(0, 2)}.csv";
-
-                using (var fs = new StreamReader(csvFile))
-                {
-                    // to load the records from the file in my List<CsvLine>
-                    addFNONSETradeLists = new CsvReader(fs, culture).GetRecords<AddFNONSETradeListDto>().ToList();
-                }
-
-                if (File.Exists(csvFile))
-                    File.Delete(csvFile);
+                addFNONSETradeLists = await SaveAndReadFile<AddFNONSETradeListDto>(localFilePath);
 
                 var mapStockData = _mapper.Map<List<TblStockData>>(addFNONSETradeLists);
 
