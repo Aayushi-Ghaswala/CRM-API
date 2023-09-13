@@ -138,7 +138,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
                 holdingChartDto.Month = date.ToString("MMM-yyyy");
                 var currentMonthData = stockData.Where(x => x.StDate <= lastDay).ToList();
-                holdingChartDto.UserCount = currentMonthData.DistinctBy(x => x.StScripname).Count();
+                holdingChartDto.UserCount = currentMonthData.DistinctBy(x => x.StClientname).Count();
 
                 var scripWiseData = currentMonthData.GroupBy(s => s.StScripname).ToList();
                 foreach (var stock in scripWiseData)
