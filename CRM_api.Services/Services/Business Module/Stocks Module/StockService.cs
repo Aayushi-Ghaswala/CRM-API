@@ -661,7 +661,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #endregion
 
         #region Import Sherkhan all client trade file.
-        public async Task<int> ImportAllClientSherkhanFileAsync(IFormFile formFile, bool overrideData)
+        public async Task<(int, string)> ImportAllClientSherkhanFileAsync(IFormFile formFile, bool overrideData)
         {
             try
             {
@@ -703,21 +703,48 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     var user = users.Where(x => x.UserClientCode.Equals(clientCode)).FirstOrDefault();
                     var scripList = new List<TblScripMaster>();
                     var n = 1;
-                    var scripName = stockData.StScripname.Split('.')[0].Split(' ');
+                    var scripName = stockData.StScripname.Split('.', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-                    do
+                    bool flag = false;
+                    if (scripName.All(s => s.Count() == 1))
                     {
-                        string? scripData = "";
-                        for (var j = 0; j <= n; j++)
+                        var scripMatchList = scrips.Where(x => x.Scripname?.StartsWith(scripName.First()) == true).ToList();
+                        scripMatchList = scripMatchList.Where(s => s.Scripname.Split(' ', StringSplitOptions.RemoveEmptyEntries).Count() >= scripName.Count()).ToList();
+                        foreach (var scrip in scripMatchList)
                         {
-                            if (string.IsNullOrEmpty(scripData))
-                                scripData = scripName[j];
-                            else
-                                scripData += " " + scripName[j];
+                            var splitResult = scrip.Scripname.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            for (int i = 0; i < splitResult.Count(); i++)
+                            {
+                                if (splitResult[i].Substring(0, 1) != scripName[i])
+                                    break;
+
+                                if ((i + 1) == splitResult.Count()) flag = true;
+
+                            }
+                            if (flag == true)
+                            {
+                                scripList.Add(scrip);
+                                break;
+                            }
                         }
-                        scripList = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Contains(scripData.ToLower())).ToList();
-                        n += 1;
-                    } while (scripList.Count() != 1 && n < scripName.Count());
+                    }
+                    else
+                    {
+                        scripName = stockData.StScripname.Split('.')[0].Split(' ').ToList();
+                        do
+                        {
+                            string? scripData = "";
+                            for (var j = 0; j <= n; j++)
+                            {
+                                if (string.IsNullOrEmpty(scripData))
+                                    scripData = scripName[j];
+                                else
+                                    scripData += " " + scripName[j];
+                            }
+                            scripList = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Contains(scripData.ToLower())).ToList();
+                            n += 1;
+                        } while (scripList.Count() != 1 && n < scripName.Count());
+                    }
 
                     int? userId = null;
                     string userName = "";
@@ -733,6 +760,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
                     stockData.Userid = userId;
                     stockData.FirmName = firmName;
+                    stockData.StScripname = scripList.FirstOrDefault() is not null ? scripList.FirstOrDefault().Scripname : stockData.StScripname;
                 }
 
                 if (overrideData)
@@ -745,11 +773,11 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                         await _stocksRepository.DeleteData(stockDataIfExists);
                 }
                 //Add Data
-                return await _stocksRepository.AddData(mappedStockModel);
+                return (await _stocksRepository.AddData(mappedStockModel), "File imported sucessfully.");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return 0;
+                return (0, ex.Message);
             }
         }
         #endregion
@@ -829,7 +857,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 }
 
                 //Add Data
-                return (await _stocksRepository.AddData(mapStockData), "");
+                return (await _stocksRepository.AddData(mapStockData), "File imported sucessfully.");
             }
             catch (Exception ex)
             {

@@ -166,7 +166,7 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
             try
             {
                 var flag = await _stockService.ImportAllClientSherkhanFileAsync(formFile, overrideData);
-                return flag > 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
+                return flag.Item1 > 0 ? Ok(new { Message = flag.Item2 }) : BadRequest(new { Message = flag.Item2 });
             }
             catch (Exception)
             {
@@ -182,7 +182,7 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
             try
             {
                 var flag = await _stockService.ImportNSEFNOTradeFileAsync(formFile, overrideData);
-                return flag.Item1 != 0 ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = flag.Item2 });
+                return flag.Item1 != 0 ? Ok(new { Message = flag.Item2 }) : BadRequest(new { Message = flag.Item2 });
             }
             catch (Exception)
             {
