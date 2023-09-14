@@ -47,6 +47,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
                 userCountDto.Month = date.ToString("MMM-yyyy");
                 var currentMonthData = mfTransaction.Where(x => x.Date <= lastDay).ToList();
+                userCountDto.CurrentMonthActiveClients = currentMonthData.Where(x => x.Date.Value.Month == date.Month && x.Date.Value.Year == date.Year).ToList().DistinctBy(x => x.Username).Count();
                 userCountDto.UserCount = currentMonthData.GroupBy(x => x.Username).Count();
 
                 var schemewiseData = currentMonthData.GroupBy(x => x.Schemename).ToList();
