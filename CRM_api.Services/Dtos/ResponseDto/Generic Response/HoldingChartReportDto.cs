@@ -5,5 +5,6 @@
         public string Month { get; set; } = string.Empty;
         public int UserCount { get; set; }
         public decimal CurrentValue { get; set; }
+        public int CurrentMonthActiveClients { get; set; }
     }
 }
