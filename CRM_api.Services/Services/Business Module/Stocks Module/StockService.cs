@@ -728,9 +728,45 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                             }
                         }
                     }
+                    else if (stockData.StScripname.Contains("-") && stockData.StScripname.Contains("TATAMOTORS-DVR"))
+                    {
+                        //TATAMOTORS-DVR-A-ORDY
+                        var scrip = scrips.FirstOrDefault(x => x.Scripsymbol.Contains("DVR") && x.Scripname.Contains("Tata Motors"));
+                        if (scrip != null)
+                            scripList.Add(scrip);
+                    }
+                    else if (stockData.StScripname.Contains("SAIL"))
+                    {
+                        var scrip = scrips.FirstOrDefault(x => x.Scripsymbol.Contains(stockData.StScripname));
+                        scripList.Add(scrip);
+                    }
                     else
                     {
-                        scripName = stockData.StScripname.Split('.')[0].Split(' ').ToList();
+                        if (stockData.StScripname.Contains("-"))
+                        {
+                            //JOHNSON CONTROLS -HITACHI AIR
+                            if (stockData.StScripname.Split('-', StringSplitOptions.TrimEntries)[0].Contains(' ') && stockData.StScripname.Split('-')[1].Count() > 0)
+                                scripName = stockData.StScripname.Split('-')[1].Split(' ').ToList();
+                            else
+                            {
+                                //Kolte - Patil Developers Limited
+                                scripName = stockData.StScripname.Split('-')[0].Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                                scripName[0] += " -";
+                                scripName.AddRange(stockData.StScripname.Split('-')[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList());
+                            }
+                        }
+                        else
+                        {
+                            //DR. REDDY LAB. LTD.
+                            if (stockData.StScripname.Split('.')[0].Contains(' '))
+                                scripName = stockData.StScripname.Split('.')[0].Split(' ').ToList();
+                            else 
+                            {
+                                scripName = stockData.StScripname.Split('.')[0].Split(' ').ToList();
+                                scripName[0] += ".";
+                                scripName.AddRange(stockData.StScripname.Split('.')[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList());
+                            }
+                        }
                         do
                         {
                             string? scripData = "";
