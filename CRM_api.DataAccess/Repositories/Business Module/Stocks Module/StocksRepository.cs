@@ -66,7 +66,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         {
             double pageCount = 0;
             IQueryable<ScriptNameResponse?> stockDataList = null;
-
+            
             if (searchingParams != null)
                 stockDataList = _context.Search<TblStockData>(searchingParams).Where(s => (string.IsNullOrEmpty(clientName) || (!string.IsNullOrEmpty(s.StClientname) && s.StClientname.ToLower().Equals(clientName.ToLower()))) && (string.IsNullOrEmpty(firmName) || (!string.IsNullOrEmpty(firmName) && s.FirmName.ToLower().Equals(firmName.ToLower())))).Select(x => new ScriptNameResponse { StScripname = x.StScripname }).Distinct().AsQueryable();
 
@@ -147,11 +147,22 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         #endregion
 
         #region Get stocks data for specific date range
-        public async Task<List<TblStockData>> GetStockDataForSpecificDateRange(DateTime? startDate, DateTime? endDate, string firmName)
+        public async Task<List<TblStockData>> GetStockDataForSpecificDateRange(DateTime? startDate, DateTime? endDate)
         {
             List<TblStockData> stockDatas = new List<TblStockData>();
 
-            stockDatas = await _context.TblStockData.Where(s => (startDate == null || (s.StDate != null && s.StDate >= startDate)) && (endDate == null || (s.StDate != null && s.StDate <= endDate)) && (string.IsNullOrEmpty(firmName) || (!string.IsNullOrEmpty(s.FirmName) && s.FirmName.ToLower().Equals(firmName.ToLower())))).ToListAsync();
+            stockDatas = await _context.TblStockData.Where(s => (startDate == null || (s.StDate != null && s.StDate >= startDate)) && (endDate == null || (s.StDate != null && s.StDate <= endDate))).ToListAsync();
+
+            return stockDatas;
+        }
+        #endregion
+
+        #region Get stocks data from specific date range for import
+        public async Task<List<TblStockData>> GetStockDataFromSpecificDateRangeForImport(DateTime? startDate, DateTime? endDate, string firmName, string fileType)
+        {
+            List<TblStockData> stockDatas = new List<TblStockData>();
+
+            stockDatas = await _context.TblStockData.Where(s => s.StDate >= startDate && s.StDate <= endDate && s.FileType.ToLower().Equals(fileType.ToLower()) && s.FirmName.ToLower().Equals(firmName.ToLower())).ToListAsync();
 
             return stockDatas;
         }

@@ -159,7 +159,7 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         }
         #endregion
 
-        #region Import Sherkhan trade file.
+        #region Import Sherkhan All Client trade file.
         [HttpPost("ImportSherkhanAllClientFile")]
         public async Task<ActionResult> ImportSherkhanAllClientFile(IFormFile formFile, bool overrideData = false)
         {
