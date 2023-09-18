@@ -26,6 +26,7 @@ namespace CRM_api.DataAccess.Models
         public decimal? StNetcostvalue { get; set; } = 0;
         public int? Userid { get; set; }
         public string? FirmName { get; set; }
+        public string? FileType { get; set; }
 
         [ForeignKey(nameof(Userid))]
         public virtual TblUserMaster TblUserMaster { get; set; }

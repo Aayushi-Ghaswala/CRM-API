@@ -148,7 +148,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #region Get All clientwise summary
         public async Task<StockSummaryDto<ScripwiseSummaryDto>> GetAllClientwiseStockSummaryAsync(bool? isZero, DateTime? startDate, DateTime? endDate, string? searchingParams, SortingParams sortingParams)
         {
-            var stockData = await _stocksRepository.GetStockDataForSpecificDateRange(startDate, endDate, null);
+            var stockData = await _stocksRepository.GetStockDataForSpecificDateRange(startDate, endDate);
             var clientwiseStocks = stockData.GroupBy(x => x.StClientname).ToList();
             var scrips = await _stocksRepository.GetAllScrip();
             double? pageCount = 0;
@@ -237,6 +237,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         {
             try
             {
+                var fileType = "EQ";
                 CultureInfo culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
                 culture.DateTimeFormat.ShortDatePattern = "dd-MM-yyyy";
                 Thread.CurrentThread.CurrentCulture = culture;
@@ -300,12 +301,13 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                         mappedStock.StScripname = scripList.First().Scripname;
 
                     mappedStock.FirmName = firmName;
+                    mappedStock.FileType = fileType;
                 }
 
                 //To override existing data
                 if (overrideData)
                 {
-                    var stockDataIfExists = await _stocksRepository.GetStockDataForSpecificDateRange(mappedStockModel.First().StDate, mappedStockModel.Last().StDate, firmName);
+                    var stockDataIfExists = await _stocksRepository.GetStockDataFromSpecificDateRangeForImport(mappedStockModel.First().StDate, mappedStockModel.Last().StDate, firmName, fileType);
 
                     if (stockDataIfExists.Count > 0)
                         await _stocksRepository.DeleteData(stockDataIfExists);
@@ -327,6 +329,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             {
                 var filename = "";
                 var xlsxFilePath = "";
+                var fileType = "EQ/FO";
                 var listStocks = new List<AddJainamStocksDto>();
                 var filePath = Path.GetTempFileName();
 
@@ -464,13 +467,14 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     {
                         s.StClientname = clientName;
                         s.FirmName = firmName;
+                        s.FileType = fileType;
                     });
 
                     if (overrideData)
                     {
                         var listOfDates = new List<DateTime>();
                         listStocks.ForEach(s => listOfDates.Add(s.Date));
-                        var stockDataIfExists = await _stocksRepository.GetStockDataForSpecificDateRange(listOfDates.Min(), listOfDates.Max(), firmName);
+                        var stockDataIfExists = await _stocksRepository.GetStockDataFromSpecificDateRangeForImport(listOfDates.Min(), listOfDates.Max(), firmName, fileType);
 
                         if (stockDataIfExists.Count > 0)
                             await _stocksRepository.DeleteData(stockDataIfExists);
@@ -667,6 +671,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             {
                 var xlsxFilePath = "";
                 var firmName = "Sherkhan";
+                var fileType = "EQ";
                 var listStocks = new List<AddSherkhanAllClientStockDto>();
                 var filePath = Path.GetTempFileName();
                 var scrips = await _stocksRepository.GetAllScrip();
@@ -706,41 +711,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     var scripName = stockData.StScripname.Split('.', StringSplitOptions.RemoveEmptyEntries).ToList();
 
                     bool flag = false;
-                    if (scripName.All(s => s.Count() == 1))
-                    {
-                        var scripMatchList = scrips.Where(x => x.Scripname?.StartsWith(scripName.First()) == true).ToList();
-                        scripMatchList = scripMatchList.Where(s => s.Scripname.Split(' ', StringSplitOptions.RemoveEmptyEntries).Count() >= scripName.Count()).ToList();
-                        foreach (var scrip in scripMatchList)
-                        {
-                            var splitResult = scrip.Scripname.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                            for (int i = 0; i < splitResult.Count(); i++)
-                            {
-                                if (splitResult[i].Substring(0, 1) != scripName[i])
-                                    break;
-
-                                if ((i + 1) == splitResult.Count()) flag = true;
-
-                            }
-                            if (flag == true)
-                            {
-                                scripList.Add(scrip);
-                                break;
-                            }
-                        }
-                    }
-                    else if (stockData.StScripname.Contains("-") && stockData.StScripname.Contains("TATAMOTORS-DVR"))
-                    {
-                        //TATAMOTORS-DVR-A-ORDY
-                        var scrip = scrips.FirstOrDefault(x => x.Scripsymbol.Contains("DVR") && x.Scripname.Contains("Tata Motors"));
-                        if (scrip != null)
-                            scripList.Add(scrip);
-                    }
-                    else if (stockData.StScripname.Contains("SAIL"))
-                    {
-                        var scrip = scrips.FirstOrDefault(x => x.Scripsymbol.Contains(stockData.StScripname));
-                        scripList.Add(scrip);
-                    }
-                    else
+                    try
                     {
                         if (stockData.StScripname.Contains("-"))
                         {
@@ -755,20 +726,9 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                                 scripName.AddRange(stockData.StScripname.Split('-')[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList());
                             }
                         }
-                        else
-                        {
-                            //DR. REDDY LAB. LTD.
-                            if (stockData.StScripname.Split('.')[0].Contains(' '))
-                                scripName = stockData.StScripname.Split('.')[0].Split(' ').ToList();
-                            else 
-                            {
-                                scripName = stockData.StScripname.Split('.')[0].Split(' ').ToList();
-                                scripName[0] += ".";
-                                scripName.AddRange(stockData.StScripname.Split('.')[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList());
-                            }
-                        }
                         do
                         {
+                            scripName = stockData.StScripname.Split('.', StringSplitOptions.RemoveEmptyEntries)[0].Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
                             string? scripData = "";
                             for (var j = 0; j <= n; j++)
                             {
@@ -780,6 +740,10 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                             scripList = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Contains(scripData.ToLower())).ToList();
                             n += 1;
                         } while (scripList.Count() != 1 && n < scripName.Count());
+                    }
+                    catch (Exception msg)
+                    {
+                        return (0, $"Unable to find scripName {stockData.StScripname} with client code {stockData.StClientcode}.");
                     }
 
                     int? userId = null;
@@ -795,15 +759,17 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     }
 
                     stockData.Userid = userId;
+                    stockData.StClientname = userName;
                     stockData.FirmName = firmName;
                     stockData.StScripname = scripList.FirstOrDefault() is not null ? scripList.FirstOrDefault().Scripname : stockData.StScripname;
+                    stockData.FileType = fileType;
                 }
 
                 if (overrideData)
                 {
                     var listOfDates = new List<DateTime>();
                     listStocks.ForEach(s => listOfDates.Add((DateTime)s.StDate));
-                    var stockDataIfExists = await _stocksRepository.GetStockDataForSpecificDateRange(listOfDates.Min(), listOfDates.Max(), firmName);
+                    var stockDataIfExists = await _stocksRepository.GetStockDataFromSpecificDateRangeForImport(listOfDates.Min(), listOfDates.Max(), firmName, fileType);
 
                     if (stockDataIfExists.Count > 0)
                         await _stocksRepository.DeleteData(stockDataIfExists);
@@ -825,6 +791,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             {
                 var users = await _userMasterRepository.GetUserWhichClientCodeNotNull();
                 string? firmName = "Sherkhan";
+                string? fileType = "FO";
                 List<AddFNONSETradeListDto> addFNONSETradeLists = new List<AddFNONSETradeListDto>();
 
                 var filePath = Path.GetTempFileName();
@@ -847,6 +814,11 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 File.Copy(filePath, localFilePath);
 
                 addFNONSETradeLists = await SaveAndReadFile<AddFNONSETradeListDto>(localFilePath);
+                foreach (var trade in addFNONSETradeLists.ToList())
+                {
+                    if (trade.TrxnType.Contains("B/F"))
+                        addFNONSETradeLists.Remove(trade);
+                }
 
                 var mapStockData = _mapper.Map<List<TblStockData>>(addFNONSETradeLists);
 
@@ -880,13 +852,14 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     }
                     stockData.StNetcostvalue = Math.Abs((decimal)stockData.StNetcostvalue);
                     stockData.FirmName = firmName;
+                    stockData.FileType = fileType;
                 }
 
                 if (overrideData)
                 {
                     var listOfDates = new List<DateTime>();
                     addFNONSETradeLists.ForEach(s => listOfDates.Add((DateTime)s.StDate));
-                    var stockDataIfExists = await _stocksRepository.GetStockDataForSpecificDateRange(listOfDates.Min(), listOfDates.Max(), firmName);
+                    var stockDataIfExists = await _stocksRepository.GetStockDataFromSpecificDateRangeForImport(listOfDates.Min(), listOfDates.Max(), firmName, fileType);
 
                     if (stockDataIfExists.Count > 0)
                         await _stocksRepository.DeleteData(stockDataIfExists);

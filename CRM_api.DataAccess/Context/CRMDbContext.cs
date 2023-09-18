@@ -3388,6 +3388,11 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("firm_name");
+
+                entity.Property(e => e.FileType)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("file_type");
             });
 
             modelBuilder.Entity<TblStockSharingBrokerage>(entity =>
