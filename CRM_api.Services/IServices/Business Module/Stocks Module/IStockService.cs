@@ -10,7 +10,7 @@ namespace CRM_api.Services.IServices.Business_Module.Stocks_Module
     {
         Task<ResponseDto<UserNameDto>> GetStocksUsersNameAsync(string? scriptName, string? firmName, string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<ScriptNamesDto>> GetAllScriptNamesAsync(string clientName, string? firmName, string? searchingParams, SortingParams sortingParams);
-        Task<StockResponseDto<StockMasterDto>> GetStockDataAsync(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string firmName, string? searchingParams, SortingParams sortingParams);
+        Task<StockResponseDto<StockMasterDto>> GetStockDataAsync(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string firmName, string? fileType, string? searchingParams, SortingParams sortingParams);
         Task<StockSummaryDto<ScripwiseSummaryDto>> GetClientwiseScripSummaryAsync(string? userName, bool? isZero, DateTime? startDate, DateTime? endDate, string? searchingParams, SortingParams sortingParams);
         Task<StockSummaryDto<ScripwiseSummaryDto>> GetAllClientwiseStockSummaryAsync(bool? isZero, DateTime? startDate, DateTime? endDate, string? searchingParams, SortingParams sortingParams);
         Task<int> ImportSherkhanTradeFileAsync(IFormFile formFile, string firmName, int id, bool overrideData);

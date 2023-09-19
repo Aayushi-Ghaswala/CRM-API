@@ -62,9 +62,9 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #endregion
 
         #region Get All or clientwise stocks data
-        public async Task<StockResponseDto<StockMasterDto>> GetStockDataAsync(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string firmName, string? searchingParams, SortingParams sortingParams)
+        public async Task<StockResponseDto<StockMasterDto>> GetStockDataAsync(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string firmName, string? fileType, string? searchingParams, SortingParams sortingParams)
         {
-            var stocksData = await _stocksRepository.GetStocksTransactions(clientName, fromDate, toDate, scriptName, firmName, searchingParams, sortingParams);
+            var stocksData = await _stocksRepository.GetStocksTransactions(clientName, fromDate, toDate, scriptName, firmName, fileType, searchingParams, sortingParams);
             var stockResult = _mapper.Map<StockResponseDto<StockMasterDto>>(stocksData);
             return stockResult;
         }
@@ -78,7 +78,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             var scrips = await _stocksRepository.GetAllScrip();
             double? pageCount = 0;
 
-            List<ScripwiseSummaryDto> scripwiseSummaries = new List<ScripwiseSummaryDto>(); 
+            List<ScripwiseSummaryDto> scripwiseSummaries = new List<ScripwiseSummaryDto>();
 
             foreach (var scripwiseStock in scripwiseStocks)
             {
@@ -163,7 +163,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
                 clientwiseSummary.TotalBuyQuantity = clientwiseStock.Where(x => x.StType.Equals("B")).Sum(x => x.StQty);
                 clientwiseSummary.TotalSellQuantity = clientwiseStock.Where(x => x.StType.Equals("S")).Sum(x => x.StQty);
-                
+
                 var clientwiseScripwiseStocks = clientwiseStock.GroupBy(x => x.StScripname);
                 decimal? ncv = 0;
 
@@ -704,6 +704,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
                 foreach (var stockData in mappedStockModel)
                 {
+                    var exchange = stockData.StSettno.ToLower().Contains("nse") ? "NSE" : "BSE";
                     var clientCode = stockData.StClientcode;
                     var user = users.Where(x => x.UserClientCode.Equals(clientCode)).FirstOrDefault();
                     var scripList = new List<TblScripMaster>();
@@ -726,9 +727,20 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                                 scripName.AddRange(stockData.StScripname.Split('-')[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList());
                             }
                         }
+                        else
+                        {
+                            //DR. REDDY LAB. LTD.
+                            if (stockData.StScripname.Split('.')[0].Contains(' '))
+                                scripName = stockData.StScripname.Split('.', StringSplitOptions.RemoveEmptyEntries)[0].Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                            else
+                            {
+                                scripName = stockData.StScripname.Split('.', StringSplitOptions.RemoveEmptyEntries)[0].Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                                scripName[0] += ".";
+                                scripName.AddRange(stockData.StScripname.Split('.', StringSplitOptions.RemoveEmptyEntries)[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList());
+                            }
+                        }
                         do
                         {
-                            scripName = stockData.StScripname.Split('.', StringSplitOptions.RemoveEmptyEntries)[0].Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
                             string? scripData = "";
                             for (var j = 0; j <= n; j++)
                             {
@@ -737,13 +749,16 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                                 else
                                     scripData += " " + scripName[j];
                             }
-                            scripList = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Contains(scripData.ToLower())).ToList();
+                            scripList = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Contains(scripData.ToLower()) && x.Exchange.Contains(exchange)).ToList();
                             n += 1;
                         } while (scripList.Count() != 1 && n < scripName.Count());
+
+                        if (scripList.Count() == 0)
+                            return (0, $"Unable to find scripName {stockData.StScripname} with client code {stockData.StClientcode} in {exchange}.");
                     }
                     catch (Exception msg)
                     {
-                        return (0, $"Unable to find scripName {stockData.StScripname} with client code {stockData.StClientcode}.");
+                        return (0, $"Unable to find scripName {stockData.StScripname} with client code {stockData.StClientcode} in {exchange}.");
                     }
 
                     int? userId = null;
@@ -870,7 +885,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             }
             catch (Exception ex)
             {
-                return (0,  ex.Message);
+                return (0, ex.Message);
             }
         }
         #endregion 
