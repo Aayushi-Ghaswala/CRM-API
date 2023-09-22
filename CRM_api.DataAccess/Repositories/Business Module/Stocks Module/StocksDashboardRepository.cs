@@ -11,7 +11,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         private readonly CRMDbContext _context;
         private readonly IStocksRepository _stocksRepository;
 
-        public StocksDashboardRepository(CRMDbContext context, IStocksRepository stocksRepository = null)
+        public StocksDashboardRepository(CRMDbContext context, IStocksRepository stocksRepository)
         {
             _context = context;
             _stocksRepository = stocksRepository;
