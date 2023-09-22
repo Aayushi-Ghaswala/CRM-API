@@ -1163,13 +1163,13 @@ SURAT - 395009 <p>
                     interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst1);
                     interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst2);
                     interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst3);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst4 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest4);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst5 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest5);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst6 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest6);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst7 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest7);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst8 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest8);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst9 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest9);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst10 + MGainDetail.TblMgainSchemeMaster.AdditionalInterest10);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst4);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst5);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst6);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst7);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst8);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst9);
+                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst10);
 
                     var yearDifference = currentDate.Year - MGainDetail.Date.Value.Year;
 

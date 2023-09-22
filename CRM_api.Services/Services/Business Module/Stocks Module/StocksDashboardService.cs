@@ -1,4 +1,5 @@
-﻿using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
+﻿using AutoMapper;
+using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
@@ -10,11 +11,13 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
     {
         private readonly IStocksDashboardRepository _stocksDashboardRepository;
         private readonly IStocksRepository _stocksRepository;
+        private readonly IMapper _mapper;
 
-        public StocksDashboardService(IStocksDashboardRepository stocksDashboardRepository, IStocksRepository stocksRepository)
+        public StocksDashboardService(IStocksDashboardRepository stocksDashboardRepository, IStocksRepository stocksRepository, IMapper mapper)
         {
             _stocksDashboardRepository = stocksDashboardRepository;
             _stocksRepository = stocksRepository;
+            _mapper = mapper;
         }
 
         #region get stock summary report
@@ -48,6 +51,15 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
             //dashboardSummaryDtos.Reverse();
             return dashboardSummaryDtos;
+        }
+        #endregion
+
+        #region stock Intra delivery report
+        public async Task<List<StocksDashboardIntraDeliveryDto>> GetStocksIntraDeliveryReportAsync()
+        {
+            var result = await _stocksDashboardRepository.GetIntraDeliveryReport();
+            var mappedResult = _mapper.Map<List<StocksDashboardIntraDeliveryDto>>(result);
+            return mappedResult;
         }
         #endregion
 
@@ -118,7 +130,6 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
             return new StocksDashboardSummaryDto(duration, totalClients, totalClientAmount, totalDeliveryClient, totalDeliveryAmount, totalIntraClient, totalIntraAmount);
         }
-
         #endregion
 
         #region get summary chart report

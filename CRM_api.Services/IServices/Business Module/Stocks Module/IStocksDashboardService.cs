@@ -6,6 +6,7 @@ namespace CRM_api.Services.IServices.Business_Module.Stocks_Module
     public interface IStocksDashboardService
     {
         Task<List<StocksDashboardSummaryDto>> GetStocksSummaryReportAsync();
+        Task<List<StocksDashboardIntraDeliveryDto>> GetStocksIntraDeliveryReportAsync();
         Task<List<HoldingChartReportDto>> GetSummaryChartReportAsync(DateTime fromDate, DateTime toDate);
     }
 }
