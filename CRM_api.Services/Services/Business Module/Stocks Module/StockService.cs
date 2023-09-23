@@ -754,7 +754,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                                 if (string.IsNullOrEmpty(scripData))
                                     scripData = scripName[j];
                                 else {
-                                    if (stockData.StScripname.Contains("-") && !stockData.StScripname.Split('-')[0].Split(' ').ToList().Contains(" "))
+                                    if (stockData.StScripname.Contains("-") && !stockData.StScripname.Split('-')[0].Split(' ').ToList().Contains(" ") && j <= 1)
                                         scripData += scripName[j];
                                     else
                                         scripData += " " + scripName[j];
