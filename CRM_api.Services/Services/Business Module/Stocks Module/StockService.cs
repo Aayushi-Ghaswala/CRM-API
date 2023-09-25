@@ -748,6 +748,9 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                         }
                         do
                         {
+                            scripList = scrips.Where(s => s.Scripname != null && s.Scripname.ToLower().Contains(stockData.StScripname.ToLower())).ToList();
+                            if (scripList.Count() == 1)
+                                continue;
                             string? scripData = "";
                             for (var j = 0; j <= n; j++)
                             {
@@ -755,6 +758,8 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                                     scripData = scripName[j];
                                 else {
                                     if (stockData.StScripname.Contains("-") && !stockData.StScripname.Split('-')[0].Split(' ').ToList().Contains(" ") && j <= 1)
+                                        scripData += scripName[j];
+                                    else if (stockData.StScripname.Contains(".") && !stockData.StScripname.Split('.')[0].Split(' ').ToList().Contains(" ") && j <= 1)
                                         scripData += scripName[j];
                                     else
                                         scripData += " " + scripName[j];
