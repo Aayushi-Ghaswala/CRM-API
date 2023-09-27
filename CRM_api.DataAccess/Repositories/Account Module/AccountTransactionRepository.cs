@@ -117,20 +117,20 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         #endregion
 
         #region Get Company And Account wise Account Transaction
-        public async Task<List<TblAccountTransaction>> GetCompanyAndAccountWiseTransaction(int? companyId, int? accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams, string docType = null)
+        public async Task<List<TblAccountTransaction>> GetCompanyAndAccountWiseTransaction(int? companyId, int? accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams, string docType = null, bool isOpeningBalance = false)
         {
             var filterData = new List<TblAccountTransaction>().AsQueryable();
 
             if (search is not null)
             {
                 filterData = _context.Search<TblAccountTransaction>(search).Where(x => (companyId == null || x.Companyid == companyId) && (docType == null || x.DocType.ToLower().Equals(docType.ToLower())) 
-                                                             && (accountId == null || x.Accountid == accountId) && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
+                                                             && (accountId == null || x.Accountid == accountId) && x.DocDate.Value.Date >= startDate.Date && (isOpeningBalance ? x.DocDate.Value.Date < endDate.Date : x.DocDate.Value.Date <= endDate.Date))
                                                              .Include(x => x.TblAccountMaster).Include(x => x.CompanyMaster).AsQueryable();
             }
             else
             {
                 filterData = _context.TblAccountTransactions.Where(x => (companyId == null || x.Companyid == companyId) && (docType == null || x.DocType.ToLower().Equals(docType.ToLower()))
-                                                            && (accountId == null || x.Accountid == accountId) && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
+                                                            && (accountId == null || x.Accountid == accountId) && x.DocDate.Value.Date >= startDate.Date && (isOpeningBalance ? x.DocDate.Value.Date < endDate.Date : x.DocDate.Value.Date <= endDate.Date))
                                                             .Include(x => x.TblAccountMaster).Include(x => x.CompanyMaster).AsQueryable();
             }
 

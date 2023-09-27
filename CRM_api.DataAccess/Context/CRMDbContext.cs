@@ -497,6 +497,10 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false)
                     .HasColumnName("doc_type");
 
+                entity.Property(e => e.Narration)
+                    .IsUnicode(false)
+                    .HasColumnName("narration");
+
                 entity.Property(e => e.DocUserid).HasColumnName("doc_userid");
 
                 entity.Property(e => e.Mgainid).HasColumnName("mgainid");

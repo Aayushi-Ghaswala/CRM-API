@@ -151,7 +151,7 @@ namespace CRM_api.Services.Services.Account_Module
                 totalOpeningDebit = Convert.ToDecimal(accounts.Where(x => x.DebitCredit == "0").Sum(x => x.OpeningBalance));
                 foreach (var account in accounts)
                 {
-                    var openingTransactions = await _accountTransactionRepository.GetCompanyAndAccountWiseTransaction(companyId, account.AccountId, (DateTime)account.OpeningBalanceDate, startDate, search, sortingParams);
+                    var openingTransactions = await _accountTransactionRepository.GetCompanyAndAccountWiseTransaction(companyId, account.AccountId, (DateTime)account.OpeningBalanceDate, startDate, search, sortingParams, null, true);
                     if (openingTransactions.Count > 0)
                     {
                         totalOpeningCredit += Convert.ToDecimal(openingTransactions.Sum(x => x.Credit));
@@ -370,7 +370,9 @@ namespace CRM_api.Services.Services.Account_Module
                 Credit = mapAccountTransaction.Debit,
                 Companyid = mapAccountTransaction.Companyid,
                 TransactionType = mapAccountTransaction.TransactionType,
-                Currencyid = mapAccountTransaction.Currencyid
+                Currencyid = mapAccountTransaction.Currencyid,
+                Narration = mapAccountTransaction.Narration
+
             };
             accountTransactions.Add(creditAccountTransaction);
 
@@ -407,6 +409,7 @@ namespace CRM_api.Services.Services.Account_Module
                     transaction.Companyid = mapAccountTransaction.Companyid;
                     transaction.TransactionType = mapAccountTransaction.TransactionType;
                     transaction.Currencyid = mapAccountTransaction.Currencyid;
+                    transaction.Narration = mapAccountTransaction.Narration;
                     accountTransactions.Add(transaction);
                 }
                 else
@@ -421,6 +424,7 @@ namespace CRM_api.Services.Services.Account_Module
                     transaction.Companyid = mapAccountTransaction.Companyid;
                     transaction.TransactionType = mapAccountTransaction.TransactionType;
                     transaction.Currencyid = mapAccountTransaction.Currencyid;
+                    transaction.Narration = mapAccountTransaction.Narration;
                     accountTransactions.Add(transaction);
                 }
             }
