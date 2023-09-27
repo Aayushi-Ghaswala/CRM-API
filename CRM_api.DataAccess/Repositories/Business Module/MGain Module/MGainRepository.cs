@@ -202,11 +202,11 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #endregion
 
         #region Get Account by UserId
-        public TblAccountMaster GetAccountByUserId(int? userId, string? accountName)
+        public TblAccountMaster GetAccountByUserId(int? userId, string? accountName, int companyId)
         {
             TblAccountMaster account = new TblAccountMaster();
 
-            account = _context.TblAccountMasters.FirstOrDefault(x => (userId != 0 && x.UserId == userId) || (accountName != null & accountName == accountName));
+            account = _context.TblAccountMasters.FirstOrDefault(x => ((userId != 0 && x.UserId == userId) || (accountName != null & x.AccountName == accountName)) && x.Companyid == companyId);
 
             return account;
         }
@@ -258,7 +258,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #region Add User Account
         public async Task<int> AddUserAccount(TblAccountMaster tblAccountMaster)
         {
-            if (_context.TblAccountMasters.Any(x => x.UserId == tblAccountMaster.UserId && x.AccountName == tblAccountMaster.AccountName))
+            if (_context.TblAccountMasters.Any(x => x.UserId == tblAccountMaster.UserId && x.AccountName == tblAccountMaster.AccountName && x.Companyid == tblAccountMaster.Companyid))
                 return 0;
             else
             {

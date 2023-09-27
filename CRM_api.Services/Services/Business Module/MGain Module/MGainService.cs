@@ -1113,7 +1113,9 @@ SURAT - 395009 <p>
         public async Task<(MGainNCmonthlyTotalDto, string)> GetNonCumulativeMonthlyReportAsync(int month, int year, int? schemeId, decimal? tds, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? searchingParams, SortingParams sortingParams, bool? isSendSMS, bool isJournal = false, string jvNarration = null, DateTime? jvEntryDate = null)
         {
             DateTime date = Convert.ToDateTime("01" + "-" + month + "-" + year);
-            DateTime currentDate = date.AddDays(-1);
+            DateTime currentDate = date;
+            if (isJournal is false)
+                currentDate = date.AddDays(-1);
 
             var mGainDetails = await _mGainRepository.GetAllMGainDetailsMonthly(schemeId, searchingParams, sortingParams, MGainTypeConstant.nonCumulative, currentDate);
 
@@ -1123,11 +1125,11 @@ SURAT - 395009 <p>
             string? tdsYear = null;
             string? docNo = null;
             string? tdsDocNo = null;
-            int? companyId = 0;
+            int companyId = 0;
 
             var currYear = date.Year;
 
-            if (date.Month >= 4)
+            if (currentDate.Month >= 4)
             {
                 tdsYear = "TDS " + currYear + "-" + (currYear + 1).ToString().Substring((currYear + 1).ToString().Length - 2);
             }
@@ -1136,7 +1138,11 @@ SURAT - 395009 <p>
                 tdsYear = "TDS " + (currYear - 1).ToString() + "-" + currYear.ToString().Substring(currYear.ToString().Length - 2);
             }
 
-            var account = _mGainRepository.GetAccountByUserId(0, tdsYear);
+            var company = _accountRepository.GetCompanyByName("KA Financial Services LLP");
+            if (company is not null)
+                companyId = (int)company.Id;
+
+            var account = _mGainRepository.GetAccountByUserId(0, tdsYear, companyId);
 
             if (account is null)
             {
@@ -1146,10 +1152,6 @@ SURAT - 395009 <p>
                 addAccount.OpeningBalance = 0;
                 await _mGainRepository.AddUserAccount(addAccount);
             }
-
-            var company = _accountRepository.GetCompanyByName("KA Financial Services LLP");
-            if (company is not null)
-                companyId = company.Id;
 
             foreach (var MGainDetail in mGainDetails)
             {
@@ -1210,7 +1212,7 @@ SURAT - 395009 <p>
 
                     if (yearDifference == 0)
                     {
-                        if (currentDate.Month == MGainDetail.Date.Value.Month)
+                        if (currentDate.Month == MGainDetail.Date.Value.AddMonths(3).Month)
                         {
                             var daysInMonth = DateTime.DaysInMonth(MGainDetail.Date.Value.Year, MGainDetail.Date.Value.Month);
                             var days = daysInMonth - (MGainDetail.Date.Value.Day - 1);
@@ -1348,7 +1350,7 @@ SURAT - 395009 <p>
 
             if (allAccountTransactions.Count > 0)
             {
-                var entry = _mGainRepository.AddMGainInterest(allAccountTransactions, currentDate);
+                var entry = _mGainRepository.AddMGainInterest(allAccountTransactions, date);
 
                 if (entry != 0)
                     return (mGainNCMonthlytotal, $"{entry} Entry added successfully.");
@@ -1849,6 +1851,7 @@ table {{
             tblAccountMaster.UserId = mGain.MgainUserid;
             tblAccountMaster.AccountName = mGain.Mgain1stholder;
             tblAccountMaster.OpeningBalance = 0;
+            tblAccountMaster.Companyid = _accountRepository.GetCompanyByName("KA Financial Services LLP").Id;
 
             await _mGainRepository.AddUserAccount(tblAccountMaster);
             return mGain;
@@ -2327,14 +2330,14 @@ table {{
         #endregion
 
         #region Method For Account Entry
-        public List<TblAccountTransaction> AccountEntry(MGainNonCumulativeMonthlyReportDto MGainNonCumulativeMonthlyReport, int? mGainId, int? mGainUserId, bool? isTdsDeduction, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? tdsYear, string? docNo, string? tdsDocNo, int? currancyId, int? companyId, string? transactionType)
+        public List<TblAccountTransaction> AccountEntry(MGainNonCumulativeMonthlyReportDto MGainNonCumulativeMonthlyReport, int? mGainId, int? mGainUserId, bool? isTdsDeduction, bool? isJournal, DateTime? jvEntryDate, string? jvNarration, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? tdsYear, string? docNo, string? tdsDocNo, int? currancyId, int companyId, string? transactionType)
         {
             List<TblAccountTransaction> accountTransactions = new List<TblAccountTransaction>();
             if (isJournal is true)
             {
-                var creditAccountTransaction = new TblAccountTransaction(jvEntryDate, jvNarration, MGainAccountPaymentConstant.MGainPayment.Journal.ToString(), docNo, 0, MGainNonCumulativeMonthlyReport.InterestAmount, mGainUserId, _mGainRepository.GetAccountByUserId(mGainUserId, null).AccountId, mGainId, companyId, transactionType, currancyId);
+                var creditAccountTransaction = new TblAccountTransaction(jvEntryDate, jvNarration, MGainAccountPaymentConstant.MGainPayment.Journal.ToString(), docNo, 0, MGainNonCumulativeMonthlyReport.InterestAmount, mGainUserId, _mGainRepository.GetAccountByUserId(mGainUserId, null, companyId).AccountId, mGainId, companyId, transactionType, currancyId);
 
-                var debitAccountTransaction = new TblAccountTransaction(jvEntryDate, jvNarration, MGainAccountPaymentConstant.MGainPayment.Journal.ToString(), docNo, MGainNonCumulativeMonthlyReport.InterestAmount, 0, mGainUserId, _mGainRepository.GetAccountByUserId(mGainUserId, null).AccountId, mGainId, companyId, transactionType, currancyId);
+                var debitAccountTransaction = new TblAccountTransaction(jvEntryDate, jvNarration, MGainAccountPaymentConstant.MGainPayment.Journal.ToString(), docNo, MGainNonCumulativeMonthlyReport.InterestAmount, 0, mGainUserId, _mGainRepository.GetAccountByUserId(mGainUserId, null, companyId).AccountId, mGainId, companyId, transactionType, currancyId);
 
                 accountTransactions.Add(creditAccountTransaction);
                 accountTransactions.Add(debitAccountTransaction);
@@ -2342,15 +2345,15 @@ table {{
 
             if (isPayment is true)
             {
-                var creditAccountTransaction = new TblAccountTransaction(crEntryDate, crNarration, MGainAccountPaymentConstant.MGainPayment.Payment.ToString(), docNo, 0, MGainNonCumulativeMonthlyReport.InterestAmount, mGainUserId, _mGainRepository.GetAccountByUserId(0, crNarration).AccountId, mGainId, companyId, transactionType, currancyId);
+                var creditAccountTransaction = new TblAccountTransaction(crEntryDate, crNarration, MGainAccountPaymentConstant.MGainPayment.Payment.ToString(), docNo, 0, MGainNonCumulativeMonthlyReport.InterestAmount, mGainUserId, _mGainRepository.GetAccountByUserId(0, crNarration, companyId).AccountId, mGainId, companyId, transactionType, currancyId);
 
-                var debitAccountTransaction = new TblAccountTransaction(crEntryDate, crNarration, MGainAccountPaymentConstant.MGainPayment.Payment.ToString(), docNo, MGainNonCumulativeMonthlyReport.InterestAmount, 0, mGainUserId, _mGainRepository.GetAccountByUserId(mGainUserId, null).AccountId, mGainId, companyId, transactionType, currancyId);
+                var debitAccountTransaction = new TblAccountTransaction(crEntryDate, crNarration, MGainAccountPaymentConstant.MGainPayment.Payment.ToString(), docNo, MGainNonCumulativeMonthlyReport.InterestAmount, 0, mGainUserId, _mGainRepository.GetAccountByUserId(mGainUserId, null, companyId).AccountId, mGainId, companyId, transactionType, currancyId);
 
                 if (isTdsDeduction is true)
                 {
-                    var creditTDCAccountTransaction = new TblAccountTransaction(crEntryDate, crNarration, MGainAccountPaymentConstant.MGainPayment.Journal.ToString(), tdsDocNo, 0, MGainNonCumulativeMonthlyReport.InterestAmount, mGainUserId, _mGainRepository.GetAccountByUserId(0, tdsYear).AccountId, mGainId, companyId, transactionType, currancyId);
+                    var creditTDCAccountTransaction = new TblAccountTransaction(crEntryDate, crNarration, MGainAccountPaymentConstant.MGainPayment.Journal.ToString(), tdsDocNo, 0, MGainNonCumulativeMonthlyReport.InterestAmount, mGainUserId, _mGainRepository.GetAccountByUserId(0, tdsYear, companyId).AccountId, mGainId, companyId, transactionType, currancyId);
 
-                    var debitTDCAccountTransaction = new TblAccountTransaction(crEntryDate, crNarration, MGainAccountPaymentConstant.MGainPayment.Journal.ToString(), tdsDocNo, MGainNonCumulativeMonthlyReport.InterestAmount, 0, mGainUserId, _mGainRepository.GetAccountByUserId(mGainUserId, null).AccountId, mGainId, companyId, transactionType, currancyId);
+                    var debitTDCAccountTransaction = new TblAccountTransaction(crEntryDate, crNarration, MGainAccountPaymentConstant.MGainPayment.Journal.ToString(), tdsDocNo, MGainNonCumulativeMonthlyReport.InterestAmount, 0, mGainUserId, _mGainRepository.GetAccountByUserId(mGainUserId, null, companyId).AccountId, mGainId, companyId, transactionType, currancyId);
 
                     accountTransactions.Add(creditTDCAccountTransaction);
                     accountTransactions.Add(debitTDCAccountTransaction);
