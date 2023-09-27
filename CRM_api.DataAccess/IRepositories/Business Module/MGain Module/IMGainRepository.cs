@@ -19,7 +19,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.MGain_Module
         Task<List<TblPlotMaster>> GetPlotsByProjectId(int projectId, int? plotId);
         Task<List<TblMgaindetail>> GetMGainDetailsByUserId(int UserId);
         Task<List<TblAccountTransaction>> GetAccountTransactionByMgainId(int? mGainId, int? month, int? year);
-        TblAccountMaster GetAccountByUserId(int? userId, string? accountName);
+        TblAccountMaster GetAccountByUserId(int? userId, string? accountName, int companyId);
         Task<List<TblMgainCurrancyMaster>> GetAllCurrencies();
         Task<TblPlotMaster> GetPlotById(int? id);
         Task<TblPlotMaster> GetPlotByProjectAndPlotNo(string? projectName, string plotNo);
