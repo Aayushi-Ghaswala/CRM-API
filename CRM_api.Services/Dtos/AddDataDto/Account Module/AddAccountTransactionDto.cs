@@ -16,5 +16,6 @@
         public int? CreditAccountId { get; set; }
         public string? TransactionType { get; set; }
         public int? CurrencyId { get; set; }
+        public string? Narration { get; set; }
     }
 }
