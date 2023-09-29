@@ -5,7 +5,11 @@
         public enum MGainPayment
         {
             Payment,
-            Journal
+            Journal,
+            Receipt,
+            Contra,
+            Purchase,
+            Sales
         }
     }
 }

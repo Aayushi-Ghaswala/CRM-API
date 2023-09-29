@@ -18,15 +18,15 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
 
         #region Get User Account
-        public async Task<(Response<TblAccountMaster>, double?, double?)> GetUserAccount(int? companyId, string? searchingParams, SortingParams sortingParams)
+        public async Task<(Response<TblAccountMaster>, double?, double?)> GetUserAccount(int? userId, int? companyId, string? searchingParams, SortingParams sortingParams)
         {
             IQueryable<TblAccountMaster> userAccount = new List<TblAccountMaster>().AsQueryable();
             double? pageCount = 0;
 
             if (searchingParams != null)
-                userAccount = _context.Search<TblAccountMaster>(searchingParams).Where(x => (companyId == null || x.Companyid == companyId)).Include(x => x.TblAccountGroupMaster).Include(x => x.TblCompanyMaster).Include(x => x.UserMaster).AsQueryable();
+                userAccount = _context.Search<TblAccountMaster>(searchingParams).Where(x => (userId == null || x.UserId == userId) && (companyId == null || x.Companyid == companyId)).Include(x => x.TblAccountGroupMaster).Include(x => x.TblCompanyMaster).Include(x => x.UserMaster).AsQueryable();
             else
-                userAccount = _context.TblAccountMasters.Where(x => (companyId == null || x.Companyid == companyId)).Include(x => x.TblAccountGroupMaster).Include(x => x.TblCompanyMaster).Include(x => x.UserMaster).AsQueryable();
+                userAccount = _context.TblAccountMasters.Where(x => (userId == null || x.UserId == userId) && (companyId == null || x.Companyid == companyId)).Include(x => x.TblAccountGroupMaster).Include(x => x.TblCompanyMaster).Include(x => x.UserMaster).AsQueryable();
 
             pageCount = Math.Ceiling(userAccount.Count() / sortingParams.PageSize);
 
@@ -92,6 +92,15 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
             };
 
             return accountGroupResponse;
+        }
+        #endregion
+
+        #region Get Account Group By Name
+        public async Task<TblAccountGroupMaster> GetAccountGroupByName(string name)
+        {
+            var accountGroup = await _context.TblAccountGroupMasters.Where(x => x.AccountGrpName.ToLower() == name.ToLower()).FirstOrDefaultAsync();
+
+            return accountGroup;
         }
         #endregion
 
@@ -283,6 +292,17 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
             };
 
             return accountResponse;
+        }
+        #endregion
+
+        #region Get Account By User Id and Company Id
+        public async Task<int> GetAccountByUserIdAndCompanyId(int userId, int companyId)
+        {
+            var account = await _context.TblAccountMasters.FirstOrDefaultAsync(x => x.UserId == userId && x.Companyid == companyId);
+            if (account is null)
+                return 0;
+
+            return account.AccountId;
         }
         #endregion
 

@@ -305,7 +305,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             try
             {
                 var updateMGain = await _mGainService.UpdateMGainDetailsAsync(updateMGainDetails);
-                return updateMGain != 0 ? Ok(new { Message = "MGain detail updated successfully." }) : BadRequest(new { Message = "Unable to update mgain details" });
+                return updateMGain.Item1 != 0 ? Ok(new { Message = updateMGain.Item2 }) : BadRequest(new { Message = updateMGain.Item2 });
             }
             catch (Exception)
             {

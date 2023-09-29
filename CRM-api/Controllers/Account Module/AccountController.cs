@@ -18,11 +18,11 @@ namespace CRM_api.Controllers.Account_Module
 
         #region Get User Account
         [HttpGet("GetUserAccount")]
-        public async Task<IActionResult> GetUserAccount(int? companyId, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetUserAccount(int? userId, int? companyId, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var getData = await _accountService.GetUserAccountsAsync(companyId, search, sortingParams);
+                var getData = await _accountService.GetUserAccountsAsync(userId, companyId, search, sortingParams);
                 return Ok(new { Data = getData.Item1, Total = getData.Item2 });
             }
             catch (Exception)

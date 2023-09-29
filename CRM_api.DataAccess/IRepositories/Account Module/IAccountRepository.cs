@@ -6,9 +6,10 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module
 {
     public interface IAccountRepository
     {
-        Task<(Response<TblAccountMaster>, double?, double?)> GetUserAccount(int? companyId, string? searchingParams, SortingParams sortingParams);
+        Task<(Response<TblAccountMaster>, double?, double?)> GetUserAccount(int? userId, int? companyId, string? searchingParams, SortingParams sortingParams);
         Task<List<TblAccountMaster>> GetUserAccountById(int? accountId, int? companyId = null);
         Task<Response<TblAccountGroupMaster>> GetAccountGroups(string? searchingParams, SortingParams sortingParams);
+        Task<TblAccountGroupMaster> GetAccountGroupByName(string name);
         Task<Response<TblAccountGroupMaster>> GetRootAccountGroup(string? searchingParams, SortingParams sortingParams);
         Task<Response<TblCompanyMaster>> GetCompanies(string? searchingParams, SortingParams sortingParams);
         TblCompanyMaster GetCompanyByName(string? Name);
@@ -17,6 +18,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module
         Task<Response<TblAccountOpeningBalance>> GetAccountOpeningBalance(int? financialYearId, string? searchingParams, SortingParams sortingParams);
         Task<Response<TblAccountMaster>> GetKAGroupBankAndPaymentAccounts(int? companyId, string? filterString, string? search, SortingParams sortingParams);
         Task<int> GetAccountByUserId(int userId);
+        Task<int> GetAccountByUserIdAndCompanyId(int userId, int companyId);
         Task<int> AddUserAccount(TblAccountMaster tblAccountMaster);
         Task<int> AddAccountGroup(TblAccountGroupMaster tblAccountGroupMaster);
         Task<int> AddCompany(TblCompanyMaster tblCompanyMaster);
