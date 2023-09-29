@@ -164,11 +164,20 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
         #endregion
 
-        #region Ge Account Transaction By Id
+        #region Get Account Transaction By Id
         public async Task<TblAccountTransaction> GetAccountTransactionById(int id)
         {
             var accountTransaction = await _context.TblAccountTransactions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if (accountTransaction is null) return null;
+
+            return accountTransaction;
+        }
+        #endregion
+        
+        #region Get Account Transaction By Mgain Id
+        public async Task<List<TblAccountTransaction>> GetAccountTransactionByMgainId(int mgainId)
+        {
+            var accountTransaction = await _context.TblAccountTransactions.AsNoTracking().Where(x => x.Mgainid == mgainId && x.TransactionType == null).ToListAsync();
 
             return accountTransaction;
         }

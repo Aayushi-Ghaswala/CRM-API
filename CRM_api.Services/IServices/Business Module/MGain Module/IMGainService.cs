@@ -2,7 +2,6 @@
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module;
-using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 
 namespace CRM_api.Services.IServices.Business_Module.MGain_Module
 {
@@ -25,7 +24,7 @@ namespace CRM_api.Services.IServices.Business_Module.MGain_Module
         Task<List<MGainCurrancyDto>> GetAllCurrenciesAsync();
         Task<TblMgaindetail> AddMGainDetailAsync(AddMGainDetailsDto addMGainDetails);
         Task<int> AddPaymentDetailsAsync(List<AddMGainPaymentDto> paymentDtos);
-        Task<int> UpdateMGainDetailsAsync(UpdateMGainDetailsDto updateMGainDetails);
+        Task<(int, string)> UpdateMGainDetailsAsync(UpdateMGainDetailsDto updateMGainDetails);
         Task<int> UpdateMGainPaymentAsync(List<UpdateMGainPaymentDto> updateMGainPayment);
         Task<int> DeleteMGainPaymentAsync(int id);
     }

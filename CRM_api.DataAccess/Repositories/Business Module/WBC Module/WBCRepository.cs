@@ -555,7 +555,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     if (client.Transactiontype.ToLower() == "pip")
                         client.Transactiontype = "Lumpsum";
 
-                    else if (client.Transactiontype.ToLower() == "pip(sip)")
+                    else if (client.Transactiontype.ToLower() == "pip (sip)")
                         client.Transactiontype = "SIP";
 
                     var subSubInvTypeMF = "";

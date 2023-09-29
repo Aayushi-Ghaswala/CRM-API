@@ -21,9 +21,9 @@ namespace CRM_api.Services.Services.Account_Module
         }
 
         #region Get User Accounts
-        public async Task<(ResponseDto<AccountMasterDto>, Dictionary<string, double?>)> GetUserAccountsAsync(int? companyId, string? searchingParams, SortingParams sortingParams)
+        public async Task<(ResponseDto<AccountMasterDto>, Dictionary<string, double?>)> GetUserAccountsAsync(int? userId, int? companyId, string? searchingParams, SortingParams sortingParams)
         {
-            var userAccount = await _accountRepository.GetUserAccount(companyId, searchingParams, sortingParams);
+            var userAccount = await _accountRepository.GetUserAccount(userId, companyId, searchingParams, sortingParams);
             var mapUserAccount = _mapper.Map<ResponseDto<AccountMasterDto>>(userAccount.Item1);
 
             Dictionary<string, double?> total = new Dictionary<string, double?>();

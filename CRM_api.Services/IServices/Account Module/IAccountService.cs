@@ -7,7 +7,7 @@ namespace CRM_api.Services.IServices.Account_Module
 {
     public interface IAccountService
     {
-        Task<(ResponseDto<AccountMasterDto>, Dictionary<string, double?>)> GetUserAccountsAsync(int? companyId, string? searchingParams, SortingParams sortingParams);
+        Task<(ResponseDto<AccountMasterDto>, Dictionary<string, double?>)> GetUserAccountsAsync(int? userId, int? companyId, string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<AccountGroupDto>> GetAccountGroupsAsync(string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<AccountGroupDto>> GetRootAccountGroupAsync(string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<CompanyMasterDto>> GetCompnanyAsync(string? searchingParams, SortingParams sortingParams);
