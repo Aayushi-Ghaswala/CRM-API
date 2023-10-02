@@ -176,7 +176,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.LI_GI_Module
         }
         #endregion
 
-        #region Imort Insurance Client File
+        #region Import Insurance Client File
         public async Task<int> ImportInsClientsFile(List<TblInsuranceclient> tblInsuranceclients)
         {
             await _context.TblInsuranceclients.AddRangeAsync(tblInsuranceclients);
