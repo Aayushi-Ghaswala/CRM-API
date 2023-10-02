@@ -244,6 +244,20 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         }
         #endregion
 
+        #region Get AMFI Nav List
+        public async Task<List<TblAmfiNav>> GetAMFINavList()
+        {
+            return await _context.TblAmfiNavs.ToListAsync();
+        }
+        #endregion
+
+        #region Get AMFI Scheme List
+        public async Task<List<TblAmfiSchemeMaster>> GetAMFISchemesList()
+        {
+            return await _context.TblAmfiSchemeMasters.ToListAsync();
+        }
+        #endregion
+
         #region Display Scheme List
         public async Task<Response<TblMftransaction>> GetSchemeName(int userId, string? folioNo, string? searchingParams, SortingParams sortingParams)
         {
@@ -333,6 +347,22 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         public async Task<int> UpdateMFScheme(List<TblMfSchemeMaster> schemeMasters)
         {
             _context.TblMfSchemeMasters.UpdateRange(schemeMasters);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Update AMFI Nav List
+        public async Task<int> UpdateAMFINav(List<TblAmfiNav> amfiNavs)
+        {
+            _context.TblAmfiNavs.UpdateRange(amfiNavs);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Update AMFI Schemes
+        public async Task<int> UpdateAMFISchemes(List<TblAmfiSchemeMaster> tblAmfiSchemes)
+        {
+            _context.TblAmfiSchemeMasters.UpdateRange(tblAmfiSchemes);
             return await _context.SaveChangesAsync();
         }
         #endregion

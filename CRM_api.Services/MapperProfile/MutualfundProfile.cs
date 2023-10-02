@@ -35,6 +35,8 @@ namespace CRM_api.Services.MapperProfile
             CreateMap<Response<UserNameResponse>, ResponseDto<UserNameDto>>();
             CreateMap<AddNJDailyPriceDto, TblMfSchemeMaster>();
             CreateMap<GetTopTenSchemeByInvestment, TopTenSchemeDto>();
+            CreateMap<AddAMFINAVDto, TblAmfiNav>();
+            CreateMap<AddAmfiSchemeDto, TblAmfiSchemeMaster>();
         }
     }
 }

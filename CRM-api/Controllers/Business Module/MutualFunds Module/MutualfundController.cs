@@ -168,5 +168,21 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
             }
         }
         #endregion
+
+        #region Import AMFI NAV File
+        [HttpPost("ImportAMFINAVFile")]
+        public async Task<IActionResult> ImportAMFINAVFile()
+        {
+            try
+            {
+                var flag = await _mutualfundService.ImportAMFINAVFileAsync();
+                return (flag.Item1 != 0) ? Ok(new { Message = flag.Item2 }) : BadRequest(new { Message = flag.Item2 });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
     }
 }
