@@ -36,7 +36,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
             // Filter stock data for different durations
             var yearDataList = stockDataList.Where(s => s.StDate.Value.Year == today.Year).ToList();
-            var quarterDataList = yearDataList.Where(s => s.StDate.Value.Date >= startOfQuarter.Date && s.StDate.Value <= startOfQuarter.AddMonths(2)).ToList();
+            var quarterDataList = yearDataList.Where(s => s.StDate.Value.Date >= startOfQuarter.Date && s.StDate.Value < startOfQuarter.AddMonths(3)).ToList();
             var monthDataList = quarterDataList.Where(s => s.StDate.Value.Month == startOfMonth.Month).ToList();
             var weekDataList = monthDataList.Where(s => s.StDate.Value.Date >= startOfWeek.Date && s.StDate.Value.Date < startOfWeek.AddDays(7).Date).ToList();
             var todayDataList = weekDataList.Where(s => s.StDate.Value.Date == today.Date).ToList();
