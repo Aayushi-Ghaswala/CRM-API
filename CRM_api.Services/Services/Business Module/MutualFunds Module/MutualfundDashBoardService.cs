@@ -77,12 +77,12 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get All Mutual Fund Summary For Different Time
-        public async Task<List<TimeWiseMutualFundSummaryDto>> GetMFSummaryTimeWiseAsync()
+        public async Task<List<TimeWiseMutualFundSummaryDto>> GetMFSummaryTimeWiseAsync(DateTime date)
         {
             var mfTransaction = await _mutualfundDashBoardRepository.GetAllMFTransaction();
             List<TimeWiseMutualFundSummaryDto> timeWiseMutualFunds = new List<TimeWiseMutualFundSummaryDto>();
 
-            var today = DateTime.Now.Date;
+            var today = date;
             var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
             var startOfMonth = new DateTime(today.Year, today.Month, 1);
             var startOfQuarter = new DateTime(today.Year, (today.Month - 1) / 3 * 3 + 1, 1);
@@ -90,7 +90,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
             // Filter stock data for different durations
             var yearDataList = mfTransaction.Where(s => s.Date.Value.Year == today.Year).ToList();
-            var quarterDataList = yearDataList.Where(s => s.Date.Value.Date >= startOfQuarter.Date && s.Date.Value <= startOfQuarter.AddMonths(2)).ToList();
+            var quarterDataList = yearDataList.Where(s => s.Date.Value.Date >= startOfQuarter.Date && s.Date.Value < startOfQuarter.AddMonths(3)).ToList();
             var monthDataList = quarterDataList.Where(s => s.Date.Value.Month == startOfMonth.Month).ToList();
             var weekDataList = monthDataList.Where(s => s.Date.Value.Date >= startOfWeek.Date && s.Date.Value.Date < startOfWeek.AddDays(7).Date).ToList();
             var todayDataList = weekDataList.Where(s => s.Date.Value.Date == today.Date).ToList();

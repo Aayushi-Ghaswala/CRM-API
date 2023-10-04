@@ -35,9 +35,9 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
 
         #region Get All Mutual Fund Summary For Different Time
         [HttpGet("GetMFSummaryTimeWise")]
-        public async Task<IActionResult> GetMFSummaryTimeWise()
+        public async Task<IActionResult> GetMFSummaryTimeWise(DateTime date)
         {
-            var mfTimeWiseData = await _mutalfundDashBoardService.GetMFSummaryTimeWiseAsync();
+            var mfTimeWiseData = await _mutalfundDashBoardService.GetMFSummaryTimeWiseAsync(date);
             return Ok(mfTimeWiseData);
         }
         #endregion
