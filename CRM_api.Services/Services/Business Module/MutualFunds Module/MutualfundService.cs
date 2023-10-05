@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Configuration.Annotations;
 using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
@@ -347,7 +348,25 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
             return mapMFUser;
         }
-        #endregion 
+        #endregion
+
+        #region Get AMFI nav data
+        public async Task<ResponseDto<AmfiNavDto>> GetAMFINavDataAsync(string? search, SortingParams sortingParams)
+        {
+            var navData = await _mutualfundRepository.GetAMFINavList(true, search, sortingParams);
+            var mappedNavData = _mapper.Map<ResponseDto<AmfiNavDto>>(navData.Item2);
+            return mappedNavData;
+        }
+        #endregion
+
+        #region Get AMFI scheme data
+        public async Task<ResponseDto<AmfiSchemeDto>> GetAMFISchemeDataAsync(string? search, SortingParams sortingParams)
+        {
+            var navSchemes = await _mutualfundRepository.GetAMFISchemesList(true, search, sortingParams);
+            var mappedSchemeData = _mapper.Map<ResponseDto<AmfiSchemeDto>>(navSchemes.Item2);
+            return mappedSchemeData;
+        }
+        #endregion
 
         #region Display SchemeName
         public async Task<ResponseDto<SchemaNameDto>> DisplayschemeNameAsync(int userId, string? folioNo, string? searchingParams, SortingParams sortingParams)
@@ -841,7 +860,8 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                 var count = 0;
                 List<AddAMFINAVDto> navDataDtoList = new List<AddAMFINAVDto>();
                 List<TblAmfiNav> updateList = new List<TblAmfiNav>();
-                var navDataList = await _mutualfundRepository.GetAMFINavList();
+                var navDataListResponse = await _mutualfundRepository.GetAMFINavList(false, null, null);
+                var navDataList = navDataListResponse.Item1;
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -888,7 +908,8 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                 response = await httpClient.GetAsync(schemeFilePath);
                 if (response.IsSuccessStatusCode)
                 {
-                    var schemesList = await _mutualfundRepository.GetAMFISchemesList(); 
+                    var schemesListResponse = await _mutualfundRepository.GetAMFISchemesList(false, null, null);
+                    var schemesList = schemesListResponse.Item1;
                     List<TblAmfiSchemeMaster> amfiSchemeMasters = new List<TblAmfiSchemeMaster>();
                     
                     List<AddAmfiSchemeDto> schemeDtoList = new List<AddAmfiSchemeDto>();

@@ -21,14 +21,14 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         }
 
         #region get stock summary report
-        public async Task<List<StocksDashboardSummaryDto>> GetStocksSummaryReportAsync()
+        public async Task<List<StocksDashboardSummaryDto>> GetStocksSummaryReportAsync(DateTime date)
         {
             List<StocksDashboardSummaryDto> dashboardSummaryDtos = new List<StocksDashboardSummaryDto>();
             var scrips = await _stocksRepository.GetAllScrip();
             var stockDataList = await _stocksDashboardRepository.GetAllStockData();
 
             // Calculate date ranges
-            var today = DateTime.Now.Date;
+            var today = date;
             var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
             var startOfMonth = new DateTime(today.Year, today.Month, 1);
             var startOfQuarter = new DateTime(today.Year, (today.Month - 1) / 3 * 3 + 1, 1);

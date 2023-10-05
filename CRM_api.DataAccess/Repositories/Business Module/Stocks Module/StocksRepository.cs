@@ -101,6 +101,38 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         }
         #endregion
 
+        #region Get All Scrip data for listing
+        public async Task<Response<TblScripMaster>> GetAllScripData(string? exchange, string? search, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+            IQueryable<TblScripMaster?> scripList = null;
+
+            if (search != null)
+                scripList = _context.Search<TblScripMaster>(search).Where(s => (string.IsNullOrEmpty(exchange) || s.Exchange.ToLower().Equals(exchange.ToLower()))).AsQueryable();
+            else
+                scripList = _context.TblScripMasters.Where(s => (string.IsNullOrEmpty(exchange) || s.Exchange.ToLower().Equals(exchange.ToLower()))).AsQueryable();
+
+            pageCount = Math.Ceiling((scripList.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(scripList, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var scripData = new Response<TblScripMaster>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+            return scripData;
+        }
+        #endregion
+
         #region Calculate intraDay/Delivery Buy/Sale
         public async Task<(decimal?, decimal?, decimal?, decimal?, decimal?, decimal?)> CalculateIntradayDeliveryAmount(IQueryable<TblStockData> filterData, List<TblScripMaster> scrips)
         {

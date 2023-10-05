@@ -16,9 +16,9 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region get stock summary report
         [HttpGet("GetStockSummaryReport")]
-        public async Task<IActionResult> GetStockSummaryReport()
+        public async Task<IActionResult> GetStockSummaryReport(DateTime date)
         {
-            var result = await _stocksDashboardService.GetStocksSummaryReportAsync();
+            var result = await _stocksDashboardService.GetStocksSummaryReportAsync(date);
             return Ok(result);
         }
         #endregion

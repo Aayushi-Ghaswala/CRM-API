@@ -95,6 +95,22 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
         }
         #endregion
 
+        #region Get All Scrip data for listing
+        [HttpGet("GetAllScripData")]
+        public async Task<IActionResult> GetAllScripData(string? exchange, string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var scripData = await _stockService.GetAllScripDataAsync(exchange, search, sortingParams);
+                return Ok(scripData);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region Import Sherkhan All Trade File[.csv]
         [HttpPost("ImportSherkhanAllTradeFile")]
         public async Task<IActionResult> ImportSherkhanAllTradeFile(IFormFile formFile, string firmName, bool overrideData = false)
