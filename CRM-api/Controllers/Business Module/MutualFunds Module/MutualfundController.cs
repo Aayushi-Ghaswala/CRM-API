@@ -89,6 +89,38 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         }
         #endregion
 
+        #region Get AMFI nav data
+        [HttpGet("GetAMFINavData")]
+        public async Task<IActionResult> GetAMFINavData(string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var amfiNavData = await _mutualfundService.GetAMFINavDataAsync(search, sortingParams);
+                return Ok(amfiNavData);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get AMFI scheme data
+        [HttpGet("GetAMFISchemeData")]
+        public async Task<IActionResult> GetAMFISchemeData(string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var amfiSchemeData = await _mutualfundService.GetAMFISchemeDataAsync(search, sortingParams);
+                return Ok(amfiSchemeData);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region Display Scheme Name by UserId
         [HttpGet("SchemaName")]
         public async Task<IActionResult> GetSchemeName(int userId, string? folioNo, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)

@@ -245,16 +245,82 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get AMFI Nav List
-        public async Task<List<TblAmfiNav>> GetAMFINavList()
+        public async Task<(List<TblAmfiNav>, Response<TblAmfiNav>)> GetAMFINavList(bool withSorting, string? search, SortingParams sortingParams)
         {
-            return await _context.TblAmfiNavs.ToListAsync();
+            if (withSorting)
+            {
+                IQueryable<TblAmfiNav> amfiNavs = new List<TblAmfiNav>().AsQueryable();
+                double pageCount = 0;
+
+                if (search != null)
+                    amfiNavs = _context.Search<TblAmfiNav>(search);
+                else 
+                    amfiNavs = _context.TblAmfiNavs.AsQueryable();
+
+                pageCount = Math.Ceiling(amfiNavs.Count() / sortingParams.PageSize);
+
+                //Apply sorting
+                var sortingData = SortingExtensions.ApplySorting(amfiNavs, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+                //Apply Pagination
+                var paginatedData = SortingExtensions.ApplyPagination(sortingData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+                var responseData = new Response<TblAmfiNav>()
+                {
+                    Values = paginatedData,
+                    Pagination = new Pagination()
+                    {
+                        CurrentPage = sortingParams.PageNumber,
+                        Count = (int)pageCount
+                    }
+                };
+
+                return (null, responseData);
+            }
+            else
+            {
+                return (await _context.TblAmfiNavs.ToListAsync(), null);
+            }
         }
         #endregion
 
         #region Get AMFI Scheme List
-        public async Task<List<TblAmfiSchemeMaster>> GetAMFISchemesList()
+        public async Task<(List<TblAmfiSchemeMaster>, Response<TblAmfiSchemeMaster>)> GetAMFISchemesList(bool withSorting, string? search, SortingParams sortingParams)
         {
-            return await _context.TblAmfiSchemeMasters.ToListAsync();
+            if (withSorting)
+            {
+                IQueryable<TblAmfiSchemeMaster> tblAmfiSchemes = new List<TblAmfiSchemeMaster>().AsQueryable();
+                double pageCount = 0;
+
+                if (search != null)
+                    tblAmfiSchemes = _context.Search<TblAmfiSchemeMaster>(search);
+                else
+                    tblAmfiSchemes = _context.TblAmfiSchemeMasters.AsQueryable();
+
+                pageCount = Math.Ceiling(tblAmfiSchemes.Count() / sortingParams.PageSize);
+
+                //Apply sorting
+                var sortingData = SortingExtensions.ApplySorting(tblAmfiSchemes, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+                //Apply Pagination
+                var paginatedData = SortingExtensions.ApplyPagination(sortingData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+                var responseData = new Response<TblAmfiSchemeMaster>()
+                {
+                    Values = paginatedData,
+                    Pagination = new Pagination()
+                    {
+                        CurrentPage = sortingParams.PageNumber,
+                        Count = (int)pageCount
+                    }
+                };
+
+                return (null, responseData);
+            }
+            else
+            {
+                return (await _context.TblAmfiSchemeMasters.ToListAsync(), null);
+            }
         }
         #endregion
 

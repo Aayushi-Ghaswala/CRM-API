@@ -236,6 +236,15 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         }
         #endregion  
 
+        #region Get All Scrip data for listing
+        public async Task<ResponseDto<ScripMasterDto>> GetAllScripDataAsync(string? exchange, string? search, SortingParams sortingParams)
+        {
+            var scripData = await _stocksRepository.GetAllScripData(exchange, search, sortingParams);
+            var mappedScripData = _mapper.Map<ResponseDto<ScripMasterDto>>(scripData);
+            return mappedScripData;
+        }
+        #endregion
+
         #region Import Sherkhan trade file for all and/or individual client.
         public async Task<int> ImportSherkhanTradeFileAsync(IFormFile formFile, string firmName, int id, bool overrideData)
         {
