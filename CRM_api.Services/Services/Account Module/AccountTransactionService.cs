@@ -110,14 +110,14 @@ namespace CRM_api.Services.Services.Account_Module
 
                 if (transaction.Debit != null || transaction.Debit != 0)
                 {
-                    var creditTransaction = _accountTransactionRepository.GetAccountTransactionByDocNo(transaction.DocNo, transaction.Debit, transaction.Credit).Result.FirstOrDefault();
+                    var creditTransaction = _accountTransactionRepository.GetAccountTransactionByDocNo(transaction.DocNo, transaction.Debit, transaction.Credit, transaction.DocType, (int)transaction.CompanyMaster.Id).Result.FirstOrDefault();
 
                     if (creditTransaction is not null)
                         transaction.CreditAccount = _mapper.Map<AccountMasterDto>(creditTransaction.TblAccountMaster);
                 }
                 else
                 {
-                    var debitTransaction = _accountTransactionRepository.GetAccountTransactionByDocNo(transaction.DocNo, transaction.Debit, transaction.Credit).Result.FirstOrDefault();
+                    var debitTransaction = _accountTransactionRepository.GetAccountTransactionByDocNo(transaction.DocNo, transaction.Debit, transaction.Credit, transaction.DocType, (int)transaction.CompanyMaster.Id).Result.FirstOrDefault();
 
                     if (debitTransaction is not null)
                         transaction.DebitAccount = _mapper.Map<AccountMasterDto>(debitTransaction.TblAccountMaster);
@@ -209,7 +209,7 @@ namespace CRM_api.Services.Services.Account_Module
             {
                 if (transaction.DocParticulars is not "Opening Balance" && transaction.DocParticulars is not "Total")
                 {
-                    var opptransaction = await _accountTransactionRepository.GetAccountTransactionByDocNo(transaction.DocNo, transaction.Debit, transaction.Credit);
+                    var opptransaction = await _accountTransactionRepository.GetAccountTransactionByDocNo(transaction.DocNo, transaction.Debit, transaction.Credit, transaction.DocType, (int)transaction.CompanyMaster.Id);
                     if (opptransaction.Count > 0 && opptransaction.First() is not null)
                         transaction.DebitAccount = _mapper.Map<AccountMasterDto>(opptransaction.First().TblAccountMaster);
                 }
@@ -394,7 +394,7 @@ namespace CRM_api.Services.Services.Account_Module
                 mapAccountTransaction.Accountid = updateAccountTransaction.CreditAccountId;
 
             accountTransactions.Add(mapAccountTransaction);
-            var transaction = _accountTransactionRepository.GetAccountTransactionByDocNo(accTransaction.DocNo, accTransaction.Debit, accTransaction.Credit).Result.FirstOrDefault();
+            var transaction = _accountTransactionRepository.GetAccountTransactionByDocNo(accTransaction.DocNo, accTransaction.Debit, accTransaction.Credit, accTransaction.DocType, (int)accTransaction.Companyid).Result.FirstOrDefault();
             if (transaction is not null)
             {
                 if (mapAccountTransaction.Debit is not null && mapAccountTransaction.Debit != 0)
@@ -433,9 +433,9 @@ namespace CRM_api.Services.Services.Account_Module
         #endregion
 
         #region Delete Account Transaction
-        public async Task<int> DeleteAccountTransactionAsync(string? docNo)
+        public async Task<int> DeleteAccountTransactionAsync(string? docNo, string docType, int companyId)
         {
-            List<TblAccountTransaction> accountTransactions = await _accountTransactionRepository.GetAccountTransactionByDocNo(docNo, null, null);
+            List<TblAccountTransaction> accountTransactions = await _accountTransactionRepository.GetAccountTransactionByDocNo(docNo, null, null, docType, companyId);
             return await _accountTransactionRepository.DeleteAccountTransaction(accountTransactions);
         }
         #endregion

@@ -43,10 +43,10 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
             // Calculate summaries
             dashboardSummaryDtos.Add(CalculateStockSummary("Today", todayDataList, scrips));
-            dashboardSummaryDtos.Add(CalculateStockSummary("This Week", weekDataList, scrips));
-            dashboardSummaryDtos.Add(CalculateStockSummary("This Month", monthDataList, scrips));
-            dashboardSummaryDtos.Add(CalculateStockSummary("This Quarter", quarterDataList, scrips));
-            dashboardSummaryDtos.Add(CalculateStockSummary("This Year", yearDataList, scrips));
+            dashboardSummaryDtos.Add(CalculateStockSummary("Current Week", weekDataList, scrips));
+            dashboardSummaryDtos.Add(CalculateStockSummary("Current Month", monthDataList, scrips));
+            dashboardSummaryDtos.Add(CalculateStockSummary("Current Quarter", quarterDataList, scrips));
+            dashboardSummaryDtos.Add(CalculateStockSummary("Current Year", yearDataList, scrips));
             dashboardSummaryDtos.Add(CalculateStockSummary("All Time", stockDataList, scrips));
 
             //dashboardSummaryDtos.Reverse();
@@ -55,9 +55,9 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         #endregion
 
         #region stock Intra delivery report
-        public async Task<List<StocksDashboardIntraDeliveryDto>> GetStocksIntraDeliveryReportAsync()
+        public async Task<List<StocksDashboardIntraDeliveryDto>> GetStocksIntraDeliveryReportAsync(DateTime date)
         {
-            var result = await _stocksDashboardRepository.GetIntraDeliveryReport();
+            var result = await _stocksDashboardRepository.GetIntraDeliveryReport(date);
             var mappedResult = _mapper.Map<List<StocksDashboardIntraDeliveryDto>>(result);
             return mappedResult;
         }

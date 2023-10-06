@@ -7,6 +7,6 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module
     {
         Task<List<vw_StockData>> GetStockDataOfDateRange(DateTime toDate);
         Task<List<vw_StockData>> GetAllStockData();
-        Task<List<StocksDashboardIntraDeliveryResponse>> GetIntraDeliveryReport();
+        Task<List<StocksDashboardIntraDeliveryResponse>> GetIntraDeliveryReport(DateTime date);
     }
 }

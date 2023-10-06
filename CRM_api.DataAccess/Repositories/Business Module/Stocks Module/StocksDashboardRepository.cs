@@ -32,13 +32,13 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         #endregion
 
         #region get intraday delivery report
-        public async Task<List<StocksDashboardIntraDeliveryResponse>> GetIntraDeliveryReport()
+        public async Task<List<StocksDashboardIntraDeliveryResponse>> GetIntraDeliveryReport(DateTime date)
         {
             var stockDataList = _context.TblStockData.AsQueryable();
             var scrips = await _stocksRepository.GetAllScrip();
             List<StocksDashboardIntraDeliveryResponse> stocksDashboardIntraDeliveryResponses = new List<StocksDashboardIntraDeliveryResponse>();
             // Calculate date ranges
-            var today = DateTime.Now.Date;
+            var today = date;
             var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
             var startOfMonth = new DateTime(today.Year, today.Month, 1);
             var startOfQuarter = new DateTime(today.Year, (today.Month - 1) / 3 * 3 + 1, 1);
@@ -46,7 +46,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
 
             // Filter stock data for different durations
             var yearDataList = stockDataList.Where(s => s.StDate.Value.Year == today.Year).AsQueryable();
-            var quarterDataList = yearDataList.Where(s => s.StDate.Value.Date >= startOfQuarter.Date && s.StDate.Value <= startOfQuarter.AddMonths(2)).AsQueryable();
+            var quarterDataList = yearDataList.Where(s => s.StDate.Value.Date >= startOfQuarter.Date && s.StDate.Value < startOfQuarter.AddMonths(3)).AsQueryable();
             var monthDataList = quarterDataList.Where(s => s.StDate.Value.Month == startOfMonth.Month).AsQueryable();
             var weekDataList = monthDataList.Where(s => s.StDate.Value.Date >= startOfWeek.Date && s.StDate.Value.Date < startOfWeek.AddDays(7).Date).AsQueryable();
             var todayDataList = weekDataList.Where(s => s.StDate.Value.Date == today.Date).AsQueryable();
@@ -54,13 +54,13 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
             var result = await _stocksRepository.CalculateIntradayDeliveryAmount(todayDataList, scrips);
             stocksDashboardIntraDeliveryResponses.Add(new StocksDashboardIntraDeliveryResponse("Today", result.Item1, result.Item2, result.Item3, result.Item4, result.Item5, result.Item6));
             result = await _stocksRepository.CalculateIntradayDeliveryAmount(weekDataList, scrips);
-            stocksDashboardIntraDeliveryResponses.Add(new StocksDashboardIntraDeliveryResponse("This Week", result.Item1, result.Item2, result.Item3, result.Item4, result.Item5, result.Item6));
+            stocksDashboardIntraDeliveryResponses.Add(new StocksDashboardIntraDeliveryResponse("Current Week", result.Item1, result.Item2, result.Item3, result.Item4, result.Item5, result.Item6));
             result = await _stocksRepository.CalculateIntradayDeliveryAmount(monthDataList, scrips);
-            stocksDashboardIntraDeliveryResponses.Add(new StocksDashboardIntraDeliveryResponse("This Month", result.Item1, result.Item2, result.Item3, result.Item4, result.Item5, result.Item6));
+            stocksDashboardIntraDeliveryResponses.Add(new StocksDashboardIntraDeliveryResponse("Current Month", result.Item1, result.Item2, result.Item3, result.Item4, result.Item5, result.Item6));
             result = await _stocksRepository.CalculateIntradayDeliveryAmount(quarterDataList, scrips);
-            stocksDashboardIntraDeliveryResponses.Add(new StocksDashboardIntraDeliveryResponse("This Quarter", result.Item1, result.Item2, result.Item3, result.Item4, result.Item5, result.Item6));
+            stocksDashboardIntraDeliveryResponses.Add(new StocksDashboardIntraDeliveryResponse("Current Quarter", result.Item1, result.Item2, result.Item3, result.Item4, result.Item5, result.Item6));
             result = await _stocksRepository.CalculateIntradayDeliveryAmount(yearDataList, scrips);
-            stocksDashboardIntraDeliveryResponses.Add(new StocksDashboardIntraDeliveryResponse("This Year", result.Item1, result.Item2, result.Item3, result.Item4, result.Item5, result.Item6));
+            stocksDashboardIntraDeliveryResponses.Add(new StocksDashboardIntraDeliveryResponse("Current Year", result.Item1, result.Item2, result.Item3, result.Item4, result.Item5, result.Item6));
             result = await _stocksRepository.CalculateIntradayDeliveryAmount(stockDataList, scrips);
             stocksDashboardIntraDeliveryResponses.Add(new StocksDashboardIntraDeliveryResponse("All Time", result.Item1, result.Item2, result.Item3, result.Item4, result.Item5, result.Item6));
 

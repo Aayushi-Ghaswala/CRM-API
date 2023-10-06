@@ -97,11 +97,11 @@ namespace CRM_api.Controllers.Account_Module
 
         #region Delete Account Transactions
         [HttpDelete("DeleteAccountTransaction")]
-        public async Task<IActionResult> DeleteAccountTransaction(string? docNo)
+        public async Task<IActionResult> DeleteAccountTransaction(string? docNo, string docType, int companyId)
         {
             try
             {
-                var data = await _accountTransactionservice.DeleteAccountTransactionAsync(docNo);
+                var data = await _accountTransactionservice.DeleteAccountTransactionAsync(docNo, docType, companyId);
                 return data != 0 ? Ok(new { Message = "Account transaction deleted successfully." }) : BadRequest(new { Message = "Unable to delete account transaction." });
             }
             catch (Exception)
