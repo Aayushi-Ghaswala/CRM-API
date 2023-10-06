@@ -25,11 +25,11 @@ namespace CRM_api.Controllers.Business_Module.Stocks_Module
 
         #region get intraday delivery report
         [HttpGet("GetIntradayDeliveryReport")]
-        public async Task<IActionResult> GetIntradayDeliveryReport()
+        public async Task<IActionResult> GetIntradayDeliveryReport(DateTime date)
         {
             try
             {
-                var result = await _stocksDashboardService.GetStocksIntraDeliveryReportAsync();
+                var result = await _stocksDashboardService.GetStocksIntraDeliveryReportAsync(date);
                 return Ok(result);
             }
             catch (Exception ex)

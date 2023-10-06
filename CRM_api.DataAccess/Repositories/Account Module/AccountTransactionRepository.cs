@@ -142,19 +142,23 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         #endregion
 
         #region Get Account Transaction By DocNo
-        public async Task<List<TblAccountTransaction>> GetAccountTransactionByDocNo(string docNo, decimal? debit, decimal? credit)
+        public async Task<List<TblAccountTransaction>> GetAccountTransactionByDocNo(string docNo, decimal? debit, decimal? credit, string docType, int companyId)
         {
             List<TblAccountTransaction> transactions = new List<TblAccountTransaction>();
 
-            if (debit is not null || credit is not null || debit != 0 || credit != 0)
+            if ((debit is not null || credit is not null) && (debit != 0 || credit != 0))
             {
-                var transaction = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo) && x.Debit != debit && x.Credit != credit)
-                                                                       .Include(x => x.TblAccountMaster).AsNoTracking().FirstOrDefaultAsync();
+                var transaction = new TblAccountTransaction();
+                if (debit is not null && debit != 0)
+                    transaction = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo) && x.Credit == debit && x.DocType.ToLower() == docType.ToLower() && x.Companyid == companyId).Include(x => x.TblAccountMaster).AsNoTracking().FirstOrDefaultAsync();
+                else
+                    transaction = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo) && x.Debit == credit && x.DocType.ToLower() == docType.ToLower() && x.Companyid == companyId).Include(x => x.TblAccountMaster).AsNoTracking().FirstOrDefaultAsync();
+
                 transactions.Add(transaction);
             }
             else
             {
-                transactions = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo)).ToListAsync();
+                transactions = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo) && x.DocType.ToLower().Equals(docType.ToLower()) && x.Companyid.Equals(companyId)).ToListAsync();
             }
 
             if (transactions is null)
