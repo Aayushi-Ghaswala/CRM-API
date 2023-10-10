@@ -561,7 +561,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     else if (client.Transactiontype.ToLower() == "pip (sip)")
                         client.Transactiontype = "SIP";
 
-                    var subSubInvTypeMF = "";
                     //For WBC New Introduction / Conversion (to parent) - 1
                     var mfTrans = await _context.TblMftransactions.Where(m => m.Userid == client.Userid && m.Transactiontype.Contains("SIP")).ToListAsync();
                     if (mfTrans.Count == 1)
@@ -661,25 +660,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
 
                                 CheckAddSchemeEntry(wbcUser);
                             }
-                        }
-                    }
-
-                    //Portfolio Review - 4
-                    var portfolioReviewRequest = await _context.TblPortfolioReviewRequests.Where(p => Convert.ToInt32(p.RequestUserid) == client.Userid && p.RequestType == 1 && p.RequestDate == date).ToListAsync();
-                    var scheme = wbcSchemeMF.FirstOrDefault(w => w.WbcTypeId == 4 && w.TblSubsubInvType.SubInvType.Contains(client.Transactiontype));
-                    if (portfolioReviewRequest.Count == 1 && scheme != null)
-                    {
-                        if (scheme.TblSubsubInvType != null)
-                        {
-                            subSubInvTypeMF = String.IsNullOrEmpty(scheme.TblSubsubInvType.SubInvType) ? "" : scheme.TblSubsubInvType.SubInvType;
-                        }
-                        if (scheme.IsParentAllocation)
-                            await parentGpAllocation(client.Userid, scheme.Id, scheme.TblWbcTypeMaster.WbcType, scheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, scheme.GoldPoint, 0);
-                        else
-                        {
-                            var wbcUser = new WbcGPResponseModel((int)client.Userid, client.TblUserMaster.UserName, scheme.Id, scheme.TblWbcTypeMaster.WbcType, scheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, scheme.GoldPoint, 0, true);
-
-                            CheckAddSchemeEntry(wbcUser);
                         }
                     }
                 }
