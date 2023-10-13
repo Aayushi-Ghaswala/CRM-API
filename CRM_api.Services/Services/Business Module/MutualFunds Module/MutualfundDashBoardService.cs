@@ -112,7 +112,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             TimeWiseMutualFundSummaryDto timeWiseMutualFundSummary = new TimeWiseMutualFundSummaryDto();
 
             timeWiseMutualFundSummary.Duration = duration;
-            var sipTransaction = tblMftransactions.Where(x => !x.Transactiontype.ToLower().Equals("pip") && !x.Transactiontype.ToLower().Equals("swo") && !x.Transactiontype.ToLower().Equals("red") && !x.Transactiontype.ToLower().Equals("sale")).AsQueryable();
+            var sipTransaction = tblMftransactions.Where(x => x.Transactiontype.Equals("PIP (SIP)")).AsQueryable();
             timeWiseMutualFundSummary.SIP = sipTransaction.GroupBy(x => x.Username).Count();
             timeWiseMutualFundSummary.SIPAmount = sipTransaction.Sum(x => x.Invamount);
 
