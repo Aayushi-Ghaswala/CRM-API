@@ -17,6 +17,8 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<TblAccountMaster> TblAccountMasters { get; set; } = null!;
         public virtual DbSet<TblAccountOpeningBalance> TblAccountOpeningBalances { get; set; } = null!;
         public virtual DbSet<TblAccountTransaction> TblAccountTransactions { get; set; } = null!;
+        public virtual DbSet<TblAmfiNav> TblAmfiNavs { get; set; } = null!;
+        public virtual DbSet<TblAmfiSchemeMaster> TblAmfiSchemeMasters { get; set; } = null!;
         public virtual DbSet<TblBankMaster> TblBankMasters { get; set; } = null!;
         public virtual DbSet<TblCampaignMaster> TblCampaignMasters { get; set; } = null!;
         public virtual DbSet<TblCityMaster> TblCityMasters { get; set; } = null!;
@@ -497,11 +499,85 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false)
                     .HasColumnName("doc_type");
 
+                entity.Property(e => e.Narration)
+                    .IsUnicode(false)
+                    .HasColumnName("narration");
+
                 entity.Property(e => e.DocUserid).HasColumnName("doc_userid");
 
                 entity.Property(e => e.Mgainid).HasColumnName("mgainid");
 
                 entity.Property(e => e.TransactionType).HasColumnName("transaction_type");
+            });
+
+            modelBuilder.Entity<TblAmfiNav>(entity =>
+            {
+                entity.ToTable("tbl_AMFI_Nav");
+
+                entity.Property(e => e.Date).HasColumnType("date");
+
+                entity.Property(e => e.Isin)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("ISIN");
+
+                entity.Property(e => e.NetAssetValue)
+                    .HasMaxLength(15)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.SchemeCode)
+                    .HasMaxLength(15)
+                    .IsUnicode(false)
+                    .HasColumnName("Scheme_code");
+
+                entity.Property(e => e.SchemeName)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("Scheme_name");
+            });
+
+            modelBuilder.Entity<TblAmfiSchemeMaster>(entity =>
+            {
+                entity.ToTable("tbl_AMFI_Scheme_Master");
+
+                entity.Property(e => e.Amc)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("AMC");
+
+                entity.Property(e => e.ClosureDate).HasColumnType("date");
+
+                entity.Property(e => e.Isin)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("ISIN");
+
+                entity.Property(e => e.LaunchDate).HasColumnType("date");
+
+                entity.Property(e => e.SchemeCategory)
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.SchemeCode)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.SchemeMinAmt)
+                    .HasMaxLength(100)
+                    .IsUnicode(false); ;
+
+                entity.Property(e => e.SchemeName)
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.SchemeNavname)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("SchemeNAVName");
+
+                entity.Property(e => e.SchemeType)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<TblBankMaster>(entity =>

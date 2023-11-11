@@ -80,9 +80,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             IQueryable<TblMgaindetail> filterData = mGainDetails.AsQueryable();
 
             if (searchingParams is not null)
-                filterData = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainIsclosed == false && x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date && (schemeId == null || x.MgainSchemeid == schemeId)).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainPaymentMethods).AsQueryable();
+                filterData = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date && (schemeId == null || x.MgainSchemeid == schemeId) && x.MgainIsclosed == false).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainPaymentMethods).AsQueryable();
             else
-                filterData = _context.TblMgaindetails.Where(x => x.MgainIsclosed == false && x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date && (schemeId == null || x.MgainSchemeid == schemeId)).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainPaymentMethods).AsQueryable();
+                filterData = _context.TblMgaindetails.Where(x => x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date && (schemeId == null || x.MgainSchemeid == schemeId) && x.MgainIsclosed == false).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainPaymentMethods).AsQueryable();
 
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
@@ -135,9 +135,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             IQueryable<TblMgaindetail> filterData = details.AsQueryable();
 
             if (search is not null)
-                filterData = _context.Search<TblMgaindetail>(search).Where(x => x.Date.Value.Year >= fromYear && x.Date.Value.Year <= toYear && x.MgainType.ToLower().Equals(mgainType.ToLower()) && (schemeId == null || x.MgainSchemeid == schemeId)).Include(x => x.TblMgainSchemeMaster).AsQueryable();
+                filterData = _context.Search<TblMgaindetail>(search).Where(x => x.Date.Value.Year >= fromYear && x.Date.Value.Year <= toYear && x.MgainType.ToLower().Equals(mgainType.ToLower()) && (schemeId == null || x.MgainSchemeid == schemeId) && x.MgainIsclosed == false).Include(x => x.TblMgainSchemeMaster).AsQueryable();
             else
-                filterData = _context.TblMgaindetails.Where(x => x.Date.Value.Year >= fromYear && x.Date.Value.Year <= toYear && x.MgainType.ToLower().Equals(mgainType.ToLower()) && (schemeId == null || x.MgainSchemeid == schemeId)).Include(x => x.TblMgainSchemeMaster).AsQueryable();
+                filterData = _context.TblMgaindetails.Where(x => x.Date.Value.Year >= fromYear && x.Date.Value.Year <= toYear && x.MgainType.ToLower().Equals(mgainType.ToLower()) && (schemeId == null || x.MgainSchemeid == schemeId) && x.MgainIsclosed == false).Include(x => x.TblMgainSchemeMaster).AsQueryable();
 
             // Apply sorting
             var sortedData = SortingExtensions.ApplySorting(filterData, sortingParams.SortBy, sortingParams.IsSortAscending);
@@ -202,11 +202,11 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #endregion
 
         #region Get Account by UserId
-        public TblAccountMaster GetAccountByUserId(int? userId, string? accountName)
+        public TblAccountMaster GetAccountByUserId(int? userId, string? accountName, int companyId)
         {
             TblAccountMaster account = new TblAccountMaster();
 
-            account = _context.TblAccountMasters.FirstOrDefault(x => (userId != 0 && x.UserId == userId) || (accountName != null & accountName == accountName));
+            account = _context.TblAccountMasters.FirstOrDefault(x => ((userId != 0 && x.UserId == userId) || (accountName != null & x.AccountName == accountName)) && x.Companyid == companyId);
 
             return account;
         }
@@ -258,12 +258,16 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #region Add User Account
         public async Task<int> AddUserAccount(TblAccountMaster tblAccountMaster)
         {
-            if (_context.TblAccountMasters.Any(x => x.UserId == tblAccountMaster.UserId && x.AccountName == tblAccountMaster.AccountName))
-                return 0;
+            if (_context.TblAccountMasters.Any(x => x.UserId == tblAccountMaster.UserId && x.AccountName == tblAccountMaster.AccountName && x.Companyid == tblAccountMaster.Companyid))
+            {
+                var account = await _context.TblAccountMasters.Where(x => x.UserId == tblAccountMaster.UserId && x.Companyid == tblAccountMaster.Companyid).FirstAsync();
+                return account.AccountId;
+            }
             else
             {
                 await _context.TblAccountMasters.AddAsync(tblAccountMaster);
-                return await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+                return tblAccountMaster.AccountId;
             }
         }
         #endregion

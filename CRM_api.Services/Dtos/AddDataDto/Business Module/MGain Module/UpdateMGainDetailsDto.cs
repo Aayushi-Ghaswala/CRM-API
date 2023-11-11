@@ -69,6 +69,7 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module
         public string? MgainCancelledCheque { get; set; }
         public IFormFile? MgainCancelledChequeFile { get; set; }
         public bool? MgainIsTdsDeduction { get; set; }
+        public string? _15h15g { get; set; }
         public bool? MgainIsclosed { get; set; }
     }
 }

@@ -14,10 +14,13 @@ namespace CRM_api.Services.IServices.Business_Module.MutualFunds_Module
         Task<MFTransactionDto<MFCategoryWiseDto>> GetMFCategoryWiseAsync(int userId, bool? isBalanceUnitZero, string? searchingParams, SortingParams sortingParams);
         Task<MFTransactionDto<AllClientMFSummaryDto>> GetAllClientMFSummaryAsync(bool? isBalanceUnitZero, DateTime fromDate, DateTime toDate, string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<UserNameDto>> GetMFUserNameAsync(string? searchingParams, SortingParams sortingParams);
+        Task<ResponseDto<AmfiNavDto>> GetAMFINavDataAsync(string? search, SortingParams sortingParams);
+        Task<ResponseDto<AmfiSchemeDto>> GetAMFISchemeDataAsync(string? search, SortingParams sortingParams);
         Task<ResponseDto<SchemaNameDto>> DisplayschemeNameAsync(int userId, string? folioNo, string? searchingParams, SortingParams sortingParams);
         Task<ResponseDto<SchemaNameDto>> DisplayFolioNoAsync(int userId, string? schemeName, string? searchingParams, SortingParams sortingParams);
         Task<int> ImportNJClientFileAsync(IFormFile file, bool updateIfExist);
         Task<int> ImportCAMSFileAsync(IFormFile file, string password, bool UpdateIfExist);
         Task<int> ImportNJDailyPriceFileAsync(IFormFile formFile);
+        Task<(int, string)> ImportAMFINAVFileAsync();
     }
 }

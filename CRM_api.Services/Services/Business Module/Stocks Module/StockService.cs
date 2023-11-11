@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Configuration.Annotations;
 using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
@@ -23,13 +24,15 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         private readonly IMapper _mapper;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IUserMasterRepository _userMasterRepository;
+        private readonly IStocksDashboardService _stocksDashboardService;
 
-        public StockService(IStocksRepository stocksRepository, IMapper mapper, IHttpClientFactory httpClientFactory, IUserMasterRepository userMasterRepository)
+        public StockService(IStocksRepository stocksRepository, IMapper mapper, IHttpClientFactory httpClientFactory, IUserMasterRepository userMasterRepository, IStocksDashboardService stocksDashboardService)
         {
             _stocksRepository = stocksRepository;
             _mapper = mapper;
             _httpClientFactory = httpClientFactory;
             _userMasterRepository = userMasterRepository;
+            _stocksDashboardService = stocksDashboardService;
         }
 
         #region Get stock user's client names
@@ -65,6 +68,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
         public async Task<StockResponseDto<StockMasterDto>> GetStockDataAsync(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string firmName, string? fileType, string? searchingParams, SortingParams sortingParams)
         {
             var stocksData = await _stocksRepository.GetStocksTransactions(clientName, fromDate, toDate, scriptName, firmName, fileType, searchingParams, sortingParams);
+
             var stockResult = _mapper.Map<StockResponseDto<StockMasterDto>>(stocksData);
             return stockResult;
         }
@@ -231,6 +235,15 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
             return stockSummaryResponse;
         }
         #endregion  
+
+        #region Get All Scrip data for listing
+        public async Task<ResponseDto<ScripMasterDto>> GetAllScripDataAsync(string? exchange, string? search, SortingParams sortingParams)
+        {
+            var scripData = await _stocksRepository.GetAllScripData(exchange, search, sortingParams);
+            var mappedScripData = _mapper.Map<ResponseDto<ScripMasterDto>>(scripData);
+            return mappedScripData;
+        }
+        #endregion
 
         #region Import Sherkhan trade file for all and/or individual client.
         public async Task<int> ImportSherkhanTradeFileAsync(IFormFile formFile, string firmName, int id, bool overrideData)
@@ -722,8 +735,11 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                             else
                             {
                                 //Kolte - Patil Developers Limited
-                                scripName = stockData.StScripname.Split('-')[0].Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
-                                scripName[0] += " -";
+                                scripName = stockData.StScripname.Split('-')[0].Split(' ').ToList();
+                                if (scripName.Any(s => s.Contains(" ")))
+                                    scripName[0] += " -";
+                                else
+                                    scripName[0] += "-";
                                 scripName.AddRange(stockData.StScripname.Split('-')[1].Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList());
                             }
                         }
@@ -741,13 +757,23 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                         }
                         do
                         {
+                            scripList = scrips.Where(s => s.Scripname != null && s.Scripname.ToLower().Contains(stockData.StScripname.ToLower())).ToList();
+                            if (scripList.Count() == 1)
+                                continue;
                             string? scripData = "";
                             for (var j = 0; j <= n; j++)
                             {
                                 if (string.IsNullOrEmpty(scripData))
                                     scripData = scripName[j];
-                                else
-                                    scripData += " " + scripName[j];
+                                else {
+                                    if (stockData.StScripname.Contains("-") && !stockData.StScripname.Split('-')[0].Split(' ').ToList().Contains(" ") && j <= 1)
+                                        scripData += scripName[j];
+                                    else if (stockData.StScripname.Contains(".") && !stockData.StScripname.Split('.')[0].Split(' ').ToList().Contains(" ") && j <= 1)
+                                        scripData += scripName[j];
+                                    else
+                                        scripData += " " + scripName[j];
+                                }
+
                             }
                             scripList = scrips.Where(x => x.Scripname != null && x.Scripname.ToLower().Contains(scripData.ToLower()) && x.Exchange.Contains(exchange)).ToList();
                             n += 1;

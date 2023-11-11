@@ -1,4 +1,5 @@
-﻿using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
+﻿using AutoMapper;
+using CRM_api.DataAccess.IRepositories.Business_Module.Stocks_Module;
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.Stocks_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
@@ -10,22 +11,24 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
     {
         private readonly IStocksDashboardRepository _stocksDashboardRepository;
         private readonly IStocksRepository _stocksRepository;
+        private readonly IMapper _mapper;
 
-        public StocksDashboardService(IStocksDashboardRepository stocksDashboardRepository, IStocksRepository stocksRepository)
+        public StocksDashboardService(IStocksDashboardRepository stocksDashboardRepository, IStocksRepository stocksRepository, IMapper mapper)
         {
             _stocksDashboardRepository = stocksDashboardRepository;
             _stocksRepository = stocksRepository;
+            _mapper = mapper;
         }
 
         #region get stock summary report
-        public async Task<List<StocksDashboardSummaryDto>> GetStocksSummaryReportAsync()
+        public async Task<List<StocksDashboardSummaryDto>> GetStocksSummaryReportAsync(DateTime date)
         {
             List<StocksDashboardSummaryDto> dashboardSummaryDtos = new List<StocksDashboardSummaryDto>();
             var scrips = await _stocksRepository.GetAllScrip();
             var stockDataList = await _stocksDashboardRepository.GetAllStockData();
 
             // Calculate date ranges
-            var today = DateTime.Now.Date;
+            var today = date;
             var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
             var startOfMonth = new DateTime(today.Year, today.Month, 1);
             var startOfQuarter = new DateTime(today.Year, (today.Month - 1) / 3 * 3 + 1, 1);
@@ -33,21 +36,30 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
             // Filter stock data for different durations
             var yearDataList = stockDataList.Where(s => s.StDate.Value.Year == today.Year).ToList();
-            var quarterDataList = yearDataList.Where(s => s.StDate.Value.Date >= startOfQuarter.Date && s.StDate.Value <= startOfQuarter.AddMonths(2)).ToList();
+            var quarterDataList = yearDataList.Where(s => s.StDate.Value.Date >= startOfQuarter.Date && s.StDate.Value < startOfQuarter.AddMonths(3)).ToList();
             var monthDataList = quarterDataList.Where(s => s.StDate.Value.Month == startOfMonth.Month).ToList();
             var weekDataList = monthDataList.Where(s => s.StDate.Value.Date >= startOfWeek.Date && s.StDate.Value.Date < startOfWeek.AddDays(7).Date).ToList();
             var todayDataList = weekDataList.Where(s => s.StDate.Value.Date == today.Date).ToList();
 
             // Calculate summaries
             dashboardSummaryDtos.Add(CalculateStockSummary("Today", todayDataList, scrips));
-            dashboardSummaryDtos.Add(CalculateStockSummary("This Week", weekDataList, scrips));
-            dashboardSummaryDtos.Add(CalculateStockSummary("This Month", monthDataList, scrips));
-            dashboardSummaryDtos.Add(CalculateStockSummary("This Quarter", quarterDataList, scrips));
-            dashboardSummaryDtos.Add(CalculateStockSummary("This Year", yearDataList, scrips));
+            dashboardSummaryDtos.Add(CalculateStockSummary("Current Week", weekDataList, scrips));
+            dashboardSummaryDtos.Add(CalculateStockSummary("Current Month", monthDataList, scrips));
+            dashboardSummaryDtos.Add(CalculateStockSummary("Current Quarter", quarterDataList, scrips));
+            dashboardSummaryDtos.Add(CalculateStockSummary("Current Year", yearDataList, scrips));
             dashboardSummaryDtos.Add(CalculateStockSummary("All Time", stockDataList, scrips));
 
             //dashboardSummaryDtos.Reverse();
             return dashboardSummaryDtos;
+        }
+        #endregion
+
+        #region stock Intra delivery report
+        public async Task<List<StocksDashboardIntraDeliveryDto>> GetStocksIntraDeliveryReportAsync(DateTime date)
+        {
+            var result = await _stocksDashboardRepository.GetIntraDeliveryReport(date);
+            var mappedResult = _mapper.Map<List<StocksDashboardIntraDeliveryDto>>(result);
+            return mappedResult;
         }
         #endregion
 
@@ -118,7 +130,6 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
             return new StocksDashboardSummaryDto(duration, totalClients, totalClientAmount, totalDeliveryClient, totalDeliveryAmount, totalIntraClient, totalIntraAmount);
         }
-
         #endregion
 
         #region get summary chart report

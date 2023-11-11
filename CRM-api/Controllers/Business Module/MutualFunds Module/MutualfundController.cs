@@ -89,6 +89,38 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
         }
         #endregion
 
+        #region Get AMFI nav data
+        [HttpGet("GetAMFINavData")]
+        public async Task<IActionResult> GetAMFINavData(string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var amfiNavData = await _mutualfundService.GetAMFINavDataAsync(search, sortingParams);
+                return Ok(amfiNavData);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get AMFI scheme data
+        [HttpGet("GetAMFISchemeData")]
+        public async Task<IActionResult> GetAMFISchemeData(string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var amfiSchemeData = await _mutualfundService.GetAMFISchemeDataAsync(search, sortingParams);
+                return Ok(amfiSchemeData);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #region Display Scheme Name by UserId
         [HttpGet("SchemaName")]
         public async Task<IActionResult> GetSchemeName(int userId, string? folioNo, [FromQuery] string? search, [FromQuery] SortingParams? sortingParams)
@@ -161,6 +193,22 @@ namespace CRM_api.Controllers.Business_Module.MutualFunds_Module
             {
                 var flag = await _mutualfundService.ImportNJDailyPriceFileAsync(file);
                 return (flag != 0) ? Ok(new { Message = "File imported sucessfully." }) : BadRequest(new { Message = "Unable to import file data." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Import AMFI NAV File
+        [HttpPost("ImportAMFINAVFile")]
+        public async Task<IActionResult> ImportAMFINAVFile()
+        {
+            try
+            {
+                var flag = await _mutualfundService.ImportAMFINAVFileAsync();
+                return (flag.Item1 != 0) ? Ok(new { Message = flag.Item2 }) : BadRequest(new { Message = flag.Item2 });
             }
             catch (Exception)
             {

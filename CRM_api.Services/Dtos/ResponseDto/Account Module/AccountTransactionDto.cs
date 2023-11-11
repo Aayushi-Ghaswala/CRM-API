@@ -15,6 +15,7 @@ namespace CRM_api.Services.Dtos.ResponseDto.Account_Module
         public decimal? Debit { get; set; }
         public decimal? Credit { get; set; }
         public int? DocSubType { get; set; }
+        public string? Narration { get; set; }
         public UserNameDto? UserMaster { get; set; }
         public AccountMasterDto? DebitAccount { get; set; }
         public AccountMasterDto? CreditAccount { get; set; }

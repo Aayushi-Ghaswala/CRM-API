@@ -47,7 +47,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
                 userCountDto.Month = date.ToString("MMM-yyyy");
                 var currentMonthData = mfTransaction.Where(x => x.Date <= lastDay).ToList();
-                userCountDto.CurrentMonthActiveClients = currentMonthData.Where(x => x.Date.Value.Month == date.Month && x.Date.Value.Year == date.Year).ToList().DistinctBy(x => x.Username).Count();
+                userCountDto.CurrentMonthActiveClients = currentMonthData.Where(x => x.Date.Value.Month == date.Month && x.Date.Value.Year == date.Year && x.Transactiontype != "RED").ToList().DistinctBy(x => x.Username).Count();
                 userCountDto.UserCount = currentMonthData.GroupBy(x => x.Username).Count();
 
                 var schemewiseData = currentMonthData.GroupBy(x => x.Schemename).ToList();
@@ -77,12 +77,12 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         #endregion
 
         #region Get All Mutual Fund Summary For Different Time
-        public async Task<List<TimeWiseMutualFundSummaryDto>> GetMFSummaryTimeWiseAsync()
+        public async Task<List<TimeWiseMutualFundSummaryDto>> GetMFSummaryTimeWiseAsync(DateTime date)
         {
             var mfTransaction = await _mutualfundDashBoardRepository.GetAllMFTransaction();
             List<TimeWiseMutualFundSummaryDto> timeWiseMutualFunds = new List<TimeWiseMutualFundSummaryDto>();
 
-            var today = DateTime.Now.Date;
+            var today = date;
             var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
             var startOfMonth = new DateTime(today.Year, today.Month, 1);
             var startOfQuarter = new DateTime(today.Year, (today.Month - 1) / 3 * 3 + 1, 1);
@@ -90,16 +90,16 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
             // Filter stock data for different durations
             var yearDataList = mfTransaction.Where(s => s.Date.Value.Year == today.Year).ToList();
-            var quarterDataList = yearDataList.Where(s => s.Date.Value.Date >= startOfQuarter.Date && s.Date.Value <= startOfQuarter.AddMonths(2)).ToList();
+            var quarterDataList = yearDataList.Where(s => s.Date.Value.Date >= startOfQuarter.Date && s.Date.Value < startOfQuarter.AddMonths(3)).ToList();
             var monthDataList = quarterDataList.Where(s => s.Date.Value.Month == startOfMonth.Month).ToList();
             var weekDataList = monthDataList.Where(s => s.Date.Value.Date >= startOfWeek.Date && s.Date.Value.Date < startOfWeek.AddDays(7).Date).ToList();
             var todayDataList = weekDataList.Where(s => s.Date.Value.Date == today.Date).ToList();
 
             timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(todayDataList, "Today"));
-            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(weekDataList, "This Week"));
-            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(monthDataList, "This Month"));
-            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(quarterDataList, "This Quarter"));
-            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(yearDataList, "This Year"));
+            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(weekDataList, "Current Week"));
+            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(monthDataList, "Current Month"));
+            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(quarterDataList, "Current Quarter"));
+            timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(yearDataList, "Current Year"));
             timeWiseMutualFunds.Add(await GetTimeWiseMutualFund(mfTransaction, "All Time"));
 
             return timeWiseMutualFunds;
@@ -116,11 +116,11 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             timeWiseMutualFundSummary.SIP = sipTransaction.GroupBy(x => x.Username).Count();
             timeWiseMutualFundSummary.SIPAmount = sipTransaction.Sum(x => x.Invamount);
 
-            var lumpSumpTransaction = tblMftransactions.Where(x => x.Transactiontype.Equals("PIP")).AsQueryable();
+            var lumpSumpTransaction = tblMftransactions.Where(x => x.Transactiontype.ToLower().Equals("pip")).AsQueryable();
             timeWiseMutualFundSummary.LumpSump = lumpSumpTransaction.DistinctBy(x => x.Username).Count();
             timeWiseMutualFundSummary.LumpsumpAmount = lumpSumpTransaction.Sum(x => x.Invamount);
 
-            var redeemptionTransaction = tblMftransactions.Where(x => x.Transactiontype == "SWO" || x.Transactiontype == "RED" || x.Transactiontype == "Sale").AsQueryable();
+            var redeemptionTransaction = tblMftransactions.Where(x => x.Transactiontype.ToLower() == "swo" || x.Transactiontype.ToLower() == "red" || x.Transactiontype.ToLower() == "sale").AsQueryable();
             timeWiseMutualFundSummary.Redeemption = redeemptionTransaction.DistinctBy(x => x.Username).Count();
             timeWiseMutualFundSummary.RedeemptionAmount = redeemptionTransaction.Sum(x => x.Invamount);
 

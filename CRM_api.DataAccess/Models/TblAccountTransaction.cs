@@ -18,6 +18,7 @@ namespace CRM_api.DataAccess.Models
         public int? Companyid { get; set; }
         public string? TransactionType { get; set; }
         public int? Currencyid { get; set; }
+        public string? Narration { get; set; }
         [ForeignKey(nameof(Mgainid))]
         public virtual TblMgaindetail? TblMgaindetail { get; set; }
         [ForeignKey(nameof(DocUserid))]

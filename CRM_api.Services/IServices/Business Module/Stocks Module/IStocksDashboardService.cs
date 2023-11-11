@@ -5,7 +5,8 @@ namespace CRM_api.Services.IServices.Business_Module.Stocks_Module
 {
     public interface IStocksDashboardService
     {
-        Task<List<StocksDashboardSummaryDto>> GetStocksSummaryReportAsync();
+        Task<List<StocksDashboardSummaryDto>> GetStocksSummaryReportAsync(DateTime date);
+        Task<List<StocksDashboardIntraDeliveryDto>> GetStocksIntraDeliveryReportAsync(DateTime date);
         Task<List<HoldingChartReportDto>> GetSummaryChartReportAsync(DateTime fromDate, DateTime toDate);
     }
 }

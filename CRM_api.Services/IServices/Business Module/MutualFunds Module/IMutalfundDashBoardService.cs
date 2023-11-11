@@ -7,6 +7,6 @@ namespace CRM_api.Services.IServices.Business_Module.MutualFunds_Module
     {
         Task<List<TopTenSchemeDto>> GetTopTenSchemeByInvestmentAsync();
         Task<List<HoldingChartReportDto>> GetMFHoldingSummaryAsync(DateTime? fromDate, DateTime? toDate);
-        Task<List<TimeWiseMutualFundSummaryDto>> GetMFSummaryTimeWiseAsync();
+        Task<List<TimeWiseMutualFundSummaryDto>> GetMFSummaryTimeWiseAsync(DateTime date);
     }
 }

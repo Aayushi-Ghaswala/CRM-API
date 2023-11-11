@@ -101,6 +101,100 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
         }
         #endregion
 
+        #region Get All Scrip data for listing
+        public async Task<Response<TblScripMaster>> GetAllScripData(string? exchange, string? search, SortingParams sortingParams)
+        {
+            double pageCount = 0;
+            IQueryable<TblScripMaster?> scripList = null;
+
+            if (search != null)
+                scripList = _context.Search<TblScripMaster>(search).Where(s => (string.IsNullOrEmpty(exchange) || s.Exchange.ToLower().Equals(exchange.ToLower()))).AsQueryable();
+            else
+                scripList = _context.TblScripMasters.Where(s => (string.IsNullOrEmpty(exchange) || s.Exchange.ToLower().Equals(exchange.ToLower()))).AsQueryable();
+
+            pageCount = Math.Ceiling((scripList.Count() / sortingParams.PageSize));
+
+            // Apply sorting
+            var sortedData = SortingExtensions.ApplySorting(scripList, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            // Apply pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var scripData = new Response<TblScripMaster>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    CurrentPage = sortingParams.PageNumber,
+                    Count = (int)pageCount
+                }
+            };
+            return scripData;
+        }
+        #endregion
+
+        #region Calculate intraDay/Delivery Buy/Sale
+        public async Task<(decimal?, decimal?, decimal?, decimal?, decimal?, decimal?)> CalculateIntradayDeliveryAmount(IQueryable<TblStockData> filterData, List<TblScripMaster> scrips)
+        {
+            decimal? totalIntraBuyAmount = 0.0m;
+            decimal? totalIntraSaleAmount = 0.0m;
+            decimal? totalDeliveryBuyAmount = 0.0m;
+            decimal? totalDeliverySaleAmount = 0.0m;
+
+            var stockDataLookup = filterData.ToLookup(s => s.StClientname);
+
+            foreach (var clientName in stockDataLookup)
+            {
+                var clientWiseStock = clientName.ToList();
+
+                var scripWiseStockLookup = clientWiseStock.ToLookup(s => s.StScripname);
+
+                foreach (var scripName in scripWiseStockLookup)
+                {
+                    var scripWiseStock = scripName.ToList();
+
+                    var dateWiseStockLookup = scripWiseStock.ToLookup(s => s.StDate);
+
+                    decimal? price = 0.0m;
+                    var scrip = scrips.FirstOrDefault(x => x.Scripname != null && x.Scripname.ToLower() == scripName.Key.ToLower());
+
+                    if (scrip is not null)
+                        price = scrip.Ltp;
+                    else
+                        price = Math.Round((decimal)scripWiseStock.Last().StNetsharerate, 2);
+
+                    foreach (var stock in dateWiseStockLookup)
+                    {
+                        var totalBuyQty = stock.Where(s => s.StType == "B").Sum(s => s.StQty);
+                        var totalSaleQty = stock.Where(s => s.StType == "S").Sum(s => s.StQty);
+
+                        if (totalBuyQty == totalSaleQty)
+                        {
+                            totalIntraSaleAmount += stock.Where(s => s.StType == "S").Sum(s => s.StNetcostvalue);
+                            totalIntraBuyAmount += (int)stock.Where(s => s.StType == "B").Sum(s => s.StNetcostvalue);
+                        }
+                        else if (totalBuyQty > totalSaleQty)
+                        {
+                            totalIntraSaleAmount += stock.Where(s => s.StType == "S").Sum(s => s.StNetcostvalue);
+                            var rate = stock.Where(s => s.StType == "B").FirstOrDefault().StNetsharerate;
+                            totalIntraBuyAmount += rate * totalSaleQty;
+                            totalDeliveryBuyAmount += rate * (totalBuyQty - totalSaleQty);
+                        }
+                        else
+                        {
+                            totalDeliverySaleAmount += price * (totalSaleQty - totalBuyQty);
+                        }
+                    }
+                }
+            }
+
+            var totalPurchase = filterData.Where(s => s.StType.Equals("B")).Sum(x => x.StNetcostvalue);
+            var totalSale = filterData.Where(s => s.StType.Equals("S")).Sum(x => x.StNetcostvalue);
+
+            return (totalIntraBuyAmount, totalIntraSaleAmount, totalDeliveryBuyAmount, totalDeliverySaleAmount, totalPurchase, totalSale);
+        }
+        #endregion
+
         #region Get stocks transaction data
         public async Task<StocksResponse<TblStockData>> GetStocksTransactions(string clientName, DateTime? fromDate, DateTime? toDate, string scriptName, string firmName, string? fileType, string? searchingParams, SortingParams sortingParams)
         {
@@ -108,17 +202,14 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
             List<TblStockData> data = new List<TblStockData>();
             IQueryable<TblStockData> filterData = data.AsQueryable();
 
-            decimal? totalPurchase = 0;
-            decimal? totalSale = 0;
-
             if (searchingParams != null)
                 filterData = _context.Search<TblStockData>(searchingParams).Where(s => (string.IsNullOrEmpty(clientName) || (!string.IsNullOrEmpty(clientName) && s.StClientname.ToLower().Equals(clientName.ToLower()))) && (fromDate == null || (s.StDate != null && s.StDate >= fromDate)) && (toDate == null || (s.StDate != null && s.StDate <= toDate)) && (string.IsNullOrEmpty(scriptName) || (!string.IsNullOrEmpty(scriptName) && s.StScripname.ToLower().Equals(scriptName.ToLower()))) && (string.IsNullOrEmpty(firmName) || (!string.IsNullOrEmpty(s.FirmName) && s.FirmName.ToLower().Equals(firmName.ToLower()))) && (string.IsNullOrEmpty(fileType) || (!string.IsNullOrEmpty(s.FileType) && s.FileType.ToLower().Equals(fileType.ToLower())))).AsQueryable();
             else
                 filterData = _context.TblStockData.Where(s => (string.IsNullOrEmpty(clientName) || (!string.IsNullOrEmpty(clientName) && s.StClientname.ToLower().Equals(clientName.ToLower()))) && (fromDate == null || (s.StDate != null && s.StDate >= fromDate)) && (toDate == null || (s.StDate != null && s.StDate <= toDate)) && (string.IsNullOrEmpty(scriptName) || (!string.IsNullOrEmpty(scriptName) && s.StScripname.ToLower().Equals(scriptName.ToLower()))) && (string.IsNullOrEmpty(firmName) || (!string.IsNullOrEmpty(firmName) && s.FirmName.ToLower().Equals(firmName.ToLower()))) && (string.IsNullOrEmpty(fileType) || (!string.IsNullOrEmpty(s.FileType) && s.FileType.ToLower().Equals(fileType.ToLower())))).AsQueryable();
 
-            totalPurchase = filterData.Where(s => s.StType.Equals("B")).Sum(x => x.StNetcostvalue);
-            totalSale = filterData.Where(s => s.StType.Equals("S")).Sum(x => x.StNetcostvalue);
-            
+            var scrips = await GetAllScrip();
+            var BuySaleReport = await CalculateIntradayDeliveryAmount(filterData, scrips);
+
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
             // Apply sorting
@@ -139,8 +230,12 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.Stocks_Module
             var stockResponse = new StocksResponse<TblStockData>()
             {
                 response = stockData,
-                TotalPurchase = totalPurchase,
-                TotalSale = totalSale,
+                TotalIntradayBuy = BuySaleReport.Item1,
+                TotalIntradaySale = BuySaleReport.Item2,
+                TotalDeliveryBuy = BuySaleReport.Item3,
+                TotalDeliverySale = BuySaleReport.Item4,
+                TotalPurchase = BuySaleReport.Item5,
+                TotalSale = BuySaleReport.Item6,
             };
             return stockResponse;
         }

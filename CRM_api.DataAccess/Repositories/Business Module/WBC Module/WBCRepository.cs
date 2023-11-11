@@ -199,7 +199,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         #region Create temp table
         public async Task<int> CreateTempTable()
         {
-            var createTableSql = "CREATE TABLE user_gp_temp_table (UserId INT, WbcSchemeId INT, WbcTypeName NVARCHAR(50), SubInvestmentType NVARCHAR(50), SubSubInvestmentType NVARCHAR(50), ReferralGP INT, GoldPoint INT, OnTheSpotGP INT, IsRedeemable BIT)";
+            var createTableSql = "CREATE TABLE user_gp_temp_table (UserId INT, WbcSchemeId INT, WbcTypeName NVARCHAR(100), SubInvestmentType NVARCHAR(50), SubSubInvestmentType NVARCHAR(50), ReferralGP INT, GoldPoint INT, OnTheSpotGP INT, IsRedeemable BIT)";
             try
             {
                 return await _context.Database.ExecuteSqlRawAsync(createTableSql);
@@ -214,7 +214,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
         #region Create Table Type
         public async Task<int> CreateTableType()
         {
-            var createType = "CREATE TYPE [kaadmin].[user_gp_table_type] AS TABLE(UserId INT, WbcSchemeId INT, WbcTypeName NVARCHAR(50), SubInvestmentType NVARCHAR(50), SubSubInvestmentType NVARCHAR(50), ReferralGP INT, GoldPoint INT, OnTheSpotGP INT, IsRedeemable BIT)";
+            var createType = "CREATE TYPE [kaadmin].[user_gp_table_type] AS TABLE(UserId INT, WbcSchemeId INT, WbcTypeName NVARCHAR(100), SubInvestmentType NVARCHAR(50), SubSubInvestmentType NVARCHAR(50), ReferralGP INT, GoldPoint INT, OnTheSpotGP INT, IsRedeemable BIT)";
             return await _context.Database.ExecuteSqlRawAsync(createType);
         }
         #endregion
@@ -358,6 +358,8 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
             var userReferals = await GetUserReferalDetails(date);
             var userReferalsUserWise = userReferals.GroupBy(x => x.RefById);
             var wbcScheme = await GetWBCSchemeByWBCTypeId(2, date);
+            if (wbcScheme is null)
+                return;
             foreach (var userReferalUserWise in userReferalsUserWise)
             {
                 var redemableGP = 0;
@@ -494,7 +496,17 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                                     subSubInvTypeInv = String.IsNullOrEmpty(userWbcScheme.TblSubsubInvType.SubInvType) ? "" : userWbcScheme.TblSubsubInvType.SubInvType;
                                 }
                                 if (client.TblUserMaster.UserParentid != null)
-                                    await parentGpAllocation(client.TblUserMaster.UserParentid, userWbcScheme.Id, userWbcScheme.TblWbcTypeMaster.WbcType, userWbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeInv, 0, userWbcScheme.GoldPoint, 0);
+                                {
+                                    if (userWbcScheme.IsParentAllocation)
+                                        await parentGpAllocation(client.TblUserMaster.UserParentid, userWbcScheme.Id, userWbcScheme.TblWbcTypeMaster.WbcType + $" (From child - {client.InsUsername})", userWbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeInv, 0, userWbcScheme.GoldPoint, 0);
+                                    else
+                                    {
+                                        var wbcParent = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, userWbcScheme.Id, userWbcScheme.TblWbcTypeMaster.WbcType + $" (From child - {client.InsUsername})", userWbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeInv, 0, userWbcScheme.GoldPoint, 0, true);
+
+                                        CheckAddSchemeEntry(wbcParent);
+                                    }
+
+                                }
                             }
                         }
                     }
@@ -547,21 +559,26 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
 
                 #region Mutual Fund
                 //MF
-                var mfClientsList = await _context.TblMftransactions.Include(i => i.TblUserMaster).Where(m => m.Date == date && m.TblUserMaster.UserWbcActive == true && m.TblUserMaster.UserFasttrack == false).ToListAsync();
+                var mfClientsList = await _context.TblMftransactions.Include(i => i.TblUserMaster).Where(m => m.Date.Value.Date == date.Date && m.TblUserMaster.UserWbcActive == true && (m.TblUserMaster.UserFasttrack == false || m.TblUserMaster.UserFasttrack == null) && (m.Transactiontype.ToLower().Contains("pip (sip)") || m.Transactiontype.ToLower().Contains("pip"))).ToListAsync();
                 var wbcSchemeMF = wbcSchemeMaster.Where(w => w.TblSubInvesmentType != null).ToList().Where(w => w.TblSubInvesmentType.InvestmentType.ToLower().Contains(BusinessConstants.MF)).ToList();
-
-                foreach (var client in mfClientsList)
+                var mfGroupedData = mfClientsList.GroupBy(x => x.Foliono).ToList();
+                var wbcTypeNameWithFolio = await _context.TblUserOnTheSpotGP.Where(g => g.WbcTypeName.Contains("(")).Select(g => g.WbcTypeName).ToListAsync();
+                var folioNumbersList = wbcTypeNameWithFolio.Where(s => s.Contains("(")).Select(s => new string(s.Where(char.IsDigit).ToArray())).ToList();
+                var subSubInvTypeMF = "";
+                foreach (var groupData in mfGroupedData)
                 {
-                    if (client.Transactiontype.ToLower() == "pip")
-                        client.Transactiontype = "Lumpsum";
+                    bool isAlreadyAllocated = false;
+                    var transType = "";
+                    if (groupData.Any(x => x.Transactiontype.ToLower() == "pip (sip)"))
+                        transType = "SIP";
 
-                    else if (client.Transactiontype.ToLower() == "pip(sip)")
-                        client.Transactiontype = "SIP";
+                    if (groupData.Any(x => x.Transactiontype.ToLower() == "pip"))
+                        transType = "Lumpsum";
 
-                    var subSubInvTypeMF = "";
                     //For WBC New Introduction / Conversion (to parent) - 1
-                    var mfTrans = await _context.TblMftransactions.Where(m => m.Userid == client.Userid && m.Transactiontype.Contains("SIP")).ToListAsync();
-                    if (mfTrans.Count == 1)
+                    var mfTrans = await _context.TblMftransactions.Where(m => m.Userid == groupData.FirstOrDefault().Userid && m.Transactiontype.Contains("SIP") && m.Date < date).ToListAsync();
+                    var client = groupData.FirstOrDefault();
+                    if (mfTrans.Count == 0)
                     {
                         var wbcScheme = wbcSchemeMF.FirstOrDefault(w => w.WbcTypeId == 1);
                         if (wbcScheme != null && client.TblUserMaster.UserParentid != null)
@@ -572,66 +589,67 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                             }
 
                             if (wbcScheme.IsParentAllocation != true)
-                                await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, wbcScheme.GoldPoint, 0);
+                                await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType + $" (From child - {client.Username})", wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, wbcScheme.GoldPoint, 0);
                             else
                             {
-                                var wbcParent = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, wbcScheme.GoldPoint, 0, true);
-
+                                var wbcParent = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType + $" (From child - {client.Username})", wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, wbcScheme.GoldPoint, 0, true);
                                 CheckAddSchemeEntry(wbcParent);
                             }
                         }
-                    }
 
-                    //For WBC My Own Transaction (self) - 3
-
-                    var mfUserWbcOwnScheme = wbcSchemeMF.Where(x => x.TblSubsubInvType != null).FirstOrDefault(w => w.WbcTypeId == 3 && w.TblSubsubInvType.SubInvType.ToLower().Contains(client.Transactiontype.ToLower()) && w.Business == null);
-                    if (mfUserWbcOwnScheme != null)
-                    {
-                        if (mfUserWbcOwnScheme.TblSubsubInvType != null)
+                        //For WBC My Own Transaction (self) - 3
+                        var mfUserWbcOwnScheme = wbcSchemeMF.Where(x => x.TblSubsubInvType != null).FirstOrDefault(w => w.WbcTypeId == 3 && w.TblSubsubInvType.SubInvType.ToLower().Contains(client.Transactiontype.ToLower()) && w.Business == null);
+                        if (mfUserWbcOwnScheme != null)
                         {
-                            subSubInvTypeMF = String.IsNullOrEmpty(mfUserWbcOwnScheme.TblSubsubInvType.SubInvType) ? "" : mfUserWbcOwnScheme.TblSubsubInvType.SubInvType;
-                        }
-                        if (mfUserWbcOwnScheme.IsParentAllocation)
-                            await parentGpAllocation(client.Userid, mfUserWbcOwnScheme.Id, mfUserWbcOwnScheme.TblWbcTypeMaster.WbcType, mfUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, mfUserWbcOwnScheme.GoldPoint, 0);
-                        else
-                        {
-                            var wbcUser = new WbcGPResponseModel((int)client.Userid, client.TblUserMaster.UserName, mfUserWbcOwnScheme.Id, mfUserWbcOwnScheme.TblWbcTypeMaster.WbcType, mfUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, mfUserWbcOwnScheme.GoldPoint, 0, true);
-
-                            CheckAddSchemeEntry(wbcUser);
-                        }
-                    }
-
-                    var userWbcOwnBenefitMF = wbcSchemeMF.Where(x => x.TblSubsubInvType != null && x.Business != null).FirstOrDefault(w => w.WbcTypeId == 3 && w.TblSubsubInvType.SubInvType.ToLower().Contains(client.Transactiontype.ToLower()) && w.Business != null);
-
-
-                    var mfClients = mfClientsList.Where(i => i.Userid == client.Userid && i.Transactiontype.ToLower().Contains(client.Transactiontype.ToLower()) && i.Foliono == client.Foliono).ToList();
-
-                    var totalMfInvAmt = mfClients.Sum(m => m.Invamount);
-
-                    if (userWbcOwnBenefitMF != null && totalMfInvAmt > 0)
-                    {
-                        if (totalMfInvAmt >= Convert.ToInt32(userWbcOwnBenefitMF.Business))
-                        {
-                            var allowable_on_the_spot_gp = 0m;
-                            var everyBenefit = Math.Round((decimal)totalMfInvAmt / Convert.ToDecimal(userWbcOwnBenefitMF.Business));
-                            if (everyBenefit > 0)
+                            if (mfUserWbcOwnScheme.TblSubsubInvType != null)
                             {
-                                allowable_on_the_spot_gp = Convert.ToDecimal(userWbcOwnBenefitMF.On_the_spot_GP) * Convert.ToDecimal(everyBenefit);
+                                subSubInvTypeMF = String.IsNullOrEmpty(mfUserWbcOwnScheme.TblSubsubInvType.SubInvType) ? "" : mfUserWbcOwnScheme.TblSubsubInvType.SubInvType;
                             }
-                            else
-                                allowable_on_the_spot_gp = Convert.ToDecimal(userWbcOwnBenefitMF.On_the_spot_GP);
-                            if (userWbcOwnBenefitMF.TblSubsubInvType != null)
-                            {
-                                subSubInvTypeMF = String.IsNullOrEmpty(userWbcOwnBenefitMF.TblSubsubInvType.SubInvType) ? "" : userWbcOwnBenefitMF.TblSubsubInvType.SubInvType;
-                            }
-
-                            if (userWbcOwnBenefitMF.IsParentAllocation)
-                                await parentGpAllocation(client.Userid, userWbcOwnBenefitMF.Id, userWbcOwnBenefitMF.TblWbcTypeMaster.WbcType, userWbcOwnBenefitMF.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, 0, (int)allowable_on_the_spot_gp);
+                            if (mfUserWbcOwnScheme.IsParentAllocation)
+                                await parentGpAllocation(client.Userid, mfUserWbcOwnScheme.Id, mfUserWbcOwnScheme.TblWbcTypeMaster.WbcType, mfUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, mfUserWbcOwnScheme.GoldPoint, 0);
                             else
                             {
-                                var wbcUser = new WbcGPResponseModel((int)client.Userid, client.TblUserMaster.UserName, userWbcOwnBenefitMF.Id, userWbcOwnBenefitMF.TblWbcTypeMaster.WbcType, userWbcOwnBenefitMF.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, 0, (int)allowable_on_the_spot_gp, true);
+                                var wbcUser = new WbcGPResponseModel((int)client.Userid, client.TblUserMaster.UserName, mfUserWbcOwnScheme.Id, mfUserWbcOwnScheme.TblWbcTypeMaster.WbcType, mfUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, mfUserWbcOwnScheme.GoldPoint, 0, true);
 
                                 CheckAddSchemeEntry(wbcUser);
+                            }
+                        }
+                    }
+
+                    if (transType == "SIP")
+                        isAlreadyAllocated = folioNumbersList.Any(g => g == client.Foliono);
+
+                    if ((transType == "SIP" && !isAlreadyAllocated) || transType == "Lumpsum")
+                    {
+                        var userWbcOwnBenefitMF = wbcSchemeMF.Where(x => x.TblSubsubInvType != null && x.Business != null).FirstOrDefault(w => w.WbcTypeId == 3 && w.TblSubsubInvType.SubInvType.ToLower().Contains(transType.ToLower()) && w.Business != null);
+
+                        var totalMfInvAmt = groupData.Sum(m => m.Invamount);
+
+                        if (userWbcOwnBenefitMF != null && totalMfInvAmt > 0)
+                        {
+                            if (totalMfInvAmt >= Convert.ToInt32(userWbcOwnBenefitMF.Business))
+                            {
+                                var allowable_on_the_spot_gp = 0m;
+                                var everyBenefit = (decimal)totalMfInvAmt / Convert.ToDecimal(userWbcOwnBenefitMF.Business);
+                                if (everyBenefit > 0)
+                                {
+                                    allowable_on_the_spot_gp = Convert.ToDecimal(userWbcOwnBenefitMF.On_the_spot_GP) * Convert.ToDecimal(everyBenefit);
+                                }
+                                else
+                                    allowable_on_the_spot_gp = Convert.ToDecimal(userWbcOwnBenefitMF.On_the_spot_GP);
+                                if (userWbcOwnBenefitMF.TblSubsubInvType != null)
+                                {
+                                    subSubInvTypeMF = String.IsNullOrEmpty(userWbcOwnBenefitMF.TblSubsubInvType.SubInvType) ? "" : userWbcOwnBenefitMF.TblSubsubInvType.SubInvType;
+                                }
+
+                                if (userWbcOwnBenefitMF.IsParentAllocation)
+                                    await parentGpAllocation(groupData.FirstOrDefault().Userid, userWbcOwnBenefitMF.Id, userWbcOwnBenefitMF.TblWbcTypeMaster.WbcType + $"({client.Foliono})", userWbcOwnBenefitMF.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, 0, (int)allowable_on_the_spot_gp);
+                                else
+                                {
+                                    var wbcUser = new WbcGPResponseModel((int)groupData.FirstOrDefault().Userid, groupData.FirstOrDefault().TblUserMaster.UserName, userWbcOwnBenefitMF.Id, userWbcOwnBenefitMF.TblWbcTypeMaster.WbcType + $"({client.Foliono})", userWbcOwnBenefitMF.TblSubInvesmentType.InvestmentType, subSubInvTypeMF, 0, 0, (int)allowable_on_the_spot_gp, true);
+
+                                    CheckAddSchemeEntry(wbcUser);
+                                }
                             }
                         }
                     }
@@ -639,7 +657,8 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     //Portfolio Review - 4
                     var portfolioReviewRequest = await _context.TblPortfolioReviewRequests.Where(p => Convert.ToInt32(p.RequestUserid) == client.Userid && p.RequestType == 1 && p.RequestDate == date).ToListAsync();
                     var scheme = wbcSchemeMF.FirstOrDefault(w => w.WbcTypeId == 4 && w.TblSubsubInvType.SubInvType.Contains(client.Transactiontype));
-                    if (portfolioReviewRequest.Count == 1 && scheme != null)
+                    var previousRequests = await _context.TblPortfolioReviewRequests.Where(p => p.RequestDate < date).ToListAsync();
+                    if (previousRequests.Count == 0 && portfolioReviewRequest.Count > 0 && scheme != null)
                     {
                         if (scheme.TblSubsubInvType != null)
                         {
@@ -667,8 +686,8 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                 {
                     var subSubInvTypeMgain = "";
                     //For WBC New Introduction / Conversion (to parent) - 1
-                    var mgainList = await _context.TblMgaindetails.Where(m => m.MgainUserid == client.MgainUserid).ToListAsync();
-                    if (mgainList.Count == 1)
+                    var mgainList = await _context.TblMgaindetails.Where(m => m.MgainUserid == client.MgainUserid && m.Date < date).ToListAsync();
+                    if (mgainList.Count == 0)
                     {
                         var wbcScheme = wbcSchemeMgain.FirstOrDefault(w => w.WbcTypeId == 1);
                         if (wbcScheme != null && client.TblUserMaster.UserParentid != null)
@@ -678,10 +697,10 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                                 subSubInvTypeMgain = String.IsNullOrEmpty(wbcScheme.TblSubsubInvType.SubInvType) ? "" : wbcScheme.TblSubsubInvType.SubInvType;
                             }
                             if (wbcScheme.IsParentAllocation)
-                                await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, wbcScheme.GoldPoint, 0);
+                                await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType + $" (From child - {client.Mgain1stholder})", wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, wbcScheme.GoldPoint, 0);
                             else
                             {
-                                var wbcParent = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, wbcScheme.GoldPoint, 0, true);
+                                var wbcParent = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType + $" (From child - {client.Mgain1stholder})", wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, wbcScheme.GoldPoint, 0, true);
 
                                 CheckAddSchemeEntry(wbcParent);
                             }
@@ -689,7 +708,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     }
 
                     //For WBC My Own Transaction (self) - 3
-                    var mgainUserWbcOwnScheme = wbcSchemeMgain.FirstOrDefault(w => w.WbcTypeId == 3 && w.Business == null);
+                    var mgainUserWbcOwnScheme = wbcSchemeMgain.FirstOrDefault(w => w.WbcTypeId == 3 && w.Business != null && w.On_the_spot_GP is null);
                     if (mgainUserWbcOwnScheme != null)
                     {
                         if (mgainUserWbcOwnScheme.TblSubsubInvType != null)
@@ -697,24 +716,38 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                             subSubInvTypeMgain = String.IsNullOrEmpty(mgainUserWbcOwnScheme.TblSubsubInvType.SubInvType) ? "" : mgainUserWbcOwnScheme.TblSubsubInvType.SubInvType;
                         }
                         if (mgainUserWbcOwnScheme.IsParentAllocation)
+                        {
+                            var allowed_gp = 0.0m;
+                            var everyBusiness = (decimal)client.MgainInvamt / Convert.ToDecimal(mgainUserWbcOwnScheme.Business);
+                            if (everyBusiness > 0)
+                                allowed_gp = Convert.ToDecimal(mgainUserWbcOwnScheme.GoldPoint) * Convert.ToDecimal(everyBusiness);
+                            else
+                                allowed_gp = Convert.ToDecimal(mgainUserWbcOwnScheme.GoldPoint);
                             await parentGpAllocation(client.MgainUserid, mgainUserWbcOwnScheme.Id, mgainUserWbcOwnScheme.TblWbcTypeMaster.WbcType, mgainUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, mgainUserWbcOwnScheme.GoldPoint, 0);
+                        }
                         else
                         {
+                            var allowed_gp = 0.0m;
+                            var everyBusiness = (decimal)client.MgainInvamt / Convert.ToDecimal(mgainUserWbcOwnScheme.Business);
+                            if (everyBusiness > 0)
+                                allowed_gp = Convert.ToDecimal(mgainUserWbcOwnScheme.GoldPoint) * Convert.ToDecimal(everyBusiness);
+                            else
+                                allowed_gp = Convert.ToDecimal(mgainUserWbcOwnScheme.GoldPoint);
                             var wbcUser = new WbcGPResponseModel((int)client.MgainUserid, client.TblUserMaster.UserName, mgainUserWbcOwnScheme.Id, mgainUserWbcOwnScheme.TblWbcTypeMaster.WbcType, mgainUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeMgain, 0, mgainUserWbcOwnScheme.GoldPoint, 0, true);
 
                             CheckAddSchemeEntry(wbcUser);
                         }
                     }
 
-                    var userWbcOwnBenefitMgain = wbcSchemeMgain.FirstOrDefault(w => w.WbcTypeId == 3 && w.Business != null);
-                    var totalInvAmtMgain = mgainClientsList.Sum(i => i.MgainInvamt);
+                    var userWbcOwnBenefitMgain = wbcSchemeMgain.FirstOrDefault(w => w.WbcTypeId == 3 && w.Business != null && w.On_the_spot_GP is not null);
+                    var totalInvAmtMgain = client.MgainInvamt;
 
                     if (userWbcOwnBenefitMgain != null && totalInvAmtMgain > 0)
                     {
                         if (totalInvAmtMgain >= Convert.ToInt32(userWbcOwnBenefitMgain.Business))
                         {
                             var allowable_on_the_spot_gp = 0m;
-                            var everyBenefit = Math.Round((decimal)totalInvAmtMgain / Convert.ToDecimal(userWbcOwnBenefitMgain.Business));
+                            var everyBenefit = (decimal)totalInvAmtMgain / Convert.ToDecimal(userWbcOwnBenefitMgain.Business);
                             if (everyBenefit > 0)
                             {
                                 allowable_on_the_spot_gp = Convert.ToDecimal(userWbcOwnBenefitMgain.On_the_spot_GP) * Convert.ToDecimal(everyBenefit);
@@ -738,8 +771,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
 
                     //Portfolio Review - 4
                     var mgainPortfolioReview = await _context.TblPortfolioReviewRequests.Where(p => Convert.ToInt32(p.RequestUserid) == client.MgainUserid && p.RequestType == 1 && p.RequestDate == date).ToListAsync();
+                    var previousRequests = await _context.TblPortfolioReviewRequests.Where(p => Convert.ToInt32(p.RequestUserid) == client.MgainUserid && p.RequestType == 1 && p.RequestDate < date).ToListAsync();
                     var scheme = wbcSchemeMgain.FirstOrDefault(w => w.WbcTypeId == 4);
-                    if (mgainPortfolioReview.Count == 1 && scheme != null)
+                    if (previousRequests.Count == 0 && mgainPortfolioReview.Count > 0 && scheme != null)
                     {
                         if (scheme.TblSubsubInvType != null)
                         {
@@ -755,7 +789,6 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                         }
                     }
                 }
-
                 #endregion
 
                 #region Loan Inv
@@ -767,8 +800,8 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                 {
                     var subSubInvTypeLoan = "";
                     //For WBC New Introduction / Conversion (to parent) - 1
-                    var loanList = await _context.TblLoanMasters.Where(m => m.UserId == client.UserId).ToListAsync();
-                    if (loanList.Count == 1)
+                    var loanList = await _context.TblLoanMasters.Where(m => m.UserId == client.UserId && m.StartDate < date).ToListAsync();
+                    if (loanList.Count == 0)
                     {
                         var wbcScheme = wbcSchemeLoan.FirstOrDefault(w => w.WbcTypeId == 1);
                         if (wbcScheme != null && client.TblUserMaster.UserParentid != null)
@@ -778,43 +811,43 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                                 subSubInvTypeLoan = String.IsNullOrEmpty(wbcScheme.TblSubsubInvType.SubInvType) ? "" : wbcScheme.TblSubsubInvType.SubInvType;
                             }
                             if (wbcScheme.IsParentAllocation)
-                                await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, wbcScheme.GoldPoint, 0);
+                                await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType + $" (From child - {client.TblUserMaster.UserName})", wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, wbcScheme.GoldPoint, 0);
                             else
                             {
-                                var wbcParent = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, wbcScheme.GoldPoint, 0, true);
+                                var wbcParent = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType + $" (From child - {client.TblUserMaster.UserName})", wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, wbcScheme.GoldPoint, 0, true);
 
                                 CheckAddSchemeEntry(wbcParent);
                             }
                         }
-                    }
 
-                    //For WBC My Own Transaction (self) - 3
-                    var loanUserWbcOwnScheme = wbcSchemeLoan.FirstOrDefault(w => w.WbcTypeId == 3 && w.Business == null);
-                    if (loanUserWbcOwnScheme != null)
-                    {
-                        if (loanUserWbcOwnScheme.TblSubsubInvType != null)
+                        //For WBC My Own Transaction (self) - 3
+                        var loanUserWbcOwnScheme = wbcSchemeLoan.FirstOrDefault(w => w.WbcTypeId == 3 && w.Business == null);
+                        if (loanUserWbcOwnScheme != null)
                         {
-                            subSubInvTypeLoan = String.IsNullOrEmpty(loanUserWbcOwnScheme.TblSubsubInvType.SubInvType) ? "" : loanUserWbcOwnScheme.TblSubsubInvType.SubInvType;
-                        }
-                        if (loanUserWbcOwnScheme.IsParentAllocation)
-                            await parentGpAllocation(client.UserId, loanUserWbcOwnScheme.Id, loanUserWbcOwnScheme.TblWbcTypeMaster.WbcType, loanUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, loanUserWbcOwnScheme.GoldPoint, 0);
-                        else
-                        {
-                            var wbcUser = new WbcGPResponseModel((int)client.UserId, client.TblUserMaster.UserName, loanUserWbcOwnScheme.Id, loanUserWbcOwnScheme.TblWbcTypeMaster.WbcType, loanUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, loanUserWbcOwnScheme.GoldPoint, 0, true);
+                            if (loanUserWbcOwnScheme.TblSubsubInvType != null)
+                            {
+                                subSubInvTypeLoan = String.IsNullOrEmpty(loanUserWbcOwnScheme.TblSubsubInvType.SubInvType) ? "" : loanUserWbcOwnScheme.TblSubsubInvType.SubInvType;
+                            }
+                            if (loanUserWbcOwnScheme.IsParentAllocation)
+                                await parentGpAllocation(client.UserId, loanUserWbcOwnScheme.Id, loanUserWbcOwnScheme.TblWbcTypeMaster.WbcType, loanUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, loanUserWbcOwnScheme.GoldPoint, 0);
+                            else
+                            {
+                                var wbcUser = new WbcGPResponseModel((int)client.UserId, client.TblUserMaster.UserName, loanUserWbcOwnScheme.Id, loanUserWbcOwnScheme.TblWbcTypeMaster.WbcType, loanUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeLoan, 0, loanUserWbcOwnScheme.GoldPoint, 0, true);
 
-                            CheckAddSchemeEntry(wbcUser);
+                                CheckAddSchemeEntry(wbcUser);
+                            }
                         }
                     }
 
                     var userWbcOwnBenefitLoan = wbcSchemeLoan.FirstOrDefault(w => w.WbcTypeId == 3 && w.Business != null);
-                    var totalInvAmtLoan = loanClientsList.Sum(i => i.LoanAmount);
+                    var totalInvAmtLoan = client.LoanAmount;
 
                     if (userWbcOwnBenefitLoan != null && totalInvAmtLoan > 0)
                     {
                         if (totalInvAmtLoan >= Convert.ToInt32(userWbcOwnBenefitLoan.Business))
                         {
                             var allowable_on_the_spot_gp = 0m;
-                            var everyBenefit = Math.Round((decimal)totalInvAmtLoan / Convert.ToDecimal(userWbcOwnBenefitLoan.Business));
+                            var everyBenefit = (decimal)totalInvAmtLoan / Convert.ToDecimal(userWbcOwnBenefitLoan.Business);
                             if (everyBenefit > 0)
                             {
                                 allowable_on_the_spot_gp = Convert.ToDecimal(userWbcOwnBenefitLoan.On_the_spot_GP) * Convert.ToDecimal(everyBenefit);
@@ -870,8 +903,8 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     var client = clients.FirstOrDefault();
                     var subSubInvTypeStocks = "";
                     //For WBC New Introduction / Conversion (to parent) - 1
-                    var stockList = await _context.TblStockData.Where(s => s.Userid == client.Userid || s.StClientname.ToLower().Equals(client.StClientname.ToLower())).ToListAsync();
-                    if (stockList.Count == 1)
+                    var stockList = await _context.TblStockData.Where(s => (s.Userid == client.Userid || s.StClientname.ToLower().Equals(client.StClientname.ToLower())) && s.StDate < date).ToListAsync();
+                    if (stockList.Count == 0)
                     {
                         var wbcScheme = wbcSchemeStock.FirstOrDefault(w => w.WbcTypeId == 1);
                         if (wbcScheme != null && client.TblUserMaster.UserParentid != null)
@@ -881,33 +914,33 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                                 subSubInvTypeStocks = String.IsNullOrEmpty(wbcScheme.TblSubsubInvType.SubInvType) ? "" : wbcScheme.TblSubsubInvType.SubInvType;
                             }
                             if (wbcScheme.IsParentAllocation)
-                                await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, wbcScheme.GoldPoint, 0);
+                                await parentGpAllocation(client.TblUserMaster.UserParentid, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType + $" (From child - {client.StClientname})", wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, wbcScheme.GoldPoint, 0);
                             else
                             {
-                                var wbcParent = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType, wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, wbcScheme.GoldPoint, 0, true);
+                                var wbcParent = new WbcGPResponseModel((int)client.TblUserMaster.UserParentid, client.TblUserMaster.UserName, wbcScheme.Id, wbcScheme.TblWbcTypeMaster.WbcType + $" (From child - {client.StClientname})", wbcScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, wbcScheme.GoldPoint, 0, true);
 
                                 CheckAddSchemeEntry(wbcParent);
                             }
                         }
-                    }
 
-                    //For WBC My Own Transaction (self) - 3
-                    var stockUserWbcOwnScheme = wbcSchemeStock.FirstOrDefault(w => w.WbcTypeId == 3 && w.Business == null);
-                    if (stockUserWbcOwnScheme != null)
-                    {
-                        if (stockUserWbcOwnScheme.TblSubsubInvType != null)
+                        //For WBC My Own Transaction (self) - 3
+                        var stockUserWbcOwnScheme = wbcSchemeStock.FirstOrDefault(w => w.WbcTypeId == 3 && w.Business == null);
+                        if (stockUserWbcOwnScheme != null)
                         {
-                            subSubInvTypeStocks = String.IsNullOrEmpty(stockUserWbcOwnScheme.TblSubsubInvType.SubInvType) ? "" : stockUserWbcOwnScheme.TblSubsubInvType.SubInvType;
-                        }
-                        if (client.Userid != null)
-                        {
-                            if (stockUserWbcOwnScheme.IsParentAllocation)
-                                await parentGpAllocation(client.Userid, stockUserWbcOwnScheme.Id, stockUserWbcOwnScheme.TblWbcTypeMaster.WbcType, stockUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, stockUserWbcOwnScheme.GoldPoint, 0);
-                            else
+                            if (stockUserWbcOwnScheme.TblSubsubInvType != null)
                             {
-                                var wbcUser = new WbcGPResponseModel((int)client.Userid, client.TblUserMaster.UserName, stockUserWbcOwnScheme.Id, stockUserWbcOwnScheme.TblWbcTypeMaster.WbcType, stockUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, stockUserWbcOwnScheme.GoldPoint, 0, true);
+                                subSubInvTypeStocks = String.IsNullOrEmpty(stockUserWbcOwnScheme.TblSubsubInvType.SubInvType) ? "" : stockUserWbcOwnScheme.TblSubsubInvType.SubInvType;
+                            }
+                            if (client.Userid != null)
+                            {
+                                if (stockUserWbcOwnScheme.IsParentAllocation)
+                                    await parentGpAllocation(client.Userid, stockUserWbcOwnScheme.Id, stockUserWbcOwnScheme.TblWbcTypeMaster.WbcType, stockUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, stockUserWbcOwnScheme.GoldPoint, 0);
+                                else
+                                {
+                                    var wbcUser = new WbcGPResponseModel((int)client.Userid, client.TblUserMaster.UserName, stockUserWbcOwnScheme.Id, stockUserWbcOwnScheme.TblWbcTypeMaster.WbcType, stockUserWbcOwnScheme.TblSubInvesmentType.InvestmentType, subSubInvTypeStocks, 0, stockUserWbcOwnScheme.GoldPoint, 0, true);
 
-                                CheckAddSchemeEntry(wbcUser);
+                                    CheckAddSchemeEntry(wbcUser);
+                                }
                             }
                         }
                     }
@@ -926,7 +959,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                             if (totalInvAmtStock >= Convert.ToInt32(userWbcOwnBenefitStock.Business))
                             {
                                 var allowable_on_the_spot_gp = 0m;
-                                var everyBenefit = Math.Round((decimal)totalInvAmtStock / Convert.ToDecimal(userWbcOwnBenefitStock.Business));
+                                var everyBenefit = (decimal)totalInvAmtStock / Convert.ToDecimal(userWbcOwnBenefitStock.Business);
                                 if (everyBenefit > 0)
                                 {
                                     allowable_on_the_spot_gp = Convert.ToDecimal(userWbcOwnBenefitStock.On_the_spot_GP) * Convert.ToDecimal(everyBenefit);
@@ -992,7 +1025,8 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     //Portfolio Review - 4
                     var stockPortfolioReview = await _context.TblPortfolioReviewRequests.Where(p => Convert.ToInt32(p.RequestUserid) == client.Userid && p.RequestType == 1 && p.RequestDate == date).ToListAsync();
                     var scheme = wbcSchemeStock.FirstOrDefault(w => w.WbcTypeId == 4);
-                    if (stockPortfolioReview.Count == 1 && scheme != null)
+                    var previousPR = await _context.TblPortfolioReviewRequests.Where(p => Convert.ToInt32(p.RequestUserid) == client.Userid && p.RequestType == 1 && p.RequestDate < date).ToListAsync();
+                    if (previousPR.Count == 0 && stockPortfolioReview.Count > 0 && scheme != null)
                     {
                         if (scheme.TblSubsubInvType != null)
                         {
@@ -1260,7 +1294,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                         wbcGp.SubSubInvestmentType += ", " + model.SubSubInvestmentType;
                 }
                 wbcGp.SubInvestmentType = wbcGp.SubInvestmentType.EndsWith(", ") ? wbcGp.SubInvestmentType.Replace(", ", "") : wbcGp.SubInvestmentType;
-                wbcGp.SubSubInvestmentType = wbcGp.SubSubInvestmentType.EndsWith(", ") ? wbcGp.SubSubInvestmentType.Replace(", ", "") : wbcGp.SubSubInvestmentType;
+                wbcGp.SubSubInvestmentType = wbcGp.SubSubInvestmentType != null ? wbcGp.SubSubInvestmentType.EndsWith(", ") ? wbcGp.SubSubInvestmentType.Replace(", ", "") : wbcGp.SubSubInvestmentType : "";
                 wbcGp.GoldPoint += model.GoldPoint;
                 wbcGp.ReferralGP += model.ReferralGP;
                 wbcGp.OnTheSpotGP += model.OnTheSpotGP;
@@ -1295,11 +1329,11 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.WBC_Module
                     user = (int)parentUser.UserParentid;
                     GpForOtherParent = Math.Round(GpForOtherParent * 25 / 100, 0);
                     if ((decimal)goldPoint > 0)
-                        await parentGpAllocation(user, 0, "Team earning", "", "", 0, (int)GpForOtherParent, 0);
+                        await parentGpAllocation(user, 0, $"Team earning (From child - {parentUser.UserName})", "", "", 0, (int)GpForOtherParent, 0);
                     else if ((decimal)on_the_spot > 0)
-                        await parentGpAllocation(user, 0, "Team earning", "", "", 0, 0, (int)GpForOtherParent);
+                        await parentGpAllocation(user, 0, $"Team earning (From child - {parentUser.UserName})", "", "", 0, 0, (int)GpForOtherParent);
                     else
-                        await parentGpAllocation(user, 0, "Team earning", "", "", (int)GpForOtherParent, 0, 0);
+                        await parentGpAllocation(user, 0, $"Team earning (From child - {parentUser.UserName})", "", "", (int)GpForOtherParent, 0, 0);
                 }
             }
             else

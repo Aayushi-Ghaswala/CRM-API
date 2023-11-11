@@ -117,20 +117,20 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         #endregion
 
         #region Get Company And Account wise Account Transaction
-        public async Task<List<TblAccountTransaction>> GetCompanyAndAccountWiseTransaction(int? companyId, int? accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams, string docType = null)
+        public async Task<List<TblAccountTransaction>> GetCompanyAndAccountWiseTransaction(int? companyId, int? accountId, DateTime startDate, DateTime endDate, string? search, SortingParams sortingParams, string docType = null, bool isOpeningBalance = false)
         {
             var filterData = new List<TblAccountTransaction>().AsQueryable();
 
             if (search is not null)
             {
                 filterData = _context.Search<TblAccountTransaction>(search).Where(x => (companyId == null || x.Companyid == companyId) && (docType == null || x.DocType.ToLower().Equals(docType.ToLower())) 
-                                                             && (accountId == null || x.Accountid == accountId) && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
+                                                             && (accountId == null || x.Accountid == accountId) && x.DocDate.Value.Date >= startDate.Date && (isOpeningBalance ? x.DocDate.Value.Date < endDate.Date : x.DocDate.Value.Date <= endDate.Date))
                                                              .Include(x => x.TblAccountMaster).Include(x => x.CompanyMaster).AsQueryable();
             }
             else
             {
                 filterData = _context.TblAccountTransactions.Where(x => (companyId == null || x.Companyid == companyId) && (docType == null || x.DocType.ToLower().Equals(docType.ToLower()))
-                                                            && (accountId == null || x.Accountid == accountId) && x.DocDate.Value.Date >= startDate.Date && x.DocDate.Value.Date <= endDate.Date)
+                                                            && (accountId == null || x.Accountid == accountId) && x.DocDate.Value.Date >= startDate.Date && (isOpeningBalance ? x.DocDate.Value.Date < endDate.Date : x.DocDate.Value.Date <= endDate.Date))
                                                             .Include(x => x.TblAccountMaster).Include(x => x.CompanyMaster).AsQueryable();
             }
 
@@ -142,19 +142,23 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         #endregion
 
         #region Get Account Transaction By DocNo
-        public async Task<List<TblAccountTransaction>> GetAccountTransactionByDocNo(string docNo, decimal? debit, decimal? credit)
+        public async Task<List<TblAccountTransaction>> GetAccountTransactionByDocNo(string docNo, decimal? debit, decimal? credit, string docType, int companyId)
         {
             List<TblAccountTransaction> transactions = new List<TblAccountTransaction>();
 
-            if (debit is not null || credit is not null || debit != 0 || credit != 0)
+            if ((debit is not null || credit is not null) && (debit != 0 || credit != 0))
             {
-                var transaction = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo) && x.Debit != debit && x.Credit != credit)
-                                                                       .Include(x => x.TblAccountMaster).AsNoTracking().FirstOrDefaultAsync();
+                var transaction = new TblAccountTransaction();
+                if (debit is not null && debit != 0)
+                    transaction = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo) && x.Credit == debit && x.DocType.ToLower() == docType.ToLower() && x.Companyid == companyId).Include(x => x.TblAccountMaster).AsNoTracking().FirstOrDefaultAsync();
+                else
+                    transaction = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo) && x.Debit == credit && x.DocType.ToLower() == docType.ToLower() && x.Companyid == companyId).Include(x => x.TblAccountMaster).AsNoTracking().FirstOrDefaultAsync();
+
                 transactions.Add(transaction);
             }
             else
             {
-                transactions = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo)).ToListAsync();
+                transactions = await _context.TblAccountTransactions.Where(x => x.DocNo.Equals(docNo) && x.DocType.ToLower().Equals(docType.ToLower()) && x.Companyid.Equals(companyId)).ToListAsync();
             }
 
             if (transactions is null)
@@ -164,11 +168,20 @@ namespace CRM_api.DataAccess.Repositories.Account_Module
         }
         #endregion
 
-        #region Ge Account Transaction By Id
+        #region Get Account Transaction By Id
         public async Task<TblAccountTransaction> GetAccountTransactionById(int id)
         {
             var accountTransaction = await _context.TblAccountTransactions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if (accountTransaction is null) return null;
+
+            return accountTransaction;
+        }
+        #endregion
+        
+        #region Get Account Transaction By Mgain Id
+        public async Task<List<TblAccountTransaction>> GetAccountTransactionByMgainId(int mgainId)
+        {
+            var accountTransaction = await _context.TblAccountTransactions.AsNoTracking().Where(x => x.Mgainid == mgainId && x.TransactionType == null).ToListAsync();
 
             return accountTransaction;
         }

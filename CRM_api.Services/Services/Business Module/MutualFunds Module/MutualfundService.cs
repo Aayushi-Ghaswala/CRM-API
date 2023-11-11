@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Configuration.Annotations;
 using CRM_api.DataAccess.Helper;
 using CRM_api.DataAccess.IRepositories.Business_Module.MutualFunds_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
@@ -9,10 +10,11 @@ using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.Dtos.ResponseDto.User_Module;
 using CRM_api.Services.Helper.Extensions;
 using CRM_api.Services.IServices.Business_Module.MutualFunds_Module;
+using CsvHelper;
+using CsvHelper.Configuration;
 using ExcelDataReader;
 using IronXL;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -23,14 +25,16 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
     public class MutualfundService : IMutualfundService
     {
         private readonly IMutualfundRepository _mutualfundRepository;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IMapper _mapper;
         private readonly IUserMasterRepository _userMasterRepository;
 
-        public MutualfundService(IMutualfundRepository mutualfundReposiory, IMapper mapper, IUserMasterRepository userMasterRepository)
+        public MutualfundService(IMutualfundRepository mutualfundReposiory, IMapper mapper, IUserMasterRepository userMasterRepository, IHttpClientFactory httpClientFactory)
         {
             _mutualfundRepository = mutualfundReposiory;
             _mapper = mapper;
             _userMasterRepository = userMasterRepository;
+            _httpClientFactory = httpClientFactory;
         }
 
         #region Get Client wise Mutual Fund Transaction
@@ -344,7 +348,25 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
 
             return mapMFUser;
         }
-        #endregion 
+        #endregion
+
+        #region Get AMFI nav data
+        public async Task<ResponseDto<AmfiNavDto>> GetAMFINavDataAsync(string? search, SortingParams sortingParams)
+        {
+            var navData = await _mutualfundRepository.GetAMFINavList(true, search, sortingParams);
+            var mappedNavData = _mapper.Map<ResponseDto<AmfiNavDto>>(navData.Item2);
+            return mappedNavData;
+        }
+        #endregion
+
+        #region Get AMFI scheme data
+        public async Task<ResponseDto<AmfiSchemeDto>> GetAMFISchemeDataAsync(string? search, SortingParams sortingParams)
+        {
+            var navSchemes = await _mutualfundRepository.GetAMFISchemesList(true, search, sortingParams);
+            var mappedSchemeData = _mapper.Map<ResponseDto<AmfiSchemeDto>>(navSchemes.Item2);
+            return mappedSchemeData;
+        }
+        #endregion
 
         #region Display SchemeName
         public async Task<ResponseDto<SchemaNameDto>> DisplayschemeNameAsync(int userId, string? folioNo, string? searchingParams, SortingParams sortingParams)
@@ -710,15 +732,17 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
         {
             try
             {
-                var filename = "";
-                var xlsxFilePath = "";
                 var listNJPrice = new List<TblMfSchemeMaster>();
+                CultureInfo culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+                culture.DateTimeFormat.ShortDatePattern = "dd-MM-yyyy";
+                Thread.CurrentThread.CurrentCulture = culture;
                 var filePath = Path.GetTempFileName();
+                List<AddNJDailyPriceDto> mutualfundNAVs = new List<AddNJDailyPriceDto>();
+                var allScheme = await _mutualfundRepository.GetAllMFScheme();
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await formFile.CopyToAsync(stream);
-                    await stream.DisposeAsync();
                 }
 
                 var directory = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\CRM-Document\\NJStockPriceFile";
@@ -727,89 +751,36 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                     Directory.CreateDirectory(directory);
                 }
 
-                var ex = Path.GetExtension(formFile.FileName);
-
-                //Delete file if already exists with same name
-                // For .xls file
-                var tmpFilePath = Path.Combine(directory, formFile.FileName);
-
-
-                if (File.Exists(tmpFilePath))
-                {
-                    GC.Collect();
-                    File.Delete(tmpFilePath);
-                }
-
-                // For .xlsx file
-                var name = formFile.FileName.Split(".");
-                filename = name[0] + ".xlsx";
-                if (File.Exists(Path.Combine(directory, filename)))
-                {
-                    File.Delete(Path.Combine(directory, filename));
-                }
-
-                // saving .xls file into folder
-                var localFilePath = Path.Combine(directory, formFile.FileName);
-                File.Copy(filePath, localFilePath);
-
-                if (ex.Equals(".xls"))
-                {
-                    // Create an Excel Application object
-                    Microsoft.Office.Interop.Excel.Application excelApp = new Microsoft.Office.Interop.Excel.Application();
-
-                    //Open the XLS file
-                    Microsoft.Office.Interop.Excel.Workbook workbooks = excelApp.Workbooks.Open(localFilePath);
-                    try
-                    {
-                        // Save the workbook as XLSX format
-                        name = formFile.FileName.Split(".");
-                        filename = name[0] + ".xlsx";
-                        xlsxFilePath = Path.Combine(directory, filename);
-                        workbooks.SaveAs(xlsxFilePath, Microsoft.Office.Interop.Excel.XlFileFormat.xlOpenXMLWorkbook);
-                    }
-                    catch (Exception exe)
-                    {
-                        // Handle any exceptions that occur during the conversion process
-                        Console.WriteLine("Error saving XLSX file: " + exe.Message);
-                    }
-                    finally
-                    {
-                        // Close the workbook and Excel application
-                        workbooks.Close();
-                        excelApp.Quit();
-
-                        // Release the COM objects to avoid memory leaks
-                        System.Runtime.InteropServices.Marshal.ReleaseComObject(workbooks);
-                        System.Runtime.InteropServices.Marshal.ReleaseComObject(excelApp);
-                    }
-                }
-
                 if (File.Exists(Path.Combine(directory, formFile.FileName)))
                 {
                     File.Delete(Path.Combine(directory, formFile.FileName));
                 }
-                //localFilePath = localFilePath.Replace("\\", "/");
+                var localFilePath = Path.Combine(directory, formFile.FileName);
+                File.Copy(filePath, localFilePath);
 
-                WorkBook workbook = WorkBook.LoadExcel(xlsxFilePath);
-                var worksheet = workbook.WorkSheets[0];
-                var allScheme = await _mutualfundRepository.GetAllMFScheme();
-
-                for (var i = 2; i < worksheet.RowCount; i++)
+                using (var fs = new StreamReader(localFilePath))
                 {
-                    var schemeName = worksheet.Rows[i].Columns[1].Value.ToString();
-                    var scheme = allScheme.FirstOrDefault(x => x.SchemeName.ToLower().Equals(schemeName.ToLower()));
+                    var cvsReader = new CsvReader(fs, culture);
+                    cvsReader.Read();
+                    mutualfundNAVs = cvsReader.GetRecords<AddNJDailyPriceDto>().ToList();
+                }
+                var mapMutualfundNAVs = _mapper.Map<List<TblMfSchemeMaster>>(mutualfundNAVs);
+
+                foreach (var mutualfundNAV in mapMutualfundNAVs)
+                {
+                    var scheme = allScheme.FirstOrDefault(x => x.SchemeName.ToLower().Equals(mutualfundNAV.SchemeName.ToLower()));
                     if (scheme is not null)
                     {
-                        scheme.NetAssetValue = worksheet.Rows[i].Columns[3].Value.ToString();
-                        scheme.SchemeDate = Convert.ToDateTime(worksheet.Rows[i].Columns[2].Value);
+                        scheme.NetAssetValue = mutualfundNAV.NetAssetValue;
+                        scheme.SchemeDate = mutualfundNAV.SchemeDate;
                         listNJPrice.Add(scheme);
                     }
                     else
                     {
                         var NJPrice = new AddNJDailyPriceDto();
-                        NJPrice.SchemeName = schemeName;
-                        NJPrice.NetAssetValue = worksheet.Rows[i].Columns[3].Value.ToString();
-                        NJPrice.SchemeDate = Convert.ToDateTime(worksheet.Rows[i].Columns[2].Value);
+                        NJPrice.SchemeName = mutualfundNAV.SchemeName;
+                        NJPrice.NetAssetValue = mutualfundNAV.NetAssetValue;
+                        NJPrice.SchemeDate = mutualfundNAV.SchemeDate;
                         var mapScheme = _mapper.Map<TblMfSchemeMaster>(NJPrice);
                         listNJPrice.Add(mapScheme);
                     }
@@ -820,6 +791,114 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
             catch (Exception)
             {
                 return 0;
+            }
+        }
+        #endregion
+
+        #region Import AMFI NAV/Scheme file
+        public async Task<(int, string)> ImportAMFINAVFileAsync()
+        {
+            try
+            {
+                //AMFI NAV File Import
+                var navFilePath = $"https://www.amfiindia.com/spages/NAVAll.txt?t={DateTime.Now.ToString("ddMMyyyy")}";
+                var schemeFilePath = $"https://portal.amfiindia.com/DownloadSchemeData_Po.aspx?mf=0";
+
+                HttpClient httpClient = _httpClientFactory.CreateClient();
+                HttpResponseMessage response = await httpClient.GetAsync(navFilePath);
+                var count = 0;
+                List<AddAMFINAVDto> navDataDtoList = new List<AddAMFINAVDto>();
+                List<TblAmfiNav> updateList = new List<TblAmfiNav>();
+                var navDataListResponse = await _mutualfundRepository.GetAMFINavList(false, null, null);
+                var navDataList = navDataListResponse.Item1;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    using (Stream stream = await response.Content.ReadAsStreamAsync())
+                    {
+                        using (StreamReader reader = new StreamReader(stream))
+                        {
+                            while (count <= 3)
+                            {
+                                var line = await reader.ReadLineAsync();
+                                if (string.IsNullOrEmpty(line) || line == " ") count++;
+                                else
+                                {
+                                    if (Regex.IsMatch(line, @"^[0-9]") && line.Contains(";"))
+                                    {
+                                        var splitLine = line.Split(";");
+                                        var isin = (splitLine[1] + splitLine[2]).Replace("-", "");
+                                        navDataDtoList.Add(new AddAMFINAVDto(splitLine[0], isin, splitLine[3], splitLine[4], splitLine[5]));
+                                    }
+                                    count = 0;
+                                }
+                            }
+                        }
+                    }
+
+                    foreach (var data in navDataDtoList)
+                    {
+                        var navData = navDataList.FirstOrDefault(x => x.SchemeCode == data.SchemeCode && x.Isin == data.Isin);
+                        if (navData is not null)
+                        {
+                            navData.NetAssetValue = data.NetAssetValue;
+                            navData.Date = data.Date;
+                            updateList.Add(navData);
+                        }
+                        else
+                        {
+                            updateList.Add(_mapper.Map<TblAmfiNav>(data));
+                        }
+                    }
+
+                    var res = await _mutualfundRepository.UpdateAMFINav(updateList);
+                }
+
+                response = await httpClient.GetAsync(schemeFilePath);
+                if (response.IsSuccessStatusCode)
+                {
+                    var schemesListResponse = await _mutualfundRepository.GetAMFISchemesList(false, null, null);
+                    var schemesList = schemesListResponse.Item1;
+                    List<TblAmfiSchemeMaster> amfiSchemeMasters = new List<TblAmfiSchemeMaster>();
+                    
+                    List<AddAmfiSchemeDto> schemeDtoList = new List<AddAmfiSchemeDto>();
+                    
+                    using (var reader = new StreamReader(response.Content.ReadAsStream()))
+                    using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+                    {
+                        // Ignore bad data
+                        BadDataFound = context =>
+                        {
+                            Console.WriteLine($"Bad data found: {context.RawRecord}");
+                        }
+                    }))
+                    {
+                        schemeDtoList = csv.GetRecords<AddAmfiSchemeDto>().ToList();
+                    }  
+                    
+
+                    foreach (var scheme in schemeDtoList)
+                    {
+                        var amfiScheme = schemesList.Where(x => x.SchemeCode.Equals(scheme.SchemeCode)).FirstOrDefault();
+                        if (amfiScheme is not null)
+                        {
+                            amfiScheme.Update(scheme.Amc, scheme.SchemeName, scheme.SchemeType, scheme.SchemeCategory, scheme.SchemeNavname, scheme.SchemeMinAmt, scheme.LaunchDate, scheme.ClosureDate, scheme.Isin);
+                            amfiSchemeMasters.Add(amfiScheme);
+                        }
+                        else
+                        {
+                            amfiSchemeMasters.Add(_mapper.Map<TblAmfiSchemeMaster>(scheme));
+                        }
+                    }
+
+                    await _mutualfundRepository.UpdateAMFISchemes(amfiSchemeMasters);
+                }
+
+                return (1, "File imported successfully.");
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message);
             }
         }
         #endregion
