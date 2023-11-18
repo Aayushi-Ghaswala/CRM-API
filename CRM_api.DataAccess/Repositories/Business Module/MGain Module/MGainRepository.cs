@@ -80,9 +80,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             IQueryable<TblMgaindetail> filterData = mGainDetails.AsQueryable();
 
             if (searchingParams is not null)
-                filterData = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date && (schemeId == null || x.MgainSchemeid == schemeId) && x.MgainIsclosed == false).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainPaymentMethods).AsQueryable();
+                filterData = _context.Search<TblMgaindetail>(searchingParams).Where(x => x.MgainIsclosed == false && x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date && (schemeId == null || x.MgainSchemeid == schemeId) && x.MgainIsclosed == false).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainPaymentMethods).AsQueryable();
             else
-                filterData = _context.TblMgaindetails.Where(x => x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date && (schemeId == null || x.MgainSchemeid == schemeId) && x.MgainIsclosed == false).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainPaymentMethods).AsQueryable();
+                filterData = _context.TblMgaindetails.Where(x => x.MgainIsclosed == false && x.MgainType.ToLower() == mgainType.ToLower() && x.Date < date && (schemeId == null || x.MgainSchemeid == schemeId) && x.MgainIsclosed == false).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainPaymentMethods).AsQueryable();
 
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 
