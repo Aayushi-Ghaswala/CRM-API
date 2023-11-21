@@ -1,12 +1,19 @@
 using CRM_api.Services.ServicesDepedancy;
 using Microsoft.AspNetCore.Http.Features;
-using System.Linq;
+using Serilog;
+using SixLabors.ImageSharp;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+
+var logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
 
 builder.Services.InjectServiceDependecy(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -33,6 +40,7 @@ builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = int.MaxValue;
 });
+
 
 var app = builder.Build();
 

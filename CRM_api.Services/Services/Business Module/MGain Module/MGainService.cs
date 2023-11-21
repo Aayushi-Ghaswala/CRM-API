@@ -12,6 +12,7 @@ using CRM_api.Services.Helper.ConstantValue;
 using CRM_api.Services.Helper.Reminder_Helper;
 using CRM_api.Services.IServices.Account_Module;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
+using Microsoft.Extensions.Logging;
 using SelectPdf;
 using static CRM_api.Services.Helper.ConstantValue.GenderConstant;
 using static CRM_api.Services.Helper.ConstantValue.MaritalStatusConstant;
@@ -32,8 +33,11 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
         private const string AccountGroupName = "Unsecured Loans";
         private const string KotakBankName = "KOTAK BANK (2213876694)";
         private const string MGainName = "M Gain";
+        private readonly ILogger<MGainService> _logger;
 
-        public MGainService(IMGainRepository mGainRepository, IMapper mapper, IMGainSchemeRepository mGainSchemeRepository, IUserMasterRepository userMasterRepository, IAccountTransactionservice accountTransactionservice, IAccountRepository accountRepository, IAccountTransactionRepository accountTransactionRepository)
+        public MGainService(IMGainRepository mGainRepository, IMapper mapper, IMGainSchemeRepository mGainSchemeRepository, IUserMasterRepository userMasterRepository,
+            IAccountTransactionservice accountTransactionservice, IAccountRepository accountRepository, IAccountTransactionRepository accountTransactionRepository,
+            ILogger<MGainService> logger)
         {
             _mGainRepository = mGainRepository;
             _mapper = mapper;
@@ -42,6 +46,7 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
             _accountTransactionservice = accountTransactionservice;
             _accountRepository = accountRepository;
             _accountTransactionRepository = accountTransactionRepository;
+            _logger = logger;
         }
 
         #region Get All MGain Details
@@ -1119,7 +1124,11 @@ SURAT - 395009 <p>
         #region MGain Monthly Non-Cumulative Interest Computation & Release
         public async Task<(MGainNCmonthlyTotalDto, string)> GetNonCumulativeMonthlyReportAsync(int month, int year, int? schemeId, decimal? tds, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? searchingParams, SortingParams sortingParams, bool? isSendSMS, bool isJournal = false, string jvNarration = null, DateTime? jvEntryDate = null)
         {
-            DateTime date = Convert.ToDateTime("01" + "-" + month + "-" + year);
+            DateTime date = new DateTime(year, month, 01); //Convert.ToDateTime("01" + "-" + month + "-" + year);
+            //var date1 = Convert.ToDateTime("01" + "-" + month + "-" + year);
+
+            //_logger.LogInformation($"new date = {date}, date = {date1}, date str = {01}-{month}-{year} == {date1.ToString("dd MMM yyyy")}");
+
             DateTime currentDate = date;
             if (isJournal is false)
                 currentDate = date.AddDays(-1);
@@ -1162,6 +1171,12 @@ SURAT - 395009 <p>
 
             foreach (var MGainDetail in mGainDetails)
             {
+                ////if (MGainDetail.Id == 267)
+                //{
+                //    _logger.LogInformation($"Mgain Id = {MGainDetail.Id}, {MGainDetail.Date.Value.AddYears(10)} > {currentDate}");
+                //    _logger.LogInformation($"Full Date = {MGainDetail.Date.Value.ToString("dd MMM yyyy")}");
+                //}
+
                 if (MGainDetail.Date.Value.AddYears(10) > currentDate)
                 {
                     var MGainNonCumulativeMonthlyReport = new MGainNonCumulativeMonthlyReportDto();
@@ -1181,8 +1196,11 @@ SURAT - 395009 <p>
                     interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst10);
 
                     var yearDifference = currentDate.Year - MGainDetail.Date.Value.Year;
-
-                    if (currentDate.Month < MGainDetail.Date.Value.Month)
+                    ////if (MGainDetail.Id == 267)
+                    //{
+                    //    _logger.LogInformation($"Current Month = {currentDate.Month} and Mgain Month ={MGainDetail.Date.Value.Month}");
+                    //}
+                    if (currentDate.Month <= MGainDetail.Date.Value.Month)
                     {
                         yearDifference -= 1;
                     }
@@ -1304,8 +1322,14 @@ SURAT - 395009 <p>
                     }
                     else
                     {
+
                         MGainNonCumulativeMonthlyReport.InterstRate = interestRates.Skip(yearDifference).First();
                         MGainNonCumulativeMonthlyReport.InterestAmount = Math.Round((decimal)(((MGainDetail.MgainInvamt * MGainNonCumulativeMonthlyReport.InterstRate) / 100) / 12), 0);
+
+                        //if (MGainDetail.Id == 267)
+                        //{
+                        //    _logger.LogInformation($"Year difference = {yearDifference} and InterestRate={MGainNonCumulativeMonthlyReport.InterstRate}");
+                        //}
 
                         if (MGainDetail.MgainIsTdsDeduction is true)
                             MGainNonCumulativeMonthlyReport.TDS = Math.Round((decimal)((MGainNonCumulativeMonthlyReport.InterestAmount * tds) / 100), 0);

@@ -23,7 +23,7 @@ namespace CRM_api.Controllers.User_Module
                 var flag = await _loginService.GenerateOTPAsync(email);
                 return flag != 0 ? Ok(new { Message = "Otp send successfully." }) : BadRequest(new { Message = "Invalid email address." });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 throw;
             }
