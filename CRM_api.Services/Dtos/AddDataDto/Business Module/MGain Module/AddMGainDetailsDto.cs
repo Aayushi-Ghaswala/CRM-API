@@ -21,6 +21,9 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module
         public string? Mgain1stholderOccupation { get; set; }
         public string? Mgain1stholderStatus { get; set; }
         public IFormFile? Mgain1stholderSignatureFile { get; set; }
+        public IFormFile? Mgain1stholderPanFile { get; set; }
+        public IFormFile? Mgain1stholderAadharFile { get; set; }
+        public IFormFile? Mgain1stholderFormCopyFile { get; set; }
         public decimal? MgainInvamt { get; set; }
         public bool? MgainIsSecondHolder { get; set; }
         public string? Mgain2ndholdername { get; set; }

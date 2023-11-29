@@ -79,6 +79,12 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
         public decimal? Mgain2ndallocatedsqft { get; set; }
         public decimal? Mgain2ndallocatedsqftamt { get; set; }
         public decimal? Mgain2ndtotalsqft { get; set; }
+
+        public string? Mgain1stholderAadharCard { get; set; }
+        public string? Mgain1stholderPanCard { get; set; }
+        public string? Mgain1stholderFormCopy { get; set; }
+        public string? MgainAgreement { get; set; }
+
         public MGainSchemeDto TblMgainSchemeMaster { get; set; }
 
         public List<MGainPaymentDto> TblMgainPaymentMethods { get; set; }

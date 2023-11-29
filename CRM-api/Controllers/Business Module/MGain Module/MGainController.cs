@@ -267,7 +267,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
 
         #region Add MGain Payment Details
         [HttpPost("AddMGainPayment")]
-        public async Task<IActionResult> AddMGainDetails(List<AddMGainPaymentDto> paymentDtos)
+        public async Task<IActionResult> AddMGainPayment(List<AddMGainPaymentDto> paymentDtos)
         {
             try
             {

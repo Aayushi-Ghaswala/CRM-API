@@ -75,6 +75,10 @@ namespace CRM_api.DataAccess.Models
         public decimal? Mgain2ndallocatedsqftamt { get; set; }
         public decimal? Mgain2ndtotalsqft { get; set; }
         public int? MgainSchemeid { get; set; }
+        public string? Mgain1stholderPanCard { get; set; }
+        public string? Mgain1stholderAadharCard { get; set; }
+        public string? Mgain1stholderFormCopy { get; set; }
+        public string? MgainAgreement{ get; set; }
 
         [ForeignKey(nameof(MgainUserid))]
         public virtual TblUserMaster? TblUserMaster { get; set; }

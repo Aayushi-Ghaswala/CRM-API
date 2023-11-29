@@ -2397,6 +2397,22 @@ namespace CRM_api.DataAccess.Context
                     .HasMaxLength(10)
                     .IsUnicode(false)
                     .HasColumnName("15H/15G");
+
+                entity.Property(e => e.Mgain1stholderAadharCard)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderAadharFile");
+
+                entity.Property(e => e.Mgain1stholderPanCard)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderPanFile");
+
+                entity.Property(e => e.Mgain1stholderFormCopy)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_1stholderFormCopyFile");
+
+                entity.Property(e => e.MgainAgreement)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_agreement");
             });
 
             modelBuilder.Entity<TblMgaindetailsTruncate>(entity =>

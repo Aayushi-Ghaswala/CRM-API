@@ -1196,9 +1196,9 @@ SURAT - 395009 <p>
                     interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst10);
 
                     var yearDifference = currentDate.Year - MGainDetail.Date.Value.Year;
-                    ////if (MGainDetail.Id == 267)
+                    //if (MGainDetail.Id == 645)
                     //{
-                    //    _logger.LogInformation($"Current Month = {currentDate.Month} and Mgain Month ={MGainDetail.Date.Value.Month}");
+                    //    //_logger.LogInformation($"Current Month = {currentDate.Month} and Mgain Month ={MGainDetail.Date.Value.Month}");
                     //}
                     if (currentDate.Month <= MGainDetail.Date.Value.Month)
                     {
@@ -1778,7 +1778,7 @@ table {{
             }
 
             var folderPath = directoryPath + $"{mGainDetails.Mgain1stholder}";
-
+            var halfPath = "\\wwwroot" + "\\MGain-Documents\\" + $"{mGainDetails.Mgain1stholder}";
             if (!Directory.Exists(folderPath))
             {
                 Directory.CreateDirectory(folderPath);
@@ -1875,6 +1875,64 @@ table {{
                 mGainDetails.MgainNomineeBirthCertificate = birthCertificatePath;
             }
             else mGainDetails.MgainNomineeBirthCertificate = null;
+
+
+            if (addMGainDetails.Mgain1stholderAadharFile is not null)
+            {
+                var firstholderAadharCardFile = addMGainDetails.Mgain1stholderAadharFile.FileName;
+                var firstholderAadharCardPath = Path.Combine(folderPath, firstholderAadharCardFile);
+
+                if (File.Exists(firstholderAadharCardPath))
+                {
+                    File.Delete(firstholderAadharCardPath);
+                }
+
+                using (var fs = new FileStream(firstholderAadharCardPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    addMGainDetails.Mgain1stholderAadharFile.CopyTo(fs);
+                }
+
+                mGainDetails.Mgain1stholderAadharCard = firstholderAadharCardPath;
+            }
+            else mGainDetails.Mgain1stholderAadharCard = null;
+
+            if (addMGainDetails.Mgain1stholderPanFile is not null)
+            {
+                var firstholderPanCardFile = addMGainDetails.Mgain1stholderPanFile.FileName;
+                var firstholderPanCardPath = Path.Combine(folderPath, firstholderPanCardFile);
+
+                if (File.Exists(firstholderPanCardPath))
+                {
+                    File.Delete(firstholderPanCardPath);
+                }
+
+                using (var fs = new FileStream(firstholderPanCardPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    addMGainDetails.Mgain1stholderPanFile.CopyTo(fs);
+                }
+
+                mGainDetails.Mgain1stholderPanCard = firstholderPanCardPath;
+            }
+            else mGainDetails.Mgain1stholderPanCard = null;
+
+            if (addMGainDetails.Mgain1stholderFormCopyFile is not null)
+            {
+                var firstholderFormCopyCardFile = addMGainDetails.Mgain1stholderFormCopyFile.FileName;
+                var firstholderFormCopyCardPath = Path.Combine(folderPath, firstholderFormCopyCardFile);
+
+                if (File.Exists(firstholderFormCopyCardPath))
+                {
+                    File.Delete(firstholderFormCopyCardPath);
+                }
+
+                using (var fs = new FileStream(firstholderFormCopyCardPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    addMGainDetails.Mgain1stholderFormCopyFile.CopyTo(fs);
+                }
+
+                mGainDetails.Mgain1stholderFormCopy = halfPath + "\\" + firstholderFormCopyCardFile;
+            }
+            else mGainDetails.Mgain1stholderFormCopy = null;
 
             var mGain = await _mGainRepository.AddMGainDetails(mGainDetails);
             var accountGroup = await _accountRepository.GetAccountGroupByName(AccountGroupName);
@@ -1999,6 +2057,7 @@ table {{
             }
 
             var folderPath = directoryPath + $"{updateMGainDetails.Mgain1stholder}";
+            var halfPath = "\\wwwroot" + "\\MGain-Documents\\" + $"{updateMGainDetails.Mgain1stholder}";
 
             if (!Directory.Exists(folderPath))
             {
@@ -2108,6 +2167,82 @@ table {{
                 updateMGain.MgainCancelledCheque = cancelledChequePath;
             }
             else updateMGain.MgainCancelledCheque = updateMGainDetails.MgainCancelledCheque;
+
+            if (updateMGainDetails.Mgain1stholderAadharFile is not null)
+            {
+                var firstholderAadharCardFile = updateMGainDetails.Mgain1stholderAadharFile.FileName;
+                var firstholderAadharCardPath = Path.Combine(folderPath, firstholderAadharCardFile);
+
+                if (File.Exists(firstholderAadharCardPath))
+                {
+                    File.Delete(firstholderAadharCardPath);
+                }
+
+                using (var fs = new FileStream(firstholderAadharCardPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    updateMGainDetails.Mgain1stholderAadharFile.CopyTo(fs);
+                }
+
+                updateMGain.Mgain1stholderAadharCard = firstholderAadharCardPath;
+            }
+            else updateMGain.Mgain1stholderAadharCard = updateMGainDetails.Mgain1stholderAadharCard;
+
+            if (updateMGainDetails.Mgain1stholderPanFile is not null)
+            {
+                var firstholderPanCardFile = updateMGainDetails.Mgain1stholderPanFile.FileName;
+                var firstholderPanCardPath = Path.Combine(folderPath, firstholderPanCardFile);
+
+                if (File.Exists(firstholderPanCardPath))
+                {
+                    File.Delete(firstholderPanCardPath);
+                }
+
+                using (var fs = new FileStream(firstholderPanCardPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    updateMGainDetails.Mgain1stholderPanFile.CopyTo(fs);
+                }
+
+                updateMGain.Mgain1stholderPanCard = firstholderPanCardPath;
+            }
+            else updateMGain.Mgain1stholderPanCard = updateMGainDetails.Mgain1stholderPanCard;
+
+            if (updateMGainDetails.Mgain1stholderFormCopyFile is not null)
+            {
+                var firstholderFormCopyCardFile = updateMGainDetails.Mgain1stholderFormCopyFile.FileName;
+                var firstholderFormCopyCardPath = Path.Combine(folderPath, firstholderFormCopyCardFile);
+
+                if (File.Exists(firstholderFormCopyCardPath))
+                {
+                    File.Delete(firstholderFormCopyCardPath);
+                }
+
+                using (var fs = new FileStream(firstholderFormCopyCardPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    updateMGainDetails.Mgain1stholderFormCopyFile.CopyTo(fs);
+                }
+
+                updateMGain.Mgain1stholderFormCopy = halfPath + "\\" + firstholderFormCopyCardFile;
+            }
+            else updateMGain.Mgain1stholderFormCopy = updateMGainDetails.Mgain1stholderFormCopy;
+
+            if (updateMGainDetails.MgainAgreementFile is not null)
+            {
+                var agreementFile = updateMGainDetails.MgainAgreementFile.FileName;
+                var agreementPath = Path.Combine(folderPath, agreementFile);
+
+                if (File.Exists(agreementPath))
+                {
+                    File.Delete(agreementPath);
+                }
+
+                using (var fs = new FileStream(agreementPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    updateMGainDetails.MgainAgreementFile.CopyTo(fs);
+                }
+
+                updateMGain.MgainAgreement = halfPath + "\\" + agreementFile;
+            }
+            else updateMGain.MgainAgreement = updateMGainDetails.MgainAgreement;
 
             if (mgain.MgainPlotno is not null)
                 mgain.MgainPlotno = mgain.MgainPlotno.Trim();

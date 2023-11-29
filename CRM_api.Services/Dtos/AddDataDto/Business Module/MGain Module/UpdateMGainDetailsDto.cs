@@ -50,6 +50,12 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module
         public string? Mgain2ndholderStatus { get; set; }
         public string? Mgain2ndholderSignature { get; set; }
         public IFormFile? Mgain2ndholderSignatureFile { get; set; }
+        public string? Mgain1stholderPanCard { get; set; }
+        public IFormFile? Mgain1stholderPanFile { get; set; }
+        public string? Mgain1stholderAadharCard { get; set; }
+        public IFormFile? Mgain1stholderAadharFile { get; set; }
+        public string? Mgain1stholderFormCopy { get; set; }
+        public IFormFile? Mgain1stholderFormCopyFile { get; set; }
         public string? MgainNomineeName { get; set; }
         public string? MgainNomineePan { get; set; }
         public IFormFile? MgainNomineePanFile { get; set; }
@@ -71,5 +77,7 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module
         public bool? MgainIsTdsDeduction { get; set; }
         public string? _15h15g { get; set; }
         public bool? MgainIsclosed { get; set; }
+        public string? MgainAgreement { get; set; }
+        public IFormFile? MgainAgreementFile { get; set; }
     }
 }
