@@ -50,5 +50,7 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module
         public string? MgainGuardianMobile { get; set; }
         public int? MgainSchemeid { get; set; }
         public string? MgainType { get; set; }
+        public string? MgainNomineeType { get; set; }
+        public int? MgainCompanyId { get; set; }
     }
 }

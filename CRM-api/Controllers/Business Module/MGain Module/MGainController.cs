@@ -257,7 +257,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
                 var mGain = await _mGainService.AddMGainDetailAsync(MGainDetailsDto);
                 return mGain != null ? Ok(new { Message = "MGain details added successfully.", MGainId = mGain.Id }) : BadRequest(new { Message = "Unable to add mgain details." });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;
@@ -307,7 +307,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
                 var updateMGain = await _mGainService.UpdateMGainDetailsAsync(updateMGainDetails);
                 return updateMGain.Item1 != 0 ? Ok(new { Message = updateMGain.Item2 }) : BadRequest(new { Message = updateMGain.Item2 });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;

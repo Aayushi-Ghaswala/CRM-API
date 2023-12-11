@@ -79,5 +79,9 @@ namespace CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module
         public bool? MgainIsclosed { get; set; }
         public string? MgainAgreement { get; set; }
         public IFormFile? MgainAgreementFile { get; set; }
+        public string? MgainRedemption { get; set; }
+        public IFormFile? MgainRedemptionFile { get; set; }
+        public string? MgainNomineeType { get; set; }
+        public int? MgainCompanyId { get; set; }
     }
 }

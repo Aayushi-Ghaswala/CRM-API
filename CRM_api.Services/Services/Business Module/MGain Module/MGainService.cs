@@ -12,6 +12,8 @@ using CRM_api.Services.Helper.ConstantValue;
 using CRM_api.Services.Helper.Reminder_Helper;
 using CRM_api.Services.IServices.Account_Module;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SelectPdf;
 using static CRM_api.Services.Helper.ConstantValue.GenderConstant;
@@ -34,10 +36,11 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
         private const string KotakBankName = "KOTAK BANK (2213876694)";
         private const string MGainName = "M Gain";
         private readonly ILogger<MGainService> _logger;
+        public readonly IConfiguration _configuration;
 
         public MGainService(IMGainRepository mGainRepository, IMapper mapper, IMGainSchemeRepository mGainSchemeRepository, IUserMasterRepository userMasterRepository,
             IAccountTransactionservice accountTransactionservice, IAccountRepository accountRepository, IAccountTransactionRepository accountTransactionRepository,
-            ILogger<MGainService> logger)
+            ILogger<MGainService> logger, IConfiguration configuration)
         {
             _mGainRepository = mGainRepository;
             _mapper = mapper;
@@ -47,6 +50,7 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
             _accountRepository = accountRepository;
             _accountTransactionRepository = accountTransactionRepository;
             _logger = logger;
+            _configuration = configuration;
         }
 
         #region Get All MGain Details
@@ -1777,11 +1781,18 @@ table {{
                 Directory.CreateDirectory(directoryPath);
             }
 
-            var folderPath = directoryPath + $"{mGainDetails.Mgain1stholder}";
-            var halfPath = "\\wwwroot" + "\\MGain-Documents\\" + $"{mGainDetails.Mgain1stholder}";
+            var folderPath = directoryPath + $"{mGainDetails.Mgain1stholder.Trim()}";
+            var halfPath = "\\MGain-Documents\\" + $"{mGainDetails.Mgain1stholder.Trim()}";
             if (!Directory.Exists(folderPath))
             {
                 Directory.CreateDirectory(folderPath);
+            }
+
+            //UI Path
+            var uiPath = _configuration.GetSection("UIBuildPath").Value + "\\MGain-Documents\\" + $"{mGainDetails.Mgain1stholder.Trim()}";
+            if (!Directory.Exists(uiPath))
+            {
+                Directory.CreateDirectory(uiPath);
             }
 
             if (addMGainDetails.Mgain1stholderSignatureFile is not null)
@@ -1801,7 +1812,6 @@ table {{
                 mGainDetails.Mgain1stholderSignature = firstHolderSignaturePath;
             }
             else mGainDetails.Mgain1stholderSignature = null;
-
 
             if (addMGainDetails.Mgain2ndholderSignatureFile is not null)
             {
@@ -1924,8 +1934,18 @@ table {{
                 {
                     File.Delete(firstholderFormCopyCardPath);
                 }
-
                 using (var fs = new FileStream(firstholderFormCopyCardPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    addMGainDetails.Mgain1stholderFormCopyFile.CopyTo(fs);
+                }
+
+                //UI Folder
+                var firstholderFormCopyCardPathUI = Path.Combine(uiPath, firstholderFormCopyCardFile);
+                if (File.Exists(firstholderFormCopyCardPathUI))
+                {
+                    File.Delete(firstholderFormCopyCardPathUI);
+                }
+                using (var fs = new FileStream(firstholderFormCopyCardPathUI, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
                     addMGainDetails.Mgain1stholderFormCopyFile.CopyTo(fs);
                 }
@@ -2057,11 +2077,18 @@ table {{
             }
 
             var folderPath = directoryPath + $"{updateMGainDetails.Mgain1stholder}";
-            var halfPath = "\\wwwroot" + "\\MGain-Documents\\" + $"{updateMGainDetails.Mgain1stholder}";
+            var halfPath = "\\MGain-Documents\\" + $"{updateMGainDetails.Mgain1stholder}";
 
             if (!Directory.Exists(folderPath))
             {
                 Directory.CreateDirectory(folderPath);
+            }
+
+            //UI Path
+            var uiPath = _configuration.GetSection("UIBuildPath").Value + "\\MGain-Documents\\" + $"{updateMGainDetails.Mgain1stholder.Trim()}";
+            if (!Directory.Exists(uiPath))
+            {
+                Directory.CreateDirectory(uiPath);
             }
 
             if (updateMGainDetails.Mgain1stholderSignatureFile is not null)
@@ -2080,7 +2107,6 @@ table {{
                 updateMGain.Mgain1stholderSignature = firstHolderSignaturePath;
             }
             else updateMGain.Mgain1stholderSignature = updateMGainDetails.Mgain1stholderSignature;
-
 
             if (updateMGainDetails.Mgain2ndholderSignatureFile is not null)
             {
@@ -2221,6 +2247,17 @@ table {{
                     updateMGainDetails.Mgain1stholderFormCopyFile.CopyTo(fs);
                 }
 
+                //UI Folder
+                var firstholderFormCopyCardPathUI = Path.Combine(uiPath, firstholderFormCopyCardFile);
+                if (File.Exists(firstholderFormCopyCardPathUI))
+                {
+                    File.Delete(firstholderFormCopyCardPathUI);
+                }
+                using (var fs = new FileStream(firstholderFormCopyCardPathUI, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    updateMGainDetails.Mgain1stholderFormCopyFile.CopyTo(fs);
+                }
+
                 updateMGain.Mgain1stholderFormCopy = halfPath + "\\" + firstholderFormCopyCardFile;
             }
             else updateMGain.Mgain1stholderFormCopy = updateMGainDetails.Mgain1stholderFormCopy;
@@ -2240,9 +2277,50 @@ table {{
                     updateMGainDetails.MgainAgreementFile.CopyTo(fs);
                 }
 
+                //UI Folder
+                var agreementPathUI = Path.Combine(uiPath, agreementFile);
+                if (File.Exists(agreementPathUI))
+                {
+                    File.Delete(agreementPathUI);
+                }
+                using (var fs = new FileStream(agreementPathUI, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    updateMGainDetails.MgainAgreementFile.CopyTo(fs);
+                }
+
                 updateMGain.MgainAgreement = halfPath + "\\" + agreementFile;
             }
             else updateMGain.MgainAgreement = updateMGainDetails.MgainAgreement;
+
+            if (updateMGainDetails.MgainRedemptionFile is not null)
+            {
+                var redemptionFile = updateMGainDetails.MgainRedemptionFile.FileName;
+                var redemptionPath = Path.Combine(folderPath, redemptionFile);
+
+                if (File.Exists(redemptionPath))
+                {
+                    File.Delete(redemptionPath);
+                }
+
+                using (var fs = new FileStream(redemptionPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    updateMGainDetails.MgainRedemptionFile.CopyTo(fs);
+                }
+
+                //UI Folder
+                var redemptionPathUI = Path.Combine(uiPath, redemptionFile);
+                if (File.Exists(redemptionPathUI))
+                {
+                    File.Delete(redemptionPathUI);
+                }
+                using (var fs = new FileStream(redemptionPathUI, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    updateMGainDetails.MgainRedemptionFile.CopyTo(fs);
+                }
+
+                updateMGain.MgainRedemption = halfPath + "\\" + redemptionFile;
+            }
+            else updateMGain.MgainRedemption = updateMGainDetails.MgainRedemption;
 
             if (mgain.MgainPlotno is not null)
                 mgain.MgainPlotno = mgain.MgainPlotno.Trim();

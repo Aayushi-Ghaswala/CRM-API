@@ -79,6 +79,9 @@ namespace CRM_api.DataAccess.Models
         public string? Mgain1stholderAadharCard { get; set; }
         public string? Mgain1stholderFormCopy { get; set; }
         public string? MgainAgreement{ get; set; }
+        public string? MgainRedemption{ get; set; }
+        public string? MgainNomineeType { get; set; }
+        public int? MgainCompanyId { get; set; }
 
         [ForeignKey(nameof(MgainUserid))]
         public virtual TblUserMaster? TblUserMaster { get; set; }
@@ -86,6 +89,8 @@ namespace CRM_api.DataAccess.Models
         public virtual TblEmployeeMaster? EmployeeMaster { get; set; }
         [ForeignKey(nameof(MgainSchemeid))]
         public virtual TblMgainSchemeMaster? TblMgainSchemeMaster { get; set; }
+        [ForeignKey(nameof(MgainCompanyId))]
+        public virtual TblCompanyMaster? TblMgainCompanyMaster { get; set; }
 
         public virtual ICollection<TblMgainPaymentMethod>? TblMgainPaymentMethods { get; set; }
     }

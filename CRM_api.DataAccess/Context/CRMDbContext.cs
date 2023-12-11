@@ -2413,6 +2413,18 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.MgainAgreement)
                     .IsUnicode(false)
                     .HasColumnName("mgain_agreement");
+
+                entity.Property(e => e.MgainRedemption)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_redemption");
+
+                entity.Property(e => e.MgainNomineeType)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_NomineeType");
+
+                entity.Property(e => e.MgainCompanyId)
+                    .IsUnicode(false)
+                    .HasColumnName("mgain_companyId");
             });
 
             modelBuilder.Entity<TblMgaindetailsTruncate>(entity =>

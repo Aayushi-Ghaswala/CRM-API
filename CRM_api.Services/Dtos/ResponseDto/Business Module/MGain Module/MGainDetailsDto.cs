@@ -1,4 +1,5 @@
-﻿using CRM_api.Services.Dtos.ResponseDto.HR_Module;
+﻿using CRM_api.Services.Dtos.ResponseDto.Account_Module;
+using CRM_api.Services.Dtos.ResponseDto.HR_Module;
 
 namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
 {
@@ -84,9 +85,13 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
         public string? Mgain1stholderPanCard { get; set; }
         public string? Mgain1stholderFormCopy { get; set; }
         public string? MgainAgreement { get; set; }
+        public string? MgainRedemption { get; set; }
+        public string? MgainNomineeType { get; set; }
+        public int? MgainCompanyId { get; set; }
 
         public MGainSchemeDto TblMgainSchemeMaster { get; set; }
 
         public List<MGainPaymentDto> TblMgainPaymentMethods { get; set; }
+        public CompanyMasterDto TblMgainCompanyMaster { get; set; }
     }
 }
