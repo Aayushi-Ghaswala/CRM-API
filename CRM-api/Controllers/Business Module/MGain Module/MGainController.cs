@@ -346,5 +346,22 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             }
         }
         #endregion
+
+        #region MGain Pdf Files
+        [HttpGet("MGainPdfFile")]
+        public async Task<IActionResult> MGainPdfFile(int id, string fileflag)
+        {
+            try
+            {
+                var file = await _mGainService.MGainPdfFiles(id, fileflag);
+                return file is not null ? Ok(new { Message = File(file.file, "application/pdf", file.FileName) }) : BadRequest(new { Message = $"Unable to download {fileflag}." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion 
+
     }
 }

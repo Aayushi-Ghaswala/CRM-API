@@ -27,5 +27,6 @@ namespace CRM_api.Services.IServices.Business_Module.MGain_Module
         Task<(int, string)> UpdateMGainDetailsAsync(UpdateMGainDetailsDto updateMGainDetails);
         Task<int> UpdateMGainPaymentAsync(List<UpdateMGainPaymentDto> updateMGainPayment);
         Task<int> DeleteMGainPaymentAsync(int id);
+        Task<MGainPDFResponseDto> MGainPdfFiles(int id, string file);
     }
 }

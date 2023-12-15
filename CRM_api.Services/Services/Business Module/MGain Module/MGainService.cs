@@ -16,6 +16,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SelectPdf;
+using System.IO;
 using static CRM_api.Services.Helper.ConstantValue.GenderConstant;
 using static CRM_api.Services.Helper.ConstantValue.MaritalStatusConstant;
 using static CRM_api.Services.Helper.ConstantValue.MGainAccountPaymentConstant;
@@ -2290,7 +2291,7 @@ table {{
 
                 updateMGain.MgainAgreement = halfPath + "\\" + agreementFile;
             }
-            else updateMGain.MgainAgreement = updateMGainDetails.MgainAgreement;
+            else updateMGain.MgainAgreement = updateMGainDetails.MgainAgreement != "undefined" && updateMGainDetails.MgainAgreement != "null" ? updateMGainDetails.MgainAgreement : ""; 
 
             if (updateMGainDetails.MgainRedemptionFile is not null)
             {
@@ -2320,7 +2321,7 @@ table {{
 
                 updateMGain.MgainRedemption = halfPath + "\\" + redemptionFile;
             }
-            else updateMGain.MgainRedemption = updateMGainDetails.MgainRedemption;
+            else updateMGain.MgainRedemption = updateMGainDetails.MgainRedemption != "undefined" && updateMGainDetails.MgainRedemption != "null" ? updateMGainDetails.MgainRedemption : "";
 
             if (mgain.MgainPlotno is not null)
                 mgain.MgainPlotno = mgain.MgainPlotno.Trim();
@@ -2855,5 +2856,50 @@ table {{
             return (updateMGain, updatePlots);
         }
         #endregion
+
+        #region MGain Pdf Files
+        public async Task<MGainPDFResponseDto> MGainPdfFiles(int id, string file)
+        {
+            try
+            {
+
+                var mGainDetails = await _mGainRepository.GetMGainDetailById(id);
+                var directoryPath = Directory.GetCurrentDirectory() + "\\wwwroot";
+                var filePath = "";
+                if (file == "Agreement")
+                {
+                    filePath = directoryPath + mGainDetails.MgainAgreement;
+                    return new MGainPDFResponseDto()
+                    {
+                        file = File.ReadAllBytes(filePath),
+                        FileName = Path.GetFileName(filePath)
+                    };
+                }
+                else if (file == "Redemption")
+                {
+                    filePath = directoryPath + mGainDetails.MgainRedemption;
+                    return new MGainPDFResponseDto()
+                    {
+                        file = File.ReadAllBytes(filePath),
+                        FileName = Path.GetFileName(filePath)
+                    };
+                }
+                else
+                {
+                    filePath = directoryPath + mGainDetails.Mgain1stholderFormCopy;
+                    return new MGainPDFResponseDto()
+                    {
+                        file = File.ReadAllBytes(filePath),
+                        FileName = Path.GetFileName(filePath)
+                    };
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        #endregion
+
     }
 }

@@ -46,21 +46,24 @@ var app = builder.Build();
 
 app.UseCors();
 
-app.Use(async (context, next) =>
+if (!app.Environment.IsDevelopment())
 {
-    var headers = context.Request.Headers["Origin"];
-    var allowedOrigins = builder.Configuration["App:CorsOrigins"].Split(',').ToList();
+    app.Use(async (context, next) =>
+    {
+        var headers = context.Request.Headers["Origin"];
+        var allowedOrigins = builder.Configuration["App:CorsOrigins"].Split(',').ToList();
 
-    // Only apply CORS if the request includes an origin header
-    if (headers.Count > 0 && allowedOrigins.Any(x => x.Contains(headers)))
-    {
-        await next.Invoke();
-    }
-    else
-    {
-        context.Response.StatusCode = 403;
-    }
-});
+        // Only apply CORS if the request includes an origin header
+        if (headers.Count > 0 && allowedOrigins.Any(x => x.Contains(headers)))
+        {
+            await next.Invoke();
+        }
+        else
+        {
+            context.Response.StatusCode = 403;
+        }
+    });
+}
 
 //Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

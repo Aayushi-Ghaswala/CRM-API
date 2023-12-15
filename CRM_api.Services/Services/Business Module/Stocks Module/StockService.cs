@@ -880,14 +880,33 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     if (scripName.ToLower().Contains("FUT".ToLower()))
                     {
                         var name = scripName.Split(" ");
-                        var monthNumber = DateTime.ParseExact(name[2], "ddMMM", CultureInfo.CurrentCulture).ToString().Split("-");
+                        var dateTemp = DateTime.ParseExact(name[2], "ddMMM", CultureInfo.CurrentCulture).ToString();
+                        var monthNumber = new string[5];
+                        if (dateTemp.Contains("-"))
+                        {
+                            monthNumber = dateTemp.Split("-");
+                        }
+                        else if (dateTemp.Contains("/"))
+                        {
+                            monthNumber = dateTemp.Split("/");
+                        }
+                        //var monthNumber = DateTime.ParseExact(name[2], "ddMMM", CultureInfo.CurrentCulture).ToString().Split("-");
                         var date = name[3] + monthNumber[1] + monthNumber[0];
                         stockData.StScripname = name[0] + date + name[1];
                     }
                     else if (scripName.ToLower().Contains("OPT".ToLower()))
                     {
                         var name = scripName.Split(" ");
-                        var monthNumber = DateTime.ParseExact(name[2], "ddMMM", CultureInfo.CurrentCulture).ToString().Split("-");
+                        var dateTemp = DateTime.ParseExact(name[2], "ddMMM", CultureInfo.CurrentCulture).ToString();
+                        var monthNumber = new string[5];
+                        if(dateTemp.Contains("-"))
+                        {
+                            monthNumber = dateTemp.Split("-");
+                        }
+                        else if (dateTemp.Contains("/"))
+                        {
+                            monthNumber = dateTemp.Split("/");
+                        }
                         var date = name[3] + monthNumber[1] + monthNumber[0];
                         stockData.StScripname = name[0] + date + name.Last() + name[4];
                     }
