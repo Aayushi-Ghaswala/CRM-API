@@ -53,6 +53,9 @@ namespace CRM_api.DataAccess.Models
         public string? UserNjname { get; set; }
         public DateTime? FastTrackActivationDate { get; set; }
         public string? UserClientCode { get; set; }
+        public string? UserAadharPath { get; set; }
+        public string? UserPanPath { get; set; }
+        public string? UserImagePath { get; set; }
 
         [ForeignKey(nameof(CatId))]
         public virtual TblUserCategoryMaster? TblUserCategoryMaster { get; set; }

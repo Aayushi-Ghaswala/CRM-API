@@ -15,6 +15,7 @@ namespace CRM_api.DataAccess.Models
         public string? Isdcode { get; set; }
         public string? Icon { get; set; }
         public bool IsDeleted { get; set; }
+        public string? CountryIsdCode { get; set; }
 
         public virtual ICollection<TblStateMaster> TblStateMasters { get; set; }
     }

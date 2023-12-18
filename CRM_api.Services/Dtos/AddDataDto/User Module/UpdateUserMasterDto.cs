@@ -1,4 +1,6 @@
-﻿namespace CRM_api.Services.Dtos.AddDataDto
+﻿using Microsoft.AspNetCore.Http;
+
+namespace CRM_api.Services.Dtos.AddDataDto
 {
     public class UpdateUserMasterDto
     {
@@ -33,5 +35,12 @@
         public Nullable<bool> UserTermAndCondition { get; set; }
         public Nullable<int> FamilyId { get; set; }
         public string? UserNjName { get; set; }
+
+        public IFormFile? UserPanFile { get; set; }
+        public string? UserPanPath { get; set; }
+        public IFormFile? UserAadharFile { get; set; }
+        public string? UserAadharPath { get; set; }
+        public IFormFile? UserImageFile { get; set; }
+        public string? UserImagePath { get; set; }
     }
 }

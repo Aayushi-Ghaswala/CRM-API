@@ -784,6 +784,11 @@ namespace CRM_api.DataAccess.Context
                     .HasColumnName("isdcode");
 
                 entity.Property(e => e.IsDeleted).HasColumnName("IsDeleted").HasDefaultValue(0);
+                entity.Property(e => e.CountryIsdCode)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("country_isdcode");
+
             });
 
             modelBuilder.Entity<TblDepartmentMaster>(entity =>
@@ -3770,6 +3775,18 @@ namespace CRM_api.DataAccess.Context
                     .HasColumnName("user_clientcode");
 
                 entity.Property(e => e.UserWbcActive).HasColumnName("user_wbcActive");
+
+                entity.Property(e => e.UserAadharPath)
+                    .IsUnicode(false)
+                    .HasColumnName("user_aadharpath");
+
+                entity.Property(e => e.UserPanPath)
+                    .IsUnicode(false)
+                    .HasColumnName("user_panpath");
+
+                entity.Property(e => e.UserImagePath)
+                    .IsUnicode(false)
+                    .HasColumnName("user_imagepath");
             });
 
             modelBuilder.Entity<TblUserOnTheSpotGP>(entity =>

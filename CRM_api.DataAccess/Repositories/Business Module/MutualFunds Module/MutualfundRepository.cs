@@ -439,12 +439,22 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MutualFunds_Module
             _context.TblMftransactions.Remove(tblMftransaction);
             return await _context.SaveChangesAsync();
         }
+        public async Task<int> DeleteMFForUserExistRange(IList<TblMftransaction> tblMftransaction)
+        {
+            _context.TblMftransactions.RemoveRange(tblMftransaction);
+            return await _context.SaveChangesAsync();
+        }
         #endregion
 
         #region Delete Client Wise Mutualfund Transaction In Not Exist User Table
         public async Task<int> DeleteMFForNotUserExist(TblNotexistuserMftransaction tblMftransaction)
         {
             _context.TblNotexistuserMftransactions.Remove(tblMftransaction);
+            return await _context.SaveChangesAsync();
+        }
+        public async Task<int> DeleteMFForNotUserExistRange(IList<TblNotexistuserMftransaction> tblMftransaction)
+        {
+            _context.TblNotexistuserMftransactions.RemoveRange(tblMftransaction);
             return await _context.SaveChangesAsync();
         }
         #endregion

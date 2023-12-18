@@ -6,5 +6,6 @@
         public string? CountryName { get; set; }
         public string? Isdcode { get; set; }
         public string? Icon { get; set; }
+        public string? CountryIsdCode { get; set; }
     }
 }

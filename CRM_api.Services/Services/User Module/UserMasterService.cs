@@ -120,6 +120,76 @@ namespace CRM_api.Services.Services.User_Module
         public async Task<int> AddUserAsync(AddUserMasterDto addUser, bool isFromLead = false)
         {
             var user = _mapper.Map<TblUserMaster>(addUser);
+            var directoryPath = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\MGain-Documents\\";
+
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            var folderPath = directoryPath + $"{addUser.UserName.Trim()}";
+            var halfPath = "\\MGain-Documents\\" + $"{addUser.UserName.Trim()}";
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            if (addUser.UserAadharFile is not null)
+            {
+                var userAadharCardFile = addUser.UserAadharFile.FileName;
+                var userAadharCardPath = Path.Combine(folderPath, userAadharCardFile);
+
+                if (File.Exists(userAadharCardPath))
+                {
+                    File.Delete(userAadharCardPath);
+                }
+
+                using (var fs = new FileStream(userAadharCardPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    addUser.UserAadharFile.CopyTo(fs);
+                }
+
+                user.UserAadharPath = userAadharCardPath;
+            }
+            else user.UserAadharPath = null;
+
+            if (addUser.UserPanFile is not null)
+            {
+                var userPanCardFile = addUser.UserPanFile.FileName;
+                var userPanCardPath = Path.Combine(folderPath, userPanCardFile);
+
+                if (File.Exists(userPanCardPath))
+                {
+                    File.Delete(userPanCardPath);
+                }
+
+                using (var fs = new FileStream(userPanCardPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    addUser.UserPanFile.CopyTo(fs);
+                }
+
+                user.UserPanPath = userPanCardPath;
+            }
+            else user.UserPanPath = null;
+
+            if (addUser.UserImageFile is not null)
+            {
+                var userImageFileFile = addUser.UserImageFile.FileName;
+                var userImageFilePath = Path.Combine(folderPath, userImageFileFile);
+
+                if (File.Exists(userImageFilePath))
+                {
+                    File.Delete(userImageFilePath);
+                }
+
+                using (var fs = new FileStream(userImageFilePath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    addUser.UserImageFile.CopyTo(fs);
+                }
+
+                user.UserImagePath = userImageFilePath;
+            }
+            else user.UserImagePath = null;
 
             var addedUser = await _userMasterRepository.AddUser(user);
             if (addedUser is not null)
@@ -155,6 +225,76 @@ namespace CRM_api.Services.Services.User_Module
         public async Task<int> UpdateUserAsync(UpdateUserMasterDto updateUser)
         {
             var user = _mapper.Map<TblUserMaster>(updateUser);
+            var directoryPath = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\MGain-Documents\\";
+
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            var folderPath = directoryPath + $"{updateUser.UserName.Trim()}";
+            var halfPath = "\\MGain-Documents\\" + $"{updateUser.UserName.Trim()}";
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            if (updateUser.UserAadharFile is not null)
+            {
+                var userAadharCardFile = updateUser.UserAadharFile.FileName;
+                var userAadharCardPath = Path.Combine(folderPath, userAadharCardFile);
+
+                if (File.Exists(userAadharCardPath))
+                {
+                    File.Delete(userAadharCardPath);
+                }
+
+                using (var fs = new FileStream(userAadharCardPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    updateUser.UserAadharFile.CopyTo(fs);
+                }
+
+                user.UserAadharPath = userAadharCardPath;
+            }
+            else user.UserAadharPath = updateUser.UserAadharPath;
+
+            if (updateUser.UserPanFile is not null)
+            {
+                var userPanCardFile = updateUser.UserPanFile.FileName;
+                var userPanCardPath = Path.Combine(folderPath, userPanCardFile);
+
+                if (File.Exists(userPanCardPath))
+                {
+                    File.Delete(userPanCardPath);
+                }
+
+                using (var fs = new FileStream(userPanCardPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    updateUser.UserPanFile.CopyTo(fs);
+                }
+
+                user.UserPanPath = userPanCardPath;
+            }
+            else user.UserPanPath = updateUser.UserPanPath;
+
+            if (updateUser.UserImageFile is not null)
+            {
+                var userImageFileFile = updateUser.UserImageFile.FileName;
+                var userImageFilePath = Path.Combine(folderPath, userImageFileFile);
+
+                if (File.Exists(userImageFilePath))
+                {
+                    File.Delete(userImageFilePath);
+                }
+
+                using (var fs = new FileStream(userImageFilePath, FileMode.CreateNew, FileAccess.ReadWrite))
+                {
+                    updateUser.UserImageFile.CopyTo(fs);
+                }
+
+                user.UserImagePath = userImageFilePath;
+            }
+            else user.UserImagePath = updateUser.UserImagePath;
 
             return await _userMasterRepository.UpdateUser(user);
         }

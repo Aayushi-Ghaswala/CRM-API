@@ -19,6 +19,7 @@ namespace CRM_api.Services.Dtos.ResponseDto
         public string? UserWorkemail { get; set; }
         public string? UserAddr { get; set; }
         public string? UserPin { get; set; }
+        public int? UserCountryid { get; set; }
         public CountryMasterDto TblCountryMaster { get; set; }
         public StateMasterDto TblStateMaster { get; set; }
         public CityMasterDto TblCityMaster { get; set; }
@@ -45,5 +46,8 @@ namespace CRM_api.Services.Dtos.ResponseDto
         public DateTime? FastTrackActivationDate { get; set; }
         public string UserFasttrackCategory { get; set; }
         public List<UserRoleAssignmentDto> TblRoleAssignments { get; set; }
+        public string? UserAadharPath { get; set; }
+        public string? UserImagePath { get; set; }
+        public string? UserPanPath { get; set; }
     }
 }

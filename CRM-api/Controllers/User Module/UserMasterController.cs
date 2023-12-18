@@ -128,7 +128,7 @@ namespace CRM_api.Controllers.User_Module
 
         #region Add User
         [HttpPost("AddUser")]
-        public async Task<ActionResult> AddUser(AddUserMasterDto addUser)
+        public async Task<ActionResult> AddUser([FromForm] AddUserMasterDto addUser)
         {
             try
             {
@@ -145,7 +145,7 @@ namespace CRM_api.Controllers.User_Module
 
         #region Update User
         [HttpPut("UpdateUser")]
-        public async Task<ActionResult> UpdateUser(UpdateUserMasterDto updateUser)
+        public async Task<ActionResult> UpdateUser([FromForm] UpdateUserMasterDto updateUser)
         {
             try
             {

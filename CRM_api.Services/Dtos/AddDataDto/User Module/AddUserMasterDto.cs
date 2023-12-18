@@ -1,4 +1,6 @@
-﻿namespace CRM_api.Services.Dtos.AddDataDto
+﻿using Microsoft.AspNetCore.Http;
+
+namespace CRM_api.Services.Dtos.AddDataDto
 {
     public class AddUserMasterDto
     {
@@ -27,5 +29,9 @@
         public Nullable<bool> UserfastTrack { get; set; }
         public Nullable<bool> UserWbcActive { get; set; }
         public Nullable<bool> UserTermAndCondition { get; set; }
+
+        public IFormFile? UserPanFile { get; set; }
+        public IFormFile? UserAadharFile { get; set; }
+        public IFormFile? UserImageFile { get; set; }
     }
 }

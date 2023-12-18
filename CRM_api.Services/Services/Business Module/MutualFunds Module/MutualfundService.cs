@@ -458,7 +458,10 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                                 obj.Schemename = row["Scheme"] == DBNull.Value ? null : row["Scheme"].ToString();
                                 obj.Foliono = row["Folio No/Demat A/C"] == DBNull.Value ? null : row["Folio No/Demat A/C"].ToString().Trim('*').Replace("/", "");
                                 obj.Tradeno = row["Tr. No."] == DBNull.Value ? null : row["Tr. No."].ToString();
-                                obj.Date = datatable.TableName.Contains("Purchase Report") ? Convert.ToDateTime(row["Purchase Date"] == DBNull.Value ? null : row["Purchase Date"]) : Convert.ToDateTime(row["Redemption Date"] == DBNull.Value ? null : row["Redemption Date"]);
+
+                                DateTime.TryParseExact((datatable.TableName.Contains("Purchase Report") ? row["Purchase Date"] == DBNull.Value ? null : row["Purchase Date"] : row["Redemption Date"] == DBNull.Value ? null : row["Redemption Date"]).ToString(), "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime tempDate);
+
+                                obj.Date = tempDate;
                                 obj.Nav = Convert.ToDouble(row["NAV(₹)"] == DBNull.Value ? null : row["NAV(₹)"]);
                                 obj.Noofunit = datatable.TableName.Contains("Purchase Report") ? Convert.ToDecimal(row["Purchase units"] == DBNull.Value ? null : row["Purchase units"]) : Convert.ToDecimal(row["No. of Units"] == DBNull.Value ? null : row["No. of Units"]);
                                 obj.Invamount = datatable.TableName.Contains("Purchase Report") ? Convert.ToDecimal(row["Gross Inv. Amount(₹)"] == DBNull.Value ? null : row["Gross Inv. Amount(₹)"]) : Convert.ToDecimal(row["Amount(₹)"] == DBNull.Value ? null : row["Amount(₹)"]);
@@ -498,28 +501,30 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                             if (mapRecordsForExistUser.Count > 0)
                             {
                                 var GetDataForExistUser = await _mutualfundRepository.GetMFInSpecificDateForExistUser(
-                                                            mapRecordsForExistUser.First().Date, mapRecordsForExistUser.Last().Date);
+                                                            mapRecordsForExistUser.MinBy(x => x.Date)?.Date, mapRecordsForExistUser.MaxBy(x => x.Date)?.Date);
 
                                 if (GetDataForExistUser.Count > 0)
                                 {
-                                    foreach (var record in GetDataForExistUser)
-                                    {
-                                        await _mutualfundRepository.DeleteMFForUserExist(record);
-                                    }
+                                    await _mutualfundRepository.DeleteMFForUserExistRange(GetDataForExistUser);
+                                    //foreach (var record in GetDataForExistUser)
+                                    //{
+                                    //    await _mutualfundRepository.DeleteMFForUserExist(record);
+                                    //}
                                 }
                             }
 
                             if (mapRecordsForNotExistUser.Count > 0)
                             {
                                 var GetDataForNotExistUser = await _mutualfundRepository.GetMFInSpecificDateForNotExistUser(
-                                                                mapRecordsForNotExistUser.First().Date, mapRecordsForNotExistUser.Last().Date);
+                                                                mapRecordsForNotExistUser.MinBy(x => x.Date)?.Date, mapRecordsForNotExistUser.MaxBy(x => x.Date)?.Date);
 
                                 if (GetDataForNotExistUser.Count > 0)
                                 {
-                                    foreach (var record in GetDataForNotExistUser)
-                                    {
-                                        await _mutualfundRepository.DeleteMFForNotUserExist(record);
-                                    }
+                                    await _mutualfundRepository.DeleteMFForNotUserExistRange(GetDataForNotExistUser);
+                                    //foreach (var record in GetDataForNotExistUser)
+                                    //{
+                                    //    await _mutualfundRepository.DeleteMFForNotUserExist(record);
+                                    //}
                                 }
                             }
                         }
@@ -531,7 +536,7 @@ namespace CRM_api.Services.Services.Business_Module.MutualFunds_Module
                     }
                     return 1;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     return 0;
                 }
