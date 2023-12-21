@@ -12,6 +12,7 @@ using CRM_api.Services.IServices.Business_Module.LI_GI_Module;
 using ExcelDataReader;
 using Microsoft.AspNetCore.Http;
 using System.Data;
+using System.Globalization;
 using static CRM_api.Services.Helper.ConstantValue.InvesmentTypeConstant;
 using static CRM_api.Services.Helper.ConstantValue.SubInvTypeConstant;
 
@@ -86,6 +87,7 @@ namespace CRM_api.Services.Services.Business_Module.LI_GI_Module
 
             if (File.Exists(localFilePath))
             {
+                File.Delete(localFilePath);
                 return ("File data already exists.", 0);
             }
 
@@ -112,54 +114,60 @@ namespace CRM_api.Services.Services.Business_Module.LI_GI_Module
 
                         foreach (DataTable datatable in dataset.Tables)
                         {
-                            string firstColumnHeader = datatable.Columns[0].ColumnName;
-                            string secondColumnHeader = datatable.Columns[1].ColumnName;
-                            if (firstColumnHeader.Equals("Plan Type") || secondColumnHeader.Equals("Plan Type"))
+                            if (datatable.Columns.Count > 0)
                             {
-                                datatable.AsEnumerable().ToList().ConvertAll<ImportInsClientDto>(row =>
+                                string firstColumnHeader = datatable.Columns[0].ColumnName;
+                                string secondColumnHeader = datatable.Columns[1].ColumnName;
+                                if (firstColumnHeader.Equals("Plan Type") || secondColumnHeader.Equals("Plan Type"))
                                 {
-                                    if (planTypesName.Contains(row["Plan Type"].ToString().ToLower()))
+                                    datatable.AsEnumerable().ToList().ConvertAll<ImportInsClientDto>(row =>
                                     {
-                                        var obj = new ImportInsClientDto();
-                                        obj.InsPlantype = row["Plan Type"] == DBNull.Value ? null : row["Plan Type"].ToString();
-                                        obj.InsPlan = row["Plan"] == DBNull.Value ? null : row["Plan"].ToString();
-                                        obj.InsPolicy = row["Existing Policy No."] == DBNull.Value ? null : row["Existing Policy No."].ToString();
-                                        obj.InsPan = row["Pan Card No."] == DBNull.Value ? null : row["Pan Card No."].ToString();
-                                        obj.InsMobile = row["Mobile No."] == DBNull.Value ? null : row["Mobile No."].ToString();
-                                        obj.InsPremiumRmdDate = Convert.ToDateTime(row["Premium Due Date"] == DBNull.Value ? null : row["Premium Due Date"]);
-                                        obj.PremiumAmount = Convert.ToDecimal(row["Last Premium Paid Amount / Premium Due Amount(Gross Premium) (Rs) [1]"] == DBNull.Value ? null : row["Last Premium Paid Amount / Premium Due Amount(Gross Premium) (Rs) [1]"]);
-                                        obj.InsNewpolicy = row["New Policy Number"] == DBNull.Value ? null : row["New Policy Number"].ToString();
-                                        obj.InsEmail = row["Customer E-mail id"] == DBNull.Value ? null : row["Customer E-mail id"].ToString();
-                                        obj.InsUsername = row["Policy Holder"] == DBNull.Value ? null : row["Policy Holder"].ToString();
-                                        obj.InvType = invTypeId.Id;
-
-                                        var userId = _userMasterRepository.GetUserIdByUserPan(obj.InsPan);
-                                        if (userId > 0)
-                                            obj.InsUserid = userId;
-
-                                        var planType = planTypes.Where(x => x.InsPlanType.ToLower().Equals(obj.InsPlantype.ToLower())).First();
-                                        if (planType is not null)
-                                            obj.InsPlantypeId = planType.InsPlantypeId;
-
-                                        if (obj.InsPlantype.ToLower().Equals(InsPlanTypeConstant.ulip.ToLower()) || obj.InsPlantype.ToLower().Equals(InsPlanTypeConstant.traditional.ToLower()) || obj.InsPlantype.ToLower().Equals(InsPlanTypeConstant.termAssurance.ToLower()))
+                                        if (planTypesName.Contains(row["Plan Type"].ToString().ToLower()))
                                         {
-                                            var subInvType = subInvTypes.Where(x => x.InvestmentType.ToLower().Equals(SubInvType.Life.ToString().ToLower())).First();
-                                            if (subInvType is not null)
-                                                obj.InvSubtype = subInvType.Id;
+                                            var obj = new ImportInsClientDto();
+                                            obj.InsPlantype = row["Plan Type"] == DBNull.Value ? null : row["Plan Type"].ToString();
+                                            obj.InsPlan = row["Plan"] == DBNull.Value ? null : row["Plan"].ToString();
+                                            obj.InsPolicy = row["Existing Policy No."] == DBNull.Value ? null : row["Existing Policy No."].ToString();
+                                            obj.InsPan = row["Pan Card No."] == DBNull.Value ? null : row["Pan Card No."].ToString();
+                                            obj.InsMobile = row["Mobile No."] == DBNull.Value ? null : row["Mobile No."].ToString();
+
+                                            DateTime.TryParseExact(row["Premium Due Date"] == DBNull.Value ? null : row["Premium Due Date"].ToString(), "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTemp);
+                                            obj.InsPremiumRmdDate = dateTemp;
+
+                                            obj.PremiumAmount = Convert.ToDecimal(row["Last Premium Paid Amount / Premium Due Amount(Gross Premium) (Rs) [1]"] == DBNull.Value ? null : row["Last Premium Paid Amount / Premium Due Amount(Gross Premium) (Rs) [1]"]);
+                                            obj.InsNewpolicy = row["New Policy Number"] == DBNull.Value ? null : row["New Policy Number"].ToString();
+                                            obj.InsEmail = row["Customer E-mail id"] == DBNull.Value ? null : row["Customer E-mail id"].ToString();
+                                            obj.InsUsername = row["Policy Holder"] == DBNull.Value ? null : row["Policy Holder"].ToString();
+                                            obj.InvType = invTypeId.Id;
+
+                                            var userId = _userMasterRepository.GetUserIdByUserPan(obj.InsPan);
+                                            if (userId > 0)
+                                                obj.InsUserid = userId;
+
+                                            var planType = planTypes.Where(x => x.InsPlanType.ToLower().Equals(obj.InsPlantype.ToLower())).First();
+                                            if (planType is not null)
+                                                obj.InsPlantypeId = planType.InsPlantypeId;
+
+                                            if (obj.InsPlantype.ToLower().Equals(InsPlanTypeConstant.ulip.ToLower()) || obj.InsPlantype.ToLower().Equals(InsPlanTypeConstant.traditional.ToLower()) || obj.InsPlantype.ToLower().Equals(InsPlanTypeConstant.termAssurance.ToLower()))
+                                            {
+                                                var subInvType = subInvTypes.Where(x => x.InvestmentType.ToLower().Equals(SubInvType.Life.ToString().ToLower())).First();
+                                                if (subInvType is not null)
+                                                    obj.InvSubtype = subInvType.Id;
+                                            }
+                                            else
+                                            {
+                                                var subInvType = subInvTypes.Where(x => x.InvestmentType.ToLower().Equals(SubInvType.General.ToString().ToLower())).First();
+                                                if (subInvType is not null)
+                                                    obj.InvSubtype = subInvType.Id;
+                                            }
+
+                                            records.Add(obj);
+                                            return obj;
                                         }
                                         else
-                                        {
-                                            var subInvType = subInvTypes.Where(x => x.InvestmentType.ToLower().Equals(SubInvType.General.ToString().ToLower())).First();
-                                            if (subInvType is not null)
-                                                obj.InvSubtype = subInvType.Id;
-                                        }
-
-                                        records.Add(obj);
-                                        return obj;
-                                    }
-                                    else
-                                        return null;
-                                });
+                                            return null;
+                                    });
+                                }
                             }
                         }
 

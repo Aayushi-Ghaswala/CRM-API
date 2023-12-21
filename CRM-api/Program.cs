@@ -1,3 +1,4 @@
+using CRM_api.Services.Helper.Extensions;
 using CRM_api.Services.ServicesDepedancy;
 using Microsoft.AspNetCore.Http.Features;
 using Serilog;
@@ -72,6 +73,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ServiceMiddleWare>();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

@@ -1176,119 +1176,167 @@ SURAT - 395009 <p>
 
             foreach (var MGainDetail in mGainDetails)
             {
-                ////if (MGainDetail.Id == 267)
+                //if (MGainDetail.Id == 695 || MGainDetail.Id == 696)
                 //{
                 //    _logger.LogInformation($"Mgain Id = {MGainDetail.Id}, {MGainDetail.Date.Value.AddYears(10)} > {currentDate}");
-                //    _logger.LogInformation($"Full Date = {MGainDetail.Date.Value.ToString("dd MMM yyyy")}");
+                ////    _logger.LogInformation($"Full Date = {MGainDetail.Date.Value.ToString("dd MMM yyyy")}");
                 //}
-
-                if (MGainDetail.Date.Value.AddYears(10) > currentDate)
+                if (MGainDetail.TblMgainPaymentMethods?.Count > 0 && MGainDetail.TblMgainPaymentMethods.OrderByDescending(x => x.ChequeDate).FirstOrDefault().ChequeDate != null)
                 {
-                    var MGainNonCumulativeMonthlyReport = new MGainNonCumulativeMonthlyReportDto();
-                    List<TblAccountTransaction> accountTransactions = new List<TblAccountTransaction>();
-                    string? transactionType = null;
-
-                    List<decimal?> interestRates = new List<decimal?>();
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst1);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst2);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst3);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst4);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst5);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst6);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst7);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst8);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst9);
-                    interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst10);
-
-                    var yearDifference = currentDate.Year - MGainDetail.Date.Value.Year;
-                    //if (MGainDetail.Id == 645)
-                    //{
-                    //    //_logger.LogInformation($"Current Month = {currentDate.Month} and Mgain Month ={MGainDetail.Date.Value.Month}");
-                    //}
-                    if (currentDate.Month <= MGainDetail.Date.Value.Month)
+                    var mGainDate = MGainDetail.TblMgainPaymentMethods.OrderByDescending(x => x.ChequeDate).FirstOrDefault().ChequeDate.Value;
+                    if (mGainDate.AddYears(10) > currentDate)
                     {
-                        yearDifference -= 1;
-                    }
+                        var MGainNonCumulativeMonthlyReport = new MGainNonCumulativeMonthlyReportDto();
+                        List<TblAccountTransaction> accountTransactions = new List<TblAccountTransaction>();
+                        string? transactionType = null;
 
-                    if (MGainDetail.TblMgainPaymentMethods.Count() > 0)
-                    {
-                        transactionType = MGainDetail.TblMgainPaymentMethods.FirstOrDefault().PaymentMode;
-                    }
+                        List<decimal?> interestRates = new List<decimal?>();
+                        interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst1);
+                        interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst2);
+                        interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst3);
+                        interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst4);
+                        interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst5);
+                        interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst6);
+                        interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst7);
+                        interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst8);
+                        interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst9);
+                        interestRates.Add(MGainDetail.TblMgainSchemeMaster.Interst10);
 
-                    MGainNonCumulativeMonthlyReport.Id = MGainDetail.Id;
-                    MGainNonCumulativeMonthlyReport.MgainUserid = MGainDetail.MgainUserid;
-                    MGainNonCumulativeMonthlyReport.Interst1 = MGainDetail.TblMgainSchemeMaster.Interst1;
-                    MGainNonCumulativeMonthlyReport.Interst4 = MGainDetail.TblMgainSchemeMaster.Interst4;
-                    MGainNonCumulativeMonthlyReport.Interst8 = MGainDetail.TblMgainSchemeMaster.Interst8;
-                    MGainNonCumulativeMonthlyReport.Date = MGainDetail.Date.Value.ToString("dd-MM-yyyy");
-                    if (MGainDetail.MgainIsAnotherBank is true)
-                    {
-                        MGainNonCumulativeMonthlyReport.IntAccNo = MGainDetail.MgainAccountNumber;
-                        MGainNonCumulativeMonthlyReport.IntBankName = MGainDetail.MgainBankName;
-                    }
-                    MGainNonCumulativeMonthlyReport.MgainInvamt = MGainDetail.MgainInvamt;
-                    MGainNonCumulativeMonthlyReport.Mgain1stholder = MGainDetail.Mgain1stholder;
-
-                    if (MGainDetail.MgainRedemdate is not null)
-                        MGainNonCumulativeMonthlyReport.MgainRedemdate = MGainDetail.MgainRedemdate.Value.ToString("dd-MM-yyyy");
-                    else MGainNonCumulativeMonthlyReport.MgainRedemdate = null;
-
-                    MGainNonCumulativeMonthlyReport.MgainType = MGainDetail.MgainType;
-                    MGainNonCumulativeMonthlyReport.YearlyInterest = MGainDetail.TblMgainSchemeMaster.YearlyInterest;
-                    MGainNonCumulativeMonthlyReport.MonthlyInterest = MGainDetail.TblMgainSchemeMaster.MonthlyInterest;
-
-                    if (MGainDetail.TblMgainPaymentMethods.Count() > 0)
-                        MGainNonCumulativeMonthlyReport.CurrancyId = MGainDetail.TblMgainPaymentMethods.FirstOrDefault().CurrancyId;
-
-                    if (yearDifference == 0)
-                    {
-                        if (currentDate.Month == MGainDetail.Date.Value.AddMonths(3).Month)
+                        var yearDifference = currentDate.Year - mGainDate.Year;
+                        //if (MGainDetail.Id == 645)
+                        //{
+                        //    //_logger.LogInformation($"Current Month = {currentDate.Month} and Mgain Month ={mGainDate.Month}");
+                        //}
+                        if (currentDate.Month <= mGainDate.Month)
                         {
-                            var daysInMonth = DateTime.DaysInMonth(MGainDetail.Date.Value.Year, MGainDetail.Date.Value.Month);
-                            var days = daysInMonth - (MGainDetail.Date.Value.Day - 1);
+                            yearDifference -= 1;
+                        }
 
-                            MGainNonCumulativeMonthlyReport.InterstRate = interestRates.First();
+                        if (MGainDetail.TblMgainPaymentMethods.Count() > 0)
+                        {
+                            transactionType = MGainDetail.TblMgainPaymentMethods.FirstOrDefault().PaymentMode;
+                        }
 
-                            MGainNonCumulativeMonthlyReport.InterestAmount = Math.Round((decimal)((MGainDetail.MgainInvamt * days * (MGainNonCumulativeMonthlyReport.InterstRate / 100)) / 365), 0);
+                        MGainNonCumulativeMonthlyReport.Id = MGainDetail.Id;
+                        MGainNonCumulativeMonthlyReport.MgainUserid = MGainDetail.MgainUserid;
+                        MGainNonCumulativeMonthlyReport.Interst1 = MGainDetail.TblMgainSchemeMaster.Interst1;
+                        MGainNonCumulativeMonthlyReport.Interst4 = MGainDetail.TblMgainSchemeMaster.Interst4;
+                        MGainNonCumulativeMonthlyReport.Interst8 = MGainDetail.TblMgainSchemeMaster.Interst8;
+                        MGainNonCumulativeMonthlyReport.Date = mGainDate.ToString("dd-MM-yyyy");
+                        if (MGainDetail.MgainIsAnotherBank is true)
+                        {
+                            MGainNonCumulativeMonthlyReport.IntAccNo = MGainDetail.MgainAccountNumber;
+                            MGainNonCumulativeMonthlyReport.IntBankName = MGainDetail.MgainBankName;
+                        }
+                        MGainNonCumulativeMonthlyReport.MgainInvamt = MGainDetail.MgainInvamt;
+                        MGainNonCumulativeMonthlyReport.Mgain1stholder = MGainDetail.Mgain1stholder;
 
-                            if (MGainDetail.MgainIsTdsDeduction is true)
-                                MGainNonCumulativeMonthlyReport.TDS = Math.Round((decimal)((MGainNonCumulativeMonthlyReport.InterestAmount * tds) / 100));
-                            else MGainNonCumulativeMonthlyReport.TDS = 0;
+                        if (MGainDetail.MgainRedemdate is not null)
+                            MGainNonCumulativeMonthlyReport.MgainRedemdate = MGainDetail.MgainRedemdate.Value.ToString("dd-MM-yyyy");
+                        else MGainNonCumulativeMonthlyReport.MgainRedemdate = null;
 
-                            MGainNonCumulativeMonthlyReport.PayAmount = MGainNonCumulativeMonthlyReport.InterestAmount - MGainNonCumulativeMonthlyReport.TDS;
+                        MGainNonCumulativeMonthlyReport.MgainType = MGainDetail.MgainType;
+                        MGainNonCumulativeMonthlyReport.YearlyInterest = MGainDetail.TblMgainSchemeMaster.YearlyInterest;
+                        MGainNonCumulativeMonthlyReport.MonthlyInterest = MGainDetail.TblMgainSchemeMaster.MonthlyInterest;
 
-                            MGainNonCumulativeMonthlyReports.Add(MGainNonCumulativeMonthlyReport);
+                        if (MGainDetail.TblMgainPaymentMethods.Count() > 0)
+                            MGainNonCumulativeMonthlyReport.CurrancyId = MGainDetail.TblMgainPaymentMethods.FirstOrDefault().CurrancyId;
 
-                            if (isJournal is true)
+                        if (yearDifference == 0)
+                        {
+                            if (currentDate.Month == mGainDate.AddMonths(3).Month)
                             {
-                                docNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Journal.ToString(), docNo);
+                                var daysInMonth = DateTime.DaysInMonth(mGainDate.Year, mGainDate.Month);
+                                var days = daysInMonth - (mGainDate.Day - 1);
 
-                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
-                            }
-                            if (isPayment is true)
-                            {
-                                docNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Payment.ToString(), docNo);
+                                MGainNonCumulativeMonthlyReport.InterstRate = interestRates.First();
+
+                                MGainNonCumulativeMonthlyReport.InterestAmount = Math.Round((decimal)((MGainDetail.MgainInvamt * days * (MGainNonCumulativeMonthlyReport.InterstRate / 100)) / 365), 0);
+
                                 if (MGainDetail.MgainIsTdsDeduction is true)
+                                    MGainNonCumulativeMonthlyReport.TDS = Math.Round((decimal)((MGainNonCumulativeMonthlyReport.InterestAmount * tds) / 100));
+                                else MGainNonCumulativeMonthlyReport.TDS = 0;
+
+                                MGainNonCumulativeMonthlyReport.PayAmount = MGainNonCumulativeMonthlyReport.InterestAmount - MGainNonCumulativeMonthlyReport.TDS;
+
+                                MGainNonCumulativeMonthlyReports.Add(MGainNonCumulativeMonthlyReport);
+
+                                if (isJournal is true)
                                 {
-                                    tdsDocNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Journal.ToString(), tdsDocNo);
+                                    docNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Journal.ToString(), docNo);
+
+                                    accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
+                                }
+                                if (isPayment is true)
+                                {
+                                    docNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Payment.ToString(), docNo);
+                                    if (MGainDetail.MgainIsTdsDeduction is true)
+                                    {
+                                        tdsDocNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Journal.ToString(), tdsDocNo);
+                                    }
+
+                                    accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
                                 }
 
-                                accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
-                            }
+                                if (isSendSMS is true)
+                                {
+                                    string message = $"Dear Investors,Greetings from KA Group!MGain interest of Rs. {MGainNonCumulativeMonthlyReport.InterestAmount} - for the month of {month}-{year} has been credited in your Respective Bank.Thank You.";
+                                    string mobile = "9173230023";
+                                    SMSHelper.SendSMS(mobile, message, "");
+                                }
 
-                            if (isSendSMS is true)
+                                allAccountTransactions.AddRange(accountTransactions);
+                            }
+                            else if (currentDate.Month > mGainDate.AddMonths(3).Month)
                             {
-                                string message = $"Dear Investors,Greetings from KA Group!MGain interest of Rs. {MGainNonCumulativeMonthlyReport.InterestAmount} - for the month of {month}-{year} has been credited in your Respective Bank.Thank You.";
-                                string mobile = "9173230023";
-                                SMSHelper.SendSMS(mobile, message, "");
-                            }
+                                MGainNonCumulativeMonthlyReport.InterstRate = interestRates.First();
+                                MGainNonCumulativeMonthlyReport.InterestAmount = Math.Round((decimal)(((MGainDetail.MgainInvamt * MGainNonCumulativeMonthlyReport.InterstRate) / 100) / 12), 0);
 
-                            allAccountTransactions.AddRange(accountTransactions);
+                                if (MGainDetail.MgainIsTdsDeduction is true)
+                                    MGainNonCumulativeMonthlyReport.TDS = Math.Round((decimal)((MGainNonCumulativeMonthlyReport.InterestAmount * tds) / 100), 0);
+                                else MGainNonCumulativeMonthlyReport.TDS = 0;
+
+                                MGainNonCumulativeMonthlyReport.PayAmount = MGainNonCumulativeMonthlyReport.InterestAmount - MGainNonCumulativeMonthlyReport.TDS;
+
+                                MGainNonCumulativeMonthlyReports.Add(MGainNonCumulativeMonthlyReport);
+
+                                if (isJournal is true)
+                                {
+                                    docNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Journal.ToString(), docNo);
+                                    accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
+                                }
+                                if (isPayment is true)
+                                {
+                                    docNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Payment.ToString(), docNo);
+
+                                    if (MGainDetail.MgainIsTdsDeduction is true)
+                                    {
+                                        tdsDocNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Journal.ToString(), tdsDocNo);
+                                    }
+
+                                    accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
+                                }
+
+                                if (isSendSMS is true)
+                                {
+                                    string message = $"Dear Investors,Greetings from KA Group!MGain interest of Rs{MGainNonCumulativeMonthlyReport.InterestAmount} - for the month of {month}-{year} has been credited in your Respective Bank.Thank You.";
+                                    string mobile = "9173230023";
+                                    SMSHelper.SendSMS(mobile, message, "");
+                                }
+
+                                allAccountTransactions.AddRange(accountTransactions);
+                            }
                         }
-                        else if (currentDate.Month > MGainDetail.Date.Value.AddMonths(3).Month)
+                        else
                         {
-                            MGainNonCumulativeMonthlyReport.InterstRate = interestRates.First();
+
+                            MGainNonCumulativeMonthlyReport.InterstRate = interestRates.Skip(yearDifference).First();
                             MGainNonCumulativeMonthlyReport.InterestAmount = Math.Round((decimal)(((MGainDetail.MgainInvamt * MGainNonCumulativeMonthlyReport.InterstRate) / 100) / 12), 0);
+
+                            //if (MGainDetail.Id == 267)
+                            //{
+                            //    _logger.LogInformation($"Year difference = {yearDifference} and InterestRate={MGainNonCumulativeMonthlyReport.InterstRate}");
+                            //}
 
                             if (MGainDetail.MgainIsTdsDeduction is true)
                                 MGainNonCumulativeMonthlyReport.TDS = Math.Round((decimal)((MGainNonCumulativeMonthlyReport.InterestAmount * tds) / 100), 0);
@@ -1306,7 +1354,6 @@ SURAT - 395009 <p>
                             if (isPayment is true)
                             {
                                 docNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Payment.ToString(), docNo);
-
                                 if (MGainDetail.MgainIsTdsDeduction is true)
                                 {
                                     tdsDocNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Journal.ToString(), tdsDocNo);
@@ -1325,50 +1372,6 @@ SURAT - 395009 <p>
                             allAccountTransactions.AddRange(accountTransactions);
                         }
                     }
-                    else
-                    {
-
-                        MGainNonCumulativeMonthlyReport.InterstRate = interestRates.Skip(yearDifference).First();
-                        MGainNonCumulativeMonthlyReport.InterestAmount = Math.Round((decimal)(((MGainDetail.MgainInvamt * MGainNonCumulativeMonthlyReport.InterstRate) / 100) / 12), 0);
-
-                        //if (MGainDetail.Id == 267)
-                        //{
-                        //    _logger.LogInformation($"Year difference = {yearDifference} and InterestRate={MGainNonCumulativeMonthlyReport.InterstRate}");
-                        //}
-
-                        if (MGainDetail.MgainIsTdsDeduction is true)
-                            MGainNonCumulativeMonthlyReport.TDS = Math.Round((decimal)((MGainNonCumulativeMonthlyReport.InterestAmount * tds) / 100), 0);
-                        else MGainNonCumulativeMonthlyReport.TDS = 0;
-
-                        MGainNonCumulativeMonthlyReport.PayAmount = MGainNonCumulativeMonthlyReport.InterestAmount - MGainNonCumulativeMonthlyReport.TDS;
-
-                        MGainNonCumulativeMonthlyReports.Add(MGainNonCumulativeMonthlyReport);
-
-                        if (isJournal is true)
-                        {
-                            docNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Journal.ToString(), docNo);
-                            accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, isJournal, jvEntryDate, jvNarration, false, null, null, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
-                        }
-                        if (isPayment is true)
-                        {
-                            docNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Payment.ToString(), docNo);
-                            if (MGainDetail.MgainIsTdsDeduction is true)
-                            {
-                                tdsDocNo = await _accountTransactionservice.GetTransactionDocNoAsync(MGainPayment.Journal.ToString(), tdsDocNo);
-                            }
-
-                            accountTransactions = AccountEntry(MGainNonCumulativeMonthlyReport, MGainDetail.Id, MGainDetail.MgainUserid, MGainDetail.MgainIsTdsDeduction, false, null, null, isPayment, crEntryDate, crNarration, tdsYear, docNo, tdsDocNo, MGainNonCumulativeMonthlyReport.CurrancyId, companyId, transactionType);
-                        }
-
-                        if (isSendSMS is true)
-                        {
-                            string message = $"Dear Investors,Greetings from KA Group!MGain interest of Rs{MGainNonCumulativeMonthlyReport.InterestAmount} - for the month of {month}-{year} has been credited in your Respective Bank.Thank You.";
-                            string mobile = "9173230023";
-                            SMSHelper.SendSMS(mobile, message, "");
-                        }
-
-                        allAccountTransactions.AddRange(accountTransactions);
-                    }
                 }
             }
 
@@ -1381,7 +1384,8 @@ SURAT - 395009 <p>
                 MGainNonCumulativeMonthlyReports = MGainNonCumulativeMonthlyReports,
                 TotalInterestAmount = totalInterstAmount,
                 TotalTDSAmount = totalTDSAmount,
-                TotalPayAmount = totalPayAmount
+                TotalPayAmount = totalPayAmount,
+                TotalMGain = MGainNonCumulativeMonthlyReports.Count()
             };
 
             if (allAccountTransactions.Count > 0)
@@ -2101,6 +2105,10 @@ table {{
 
                 var firstHolderSignature = updateMGainDetails.Mgain1stholderSignatureFile.FileName;
                 var firstHolderSignaturePath = Path.Combine(folderPath, firstHolderSignature);
+                if (File.Exists(firstHolderSignaturePath))
+                {
+                    File.Delete(firstHolderSignaturePath);
+                }
                 using (var fs = new FileStream(firstHolderSignaturePath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
                     updateMGainDetails.Mgain1stholderSignatureFile.CopyTo(fs);
@@ -2118,6 +2126,10 @@ table {{
 
                 var secondHolderSignature = updateMGainDetails.Mgain2ndholderSignatureFile.FileName;
                 var secondHolderSignaturePath = Path.Combine(folderPath, secondHolderSignature);
+                if (File.Exists(secondHolderSignaturePath))
+                {
+                    File.Delete(secondHolderSignaturePath);
+                }
                 using (var fs = new FileStream(secondHolderSignaturePath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
                     updateMGainDetails.Mgain2ndholderSignatureFile.CopyTo(fs);
@@ -2135,6 +2147,11 @@ table {{
 
                 var nomineePan = updateMGainDetails.MgainNomineePanFile.FileName;
                 var nomineePanPath = Path.Combine(folderPath, nomineePan);
+
+                if (File.Exists(nomineePanPath))
+                {
+                    File.Delete(nomineePanPath);
+                }
                 using (var fs = new FileStream(nomineePanPath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
                     updateMGainDetails.MgainNomineePanFile.CopyTo(fs);
@@ -2153,6 +2170,10 @@ table {{
 
                 var nomineeAadhar = updateMGainDetails.MgainNomineeAadharFile.FileName;
                 var nomineeAadharPath = Path.Combine(folderPath, nomineeAadhar);
+                if (File.Exists(nomineeAadharPath))
+                {
+                    File.Delete(nomineeAadharPath);
+                }
                 using (var fs = new FileStream(nomineeAadharPath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
                     updateMGainDetails.MgainNomineeAadharFile.CopyTo(fs);
@@ -2170,6 +2191,10 @@ table {{
 
                 var birthCertificate = updateMGainDetails.MgainNomineeBirthCertificateFile.FileName;
                 var birthCertificatePath = Path.Combine(folderPath, birthCertificate);
+                if (File.Exists(birthCertificatePath))
+                {
+                    File.Delete(birthCertificatePath);
+                }
                 using (var fs = new FileStream(birthCertificatePath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
                     updateMGainDetails.MgainNomineeBirthCertificateFile.CopyTo(fs);
@@ -2187,6 +2212,10 @@ table {{
 
                 var cancelledCheque = updateMGainDetails.MgainCancelledChequeFile.FileName;
                 var cancelledChequePath = Path.Combine(folderPath, cancelledCheque);
+                if (File.Exists(cancelledChequePath))
+                {
+                    File.Delete(cancelledChequePath);
+                }
                 using (var fs = new FileStream(cancelledChequePath, FileMode.CreateNew, FileAccess.ReadWrite))
                 {
                     updateMGainDetails.MgainCancelledChequeFile.CopyTo(fs);
@@ -2197,6 +2226,10 @@ table {{
 
             if (updateMGainDetails.Mgain1stholderAadharFile is not null)
             {
+                if (File.Exists(mgain.Mgain1stholderAadharCard))
+                {
+                    File.Delete(mgain.Mgain1stholderAadharCard);
+                }
                 var firstholderAadharCardFile = updateMGainDetails.Mgain1stholderAadharFile.FileName;
                 var firstholderAadharCardPath = Path.Combine(folderPath, firstholderAadharCardFile);
 
@@ -2216,6 +2249,10 @@ table {{
 
             if (updateMGainDetails.Mgain1stholderPanFile is not null)
             {
+                if (File.Exists(mgain.Mgain1stholderPanCard))
+                {
+                    File.Delete(mgain.Mgain1stholderPanCard);
+                }
                 var firstholderPanCardFile = updateMGainDetails.Mgain1stholderPanFile.FileName;
                 var firstholderPanCardPath = Path.Combine(folderPath, firstholderPanCardFile);
 
@@ -2235,6 +2272,10 @@ table {{
 
             if (updateMGainDetails.Mgain1stholderFormCopyFile is not null)
             {
+                if (File.Exists(mgain.Mgain1stholderFormCopy))
+                {
+                    File.Delete(mgain.Mgain1stholderFormCopy);
+                }
                 var firstholderFormCopyCardFile = updateMGainDetails.Mgain1stholderFormCopyFile.FileName;
                 var firstholderFormCopyCardPath = Path.Combine(folderPath, firstholderFormCopyCardFile);
 
@@ -2265,6 +2306,10 @@ table {{
 
             if (updateMGainDetails.MgainAgreementFile is not null)
             {
+                if (File.Exists(mgain.MgainAgreement))
+                {
+                    File.Delete(mgain.MgainAgreement);
+                }
                 var agreementFile = updateMGainDetails.MgainAgreementFile.FileName;
                 var agreementPath = Path.Combine(folderPath, agreementFile);
 
@@ -2291,10 +2336,14 @@ table {{
 
                 updateMGain.MgainAgreement = halfPath + "\\" + agreementFile;
             }
-            else updateMGain.MgainAgreement = updateMGainDetails.MgainAgreement != "undefined" && updateMGainDetails.MgainAgreement != "null" ? updateMGainDetails.MgainAgreement : ""; 
+            else updateMGain.MgainAgreement = updateMGainDetails.MgainAgreement != "undefined" && updateMGainDetails.MgainAgreement != "null" ? updateMGainDetails.MgainAgreement : "";
 
             if (updateMGainDetails.MgainRedemptionFile is not null)
             {
+                if (File.Exists(mgain.MgainRedemption))
+                {
+                    File.Delete(mgain.MgainRedemption);
+                }
                 var redemptionFile = updateMGainDetails.MgainRedemptionFile.FileName;
                 var redemptionPath = Path.Combine(folderPath, redemptionFile);
 

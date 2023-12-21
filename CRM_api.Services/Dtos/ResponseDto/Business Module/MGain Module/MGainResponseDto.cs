@@ -8,5 +8,6 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
         public decimal? totalAmount { get; set; }
         public decimal? redemAmount { get; set; }
         public decimal? remainingAmount { get; set; }
+        public int? totalMGain { get; set; }
     }
 }

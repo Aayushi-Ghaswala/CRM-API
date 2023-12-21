@@ -5,6 +5,7 @@ using CRM_api.DataAccess.Models;
 using CRM_api.DataAccess.ResponseModel.Bussiness_Module.MGain_Module;
 using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
 {
@@ -65,7 +66,8 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
                 response = mGainData,
                 totalAmount = totalAmount,
                 redemAmount = redemAmount,
-                remainingAmount = remainingAmount
+                remainingAmount = remainingAmount,
+                totalMGain = mGainDetails.Count(),
             };
 
             return responseMGain;
@@ -149,7 +151,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #region Get Project By Project Name
         public async Task<TblProjectMaster> GetProjectByProjectName(string projectName)
         {
-            var project = await _context.TblProjectMasters.Where(x => x.Name.ToLower() == projectName.ToLower()).FirstOrDefaultAsync();
+            var project = await _context.TblProjectMasters.Where(x => EF.Functions.Like(x.Name.ToLower().Trim(), $"%{projectName.ToLower().Trim()}%")).FirstOrDefaultAsync();
             return project;
         }
         #endregion
