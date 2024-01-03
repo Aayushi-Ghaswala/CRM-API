@@ -217,11 +217,11 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
 
         #region Get Plots By ProjectId
         [HttpGet("GetPlotsByProjectId")]
-        public async Task<IActionResult> GetPlotsByProjectId(int projectId, int? plotId)
+        public async Task<IActionResult> GetPlotsByProjectId(int projectId, int? plotId, int mgainId)
         {
             try
             {
-                var getData = await _mGainService.GetPlotsByProjectIdAsync(projectId, plotId);
+                var getData = await _mGainService.GetPlotsByProjectIdAsync(projectId, plotId, mgainId);
                 return Ok(getData);
             }
             catch (Exception)

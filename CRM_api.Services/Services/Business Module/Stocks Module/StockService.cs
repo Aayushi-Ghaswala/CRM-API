@@ -12,6 +12,7 @@ using CRM_api.Services.IServices.Business_Module.Stocks_Module;
 using CsvHelper;
 using IronXL;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.IO.Compression;
 using Excel = Microsoft.Office.Interop.Excel;
@@ -719,7 +720,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                 {
                     var exchange = stockData.StSettno.ToLower().Contains("nse") ? "NSE" : "BSE";
                     var clientCode = stockData.StClientcode;
-                    var user = users.Where(x => x.UserClientCode.Equals(clientCode)).FirstOrDefault();
+                    var user = users.Where(x => string.Compare(x.UserClientCode, stockData.StClientcode, true) == 0).FirstOrDefault();
                     var scripList = new List<TblScripMaster>();
                     var n = 1;
                     var scripName = stockData.StScripname.Split('.', StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -765,7 +766,8 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                             {
                                 if (string.IsNullOrEmpty(scripData))
                                     scripData = scripName[j];
-                                else {
+                                else
+                                {
                                     if (stockData.StScripname.Contains("-") && !stockData.StScripname.Split('-')[0].Split(' ').ToList().Contains(" ") && j <= 1)
                                         scripData += scripName[j];
                                     else if (stockData.StScripname.Contains(".") && !stockData.StScripname.Split('.')[0].Split(' ').ToList().Contains(" ") && j <= 1)
@@ -865,7 +867,7 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
 
                 foreach (var stockData in mapStockData)
                 {
-                    var user = users.Where(x => x.UserClientCode.Equals(stockData.StClientcode)).FirstOrDefault();
+                    var user = users.Where(x => string.Compare(x.UserClientCode, stockData.StClientcode, true) == 0).FirstOrDefault();
 
                     if (user is not null)
                     {
@@ -880,8 +882,10 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     if (scripName.ToLower().Contains("FUT".ToLower()))
                     {
                         var name = scripName.Split(" ");
-                        var dateTemp = DateTime.ParseExact(name[2], "ddMMM", CultureInfo.CurrentCulture).ToString();
+                        //var dateTemp = DateTime.ParseExact(name[2], "ddMMM", CultureInfo.InvariantCulture).ToString();
+                        DateTime.TryParseExact(name[2], "ddMMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateConvert);
                         var monthNumber = new string[5];
+                        string dateTemp = dateConvert.ToString();
                         if (dateTemp.Contains("-"))
                         {
                             monthNumber = dateTemp.Split("-");
@@ -897,9 +901,11 @@ namespace CRM_api.Services.Services.Business_Module.Stocks_Module
                     else if (scripName.ToLower().Contains("OPT".ToLower()))
                     {
                         var name = scripName.Split(" ");
-                        var dateTemp = DateTime.ParseExact(name[2], "ddMMM", CultureInfo.CurrentCulture).ToString();
+                        //var dateTemp = DateTime.ParseExact(name[2], "ddMMM", CultureInfo.CurrentCulture).ToString();
+                        DateTime.TryParseExact(name[2], "ddMMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateConvert);
                         var monthNumber = new string[5];
-                        if(dateTemp.Contains("-"))
+                        string dateTemp = dateConvert.ToString();
+                        if (dateTemp.Contains("-"))
                         {
                             monthNumber = dateTemp.Split("-");
                         }

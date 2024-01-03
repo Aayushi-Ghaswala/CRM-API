@@ -21,9 +21,9 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
         }
 
         #region Get All MGain Scheme
-        public async Task<ResponseDto<MGainSchemeDto>> GetMGainSchemeDetailsAsync(bool? IsActive, string? searchingParams, SortingParams sortingParams)
+        public async Task<ResponseDto<MGainSchemeDto>> GetMGainSchemeDetailsAsync(bool? IsCumulative, string? searchingParams, SortingParams sortingParams)
         {
-            var mGainScheme = await _mGainSchemeRepository.GetMGainSchemeDetails(IsActive, searchingParams, sortingParams);
+            var mGainScheme = await _mGainSchemeRepository.GetMGainSchemeDetails(IsCumulative, searchingParams, sortingParams);
             var mapMGainScheme = _mapper.Map<ResponseDto<MGainSchemeDto>>(mGainScheme);
 
             foreach(var scheme in mapMGainScheme.Values)

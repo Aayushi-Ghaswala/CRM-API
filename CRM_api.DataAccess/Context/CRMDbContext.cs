@@ -2007,6 +2007,7 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false);
 
                 entity.Property(e => e.StartDate).HasColumnType("datetime");
+                entity.Property(e => e.IsCumulative).HasColumnName("IsCumulative");
             });
             modelBuilder.Entity<TblMgainSchemeMaster>(entity =>
             {
@@ -2055,6 +2056,7 @@ namespace CRM_api.DataAccess.Context
                     .IsUnicode(false);
 
                 entity.Property(e => e.StartDate).HasColumnType("datetime");
+                entity.Property(e => e.IsCumulative).HasColumnName("IsCumulative");
             });
 
             modelBuilder.Entity<TblMgainTransactionAccountTem>(entity =>

@@ -17,12 +17,13 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         }
 
         #region Get All MGain Scheme
-        public async Task<Response<TblMgainSchemeMaster>> GetMGainSchemeDetails(bool? IsActive, string? searchingParamas, SortingParams sortingParams)
+        public async Task<Response<TblMgainSchemeMaster>> GetMGainSchemeDetails(bool? IsCumulative, string? searchingParamas, SortingParams sortingParams)
         {
             double pageCount = 0;
             List<TblMgainSchemeMaster> tblMgainSchemes = new List<TblMgainSchemeMaster>();
             IQueryable<TblMgainSchemeMaster> mGainScheme = tblMgainSchemes.AsQueryable();
 
+            bool? IsActive = null;
             if (IsActive is true)
                 mGainScheme = _context.TblMgainSchemeMasters.Where(x => x.IsActive == true).AsQueryable();
             else if (IsActive is false)
@@ -39,6 +40,10 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
                 else
                     mGainScheme = _context.Search<TblMgainSchemeMaster>(searchingParamas);
             }
+            
+            if (IsCumulative.HasValue)
+                mGainScheme = mGainScheme.Where(m => m.IsCumulative == IsCumulative);
+
             pageCount = Math.Ceiling(mGainScheme.Count() / sortingParams.PageSize);
 
             //Apply Sorting

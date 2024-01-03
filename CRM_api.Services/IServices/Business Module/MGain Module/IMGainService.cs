@@ -20,7 +20,7 @@ namespace CRM_api.Services.IServices.Business_Module.MGain_Module
         Task<MGainTenYearReportDto> GetMGain10YearsInterestDetailsAsync(string userName, int schemeId, DateTime invDate, decimal mGainAmount, string mGainType);
         Task<InterestCertificateDto> GetMGainIntertestCertificateAsync(int userId, int financialYearId);
         Task<MGainLedgerDto> GetMGainInterestLedgerAsync(int userId, int financialYearId);
-        Task<List<PlotMasterDto>> GetPlotsByProjectIdAsync(int projectId, int? plotId);
+        Task<List<PlotMasterDto>> GetPlotsByProjectIdAsync(int projectId, int? plotId, int mgainId);
         Task<List<MGainCurrancyDto>> GetAllCurrenciesAsync();
         Task<TblMgaindetail> AddMGainDetailAsync(AddMGainDetailsDto addMGainDetails);
         Task<int> AddPaymentDetailsAsync(List<AddMGainPaymentDto> paymentDtos);

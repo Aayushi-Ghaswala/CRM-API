@@ -87,7 +87,6 @@ namespace CRM_api.Services.Services.Business_Module.LI_GI_Module
 
             if (File.Exists(localFilePath))
             {
-                File.Delete(localFilePath);
                 return ("File data already exists.", 0);
             }
 

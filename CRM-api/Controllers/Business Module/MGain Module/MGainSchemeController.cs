@@ -18,11 +18,11 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
 
         #region Get All MGain Scheme Details
         [HttpGet("GetMGainSchemeDetails")]
-        public async Task<IActionResult> GetMGainScheme(bool? IsActive, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetMGainScheme(bool? IsCumulative, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var mGainSchemes = await _mGainSchemeService.GetMGainSchemeDetailsAsync(IsActive, search, sortingParams);
+                var mGainSchemes = await _mGainSchemeService.GetMGainSchemeDetailsAsync(IsCumulative, search, sortingParams);
                 return Ok(mGainSchemes);
             }
             catch (Exception)

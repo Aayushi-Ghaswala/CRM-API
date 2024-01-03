@@ -26,5 +26,6 @@
         public decimal? AdditionalInterest9 { get; set; }
         public decimal? AdditionalInterest10 { get; set; }
         public bool? IsActive { get; set; }
+        public bool? IsCumulative { get; set; }
     }
 }

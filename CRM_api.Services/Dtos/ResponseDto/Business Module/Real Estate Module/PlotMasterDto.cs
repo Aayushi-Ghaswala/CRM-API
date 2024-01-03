@@ -16,5 +16,7 @@
         public decimal? Available_PlotValue { get; set; }
         public decimal? FasttrackCommission { get; set; }
         public string? Purpose { get; set; }
+        public decimal? Alloted_SqFt { get; set; }
+        public decimal? Alloted_SqFtAmt { get; set; }
     }
 }

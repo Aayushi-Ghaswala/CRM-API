@@ -73,6 +73,8 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
                     var plot = await _mGainRepository.GetPlotByProjectAndPlotNo(mGain.MgainProjectname, mGain.MgainPlotno);
                     var mapPlot = _mapper.Map<PlotMasterDto>(plot);
                     mGain.PlotMaster = mapPlot;
+                    mGain.PlotMaster.Alloted_SqFt = mGain.MgainAllocatedsqft;
+                    mGain.PlotMaster.Alloted_SqFtAmt = mGain.MgainAllocatedsqftamt;
                 }
 
                 if (mGain.Mgain2ndprojectname is not null && mGain.Mgain2ndplotno is not null)
@@ -86,6 +88,8 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
                     var plot = await _mGainRepository.GetPlotByProjectAndPlotNo(mGain.Mgain2ndprojectname, mGain.Mgain2ndplotno);
                     var mapPlot = _mapper.Map<PlotMasterDto>(plot);
                     mGain.SecondPlotMaster = mapPlot;
+                    mGain.SecondPlotMaster.Alloted_SqFt = mGain.Mgain2ndallocatedsqft;
+                    mGain.SecondPlotMaster.Alloted_SqFtAmt = mGain.Mgain2ndallocatedsqftamt;
                 }
             }
 
@@ -1757,10 +1761,22 @@ table {{
         #endregion
 
         #region Get Plots By ProjectId
-        public async Task<List<PlotMasterDto>> GetPlotsByProjectIdAsync(int projectId, int? plotId)
+        public async Task<List<PlotMasterDto>> GetPlotsByProjectIdAsync(int projectId, int? plotId, int mgainId)
         {
             var plots = await _mGainRepository.GetPlotsByProjectId(projectId, plotId);
             var mapPlots = _mapper.Map<List<PlotMasterDto>>(plots);
+            var mgain = await _mGainRepository.GetMGainDetailById(mgainId);
+            mapPlots.ForEach(plot =>
+            {
+                if (plot.Id == plotId && mgain.MgainPlotno == plot.PlotNo) 
+                {
+                    plot.Alloted_SqFt = mgain.MgainAllocatedsqft;
+                }
+                else if (plot.Id == plotId && mgain.Mgain2ndplotno == plot.PlotNo)
+                {
+                    plot.Alloted_SqFt = mgain.Mgain2ndallocatedsqft;
+                }
+            });
             return mapPlots;
         }
         #endregion
