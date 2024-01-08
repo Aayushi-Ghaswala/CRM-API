@@ -16,15 +16,15 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         public MGainController(IMGainService mGainService)
         {
             _mGainService = mGainService;
-        }          
+        }
 
         #region Get All MGain Details
         [HttpGet("GetMGainDetails")]
-        public async Task<IActionResult> GetMGainDetails(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetMGainDetails(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, [FromQuery] string? search, [FromQuery] SortingParams sortingParams, int? mgainCompanyId)
         {
             try
             {
-                var mGainDetails = await _mGainService.GetAllMGainDetailsAsync(currencyId, type, isClosed, fromDate, toDate, search, sortingParams);
+                var mGainDetails = await _mGainService.GetAllMGainDetailsAsync(currencyId, type, isClosed, fromDate, toDate, search, sortingParams, mgainCompanyId);
                 return Ok(mGainDetails);
             }
             catch (Exception)
@@ -93,7 +93,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             }
         }
         #endregion
-              
+
         #region MGain Monthly Non-Cumulative Interest Computation & Release
         [HttpGet("MGainMonthlyNon-CumulativeInterest")]
         public async Task<IActionResult> GetNonCumulativeMonthlyReport(int month, int year, int? schemaId, decimal? tds, bool? isPayment, DateTime? crEntryDate, string? crNarration, bool? isSendSMS, string? search, [FromQuery] SortingParams sortingParams)
@@ -221,8 +221,13 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         {
             try
             {
-                var getData = await _mGainService.GetPlotsByProjectIdAsync(projectId, plotId, mgainId);
-                return Ok(getData);
+                if (mgainId != null && mgainId > 0)
+                {
+                    var getData = await _mGainService.GetPlotsByProjectIdAsync(projectId, plotId, mgainId);
+                    return Ok(getData);
+                }
+                else
+                    return Ok(new List<PlotMasterDto>());
             }
             catch (Exception)
             {

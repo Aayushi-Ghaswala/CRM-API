@@ -28,7 +28,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         #endregion
 
         #region Get All MGain Details
-        public async Task<MGainBussinessResponse<TblMgaindetail>> GetMGainDetails(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams)
+        public async Task<MGainBussinessResponse<TblMgaindetail>> GetMGainDetails(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams, int? mgainCompanyId)
         {
             double pageCount = 0;
             List<TblMgaindetail> tblMgaindetails = new List<TblMgaindetail>();
@@ -37,7 +37,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             if (searchingParams != null)
                 mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => (currencyId == null || x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId)) && (type == null || x.MgainType == type) && (isClosed == null || x.MgainIsclosed == isClosed) && (fromDate == null || x.Date >= fromDate) && (toDate == null || x.Date <= toDate)).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster).Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainCompanyMaster).AsQueryable();
             else
-                mGainDetails = _context.TblMgaindetails.Where(x => (currencyId == null || x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId)) && (type == null || x.MgainType == type) && (isClosed == null || x.MgainIsclosed == isClosed) && (fromDate == null || x.Date >= fromDate) && (toDate == null || x.Date <= toDate)).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster).Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainCompanyMaster).AsQueryable();
+                mGainDetails = _context.TblMgaindetails.Where(x => (currencyId == null || x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId)) && (type == null || x.MgainType == type) && (isClosed == null || x.MgainIsclosed == isClosed) && (fromDate == null || x.Date >= fromDate) && (toDate == null || x.Date <= toDate) && (mgainCompanyId == null || x.MgainCompanyId == mgainCompanyId)).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster).Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainCompanyMaster).AsQueryable();
 
             pageCount = Math.Ceiling(mGainDetails.Count() / sortingParams.PageSize);
 

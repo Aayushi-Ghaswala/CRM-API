@@ -8,7 +8,7 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.MGain_Module
     public interface IMGainRepository
     {
         Task<int> GetMonthlyMGainDetailByUserId(int userId, DateTime date);
-        Task<MGainBussinessResponse<TblMgaindetail>> GetMGainDetails(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams);
+        Task<MGainBussinessResponse<TblMgaindetail>> GetMGainDetails(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams, int? mgainCompanyId);
         Task<IQueryable<TblMgaindetail>> GetAllMGainDetailsMonthly(int? schemeId, string? searchingParams, SortingParams sortingParams, string mgainType, DateTime date);
         Task<TblMgaindetail> GetMGainDetailById(int id);
         Task<List<TblMgainPaymentMethod>> GetPaymentByMGainId(int mGainId);

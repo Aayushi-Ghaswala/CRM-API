@@ -7,7 +7,7 @@ namespace CRM_api.Services.IServices.Business_Module.MGain_Module
 {
     public interface IMGainService
     {
-        Task<MGainResponseDto<MGainDetailsDto>> GetAllMGainDetailsAsync(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams);
+        Task<MGainResponseDto<MGainDetailsDto>> GetAllMGainDetailsAsync(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams, int? mgainCompanyId);
         Task<List<MGainPaymentDto>> GetPaymentByMgainIdAsync(int mGainId);
         Task<string> MGainAggrementAsync(int mGainId);
         Task<MGainPDFResponseDto> GenerateMGainAggrementAsync(int id, string htmlContent);

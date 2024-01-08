@@ -55,9 +55,9 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
         }
 
         #region Get All MGain Details
-        public async Task<MGainResponseDto<MGainDetailsDto>> GetAllMGainDetailsAsync(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams)
+        public async Task<MGainResponseDto<MGainDetailsDto>> GetAllMGainDetailsAsync(int? currencyId, string? type, bool? isClosed, DateTime? fromDate, DateTime? toDate, string? searchingParams, SortingParams sortingParams, int? mgainCompanyId)
         {
-            var mGainDetails = await _mGainRepository.GetMGainDetails(currencyId, type, isClosed, fromDate, toDate, searchingParams, sortingParams);
+            var mGainDetails = await _mGainRepository.GetMGainDetails(currencyId, type, isClosed, fromDate, toDate, searchingParams, sortingParams, mgainCompanyId);
             var mapMGainDetails = _mapper.Map<MGainResponseDto<MGainDetailsDto>>(mGainDetails);
 
             foreach (var mGain in mapMGainDetails.response.Values)
