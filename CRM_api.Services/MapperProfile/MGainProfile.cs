@@ -81,6 +81,19 @@ namespace CRM_api.Services.MapperProfile
                     if (dto.MgainIsclosed is true)
                         entity.MgainIsactive = false;
                 });
+
+            CreateMap<AddMGainPlotDetailsDto, TblMgainPlotData>();
+            CreateMap<TblMgainPlotData, MGainPlotDto>();
+            CreateMap<TblMgainPlotData, MGainPlotDetailsDto>()
+                .ForMember(x => x.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(x => x.ProjectName, opt => opt.MapFrom(src => src.TblProjectMaster.Name))
+                .ForMember(x => x.PlotNo, opt => opt.MapFrom(src => src.TblPlotMaster.PlotNo))
+                .ForMember(x => x.AllocatedSqFt, opt => opt.MapFrom(src => src.AllocatedSqFt))
+                .ForMember(x => x.AllocatedAmt, opt => opt.MapFrom(src => src.AllocatedAmt))
+                .ForMember(x => x.MgainId, opt => opt.MapFrom(src => src.MgainId))
+                .ForMember(x => x.ProjectId, opt => opt.MapFrom(src => src.ProjectId))
+                .ForMember(x => x.PlotId, opt => opt.MapFrom(src => src.PlotId));
+
         }
     }
 }

@@ -8,7 +8,7 @@ namespace CRM_api.Services.IServices.Business_Module.Real_Estate_Module
 {
     public interface IPlotService
     {
-        Task<ResponseDto<PlotMasterDto>> GetPlotAsync(int? projectId, string? purpose, string? search, SortingParams sortingParams);
+        Task<ResponseDto<PlotMasterDto>> GetPlotAsync(int? projectId, string? purpose, string? search, SortingParams sortingParams, string? assignStatus);
         Task<int> AddPlotAsync(AddPlotDto addPlot);
         Task<int> UpdatePlotAsync(UpdatePlotDto updatePlot);
         Task<int> DeletePlotAsync(int id);

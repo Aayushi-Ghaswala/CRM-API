@@ -27,7 +27,7 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
                 var mGainDetails = await _mGainService.GetAllMGainDetailsAsync(currencyId, type, isClosed, fromDate, toDate, search, sortingParams, mgainCompanyId);
                 return Ok(mGainDetails);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;
@@ -221,13 +221,13 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
         {
             try
             {
-                if (mgainId != null && mgainId > 0)
-                {
+                //if (mgainId != null && mgainId > 0)
+                //{
                     var getData = await _mGainService.GetPlotsByProjectIdAsync(projectId, plotId, mgainId);
                     return Ok(getData);
-                }
-                else
-                    return Ok(new List<PlotMasterDto>());
+                //}
+                //else
+                //    return Ok(new List<PlotMasterDto>());
             }
             catch (Exception)
             {
@@ -366,7 +366,57 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
                 throw;
             }
         }
-        #endregion 
+        #endregion
+
+        #region Add MGain Plot Details
+        [HttpPost("AddUpdateMgainPlots")]
+        public async Task<IActionResult> AddMGainPlot(List<AddMGainPlotDetailsDto> plotDtos)
+        {
+            try
+            {
+                var mGainPlot = await _mGainService.AddMgainPlotDetailsAsync(plotDtos);
+                return mGainPlot != 0 ? Ok(new { Message = "Plot details added successfully." }) : BadRequest(new { Message = "Unable to add Plot Details." });
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region Delete MGain Plot Details
+        [HttpDelete("DeleteMGainPlot")]
+        public async Task<IActionResult> DeleteMGainPlot(int id)
+        {
+            try
+            {
+                var deleteData = await _mGainService.DeleteMgainPlotDetailsAsync(id);
+                return deleteData != 0 ? Ok(new { Message = "MGain plot deleted successfully." }) : BadRequest(new { Message = "Unable to delete mgain plot." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get Plots Details By MGain Id
+        [HttpGet("GetPlotsByMGainId")]
+        public async Task<IActionResult> GetPlotsByMGainId(int mGainId)
+        {
+            try
+            {
+                var getData = await _mGainService.GetMGainPlotDetails(mGainId);
+                return Ok(getData);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
 
     }
 }

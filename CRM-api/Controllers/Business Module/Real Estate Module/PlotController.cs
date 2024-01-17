@@ -19,11 +19,11 @@ namespace CRM_api.Controllers.Business_Module.Real_Estate_Module
 
         #region Get Plot
         [HttpGet("GetPlot")]
-        public async Task<IActionResult> GetPlot(int? projectId, string? purpose, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
+        public async Task<IActionResult> GetPlot(int? projectId, string? purpose, string? assignStatus, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
         {
             try
             {
-                var plot = await _plotService.GetPlotAsync(projectId, purpose, search, sortingParams);
+                var plot = await _plotService.GetPlotAsync(projectId, purpose, search, sortingParams, assignStatus);
                 return Ok(plot);
             }
             catch (Exception)

@@ -22,9 +22,9 @@ namespace CRM_api.Services.Services.Business_Module.Real_Estate_Module
         }
 
         #region Get All Plot
-        public async Task<ResponseDto<PlotMasterDto>> GetPlotAsync(int? projectId, string? purpose, string? search, SortingParams sortingParams)
+        public async Task<ResponseDto<PlotMasterDto>> GetPlotAsync(int? projectId, string? purpose, string? search, SortingParams sortingParams, string? assignStatus)
         {
-            var plots = await _plotRepository.GetPlots(projectId, purpose, search, sortingParams);
+            var plots = await _plotRepository.GetPlots(projectId, purpose, search, sortingParams, assignStatus);
             return _mapper.Map<ResponseDto<PlotMasterDto>>(plots);
         }
         #endregion

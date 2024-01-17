@@ -28,5 +28,8 @@ namespace CRM_api.Services.IServices.Business_Module.MGain_Module
         Task<int> UpdateMGainPaymentAsync(List<UpdateMGainPaymentDto> updateMGainPayment);
         Task<int> DeleteMGainPaymentAsync(int id);
         Task<MGainPDFResponseDto> MGainPdfFiles(int id, string file);
+        Task<int> AddMgainPlotDetailsAsync(List<AddMGainPlotDetailsDto> plotDto);
+        Task<int> DeleteMgainPlotDetailsAsync(int id);
+        Task<IList<MGainPlotDetailsDto>> GetMGainPlotDetails(int mgainId);
     }
 }

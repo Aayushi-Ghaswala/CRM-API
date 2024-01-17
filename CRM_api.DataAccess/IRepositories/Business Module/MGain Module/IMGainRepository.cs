@@ -31,5 +31,8 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.MGain_Module
         Task<int> UpdateMGainPayment(TblMgainPaymentMethod tblMgainPayment);
         Task<int> UpdatePlotDetails(List<TblPlotMaster> tblPlotMaster);
         Task<int> DeleteMGainPayment(TblMgainPaymentMethod tblMgainPayment);
+        Task<int> AddMGainPlotDetails(List<TblMgainPlotData> tblMgainPlots);
+        Task<int> DeleteMGainPlotDetails(int Id);
+        Task<IList<TblMgainPlotData>> GetMGainPlotDetails(int mgainId);
     }
 }

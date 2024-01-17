@@ -35,9 +35,9 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             IQueryable<TblMgaindetail> mGainDetails = tblMgaindetails.AsQueryable();
 
             if (searchingParams != null)
-                mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => (currencyId == null || x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId)) && (type == null || x.MgainType == type) && (isClosed == null || x.MgainIsclosed == isClosed) && (fromDate == null || x.Date >= fromDate) && (toDate == null || x.Date <= toDate)).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster).Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainCompanyMaster).AsQueryable();
+                mGainDetails = _context.Search<TblMgaindetail>(searchingParams).Where(x => (currencyId == null || x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId)) && (type == null || x.MgainType == type) && (isClosed == null || x.MgainIsclosed == isClosed) && (fromDate == null || x.Date >= fromDate) && (toDate == null || x.Date <= toDate)).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster).Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainCompanyMaster).Include(x => x.TblMgainPlots).ThenInclude(x => x.TblPlotMaster).ThenInclude(x => x.TblProjectMaster).AsQueryable();
             else
-                mGainDetails = _context.TblMgaindetails.Where(x => (currencyId == null || x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId)) && (type == null || x.MgainType == type) && (isClosed == null || x.MgainIsclosed == isClosed) && (fromDate == null || x.Date >= fromDate) && (toDate == null || x.Date <= toDate) && (mgainCompanyId == null || x.MgainCompanyId == mgainCompanyId)).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster).Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainCompanyMaster).AsQueryable();
+                mGainDetails = _context.TblMgaindetails.Where(x => (currencyId == null || x.TblMgainPaymentMethods.Any(x => x.CurrancyId == currencyId)) && (type == null || x.MgainType == type) && (isClosed == null || x.MgainIsclosed == isClosed) && (fromDate == null || x.Date >= fromDate) && (toDate == null || x.Date <= toDate) && (mgainCompanyId == null || x.MgainCompanyId == mgainCompanyId)).Include(x => x.TblMgainPaymentMethods).ThenInclude(x => x.TblMgainCurrancyMaster).Include(x => x.TblUserMaster).Include(x => x.EmployeeMaster).Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainCompanyMaster).Include(x => x.TblMgainPlots).ThenInclude(x => x.TblPlotMaster).ThenInclude(x => x.TblProjectMaster).AsQueryable();
 
             pageCount = Math.Ceiling(mGainDetails.Count() / sortingParams.PageSize);
 
@@ -160,7 +160,7 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         public async Task<List<TblPlotMaster>> GetPlotsByProjectId(int projectId, int? plotId)
         {
             double pageCount = 0;
-            var plots = _context.TblPlotMasters.Where(x => x.ProjectId == projectId && x.Purpose.ToLower().Equals("mgain")).Include(x => x.TblProjectMaster).ToList();
+            var plots = await _context.TblPlotMasters.Where(x => x.ProjectId == projectId && x.Purpose.ToLower().Equals("mgain")).Include(x => x.TblProjectMaster).OrderBy(x => x.PlotNo).ToListAsync();
 
             if (plotId != 0)
             {
@@ -321,5 +321,55 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
             return await _context.SaveChangesAsync();
         }
         #endregion
+
+
+        #region Get Plot List by Mgain Id
+        public async Task<IList<TblMgainPlotData>> GetMGainPlotDetails(int mgainId)
+        {
+            return await _context.TblMgainPlotData.Where(x => x.MgainId == mgainId).Include(x => x.TblPlotMaster).Include(x => x.TblProjectMaster).ToListAsync();
+        }
+        #endregion
+
+        #region Add Mgain Plot Details
+        public async Task<int> AddMGainPlotDetails(List<TblMgainPlotData> tblMgainPlots)
+        {
+            var plots = new List<TblPlotMaster>();
+            tblMgainPlots.ForEach(async item =>
+            {
+                var plot = _context.TblPlotMasters.Find(item.PlotId);
+                var availableSqFt = plot.Available_SqFt.HasValue ? plot.Available_SqFt : plot.SqFt;
+                plot.Available_SqFt = availableSqFt - item.AllocatedSqFt;
+
+                var availableAmt = plot.Available_PlotValue.HasValue ? plot.Available_PlotValue : plot.PlotValue;
+                plot.Available_PlotValue = availableAmt - item.AllocatedAmt;
+                plots.Add(plot);
+            });
+
+            await _context.TblMgainPlotData.AddRangeAsync(tblMgainPlots);
+            await _context.SaveChangesAsync();
+
+            return await UpdatePlotDetails(plots);
+        }
+        #endregion
+
+        #region Delete MGain Plot Details
+        public async Task<int> DeleteMGainPlotDetails(int Id)
+        {
+            var mgainplot = await _context.TblMgainPlotData.FindAsync(Id);
+            _context.TblMgainPlotData.Remove(mgainplot);
+
+            var plot = await _context.TblPlotMasters.FindAsync(mgainplot.PlotId);
+
+            var totalAmt = plot.Available_PlotValue + mgainplot.AllocatedAmt;
+            plot.Available_PlotValue = totalAmt > plot.PlotValue ? plot.PlotValue : totalAmt;
+
+            var totalSqFt = plot.Available_SqFt + mgainplot.AllocatedSqFt;
+            plot.Available_SqFt = totalSqFt > plot.SqFt ? plot.SqFt : totalSqFt;
+
+            _context.TblPlotMasters.Update(plot);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
     }
 }

@@ -17,7 +17,7 @@ namespace CRM_api.DataAccess.Repositories.Real_Estate_Module
         }
 
         #region Get All Plot
-        public async Task<Response<TblPlotMaster>> GetPlots(int? projectId, string? purpose, string? search, SortingParams sortingParams)
+        public async Task<Response<TblPlotMaster>> GetPlots(int? projectId, string? purpose, string? search, SortingParams sortingParams, string? assignStatus)
         {
             double? pageCount = 0;
             IQueryable<TblPlotMaster> plots = new List<TblPlotMaster>().AsQueryable();
@@ -26,6 +26,11 @@ namespace CRM_api.DataAccess.Repositories.Real_Estate_Module
                 plots = _context.Search<TblPlotMaster>(search).Where(x => (projectId == null || x.ProjectId == projectId) && (purpose == null || x.Purpose.ToLower().Equals(purpose.ToLower()))).Include(x => x.TblProjectMaster).AsQueryable();
             else
                 plots = _context.TblPlotMasters.Where(x => (projectId == null || x.ProjectId == projectId) && (purpose == null || x.Purpose.ToLower().Equals(purpose.ToLower()))).Include(x => x.TblProjectMaster).AsQueryable();
+
+            if (assignStatus == "Allocated")
+                plots = plots.Where(x => (assignStatus == null || _context.TblMgainPlotData.Any(m => m.PlotId == x.Id)));
+            else if (assignStatus == "UnAllocated")
+                plots = plots.Where(x => (assignStatus == null || !_context.TblMgainPlotData.Any(m => m.PlotId == x.Id)));
 
             pageCount = Math.Ceiling(plots.Count() / sortingParams.PageSize);
 

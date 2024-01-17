@@ -93,5 +93,7 @@ namespace CRM_api.DataAccess.Models
         public virtual TblCompanyMaster? TblMgainCompanyMaster { get; set; }
 
         public virtual ICollection<TblMgainPaymentMethod>? TblMgainPaymentMethods { get; set; }
+
+        public virtual ICollection<TblMgainPlotData>? TblMgainPlots { get; set; }
     }
 }

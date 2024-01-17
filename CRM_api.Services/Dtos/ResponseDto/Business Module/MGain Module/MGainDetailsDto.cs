@@ -93,5 +93,6 @@ namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
 
         public List<MGainPaymentDto> TblMgainPaymentMethods { get; set; }
         public CompanyMasterDto TblMgainCompanyMaster { get; set; }
+        public List<MGainPlotDto> TblMgainPlots { get; set; }
     }
 }

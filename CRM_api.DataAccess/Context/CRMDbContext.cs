@@ -125,6 +125,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<vw_Mftransaction> Vw_Mftransactions  { get; set; } = null!;
         public virtual DbSet<vw_MFChartHolding> Vw_MFChartHoldings { get; set; } = null!;
         public virtual DbSet<vw_StockData> Vw_StockDatas { get; set; } = null!;
+        public virtual DbSet<TblMgainPlotData> TblMgainPlotData { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -4140,6 +4141,33 @@ namespace CRM_api.DataAccess.Context
             modelBuilder.HasSequence<int>("realEastateId")
                 .HasMin(1)
                 .HasMax(100000);
+
+            modelBuilder.Entity<TblMgainPlotData>(entity =>
+            {
+                entity.ToTable("tbl_mgain_plot_data");
+
+                entity.Property(e => e.Id).HasColumnName("Id");
+                entity.Property(e => e.MgainId).HasColumnName("MgainId");
+                entity.Property(e => e.ProjectId).HasColumnName("ProjectId");
+                entity.Property(e => e.PlotId).HasColumnName("PlotId");
+
+                entity.Property(e => e.AllocatedSqFt)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("AllocatedSqFt");
+
+                entity.Property(e => e.AllocatedAmt)
+                    .HasColumnType("decimal(24, 2)")
+                    .HasColumnName("AllocatedAmt");
+
+                entity.Property(e => e.TotalSqFt)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("TotalSqFt");
+
+                entity.Property(e => e.TotalPlotAmt)
+                    .HasColumnType("decimal(24, 2)")
+                    .HasColumnName("TotalPlotAmt");
+
+            });
 
             OnModelCreatingPartial(modelBuilder);
         }

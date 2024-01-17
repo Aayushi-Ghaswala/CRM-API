@@ -12,11 +12,9 @@ using CRM_api.Services.Helper.ConstantValue;
 using CRM_api.Services.Helper.Reminder_Helper;
 using CRM_api.Services.IServices.Account_Module;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
-using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SelectPdf;
-using System.IO;
 using static CRM_api.Services.Helper.ConstantValue.GenderConstant;
 using static CRM_api.Services.Helper.ConstantValue.MaritalStatusConstant;
 using static CRM_api.Services.Helper.ConstantValue.MGainAccountPaymentConstant;
@@ -1765,18 +1763,18 @@ table {{
         {
             var plots = await _mGainRepository.GetPlotsByProjectId(projectId, plotId);
             var mapPlots = _mapper.Map<List<PlotMasterDto>>(plots);
-            var mgain = await _mGainRepository.GetMGainDetailById(mgainId);
-            mapPlots.ForEach(plot =>
-            {
-                if (plot.Id == plotId && mgain.MgainPlotno == plot.PlotNo) 
-                {
-                    plot.Alloted_SqFt = mgain.MgainAllocatedsqft;
-                }
-                else if (plot.Id == plotId && mgain.Mgain2ndplotno == plot.PlotNo)
-                {
-                    plot.Alloted_SqFt = mgain.Mgain2ndallocatedsqft;
-                }
-            });
+            //var mgain = await _mGainRepository.GetMGainDetailById(mgainId);
+            //mapPlots.ForEach(plot =>
+            //{
+            //    if (plot.Id == plotId && mgain.MgainPlotno == plot.PlotNo) 
+            //    {
+            //        plot.Alloted_SqFt = mgain.MgainAllocatedsqft;
+            //    }
+            //    else if (plot.Id == plotId && mgain.Mgain2ndplotno == plot.PlotNo)
+            //    {
+            //        plot.Alloted_SqFt = mgain.Mgain2ndallocatedsqft;
+            //    }
+            //});
             return mapPlots;
         }
         #endregion
@@ -2963,6 +2961,27 @@ table {{
             {
                 return null;
             }
+        }
+        #endregion
+
+        #region Add Mgain Plot Details
+        public async Task<int> AddMgainPlotDetailsAsync(List<AddMGainPlotDetailsDto> plotDtos)
+        {
+            var mGainPlots = _mapper.Map<List<TblMgainPlotData>>(plotDtos.Where(x => !x.Id.HasValue || x.Id <= 0).ToList());
+            return await _mGainRepository.AddMGainPlotDetails(mGainPlots);
+        }
+        #endregion
+
+        #region Delete MGain Plot Details
+        public async Task<int> DeleteMgainPlotDetailsAsync(int id)
+        {
+            return await _mGainRepository.DeleteMGainPlotDetails(id);
+        }
+        #endregion
+
+        #region Get Plot list by mgain id 
+        public async Task<IList<MGainPlotDetailsDto>> GetMGainPlotDetails(int mgainId) {
+            return _mapper.Map<IList<MGainPlotDetailsDto>>(await _mGainRepository.GetMGainPlotDetails(mgainId));
         }
         #endregion
 
