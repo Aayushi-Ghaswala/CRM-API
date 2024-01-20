@@ -5,6 +5,7 @@ using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.Real_Estate_Module;
 using CRM_api.Services.Dtos.AddDataDto.Real_Estate_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module;
+using CRM_api.Services.Dtos.ResponseDto.Business_Module.Real_Estate_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 using CRM_api.Services.IServices.Business_Module.Real_Estate_Module;
 
@@ -22,10 +23,19 @@ namespace CRM_api.Services.Services.Business_Module.Real_Estate_Module
         }
 
         #region Get All Plot
-        public async Task<ResponseDto<PlotMasterDto>> GetPlotAsync(int? projectId, string? purpose, string? search, SortingParams sortingParams, string? assignStatus)
+        public async Task<PlotResponseDto<PlotMasterDto>> GetPlotAsync(int? projectId, string? purpose, string? search, SortingParams sortingParams, string? assignStatus)
         {
-            var plots = await _plotRepository.GetPlots(projectId, purpose, search, sortingParams, assignStatus);
-            return _mapper.Map<ResponseDto<PlotMasterDto>>(plots);
+            try
+            {
+
+                var plots = await _plotRepository.GetPlots(projectId, purpose, search, sortingParams, assignStatus);
+                return _mapper.Map<PlotResponseDto<PlotMasterDto>>(plots);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
         }
         #endregion
 

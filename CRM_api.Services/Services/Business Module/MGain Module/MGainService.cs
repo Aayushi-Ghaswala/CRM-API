@@ -58,38 +58,38 @@ namespace CRM_api.Services.Services.Business_Module.MGain_Module
             var mGainDetails = await _mGainRepository.GetMGainDetails(currencyId, type, isClosed, fromDate, toDate, searchingParams, sortingParams, mgainCompanyId);
             var mapMGainDetails = _mapper.Map<MGainResponseDto<MGainDetailsDto>>(mGainDetails);
 
-            foreach (var mGain in mapMGainDetails.response.Values)
-            {
-                if (mGain.MgainProjectname is not null && mGain.MgainPlotno is not null)
-                {
-                    //Find project
-                    var project = await _mGainRepository.GetProjectByProjectName(mGain.MgainProjectname);
-                    var mapProject = _mapper.Map<ProjectMasterDto>(project);
-                    mGain.ProjectMaster = mapProject;
+            //foreach (var mGain in mapMGainDetails.response.Values)
+            //{
+            //    if (mGain.MgainProjectname is not null && mGain.MgainPlotno is not null)
+            //    {
+            //        //Find project
+            //        var project = await _mGainRepository.GetProjectByProjectName(mGain.MgainProjectname);
+            //        var mapProject = _mapper.Map<ProjectMasterDto>(project);
+            //        mGain.ProjectMaster = mapProject;
 
-                    //Find plot
-                    var plot = await _mGainRepository.GetPlotByProjectAndPlotNo(mGain.MgainProjectname, mGain.MgainPlotno);
-                    var mapPlot = _mapper.Map<PlotMasterDto>(plot);
-                    mGain.PlotMaster = mapPlot;
-                    mGain.PlotMaster.Alloted_SqFt = mGain.MgainAllocatedsqft;
-                    mGain.PlotMaster.Alloted_SqFtAmt = mGain.MgainAllocatedsqftamt;
-                }
+            //        //Find plot
+            //        var plot = await _mGainRepository.GetPlotByProjectAndPlotNo(mGain.MgainProjectname, mGain.MgainPlotno);
+            //        var mapPlot = _mapper.Map<PlotMasterDto>(plot);
+            //        mGain.PlotMaster = mapPlot;
+            //        mGain.PlotMaster.Alloted_SqFt = mGain.MgainAllocatedsqft;
+            //        mGain.PlotMaster.Alloted_SqFtAmt = mGain.MgainAllocatedsqftamt;
+            //    }
 
-                if (mGain.Mgain2ndprojectname is not null && mGain.Mgain2ndplotno is not null)
-                {
-                    //Find project
-                    var project = await _mGainRepository.GetProjectByProjectName(mGain.Mgain2ndprojectname);
-                    var mapProject = _mapper.Map<ProjectMasterDto>(project);
-                    mGain.SecondProjectMaster = mapProject;
+            //    if (mGain.Mgain2ndprojectname is not null && mGain.Mgain2ndplotno is not null)
+            //    {
+            //        //Find project
+            //        var project = await _mGainRepository.GetProjectByProjectName(mGain.Mgain2ndprojectname);
+            //        var mapProject = _mapper.Map<ProjectMasterDto>(project);
+            //        mGain.SecondProjectMaster = mapProject;
 
-                    //Find plot
-                    var plot = await _mGainRepository.GetPlotByProjectAndPlotNo(mGain.Mgain2ndprojectname, mGain.Mgain2ndplotno);
-                    var mapPlot = _mapper.Map<PlotMasterDto>(plot);
-                    mGain.SecondPlotMaster = mapPlot;
-                    mGain.SecondPlotMaster.Alloted_SqFt = mGain.Mgain2ndallocatedsqft;
-                    mGain.SecondPlotMaster.Alloted_SqFtAmt = mGain.Mgain2ndallocatedsqftamt;
-                }
-            }
+            //        //Find plot
+            //        var plot = await _mGainRepository.GetPlotByProjectAndPlotNo(mGain.Mgain2ndprojectname, mGain.Mgain2ndplotno);
+            //        var mapPlot = _mapper.Map<PlotMasterDto>(plot);
+            //        mGain.SecondPlotMaster = mapPlot;
+            //        mGain.SecondPlotMaster.Alloted_SqFt = mGain.Mgain2ndallocatedsqft;
+            //        mGain.SecondPlotMaster.Alloted_SqFtAmt = mGain.Mgain2ndallocatedsqftamt;
+            //    }
+            //}
 
             return mapMGainDetails;
         }

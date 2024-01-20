@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
+﻿namespace CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module
 {
     public class MGainPlotDto
     {
