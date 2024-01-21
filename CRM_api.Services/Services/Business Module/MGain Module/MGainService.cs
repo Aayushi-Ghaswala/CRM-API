@@ -1129,7 +1129,7 @@ SURAT - 395009 <p>
         #endregion
 
         #region MGain Monthly Non-Cumulative Interest Computation & Release
-        public async Task<(MGainNCmonthlyTotalDto, string)> GetNonCumulativeMonthlyReportAsync(int month, int year, int? schemeId, decimal? tds, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? searchingParams, SortingParams sortingParams, bool? isSendSMS, bool isJournal = false, string jvNarration = null, DateTime? jvEntryDate = null)
+        public async Task<(MGainNCmonthlyTotalDto, string)> GetNonCumulativeMonthlyReportAsync(int month, int year, int? schemeId, decimal? tds, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? searchingParams, SortingParams sortingParams, bool? isSendSMS, int? filterCompanyId, bool isJournal = false, string jvNarration = null, DateTime? jvEntryDate = null)
         {
             DateTime date = new DateTime(year, month, 01); //Convert.ToDateTime("01" + "-" + month + "-" + year);
             //var date1 = Convert.ToDateTime("01" + "-" + month + "-" + year);
@@ -1140,7 +1140,7 @@ SURAT - 395009 <p>
             if (isJournal is false)
                 currentDate = date.AddDays(-1);
 
-            var mGainDetails = await _mGainRepository.GetAllMGainDetailsMonthly(schemeId, searchingParams, sortingParams, MGainTypeConstant.nonCumulative, currentDate);
+            var mGainDetails = await _mGainRepository.GetAllMGainDetailsMonthly(schemeId, searchingParams, sortingParams, MGainTypeConstant.nonCumulative, currentDate, filterCompanyId);
 
             List<MGainNonCumulativeMonthlyReportDto> MGainNonCumulativeMonthlyReports = new List<MGainNonCumulativeMonthlyReportDto>();
             List<TblAccountTransaction> allAccountTransactions = new List<TblAccountTransaction>();

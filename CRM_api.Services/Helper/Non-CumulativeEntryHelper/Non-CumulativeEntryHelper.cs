@@ -13,7 +13,7 @@ namespace CRM_api.Services.Helper.Non_CumulativeEntryHelper
             SortingParams sortingParams = new SortingParams();
             sortingParams.SortBy = "id";
 
-            await iMGainService.GetNonCumulativeMonthlyReportAsync(DateTime.Now.Month, DateTime.Now.Year, null, 10, false, null, null, null, sortingParams, false, true, "M Gain Interest", date);
+            await iMGainService.GetNonCumulativeMonthlyReportAsync(DateTime.Now.Month, DateTime.Now.Year, null, 10, false, null, null, null, sortingParams, false, null,true, "M Gain Interest", date);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace CRM_api.Services.IServices.Business_Module.MGain_Module
         Task<string> MGainAggrementAsync(int mGainId);
         Task<MGainPDFResponseDto> GenerateMGainAggrementAsync(int id, string htmlContent);
         Task<MGainPDFResponseDto> MGainPaymentReceipt(int id);
-        Task<(MGainNCmonthlyTotalDto, string)> GetNonCumulativeMonthlyReportAsync(int month, int year, int? schemeId, decimal? tds, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? searchingParams, SortingParams sortingParams, bool? isSendSMS, bool isJournal = false, string jvNaration = null, DateTime? jvEntryDate = null);
+        Task<(MGainNCmonthlyTotalDto, string)> GetNonCumulativeMonthlyReportAsync(int month, int year, int? schemeId, decimal? tds, bool? isPayment, DateTime? crEntryDate, string? crNarration, string? searchingParams, SortingParams sortingParams, bool? isSendSMS, int? companyId, bool isJournal = false, string jvNaration = null, DateTime? jvEntryDate = null);
         Task<List<MGainValuationDto>> GetValuationReportByUserIdAsync(int UserId);
         Task<MGainPDFResponseDto> ValuationReportPDF(List<MGainValuationDto> mGainValuations);
         Task<MGainTotalInterestPaidDto<MGainUserInterestPaidDto>> GetMonthWiseInterestPaidAsync(int month, int year, string? searchingParams, SortingParams sortingParams);
