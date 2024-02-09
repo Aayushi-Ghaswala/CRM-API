@@ -50,6 +50,7 @@ namespace CRM_api.DataAccess.DataAccessDepedancy
                         sql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                         sql.EnableRetryOnFailure();
                     });
+                options.EnableSensitiveDataLogging();
             });
 
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);

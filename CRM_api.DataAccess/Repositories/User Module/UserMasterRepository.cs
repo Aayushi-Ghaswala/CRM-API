@@ -31,7 +31,8 @@ namespace CRM_api.DataAccess.Repositories.User_Module
                                                     .Include(x => x.TblStateMaster)
                                                     .Include(x => x.TblCityMaster)
                                                     .Include(x => x.ParentName)
-                                                    .Include(x => x.SponserName).AsQueryable();
+                                                    .Include(x => x.SponserName)
+                                                .Include(x => x.TblAccountMasters).AsQueryable();
             }
             else
             {
@@ -41,7 +42,8 @@ namespace CRM_api.DataAccess.Repositories.User_Module
                                                 .Include(x => x.TblStateMaster)
                                                 .Include(x => x.TblCityMaster)
                                                 .Include(x => x.ParentName)
-                                                .Include(x => x.SponserName).AsQueryable();
+                                                .Include(x => x.SponserName)
+                                                .Include(x => x.TblAccountMasters).AsQueryable();
             }
             pageCount = Math.Ceiling((filterData.Count() / sortingParams.PageSize));
 

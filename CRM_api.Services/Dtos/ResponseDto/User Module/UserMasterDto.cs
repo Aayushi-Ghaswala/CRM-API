@@ -1,4 +1,5 @@
-﻿using CRM_api.Services.Dtos.ResponseDto.User_Module;
+﻿using CRM_api.DataAccess.Models;
+using CRM_api.Services.Dtos.ResponseDto.User_Module;
 using System.ComponentModel.DataAnnotations;
 
 namespace CRM_api.Services.Dtos.ResponseDto
@@ -49,5 +50,6 @@ namespace CRM_api.Services.Dtos.ResponseDto
         public string? UserAadharPath { get; set; }
         public string? UserImagePath { get; set; }
         public string? UserPanPath { get; set; }
+        public ICollection<TblAccountMaster>? TblAccountMasters { get; set; }
     }
 }

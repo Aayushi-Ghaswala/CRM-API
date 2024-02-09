@@ -5,6 +5,7 @@ using CRM_api.DataAccess.IRepositories.Business_Module;
 using CRM_api.DataAccess.IRepositories.Business_Module.MGain_Module;
 using CRM_api.DataAccess.IRepositories.User_Module;
 using CRM_api.DataAccess.Models;
+using CRM_api.DataAccess.ResponseModel.Generic_Response;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module;
 using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
@@ -12,6 +13,7 @@ using CRM_api.Services.Helper.ConstantValue;
 using CRM_api.Services.Helper.Reminder_Helper;
 using CRM_api.Services.IServices.Account_Module;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SelectPdf;
@@ -2980,8 +2982,153 @@ table {{
         #endregion
 
         #region Get Plot list by mgain id 
-        public async Task<IList<MGainPlotDetailsDto>> GetMGainPlotDetails(int mgainId) {
+        public async Task<IList<MGainPlotDetailsDto>> GetMGainPlotDetails(int mgainId)
+        {
             return _mapper.Map<IList<MGainPlotDetailsDto>>(await _mGainRepository.GetMGainPlotDetails(mgainId));
+        }
+        #endregion
+
+        #region Add Mgain RedemptionRequest
+        public async Task<int> AddMgainRedemptionRequestAsync(AddMgainRedemptionRequestsDto redemptionDto)
+        {
+            var mGainredemption = _mapper.Map<TblMgainRedemptionRequest>(redemptionDto);
+            return await _mGainRepository.AddMGainRedemptionRequest(mGainredemption);
+        }
+        #endregion
+
+        #region Update Mgain RedemptionRequest
+        public async Task<int> UpdateMgainRedemptionRequestAsync(UpdateMgainRedemptionRequestsDto redemptionDto)
+        {
+                var redemption = await _mGainRepository.GetMGainRedemptionRequestById(redemptionDto.Id);
+                var redemptionUpdate = _mapper.Map<TblMgainRedemptionRequest>(redemptionDto);
+
+                var directoryPath = Directory.GetCurrentDirectory() + "\\wwwroot" + "\\MGain-Documents\\";
+
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+
+                var folderPath = directoryPath + $"{redemption.TblMgainDetails.Mgain1stholder}";
+                var halfPath = "\\MGain-Documents\\" + $"{redemption.TblMgainDetails.Mgain1stholder}";
+
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                if (redemptionDto.RedemptionDocFile is not null)
+                {
+                    if (File.Exists(redemption.RedemptionDoc))
+                    {
+                        File.Delete(redemption.RedemptionDoc);
+                    }
+                    var redemptionFile = redemptionDto.RedemptionDocFile.FileName;
+                    var redemptionPath = Path.Combine(folderPath, redemptionFile);
+
+                    if (File.Exists(redemptionPath))
+                    {
+                        File.Delete(redemptionPath);
+                    }
+
+                    using (var fs = new FileStream(redemptionPath, FileMode.CreateNew, FileAccess.ReadWrite))
+                    {
+                        redemptionDto.RedemptionDocFile.CopyTo(fs);
+                    }
+
+                    redemptionUpdate.RedemptionDoc = halfPath + "\\" + redemptionFile;
+                }
+                else redemptionUpdate.RedemptionDoc = redemption.RedemptionDoc != "undefined" && redemption.RedemptionDoc != "null" ? redemption.RedemptionDoc : "";
+
+                var mgain = await _mGainRepository.GetMGainDetailById(redemptionUpdate.MgainId);
+                mgain.MgainIsclosed = true;
+                if (redemptionUpdate.RedemptionDoc != "")
+                    mgain.MgainRedemption = redemptionUpdate.RedemptionDoc;
+                var rowAffected = await _mGainRepository.UpdateMGainDetails(mgain);
+                rowAffected = await _mGainRepository.UpdateMGainRedemptionRequest(redemptionUpdate);
+
+                return rowAffected;
+        }
+        #endregion
+
+        #region Delete MGain RedemptionRequest
+        public async Task<int> DeleteMgainRedemptionRequestAsync(int id, string? reason)
+        {
+            return await _mGainRepository.DeleteMGainRedemptionRequest(id, reason);
+        }
+        #endregion
+
+        #region Get All MGain RedemptionRequest
+        public async Task<ResponseDto<MgainRedemptionRequestDto>> GetAllMgainRedemptionRequestAsync(string? searchingParams, SortingParams sortingParams)
+        {
+            return _mapper.Map<ResponseDto<MgainRedemptionRequestDto>>(await _mGainRepository.GetAllMGainRedemptionRequest(searchingParams, sortingParams));
+        }
+        #endregion
+
+        #region Get MGain RedemptionRequest by id 
+        public async Task<MgainRedemptionRequestDto> GetMgainRedemptionRequestByIdAsync(int id)
+        {
+            return _mapper.Map<MgainRedemptionRequestDto>(await _mGainRepository.GetMGainRedemptionRequestById(id));
+        }
+        #endregion
+
+        #region Get MGain List By Client Id
+        public async Task<ResponseDto<MGainDetailsDto>> GetMGainListByClientId(int ClientId)
+        {
+            return _mapper.Map<ResponseDto<MGainDetailsDto>>(await _mGainRepository.GetMGainListByClientId(ClientId));
+        }
+        #endregion
+
+        #region MGain Redpemption Interest Calculation
+        public async Task<(double, decimal, decimal)> GetMGainRedemptionAsync(int mgainId, DateTime entryDate)
+        {
+            var mgainDetails = await _mGainRepository.GetMGainDetailById(mgainId);
+
+            var monthStart = new DateTime(entryDate.Year, entryDate.Month, 1);
+
+            var totalDays = entryDate.Subtract(monthStart).TotalDays;
+
+            var schemeDetails = mgainDetails.TblMgainSchemeMaster;
+
+            List<decimal?> interestRates = new List<decimal?>();
+            interestRates.Add(mgainDetails.TblMgainSchemeMaster.Interst1);
+            interestRates.Add(mgainDetails.TblMgainSchemeMaster.Interst2);
+            interestRates.Add(mgainDetails.TblMgainSchemeMaster.Interst3);
+            interestRates.Add(mgainDetails.TblMgainSchemeMaster.Interst4);
+            interestRates.Add(mgainDetails.TblMgainSchemeMaster.Interst5);
+            interestRates.Add(mgainDetails.TblMgainSchemeMaster.Interst6);
+            interestRates.Add(mgainDetails.TblMgainSchemeMaster.Interst7);
+            interestRates.Add(mgainDetails.TblMgainSchemeMaster.Interst8);
+            interestRates.Add(mgainDetails.TblMgainSchemeMaster.Interst9);
+            interestRates.Add(mgainDetails.TblMgainSchemeMaster.Interst10);
+
+            if (mgainDetails.MgainType == "Non-Cumulative")
+            {
+                var first3MonthInterest = ((mgainDetails.MgainInvamt * schemeDetails.Interst1 * ((decimal)1 / 12)) / 100) * 3;
+
+                var mGainDate = mgainDetails.TblMgainPaymentMethods.OrderByDescending(x => x.ChequeDate).FirstOrDefault().ChequeDate.Value;
+
+                var yearDifference = monthStart.Year - mGainDate.Year;
+                var interestRateForLast = interestRates.Skip(yearDifference).First();
+                var months = entryDate.Subtract(mGainDate).TotalDays / 30;
+                if (months < 4)
+                    totalDays = (int)entryDate.Subtract(mGainDate).TotalDays;
+                var interestForCurrent = (mgainDetails.MgainInvamt * interestRateForLast * ((decimal)totalDays / 365)) / 100;
+
+                return (totalDays, Math.Round(first3MonthInterest.Value), Math.Round(interestForCurrent.Value));
+            }
+            else
+            {
+                //Cumulative interest
+                var mGainDate = mgainDetails.TblMgainPaymentMethods.OrderByDescending(x => x.ChequeDate).FirstOrDefault().ChequeDate.Value;
+                var yearDifference = monthStart.Year - mGainDate.Year;
+                var totalInterest = ((mgainDetails.MgainInvamt * schemeDetails.Interst1 * ((decimal)yearDifference / 12)) / 100);
+
+                //var mGainDate = mgainDetails.TblMgainPaymentMethods.OrderByDescending(x => x.ChequeDate).FirstOrDefault().ChequeDate.Value;
+                //var interestForCurrent = (mgainDetails.MgainInvamt * interestRateForLast * ((decimal)totalDays / 365)) / 100;
+
+                return (0, 0, Math.Round(totalInterest.Value));
+            }
         }
         #endregion
 

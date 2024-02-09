@@ -34,5 +34,12 @@ namespace CRM_api.DataAccess.IRepositories.Business_Module.MGain_Module
         Task<int> AddMGainPlotDetails(List<TblMgainPlotData> tblMgainPlots);
         Task<int> DeleteMGainPlotDetails(int Id);
         Task<IList<TblMgainPlotData>> GetMGainPlotDetails(int mgainId);
+        Task<int> AddMGainRedemptionRequest(TblMgainRedemptionRequest tblMgainRedemptionRequest);
+        Task<int> UpdateMGainRedemptionRequest(TblMgainRedemptionRequest tblMgainRedemptionRequest);
+        Task<int> DeleteMGainRedemptionRequest(int Id, string? reason);
+        Task<Response<TblMgainRedemptionRequest>> GetAllMGainRedemptionRequest(string? searchingParams, SortingParams sortingParams);
+        Task<TblMgainRedemptionRequest> GetMGainRedemptionRequestById(int Id);
+        Task<Response<TblMgaindetail>> GetMGainListByClientId(int ClientId);
+
     }
 }

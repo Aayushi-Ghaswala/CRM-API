@@ -2,6 +2,7 @@
 using CRM_api.DataAccess.Models;
 using CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module;
+using CRM_api.Services.Dtos.ResponseDto.Generic_Response;
 
 namespace CRM_api.Services.IServices.Business_Module.MGain_Module
 {
@@ -31,5 +32,12 @@ namespace CRM_api.Services.IServices.Business_Module.MGain_Module
         Task<int> AddMgainPlotDetailsAsync(List<AddMGainPlotDetailsDto> plotDto);
         Task<int> DeleteMgainPlotDetailsAsync(int id);
         Task<IList<MGainPlotDetailsDto>> GetMGainPlotDetails(int mgainId);
+        Task<int> AddMgainRedemptionRequestAsync(AddMgainRedemptionRequestsDto redemptionDto);
+        Task<int> UpdateMgainRedemptionRequestAsync(UpdateMgainRedemptionRequestsDto redemptionDto);
+        Task<int> DeleteMgainRedemptionRequestAsync(int id, string? reason);
+        Task<ResponseDto<MgainRedemptionRequestDto>> GetAllMgainRedemptionRequestAsync(string? searchingParams, SortingParams sortingParams);
+        Task<MgainRedemptionRequestDto> GetMgainRedemptionRequestByIdAsync(int id);
+        Task<ResponseDto<MGainDetailsDto>> GetMGainListByClientId(int ClientId);
+        Task<(double, decimal, decimal)> GetMGainRedemptionAsync(int mgainId, DateTime entryDate);
     }
 }

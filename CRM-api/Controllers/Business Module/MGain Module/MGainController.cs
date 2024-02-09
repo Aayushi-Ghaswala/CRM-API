@@ -3,6 +3,7 @@ using CRM_api.Services.Dtos.AddDataDto.Business_Module.MGain_Module;
 using CRM_api.Services.Dtos.ResponseDto.Business_Module.MGain_Module;
 using CRM_api.Services.Helper.File_Helper;
 using CRM_api.Services.IServices.Business_Module.MGain_Module;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CRM_api.Controllers.Business_Module.MGain_Module
@@ -408,6 +409,124 @@ namespace CRM_api.Controllers.Business_Module.MGain_Module
             try
             {
                 var getData = await _mGainService.GetMGainPlotDetails(mGainId);
+                return Ok(getData);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region Add MGain Redemption Request
+        [HttpPost("AddMgainRedemptionRequest")]
+        public async Task<IActionResult> AddMGainRedemptionRequest([FromForm] AddMgainRedemptionRequestsDto RedemptionRequestDto)
+        {
+            try
+            {
+                var RedemptionRequest = await _mGainService.AddMgainRedemptionRequestAsync(RedemptionRequestDto);
+                return RedemptionRequest != 0 ? Ok(new { Message = "Redemption Request added successfully." }) : BadRequest(new { Message = "Unable to add Redemption Request." });
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region Update MGain Redemption Request
+        [HttpPut("UpdateMgainRedemptionRequest")]
+        public async Task<IActionResult> UpdateMGainRedemptionRequest([FromForm] UpdateMgainRedemptionRequestsDto RedemptionRequestDto)
+        {
+            try
+            {
+                var RedemptionRequest = await _mGainService.UpdateMgainRedemptionRequestAsync(RedemptionRequestDto);
+                return RedemptionRequest != 0 ? Ok(new { Message = "Redemption Request Updateed successfully." }) : BadRequest(new { Message = "Unable to Update Redemption Request." });
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region Delete MGain Redemption Request
+        [HttpDelete("DeleteMGainRedemptionRequest")]
+        public async Task<IActionResult> DeleteMGainRedemptionRequest(int id, string? reason)
+        {
+            try
+            {
+                var deleteData = await _mGainService.DeleteMgainRedemptionRequestAsync(id, reason);
+                return deleteData != 0 ? Ok(new { Message = "MGain Redemption Request deleted successfully." }) : BadRequest(new { Message = "Unable to delete Mgain Redemption Request." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get MGain Redemption Request By Id
+        [HttpGet("GetMGainRedemptionRequestById")]
+        public async Task<IActionResult> GetMGainRedemptionRequestById(int id)
+        {
+            try
+            {
+                var getData = await _mGainService.GetMgainRedemptionRequestByIdAsync(id);
+                return Ok(getData);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get All MGain Redemption Requests
+        [HttpGet("GetAllMGainRedemptionRequests")]
+        public async Task<IActionResult> GetAllMGainRedemptionRequests(int? projectId, string? purpose, string? assignStatus, [FromQuery] string? search, [FromQuery] SortingParams sortingParams)
+        {
+            try
+            {
+                var getData = await _mGainService.GetAllMgainRedemptionRequestAsync(search, sortingParams);
+                return Ok(getData);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get MGain List By Client  Id
+        [HttpGet("GetMGainListByClientId")]
+        public async Task<IActionResult> GetMGainListByClientId(int clientId)
+        {
+            try
+            {
+                var getData = await _mGainService.GetMGainListByClientId(clientId);
+                return Ok(getData);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+        #region Get MGain Redemption Interest Calculation
+        [HttpGet("GetMGainRedemptionInterestCalculation")]
+        public async Task<IActionResult> GetMGainRedemptionInterestCalculation(int mgainId, DateTime entryDate)
+        {
+            try
+            {
+                var getData = await _mGainService.GetMGainRedemptionAsync(mgainId, entryDate);
                 return Ok(getData);
             }
             catch (Exception)

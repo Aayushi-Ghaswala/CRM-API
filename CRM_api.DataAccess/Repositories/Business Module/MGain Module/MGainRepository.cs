@@ -371,5 +371,86 @@ namespace CRM_api.DataAccess.Repositories.Business_Module.MGain_Module
         }
         #endregion
 
+        #region Add Mgain Redemption Request
+        public async Task<int> AddMGainRedemptionRequest(TblMgainRedemptionRequest tblMgainRedemptionRequest)
+        {
+            await _context.TblMgainRedemptionRequests.AddAsync(tblMgainRedemptionRequest);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Update Mgain Redemption Request
+        public async Task<int> UpdateMGainRedemptionRequest(TblMgainRedemptionRequest tblMgainRedemptionRequest)
+        {
+            _context.TblMgainRedemptionRequests.Update(tblMgainRedemptionRequest);
+            return await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Delete MGain Redemption Request
+        public async Task<int> DeleteMGainRedemptionRequest(int Id, string? reason)
+        {
+            var data = await _context.TblMgainRedemptionRequests.FindAsync(Id);
+            data.IsActive = false;
+            data.Reason = reason;
+            return await UpdateMGainRedemptionRequest(data);
+        }
+        #endregion
+
+        #region Get MGain Redemption Request by id
+        public async Task<TblMgainRedemptionRequest> GetMGainRedemptionRequestById(int Id)
+        {
+            var data = await _context.TblMgainRedemptionRequests.Where(x => x.Id == Id).Include(m => m.TblMgainDetails).Include(m => m.TblEmployeeMaster).Include(m => m.TblUserMaster).Include(m => m.TblAccountMaster).AsNoTracking().SingleOrDefaultAsync();
+            return data;
+        }
+        #endregion
+
+        #region Get All MGain Redemption Request
+        public async Task<Response<TblMgainRedemptionRequest>> GetAllMGainRedemptionRequest(string? searchingParams, SortingParams sortingParams)
+        {
+            List<TblMgainRedemptionRequest> tblMgainRedemptions = new List<TblMgainRedemptionRequest>();
+            IQueryable<TblMgainRedemptionRequest> mGainRedemptions = tblMgainRedemptions.AsQueryable();
+
+            if (searchingParams != null)
+                mGainRedemptions = _context.Search<TblMgainRedemptionRequest>(searchingParams).Where(m => m.IsActive == true).Include(m => m.TblMgainDetails).ThenInclude(x=>x.TblMgainCompanyMaster).Include(m => m.TblEmployeeMaster).Include(m => m.TblUserMaster).Include(m => m.TblAccountMaster);
+            else
+                mGainRedemptions = _context.TblMgainRedemptionRequests.Where(m => m.IsActive == true).Include(m => m.TblMgainDetails).ThenInclude(x => x.TblMgainCompanyMaster).Include(m => m.TblEmployeeMaster).Include(m => m.TblUserMaster).Include(m => m.TblAccountMaster);
+
+            var pageCount = Math.Ceiling(mGainRedemptions.Count() / sortingParams.PageSize);
+
+            //Apply Sorting
+            var sortedData = SortingExtensions.ApplySorting(mGainRedemptions, sortingParams.SortBy, sortingParams.IsSortAscending);
+
+            //Apply Pagination
+            var paginatedData = SortingExtensions.ApplyPagination(sortedData, sortingParams.PageNumber, sortingParams.PageSize).ToList();
+
+            var data = new Response<TblMgainRedemptionRequest>()
+            {
+                Values = paginatedData,
+                Pagination = new Pagination()
+                {
+                    Count = (int)pageCount,
+                    CurrentPage = sortingParams.PageNumber
+                }
+            };
+
+            return data;
+        }
+        #endregion
+
+        #region Get MGain List By Client Id
+        public async Task<Response<TblMgaindetail>> GetMGainListByClientId(int ClientId)
+        {
+            var mGainDetails = await _context.TblMgaindetails.Where(x => x.MgainUserid == ClientId).Include(x => x.TblMgainPaymentMethods)
+                .Include(x => x.TblMgainSchemeMaster).Include(x => x.TblMgainCompanyMaster).ToListAsync();
+
+            var mgainList = new Response<TblMgaindetail>()
+            {
+                Values = mGainDetails
+            };
+            return mgainList;
+        }
+        #endregion
+
     }
 }

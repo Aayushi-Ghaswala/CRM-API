@@ -126,6 +126,7 @@ namespace CRM_api.DataAccess.Context
         public virtual DbSet<vw_MFChartHolding> Vw_MFChartHoldings { get; set; } = null!;
         public virtual DbSet<vw_StockData> Vw_StockDatas { get; set; } = null!;
         public virtual DbSet<TblMgainPlotData> TblMgainPlotData { get; set; } = null!;
+        public virtual DbSet<TblMgainRedemptionRequest> TblMgainRedemptionRequests { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -4166,6 +4167,53 @@ namespace CRM_api.DataAccess.Context
                 entity.Property(e => e.TotalPlotAmt)
                     .HasColumnType("decimal(24, 2)")
                     .HasColumnName("TotalPlotAmt");
+
+            });
+
+            modelBuilder.Entity<TblMgainRedemptionRequest>(entity =>
+            {
+                entity.ToTable("tbl_mgain_redemption_requests");
+
+                entity.Property(e => e.Id).HasColumnName("Id");
+                entity.Property(e => e.MgainId).HasColumnName("MgainId");
+                entity.Property(e => e.EmployeeId).HasColumnName("EmployeeId");
+                entity.Property(e => e.UserId).HasColumnName("UserId");
+                entity.Property(e => e.AccountId).HasColumnName("AccountId");
+
+                entity.Property(e => e.RecordDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("RecordDate");
+
+                entity.Property(e => e.RedemptionAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("RedemptionAmount");
+
+                entity.Property(e => e.First3MonthInterest)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("First3MonthInterest");
+
+                entity.Property(e => e.TotalInterest)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("TotalInterest");
+
+                entity.Property(e => e.MaturityAmount)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("MaturityAmount");
+
+                entity.Property(e => e.AmountDeducted)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("AmountDeducted");
+
+                entity.Property(e => e.RedemptionDoc).HasColumnName("RedemptionDoc");
+
+                entity.Property(e => e.NoOfDays).HasColumnName("NoOfDays");
+                entity.Property(e => e.DaysInterest)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasColumnName("DaysInterest");
+
+                entity.Property(e => e.RedemptionDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("RedemptionDate");
 
             });
 

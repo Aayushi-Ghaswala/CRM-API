@@ -96,6 +96,10 @@ namespace CRM_api.Services.MapperProfile
                 .ForMember(x => x.ProjectId, opt => opt.MapFrom(src => src.ProjectId))
                 .ForMember(x => x.PlotId, opt => opt.MapFrom(src => src.PlotId));
 
+            CreateMap<Response<TblMgainRedemptionRequest>, ResponseDto<MgainRedemptionRequestDto>>();
+            CreateMap<TblMgainRedemptionRequest, MgainRedemptionRequestDto>();
+            CreateMap<AddMgainRedemptionRequestsDto, TblMgainRedemptionRequest>();
+            CreateMap<UpdateMgainRedemptionRequestsDto, TblMgainRedemptionRequest>();
 
         }
     }
